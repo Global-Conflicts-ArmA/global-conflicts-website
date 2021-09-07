@@ -1,0 +1,49 @@
+[
+   {
+      "slug": "getting-started",
+      "title": "Getting Started",
+      "type": "single"
+   },
+   {
+      "title": "SOP",
+      "children": [
+         {
+            "title": "Our Values",
+            "slug": "our-values"
+         },
+         {
+            "title": "Rules",
+            "slug": "Rules"
+         }
+      ],
+      "type": "section"
+   },
+   {
+      "title": "Tactics",
+      "children": [
+         {
+            "title": "JTAC",
+            "slug": "jtac"
+         },
+         {
+            "title": "Clearing Buildings",
+            "slug": "clearing-buildings"
+         }
+      ],
+      "type": "section"
+   },
+   {
+      "title": "Tecnhical",
+      "children": [
+         {
+            "title": "Global Conflicts Launcher",
+            "slug": "gc-launcher"
+         },
+         {
+            "title": "Teamspeak",
+            "slug": "teamspeak"
+         }
+      ],
+      "type": "section"
+   }
+]
