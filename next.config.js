@@ -8,5 +8,13 @@ module.exports = {
 			"globalconflicts.net",
 		],
 	},
- 
+	async redirects() {
+		return [
+			{
+				source: "/guides",
+				destination: "/guides/getting-started",
+				permanent: true,
+			},
+		];
+	},
 };
