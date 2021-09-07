@@ -32,9 +32,11 @@ export default function GuideItem({ guide }) {
 										leaveTo="transform scale-95 opacity-0"
 									>
 										<Link href={`/guides/${child["slug"]}`}>
-											<Disclosure.Panel className="p-4 mb-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100">
-												{child["title"]}
-											</Disclosure.Panel>
+											<a>
+												<Disclosure.Panel className="p-4 mb-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100">
+													{child["title"]}
+												</Disclosure.Panel>
+											</a>
 										</Link>
 									</Transition>
 								))}
@@ -42,7 +44,16 @@ export default function GuideItem({ guide }) {
 						)}
 					</Disclosure>
 				) : (
-					<div>{guide["title"]}</div>
+					<div>
+						{" "}
+						<Link href={`/guides/${guide["slug"]}`}>
+							<a>
+								<div className="p-4 mb-4 text-sm font-medium text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100">
+									{guide["title"]}
+								</div>
+							</a>
+						</Link>
+					</div>
 				)}
 			</div>
 		</div>

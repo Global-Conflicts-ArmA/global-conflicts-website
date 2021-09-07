@@ -2,10 +2,111 @@
 title: "Getting Started"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus. Praesent elementum facilisis leo vel fringilla. Congue mauris rhoncus aenean vel. Egestas sed tempus urna et pharetra pharetra massa massa ultricies.
+# Getting Started
 
-Venenatis cras sed felis eget velit. Consectetur libero id faucibus nisl tincidunt. Gravida in fermentum et sollicitudin ac orci phasellus egestas tellus. Volutpat consequat mauris nunc congue nisi vitae. Id aliquet risus feugiat in ante metus dictum at tempor. Sed blandit libero volutpat sed cras. Sed odio morbi quis commodo odio aenean sed adipiscing. Velit euismod in pellentesque massa placerat. Mi bibendum neque egestas congue quisque egestas diam in arcu. Nisi lacus sed viverra tellus in. Nibh cras pulvinar mattis nunc sed. Luctus accumsan tortor posuere ac ut consequat semper viverra. Fringilla ut morbi tincidunt augue interdum velit euismod.
+Welcome to the Next.js documentation!
 
-## Lorem Ipsum
+If you're new to Next.js we recommend that you start with the [learn course](https://nextjs.org/learn/basics/create-nextjs-app).
 
-Tristique senectus et netus et malesuada fames ac turpis. Ridiculous mus mauris vitae ultricies leo integer malesuada nunc vel. In mollis nunc sed id semper. Egestas tellus rutrum tellus pellentesque. Phasellus vestibulum lorem sed risus ultricies tristique nulla. Quis blandit turpis cursus in hac habitasse platea dictumst quisque. Eros donec ac odio tempor orci dapibus ultrices. Aliquam sem et tortor consequat id porta nibh. Adipiscing elit duis tristique sollicitudin nibh sit amet commodo nulla. Diam vulputate ut pharetra sit amet. Ut tellus elementum sagittis vitae et leo. Arcu non odio euismod lacinia at quis risus sed vulputate.
+The interactive course with quizzes will guide you through everything you need to know to use Next.js.
+
+If you have questions about anything related to Next.js, you're always welcome to ask our community on [GitHub Discussions](https://github.com/vercel/next.js/discussions).
+
+#### System Requirements
+
+- [Node.js 12.0](https://nodejs.org/) or later
+- MacOS, Windows (including WSL), and Linux are supported
+
+## Setup
+
+We recommend creating a new Next.js app using `create-next-app`, which sets up everything automatically for you. To create a project, run:
+
+```bash
+npx create-next-app
+# or
+yarn create next-app
+```
+
+If you want to start with a TypeScript project you can use the `--typescript` flag:
+
+```bash
+npx create-next-app --typescript
+# or
+yarn create next-app --typescript
+```
+
+After the installation is complete, follow the instructions to start the development server. Try editing `pages/index.js` and see the result on your browser.
+
+For more information on how to use `create-next-app`, you can review the [`create-next-app` documentation](/docs/api-reference/create-next-app.md)
+
+## Manual Setup
+
+Install `next`, `react` and `react-dom` in your project:
+
+```bash
+npm install next react react-dom
+# or
+yarn add next react react-dom
+```
+
+Open `package.json` and add the following `scripts`:
+
+```json
+"scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
+}
+```
+
+These scripts refer to the different stages of developing an application:
+
+- `dev` - Runs [`next dev`](/docs/api-reference/cli.md#development) which starts Next.js in development mode
+- `build` - Runs [`next build`](/docs/api-reference/cli.md#build) which builds the application for production usage
+- `start` - Runs [`next start`](/docs/api-reference/cli.md#production) which starts a Next.js production server
+- `lint` - Runs [`next lint`](/docs/api-reference/cli.md#lint) which sets up Next.js' built-in ESLint configuration
+
+Next.js is built around the concept of [pages](/docs/basic-features/pages.md). A page is a [React Component](https://reactjs.org/docs/components-and-props.html) exported from a `.js`, `.jsx`, `.ts`, or `.tsx` file in the `pages` directory.
+
+Pages are associated with a route based on their file name. For example `pages/about.js` is mapped to `/about`. You can even add dynamic route parameters with the filename.
+
+Create a `pages` directory inside your project.
+
+Populate `./pages/index.js` with the following contents:
+
+```sqf
+kobld_fnc_createMedboxCargo = {
+	[{
+		params ["_class","_vehicle"];
+
+		if !(local _vehicle) exitWith {
+			diag_log format["kobld_fnc_createMedboxCargo: %1 not local!",_vehicle]
+			};
+
+		private _box = _class createVehicle [0,0,0];
+
+		[_box, "MEDBOX_VEH"] call FNC_VehicleGearScript;
+		[_box, _vehicle, true] call ace_cargo_fnc_loadItem;
+	}, _this, 0] call CBA_fnc_waitAndExecute;
+};
+```
+
+To start developing your application run `npm run dev` or `yarn dev`. This starts the development server on `http://localhost:3000`.
+
+Visit `http://localhost:3000` to view your application.
+
+So far, we get:
+
+- Automatic compilation and bundling (with webpack and babel)
+- [React Fast Refresh](https://nextjs.org/blog/next-9-4#fast-refresh)
+- [Static generation and server-side rendering](/docs/basic-features/data-fetching.md) of [`./pages/`](/docs/basic-features/pages.md)
+- [Static file serving](/docs/basic-features/static-file-serving.md). `./public/` is mapped to `/`
+
+In addition, any Next.js application is ready for production from the start, read more in our [Deployment documentation](/docs/deployment.md).
+
+## Related
+
+For more information on what to do next, we recommend the following sections:
+
+ 
