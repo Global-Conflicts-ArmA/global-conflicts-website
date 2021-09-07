@@ -1,11 +1,14 @@
-import Head from "next/head";
-import NavBar from "../components/navbar";
-
 import Image from "next/image";
 import background from "../public/login-bg.jpg";
 import soldier1 from "../public/solider-1.png";
+import soldier2 from "../public/solider-2.png";
+import discordLogo from "../public/discord.png";
+import card_1_bg from "../public/card_1_bg.jpg";
+import card_2_bg from "../public/card_2_bg.jpg";
+import card_3_bg from "../public/card_3_bg.jpg";
+import card_4_bg from "../public/card_4_bg.jpg";
+import card_5_bg from "../public/card_5_bg.jpg";
 import DecorativeCard from "../components/decorative_card/decorative_card";
-import { MainLayout } from "../layouts/main-layout";
 
 function Home() {
 	return (
@@ -51,7 +54,7 @@ function Home() {
 						<DecorativeCard
 							width={300}
 							height={450}
-							image={"/../public/card_1_bg.jpg"}
+							image={card_1_bg}
 						></DecorativeCard>
 					</div>
 					<div className="p-5 prose lg:prose-xl">
@@ -74,7 +77,7 @@ function Home() {
 						<DecorativeCard
 							width={1000}
 							height={300}
-							image={"/../public/card_2_bg.jpg"}
+							image={card_2_bg}
 						></DecorativeCard>
 					</div>
 					<div className="flex flex-row">
@@ -105,7 +108,7 @@ function Home() {
 								<DecorativeCard
 									width={390}
 									height={585}
-									image={"/../public/card_3_bg.jpg"}
+									image={card_3_bg}
 								></DecorativeCard>
 							</div>
 						</div>
@@ -135,7 +138,7 @@ function Home() {
 								quality={100}
 								width={1142}
 								height={1392}
-								src={"/../public/solider-2.png"}
+								src={soldier2}
 							/>
 						</div>
 					</div>
@@ -184,7 +187,7 @@ function Home() {
 						<DecorativeCard
 							width={1000}
 							height={300}
-							image={"/../public/card_4_bg.jpg"}
+							image={card_4_bg}
 						></DecorativeCard>
 					</div>
 					<div className="flex flex-row">
@@ -192,7 +195,7 @@ function Home() {
 							<DecorativeCard
 								width={390}
 								height={585}
-								image={"/../public/card_3_bg.jpg"}
+								image={card_3_bg}
 							></DecorativeCard>
 						</div>
 						<div className="p-5 prose lg:prose-xl">
@@ -238,7 +241,7 @@ function Home() {
 						<DecorativeCard
 							width={1000}
 							height={300}
-							image={"/../public/card_4_bg.jpg"}
+							image={card_4_bg}
 						></DecorativeCard>
 					</div>
 
@@ -252,7 +255,7 @@ function Home() {
 							</p>
 						</div>
 						<div className="self-center max-w-xs">
-							<Image src={"/../public/discord.png"} width={558} height={187}></Image>
+							<Image src={discordLogo} width={558} height={187}></Image>
 						</div>
 					</div>
 				</div>
