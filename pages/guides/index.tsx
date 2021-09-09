@@ -2,7 +2,7 @@ import Head from "next/head";
 
 import GuidesLayout from "../../layouts/guides-layout";
 
-function Team() {
+function GuidesIndex() {
 	return (
 		<>
 			<Head>
@@ -16,6 +16,6 @@ function Team() {
 	);
 }
 
-Team.PageLayout = GuidesLayout;
+GuidesIndex.PageLayout = GuidesLayout;
 
-export default Team;
+export default GuidesIndex;

@@ -45,7 +45,7 @@ export default function GuideItem({ guide }) {
 					</Disclosure>
 				) : (
 					<div>
-						{" "}
+						
 						<Link href={`/guides/${guide["slug"]}`}>
 							<a>
 								<div className="p-4 mb-4 text-sm font-medium text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100">

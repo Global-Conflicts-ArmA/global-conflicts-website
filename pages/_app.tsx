@@ -1,14 +1,16 @@
 import "tailwindcss/tailwind.css";
 import "../styles/global.css";
-
-import { Provider } from "next-auth/client";
+import { SessionProvider } from "next-auth/react"
 import { MainLayout } from "../layouts/main-layout";
 import React from "react";
 import Head from "next/head";
 import NavBar from "../components/navbar";
-function MyApp({ Component, pageProps }) {
+function MyApp({
+	Component,
+	pageProps: { session, ...pageProps },
+ }) {
 	return (
-		<Provider session={pageProps.session}>
+		<SessionProvider session={session}>
 			<MainLayout>
 				{Component.PageLayout ? (
 					<Component.PageLayout>
@@ -18,7 +20,7 @@ function MyApp({ Component, pageProps }) {
 					<Component {...pageProps} />
 				)}
 			</MainLayout>
-		</Provider>
+		</SessionProvider>
 	);
 }
 

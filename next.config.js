@@ -8,6 +8,12 @@ module.exports = {
 			"globalconflicts.net",
 		],
 	},
+	webpack: (config, options) => {
+		config.experiments = {
+		  topLevelAwait: true,
+		};
+		return config;
+	 },
 	async redirects() {
 		return [
 			{

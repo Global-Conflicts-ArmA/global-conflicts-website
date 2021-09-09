@@ -7,7 +7,6 @@ import card_1_bg from "../public/card_1_bg.jpg";
 import card_2_bg from "../public/card_2_bg.jpg";
 import card_3_bg from "../public/card_3_bg.jpg";
 import card_4_bg from "../public/card_4_bg.jpg";
-import card_5_bg from "../public/card_5_bg.jpg";
 import DecorativeCard from "../components/decorative_card/decorative_card";
 
 function Home() {
@@ -33,13 +32,14 @@ function Home() {
 						/>
 					</div>
 
-					<h1 className="z-10 mt-10 mb-8 text-4xl font-extrabold leading-none text-transparent whitespace-pre-wrap bg-clip-text bg-gradient-to-br from-green-300 to-gray-50 sm:text-6xl lg:text-7xl font-heading sm:mt-14 sm:mb-10">
-						{"Global\nConflicts"}
-					</h1>
-
 					<div className="absolute top-0 right-0 z-0 max-w-md mt-20">
 						<Image alt="Solider image" width={1142} height={1392} src={soldier1} />
 					</div>
+					<h1 className="z-10 mb-8 text-4xl font-extrabold leading-none text-transparent whitespace-pre-wrap mt-96 bg-clip-text bg-gradient-to-br from-green-300 to-gray-50 sm:text-6xl lg:text-7xl font-heading sm:mt-14 sm:mb-10">
+						{"Global\nConflicts"}
+					</h1>
+
+					
 				</div>
 
 				<div className="flex home-bg2">

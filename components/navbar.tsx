@@ -2,18 +2,22 @@
 import { Fragment, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
-import { signIn, signOut, useSession } from "next-auth/client";
+import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import SignInBtn from "./sigin_btn";
 import SignOutBtn from "./signout_btn";
 const navigation = [
 	{ name: "Home", href: "/", current: true },
-	{ name: "Guides", href: "/guides", current: false },  
+	{ name: "Guides", href: "/guides", current: false },
 	{
 		name: "Missions",
 		href: "#",
 		current: false,
-		submenus: ["List", "Upload", "Top Voted"],
+		submenus: [
+			{ name: "Mission List", href: "/missions", current: false },
+			{ name: "Upload", href: "/missions/upload", current: false },
+			{ name: "Top Voted", href: "/missions/top-voted", current: false },
+		],
 	},
 	{ name: "Download", href: "#", current: false },
 ];
@@ -23,7 +27,7 @@ function classNames(...classes) {
 }
 
 export default function NavBar() {
-	const [session, loading] = useSession();
+	const { data: session } = useSession();
 
 	return (
 		<Disclosure as="nav" className="bg-gray-800">
@@ -69,7 +73,7 @@ export default function NavBar() {
 										{navigation.map((item) => {
 											if (item.submenus != undefined) {
 												return (
-													<Menu as="div" className="relative z-10 ml-3">
+													<Menu as="div" className="relative z-20 ml-3">
 														<div>
 															<Menu.Button className="">
 																<div key={item.name} className="px-3 py-2 ">
@@ -97,46 +101,24 @@ export default function NavBar() {
 															leaveFrom="transform opacity-100 scale-100"
 															leaveTo="transform opacity-0 scale-95"
 														>
-															<Menu.Items className="absolute right-0 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg w-28 ring-1 ring-black ring-opacity-5 focus:outline-none">
-																<Menu.Item>
-																	{({ active }) => (
-																		<a
-																			href="#"
-																			className={classNames(
-																				active ? "bg-gray-100" : "",
-																				"block px-4 py-2 text-sm text-gray-700"
+															<Menu.Items className="absolute right-0 z-20 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg w-28 ring-1 ring-black ring-opacity-5 focus:outline-none">
+																{item.submenus.map((submenu) => {
+																	return (
+																		<Menu.Item key={submenu.name}>
+																			{({ active }) => (
+																				<a
+																					href={submenu.href}
+																					className={classNames(
+																						submenu.current ? "bg-gray-100" : "",
+																						"block px-4 py-2 text-sm text-gray-700"
+																					)}
+																				>
+																					{submenu.name}
+																				</a>
 																			)}
-																		>
-																			List
-																		</a>
-																	)}
-																</Menu.Item>
-																<Menu.Item>
-																	{({ active }) => (
-																		<a
-																			href="#"
-																			className={classNames(
-																				active ? "bg-gray-100" : "",
-																				"block px-4 py-2 text-sm text-gray-700"
-																			)}
-																		>
-																			Upload
-																		</a>
-																	)}
-																</Menu.Item>
-																<Menu.Item>
-																	{({ active }) => (
-																		<a
-																			href="#"
-																			className={classNames(
-																				active ? "bg-gray-100" : "",
-																				"block px-4 py-2 text-sm text-gray-700"
-																			)}
-																		>
-																			Top Voted
-																		</a>
-																	)}
-																</Menu.Item>
+																		</Menu.Item>
+																	);
+																})}
 															</Menu.Items>
 														</Transition>
 													</Menu>
@@ -163,7 +145,7 @@ export default function NavBar() {
 									</div>
 								</div>
 							</div>
-						
+
 							{session == undefined ? <SignInBtn /> : <SignOutBtn />}
 						</div>
 					</div>

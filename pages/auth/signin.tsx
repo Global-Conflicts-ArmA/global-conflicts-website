@@ -1,11 +1,11 @@
-import { getProviders, signIn } from "next-auth/client";
+import { getProviders, signIn } from "next-auth/react";
 import Image from "next/image";
 import background from "../../public/login-bg.jpg";
 export default function SignIn({ providers }) {
 	return (
 		<>
-			<div className="bg-login h-screen flex relative ">
-				<div className=" ">
+			<div className="relative flex h-screen bg-login ">
+				<div className="">
 					<Image
 						src={background}
 						alt="Picture of the author"
@@ -13,9 +13,9 @@ export default function SignIn({ providers }) {
 						objectFit="cover" // change to suit your needs
 					/>
 				</div>
-				<div className="absolute inset-0 flex justify-center items-center ">
-					<div className="rounded-lg mx-10 shadow-strong bg-gray-600 max-w-7xl flex flex-row flex-wrap p-3 antialiased login-card">
-						<div className="sm:w-1/3 m-auto   justify-center flex ">
+				<div className="absolute inset-0 flex items-center justify-center ">
+					<div className="flex flex-row flex-wrap p-3 mx-10 antialiased bg-gray-600 rounded-lg shadow-strong max-w-7xl login-card">
+						<div className="flex justify-center m-auto sm:w-1/3 ">
 							<Image
 								alt="login modal background"
 								width={400}
@@ -23,12 +23,12 @@ export default function SignIn({ providers }) {
 								src="https://globalconflicts.net/assets/imgs/logo.png"
 							/>
 						</div>
-						<div className="sm:w-2/3 flex-col flex flex-1 content-between justify-between p-8">
-							<h1 className="text-white py-10 text-center font-heading">
+						<div className="flex flex-col content-between justify-between flex-1 p-8 sm:w-2/3">
+							<h1 className="py-10 text-center text-white font-heading">
 								Sigin with Discord to proceed
 							</h1>
 							<button
-								className="discord-btn transition duration-150 ease-in-out text-white"
+								className="text-white transition duration-150 ease-in-out discord-btn"
 								onClick={() => signIn("discord")}
 							>
 								Sigin with Discord
