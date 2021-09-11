@@ -6,7 +6,7 @@ import React from "react";
 
 export default function GuideItem({ guide }) {
 	return (
-		<div className="w-full pt-16">
+		<div className="w-full pt-4">
 			<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
 				{guide["children"] ? (
 					<Disclosure defaultOpen={true}>

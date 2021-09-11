@@ -29,7 +29,7 @@ const data = [
 	},
 ];
 
-function Upload() {
+function TopVoted() {
 	return (
 		<>
 			<DataTable columns={columns} data={data} />
@@ -47,6 +47,6 @@ function Upload() {
 //    return { props: { data } }
 //  }
 
-Upload.PageLayout = Upload;
+TopVoted.PageLayout = MainLayout;
 
-export default Upload;
+export default TopVoted;

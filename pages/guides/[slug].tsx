@@ -1,18 +1,23 @@
 import GuidesLayout from "../../layouts/guides-layout";
-import markdownToHtml from "../../lib/markdownToHtml";
 import { getGuideBySlug, getGuidesPaths } from "../api/guides";
-
 import { useRouter } from "next/router";
+import { MDXLayoutRenderer } from '../../components/MDXComponents'
 
-function Guide({ markdownGuide }) {
+function Guide({ post }) {
 	const router = useRouter();
 	const slug = router.query.slug || [];
 
+	const { mdxSource, toc, frontMatter } = post;
+
 	return (
-		<article
-			className="max-w-3xl m-10 prose"
-			dangerouslySetInnerHTML={{ __html: markdownGuide }}
-		/>
+		<article className="max-w-3xl m-10 prose">
+			<kbd className="hidden kbd"></kbd>
+			<MDXLayoutRenderer
+				 
+				mdxSource={mdxSource}
+				frontMatter={frontMatter}
+			/>
+		</article>
 	);
 }
 
@@ -23,11 +28,12 @@ type Params = {
 };
 
 export async function getStaticProps({ params }: Params) {
-	const post = getGuideBySlug(params.slug, ["title", "content"]);
+	const post = await getGuideBySlug(params.slug, ["title", "content"]);
 
-	const content = await markdownToHtml(post.content || "");
+	// const content = await markdownToHtml(post.content || "");
+	// const mdxSource = await serialize(post.content);
 
-	return { props: { markdownGuide: content } };
+	return { props: { post: post } };
 }
 
 export async function getStaticPaths() {

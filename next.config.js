@@ -1,4 +1,13 @@
-module.exports = {
+const rehypePrism = require("@mapbox/rehype-prism");
+
+const withMDX = require("@next/mdx")({
+	extension: /\.mdx?$/,
+	options: {
+		rehypePlugins: [rehypePrism],
+	},
+});
+module.exports = withMDX({
+	pageExtensions: ["js", "jsx", "ts", "tsx", ],
 	images: {
 		domains: [
 			"source.unsplash.com",
@@ -10,10 +19,10 @@ module.exports = {
 	},
 	webpack: (config, options) => {
 		config.experiments = {
-		  topLevelAwait: true,
+			topLevelAwait: true,
 		};
 		return config;
-	 },
+	},
 	async redirects() {
 		return [
 			{
@@ -23,4 +32,4 @@ module.exports = {
 			},
 		];
 	},
-};
+});

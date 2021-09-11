@@ -8,7 +8,7 @@ const options = {
 }
 
 let client: MongoClient
-let clientPromise: Promise<MongoClient>
+let MyMongo: Promise<MongoClient>
 
 if (!process.env.MONGO_HOST) {
   throw new Error("Please add your Mongo URI to .env.local")
@@ -21,13 +21,13 @@ if (process.env.NODE_ENV === "development") {
     client = new MongoClient(uri)
     global._mongoClientPromise = client.connect()
   }
-  clientPromise = global._mongoClientPromise
+  MyMongo = global._mongoClientPromise
 } else {
   // In production mode, it's best to not use a global variable.
   client = new MongoClient(uri)
-  clientPromise = client.connect()
+  MyMongo = client.connect()
 }
 
 // Export a module-scoped MongoClient promise. By doing this in a
 // separate module, the client can be shared across functions.
-export default clientPromise
+export default (await MyMongo).db("dev")

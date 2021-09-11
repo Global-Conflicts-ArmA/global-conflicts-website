@@ -1,10 +1,9 @@
-import clientPromise from "../../../lib/mongodb";
+import MyMongo from "../../../lib/mongodb";
 
 export default async function handler(req, res) {
 	const { slug } = req.query;
-	const mongoClient = (await clientPromise).db("dev");
 
-	mongoClient.collection("missions").aggregate([
+	MyMongo.collection("missions").aggregate([
 		{
 			$lookup: {
 				from: "comments",

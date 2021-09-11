@@ -7,6 +7,14 @@ const postsDirectory = path.join(process.cwd(), "_guides");
 
 import _guidesOrder from "../../guides-order.json";
 
+import rehypeSlug from "rehype-slug";
+import rehypeCodeTitles from "rehype-code-titles";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import rehypePrism from "rehype-prism-plus";
+
+import { bundleMDX } from "mdx-bundler";
+import readingTime from "reading-time";
+
 export function getGuidesPaths() {
 	const paths = [];
 	_guidesOrder.forEach((guide) => {
@@ -21,33 +29,43 @@ export function getGuidesPaths() {
 	return paths;
 }
 
-export function getGuideBySlug(slug: string, fields: string[] = []) {
-	const realSlug = slug.replace(/\.md$/, "");
-	const fullPath = path.join(postsDirectory, `${realSlug}.md`);
+export async function getGuideBySlug(slug: string, fields: string[] = []) {
+	const realSlug = slug.replace(/\.mdx$/, "");
+	const fullPath = path.join(postsDirectory, `${realSlug}.mdx`);
 	const fileContents = fs.readFileSync(fullPath, "utf8");
 	const { data, content } = matter(fileContents);
 
-	type Items = {
-		[key: string]: string;
-	};
+	console.log("getalala");
 
-	const items: Items = {};
-
-	// Ensure only the minimal needed data is exposed
-	fields.forEach((field) => {
-		if (field === "slug") {
-			items[field] = realSlug;
-		}
-		if (field === "content") {
-			items[field] = content;
-		}
-
-		if (data[field]) {
-			items[field] = data[field];
-		}
+	const { code, frontmatter } = await bundleMDX(fileContents, {
+		xdmOptions(options) {
+			options.rehypePlugins = [
+				...(options?.rehypePlugins ?? []),
+				rehypeSlug,
+				rehypeCodeTitles,
+				rehypePrism,
+				[
+					rehypeAutolinkHeadings,
+					{
+						properties: {
+							className: ["anchor"],
+						},
+					},
+				],
+			];
+			return options;
+		},
 	});
 
-	return items;
+	return {
+		mdxSource: code,
+		frontMatter: {
+			wordCount: fileContents.split(/\s+/gu).length,
+			readingTime: readingTime(fileContents),
+			slug: slug || null,
+			...frontmatter,
+		},
+	};
 }
 
 export function getAllPosts(fields: string[] = []) {

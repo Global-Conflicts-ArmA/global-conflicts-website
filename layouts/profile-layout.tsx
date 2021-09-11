@@ -18,12 +18,12 @@ export default function ProfileLayout({ children }) {
 		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-row">
 				<aside
-					className={"px-4 py-6 bg-gray-300 relative h-full overflow-y-auto w-48"}
+					className={"px-4 py-6 bg-gray-300 relative h-full overflow-y-auto w-48 mt-10"}
 				>
 					<nav>
 						{btns.map((btn) => (
 							<ul key={btn.title}>
-								<div className="w-full pt-16">
+								<div className="w-full pt-4">
 									<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
 										<div>
 											<Link href={`/${btn.href}`}>
@@ -40,7 +40,7 @@ export default function ProfileLayout({ children }) {
 						))}
 					</nav>
 				</aside>
-				<main className="flex-grow">{children}</main>
+				<main className="flex-grow max-w-3xl m-10 ">{children}</main>
 			</div>
 		</div>
 	);
