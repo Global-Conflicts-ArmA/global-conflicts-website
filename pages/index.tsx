@@ -38,8 +38,6 @@ function Home() {
 					<h1 className="z-10 mb-8 text-4xl font-extrabold leading-none text-transparent whitespace-pre-wrap mt-96 bg-clip-text bg-gradient-to-br from-green-300 to-gray-50 sm:text-6xl lg:text-7xl font-heading sm:mt-14 sm:mb-10">
 						{"Global\nConflicts"}
 					</h1>
-
-					
 				</div>
 
 				<div className="flex home-bg2">

@@ -18,7 +18,7 @@ export default function ProfileLayout({ children }) {
 		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-row">
 				<aside
-					className={"px-4 py-6 bg-gray-300 relative h-full overflow-y-auto w-48 mt-10"}
+					className={"px-4 py-6  relative h-full overflow-y-auto  mt-10"}
 				>
 					<nav>
 						{btns.map((btn) => (
