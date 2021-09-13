@@ -3,8 +3,8 @@ import DiscordProvider from "next-auth/providers/discord";
 
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import MyMongo from "../../../lib/mongodb";
-import { Client, Intents } from "discord.js";
- 
+import Discord from 'discord.js';
+
 export default NextAuth({
 	// Configure one or more authentication providers
 	providers: [
@@ -24,8 +24,8 @@ export default NextAuth({
 					] = `https://cdn.discordapp.com/avatars/${profile["id"]}/${profile["avatar"]}.${format}`;
 				}
 
-				const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
-
+				const client = new Discord.Client();
+				
 				client.login(process.env.token);
 
 				const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
