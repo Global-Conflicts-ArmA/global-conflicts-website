@@ -4,8 +4,7 @@ import DiscordProvider from "next-auth/providers/discord";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import MyMongo from "../../../lib/mongodb";
 import { Client, Intents } from "discord.js";
-import { token as botToken } from "../../../discord_bot/config.json";
-
+ 
 export default NextAuth({
 	// Configure one or more authentication providers
 	providers: [
@@ -27,7 +26,7 @@ export default NextAuth({
 
 				const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
-				client.login(botToken);
+				client.login(process.env.token);
 
 				const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
 
