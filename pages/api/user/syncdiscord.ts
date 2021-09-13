@@ -1,15 +1,13 @@
-import { Client, Intents } from "discord.js";
-
 import { getSession } from "next-auth/react";
-import { token as botToken } from "../../../discord_bot/config.json";
 import MyMongo from "../../../lib/mongodb";
+import Discord from "discord.js";
 
 export default async function handler(req, res) {
 	const session = await getSession({ req });
 
-	const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+	const client = new Discord.Client();
 
-	client.login(botToken);
+	client.login(process.env.token);
 
 	const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
 

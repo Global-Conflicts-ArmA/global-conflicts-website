@@ -33,7 +33,7 @@ export default NextAuth({
 				const member = await guild.members.fetch(profile["id"]);
 
 				const roles = member.roles.cache
-					.filter((value) => value.name != "@everyone")
+					.filter((value) => value.name != "@everyone")																
 					.map(function (value) {
 						return { id: value.id, name: value.name, color: value.hexColor };
 					});
