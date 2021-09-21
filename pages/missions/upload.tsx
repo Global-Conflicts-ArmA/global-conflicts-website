@@ -260,7 +260,7 @@ function Upload() {
 								const re = /^[0-9\b]+$/;
 
 								if (e.target.value === "" || re.test(e.target.value)) {
-									setMinPlayers(e.target.value);
+									setMinPlayers(parseInt(e.target.value));
 								}
 							}}
 							className="input input-bordered"
@@ -279,7 +279,7 @@ function Upload() {
 								const re = /^[0-9\b]+$/;
 
 								if (e.target.value === "" || re.test(e.target.value)) {
-									setMaxPlayers(e.target.value);
+									setMaxPlayers(parseInt(e.target.value));
 								}
 							}}
 							className="input input-bordered"
