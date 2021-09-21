@@ -32,7 +32,6 @@ export default function MissionDetails({ mission }) {
 	let [gameplayHistoryModalData, setgameplayHistoryModalData] = useState(null);
 	let [gameplayHistoryModalOpen, setgameplayHistoryModalOpen] = useState(false);
 
-
 	const { data, error } = useSWR("/api/discord_user_list", fetcher);
 
 	const columns = [
@@ -227,63 +226,67 @@ export default function MissionDetails({ mission }) {
 				</button>
 			</h1>
 			<div>
-				{mission.history.map((history) => {
-					return (
-						<div key={history._id}>
-							<div className="flex flex-row justify-between my-3">
-								<div>Outcome: {history.outcome}</div>
-								<div className="flex flex-row space-x-1">
-									<button
-										className="btn btn-xs"
-										onClick={() => {
-											console.log("a");
-										}}
-									>
-										AAR Replay
-									</button>
-									<button
-										className="btn btn-xs"
-										onClick={() => {
-											console.log("a");
-										}}
-									>
-										GM Notes
-									</button>
-									<div>{moment(history.date).format("ll")}</div>
+				{mission.history ? (
+					mission.history.map((history) => {
+						return (
+							<div key={history._id}>
+								<div className="flex flex-row justify-between my-3">
+									<div>Outcome: {history.outcome}</div>
+									<div className="flex flex-row space-x-1">
+										<button
+											className="btn btn-xs"
+											onClick={() => {
+												console.log("a");
+											}}
+										>
+											AAR Replay
+										</button>
+										<button
+											className="btn btn-xs"
+											onClick={() => {
+												console.log("a");
+											}}
+										>
+											GM Notes
+										</button>
+										<div>{moment(history.date).format("ll")}</div>
+									</div>
 								</div>
-							</div>
 
-							{history.leaders.map((leader) => {
-								return (
-									<div
-										key={leader._id}
-										className="border-2 bg-gray-50 hover:bg-gray-100 collapse collapse-arrow"
-									>
-										<input type="checkbox"></input>
-										<div className="font-medium collapse-title">
-											{leader.name} AAR - {leader.side} Leader{" "}
-											<button
-												className="absolute z-10 ml-2 btn btn-xs"
-												onClick={() => {
-													console.log("a");
-												}}
-											>
-												Submit AAR
-											</button>
-										</div>
-										<div className="collapse-content">
-											<div className="prose">
-												<p>{leader.aar ?? "No AAR submit yet"}</p>
+								{history.leaders.map((leader) => {
+									return (
+										<div
+											key={leader._id}
+											className="border-2 bg-gray-50 hover:bg-gray-100 collapse collapse-arrow"
+										>
+											<input type="checkbox"></input>
+											<div className="font-medium collapse-title">
+												{leader.name} AAR - {leader.side} Leader{" "}
+												<button
+													className="absolute z-10 ml-2 btn btn-xs"
+													onClick={() => {
+														console.log("a");
+													}}
+												>
+													Submit AAR
+												</button>
+											</div>
+											<div className="collapse-content">
+												<div className="prose">
+													<p>{leader.aar ?? "No AAR submit yet"}</p>
+												</div>
 											</div>
 										</div>
-									</div>
-								);
-							})}
+									);
+								})}
 
-							<hr className="my-5"></hr>
-						</div>
-					);
-				})}
+								<hr className="my-5"></hr>
+							</div>
+						);
+					})
+				) : (
+					<div>No History yet</div>
+				)}
 			</div>
 
 			<div className="flex flex-row justify-between space-x-6">
@@ -340,14 +343,10 @@ export default function MissionDetails({ mission }) {
 				}}
 			></SubmitReviewReportModal>
 
-
-
 			<ActionsModal
 				isOpen={actionsModalOpen}
 				actionsModalData={actionsModalData}
-				onAuditOpen={() => {
-			
-				}}
+				onAuditOpen={() => {}}
 				onClose={() => {
 					setActionsModalIsOpen(false);
 				}}
@@ -492,22 +491,24 @@ export async function getStaticProps({ params }) {
 		);
 	}
 
-	await Promise.all(
-		mission["history"]?.map(async (history) => {
-			history["_id"] = history["_id"].toString();
+	if (mission["history"]) {
+		await Promise.all(
+			mission["history"]?.map(async (history) => {
+				history["_id"] = history["_id"].toString();
 
-			await Promise.all(
-				history["leaders"]?.map(async (leader) => {
-					var user = await MyMongo.collection("users").findOne(
-						{ _id: leader["_id"] },
-						{ projection: { username: 1, nickname: 1, image: 1 } }
-					);
-					leader["name"] = user?.nickname ?? user?.username ?? "Unknown";
-					leader["_id"] = leader["_id"].toString();
-				})
-			);
-		})
-	);
+				await Promise.all(
+					history["leaders"]?.map(async (leader) => {
+						var user = await MyMongo.collection("users").findOne(
+							{ _id: leader["_id"] },
+							{ projection: { username: 1, nickname: 1, image: 1 } }
+						);
+						leader["name"] = user?.nickname ?? user?.username ?? "Unknown";
+						leader["_id"] = leader["_id"].toString();
+					})
+				);
+			})
+		);
+	}
 
 	mission["updates"]?.map((update) => {
 		update["_id"] = update["_id"].toString();
@@ -516,7 +517,6 @@ export async function getStaticProps({ params }) {
 			update["author"]?.nickname ?? update["author"]?.username ?? "Unknown";
 	});
 
-	console.log(mission);
 	return {
 		props: {
 			mission,
