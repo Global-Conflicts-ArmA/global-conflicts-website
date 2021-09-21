@@ -1,10 +1,10 @@
 import Document, { Html, Head, Main, NextScript } from "next/document";
 
-export default function ValidatedIcon() {
+export default function ActionsIcon() {
 	return (
 		<svg
 			xmlns="http://www.w3.org/2000/svg"
-			className="w-6 h-6 text-green-500"
+			className="w-6 h-6"
 			fill="none"
 			viewBox="0 0 24 24"
 			stroke="currentColor"
@@ -13,7 +13,7 @@ export default function ValidatedIcon() {
 				strokeLinecap="round"
 				strokeLinejoin="round"
 				strokeWidth={2}
-				d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+				d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
 			/>
 		</svg>
 	);

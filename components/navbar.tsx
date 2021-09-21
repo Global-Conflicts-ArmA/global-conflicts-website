@@ -19,7 +19,9 @@ const navigation = [
 			{ name: "Top Voted", href: "/missions/top-voted", current: false },
 		],
 	},
+	{ name: "Events", href: "/events", current: false },
 	{ name: "Download", href: "#", current: false },
+	{ name: "Donate", href: "#", current: false },
 ];
 
 function classNames(...classes) {

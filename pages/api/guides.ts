@@ -35,7 +35,7 @@ export async function getGuideBySlug(slug: string, fields: string[] = []) {
 	const fileContents = fs.readFileSync(fullPath, "utf8");
 	const { data, content } = matter(fileContents);
 
-	console.log("getalala");
+ 
 
 	const { code, frontmatter } = await bundleMDX(fileContents, {
 		xdmOptions(options) {
