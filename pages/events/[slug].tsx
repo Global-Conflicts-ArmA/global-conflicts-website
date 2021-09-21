@@ -69,6 +69,14 @@ export default function EventHome({ event }) {
 		<>
 			<Head>
 				<title>{event.name}</title>
+
+				<meta property="og:url" content="https://globalconflicts.net/" />
+				<meta property="og:type" content="website" />
+
+				<meta property="og:title" content={event.name} />
+				<meta property="og:image" content={event.image} />
+				<meta name="twitter:card" content={event.description} />
+				<meta property="og:description" content={event.description} />
 			</Head>
 
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl ">
