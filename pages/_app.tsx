@@ -5,7 +5,8 @@ import { MainLayout } from "../layouts/main-layout";
 import React from "react";
 import Head from "next/head";
 import NavBar from "../components/navbar";
-function MyApp({
+import { getStaticProps } from "./events";
+export default function MyApp({
 	Component,
 	pageProps: { session, ...pageProps },
  }) {
@@ -23,5 +24,3 @@ function MyApp({
 		</SessionProvider>
 	);
 }
-
-export default MyApp;

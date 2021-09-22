@@ -243,12 +243,16 @@ input[type="file"] {
 .scrim {
 	background: linear-gradient(
 		to top,
-		rgba(0, 0, 0, .8) 0%,
+		rgba(0, 0, 0, .6) 0%,
 		rgba(0, 0, 0, 0.3) 50%,
 		rgba(0, 0, 0, 0.15) 65%,
 		rgba(0, 0, 0, 0.075) 75.5%,
-		rgba(0, 0, 0, 0.15) 82.85%,
-		rgba(0, 0, 0, 0.3) 88%,
-		rgba(0, 0, 0, .8) 100%
+		rgba(0, 0, 0, 0.037) 82.85%,
+		rgba(0, 0, 0, 0.019) 88%,
+		rgba(0, 0, 0, 0) 100%
 	);
+}
+
+.textshadow {
+	text-shadow: 0 0 2px #000208;
 }

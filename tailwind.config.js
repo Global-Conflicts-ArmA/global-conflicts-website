@@ -1,3 +1,5 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 module.exports = {
 	mode: "jit",
 	purge: ["./components/**/*.tsx", "./pages/**/*.tsx", "./public/**/*.html"], //add this line
@@ -18,6 +20,10 @@ module.exports = {
 		extend: {
 			width: {
 				700: "700px",
+			},
+			screens: {
+				xs: "321px",
+			
 			},
 
 			fontFamily: {

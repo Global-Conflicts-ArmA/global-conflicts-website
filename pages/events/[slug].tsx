@@ -17,6 +17,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
+import SlotSelectionModal from "../../components/modals/slot_selection_modal";
 
 const Completionist = () => <span>It has started!</span>;
 
@@ -64,7 +65,7 @@ const renderer = ({ days, hours, minutes, seconds, completed }) => {
 
 export default function EventHome({ event }) {
 	const [content, setContent] = useState(event.tabs[0].content);
-
+	let [slotsModalOpen, setSlotsModalOpen] = useState(false);
 	return (
 		<>
 			<Head>
@@ -80,12 +81,19 @@ export default function EventHome({ event }) {
 			</Head>
 
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl ">
-				<div className="flex flex-row">
+				{event.completed ? (
 					<div className="my-10 prose">
-						<h1>Starts in:</h1>
+						<h1>Event concluded</h1>
 					</div>
-					<Countdown date={event.when} renderer={renderer}></Countdown>
-				</div>
+				) : (
+					<div className="flex flex-row">
+						<div className="my-10 prose">
+							<h1>Starts in:</h1>
+						</div>
+						<Countdown date={event.when} renderer={renderer}></Countdown>
+					</div>
+				)}
+
 				<div className="relative shadow-xl card">
 					<figure style={{ aspectRatio: "16/7" }}>
 						<Image
@@ -96,20 +104,20 @@ export default function EventHome({ event }) {
 							alt={"Event cover image"}
 						/>
 					</figure>
-					<div className="absolute flex flex-col justify-between w-full h-full p-10 text-white">
-						<div className="prose">
+					<div className="absolute flex flex-col justify-between w-full h-full p-10 text-white scrim">
+						<div className="prose textshadow">
 							<h1>{event.name}</h1>
 						</div>
-						<div className="flex flex-row">
-							<p className="flex-1 prose">{event.description}</p>
+						<div className="flex flex-row textshadow">
+							<p className="flex-1 prose ">{event.description}</p>
 
 							<div className="flex flex-row items-end justify-end flex-1 ">
 								<div className="mr-10 text-white bg-transparent">
-									<div className="stat-title">When (your timezone)</div>
+									<div className="font-bold text-gray-200">When (your timezone)</div>
 									<div className="">{moment(event.when).format("lll")}</div>
 								</div>
 								<div className="text-right text-white bg-transparent">
-									<div className="stat-title">Avaliable slots</div>
+									<div className="font-bold text-gray-200">Avaliable slots</div>
 									<div className="">40/{event.slots}</div>
 								</div>
 							</div>
@@ -117,12 +125,18 @@ export default function EventHome({ event }) {
 					</div>
 				</div>
 
-				<div className="flex my-10 space-x-2">
-					<label className="flex-1 btn btn-lg btn-primary">
-						<input type="file" accept=".pbo" />
-						{"Sign up"}
-					</label>
-				</div>
+				{!event.completed && (
+					<div className="flex my-10 space-x-2">
+						<label className="flex-1 btn btn-lg btn-primary">
+							<button
+								onClick={() => {
+									setSlotsModalOpen(true);
+								}}
+							/>
+							{"Sign up"}
+						</label>
+					</div>
+				)}
 			</div>
 			<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 				<div className="flex flex-row">
@@ -146,15 +160,23 @@ export default function EventHome({ event }) {
 					</aside>
 					<main className="flex-grow">
 						<div className="prose">
-							<h1>About the event</h1>
+							<h1>Event Summary:</h1>
 						</div>
-						<article className="max-w-3xl m-10 prose">
+						<article className="max-w-3xl prose">
 							<kbd className="hidden kbd"></kbd>
 							<MDXRemote {...content} />
 						</article>
 					</main>
 				</div>
 			</div>
+
+			<SlotSelectionModal
+				isOpen={slotsModalOpen}
+				event={event}
+				onClose={() => {
+					setSlotsModalOpen(false);
+				}}
+			></SlotSelectionModal>
 		</>
 	);
 }

@@ -1,22 +1,12 @@
 import Head from "next/head";
 import Image from "next/image";
-import ReactDOM from "react-dom";
-import Countdown from "react-countdown";
 import React, { useState } from "react";
 import Link from "next/link";
-import GuideItem from "../../components/guide-item";
-import { MDXLayoutRenderer } from "../../components/MDXComponents";
 import MyMongo from "../../lib/mongodb";
 import { Params } from "next/dist/server/router";
 import moment from "moment";
-import { bundleMDX } from "mdx-bundler";
-import rehypeSlug from "rehype-slug";
-import rehypeCodeTitles from "rehype-code-titles";
-import rehypePrism from "rehype-prism-plus";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-
-import { serialize } from "next-mdx-remote/serialize";
-import { MDXRemote } from "next-mdx-remote";
+import { Tab } from "@headlessui/react";
+import EventCardList from "../../components/event_list_card";
 
 const Completionist = () => <span>It has started!</span>;
 
@@ -64,6 +54,10 @@ const renderer = ({ days, hours, minutes, seconds, completed }) => {
 
 var daysStyle = { "-webkit-text-stroke": "1px black" } as React.CSSProperties;
 
+function classNames(...classes) {
+	return classes.filter(Boolean).join(" ");
+}
+
 export default function EventHome({ upcomingEvents, pastEvents }) {
 	return (
 		<>
@@ -84,95 +78,64 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
 						<br />
 						People from outside the community are free to join!
 					</p>
-					<h2>Upcoming events:</h2>
 				</div>
 
-				<div className="mx-1 my-10 space-y-10 md:mx-12">
-					{upcomingEvents.map((event) => (
-						<Link key={event.name} href={`/events/${event.slug}`} passHref>
-							<div className="mb-10 transition-all duration-300 hover:cursor-pointer xl:hover:-mx-10">
-								<div className="relative drop-shadow-xl shadow-strong card">
-									<figure style={{ aspectRatio: "16/4", minHeight: 300 }}>
-										<Image
-											quality={100}
-											src={event.image}
-											layout={"fill"}
-											objectFit="cover"
-											alt={"Event cover image"}
-										/>
-									</figure>
+				<div className="w-full px-2 py-16 sm:px-0">
+					<Tab.Group>
+						<Tab.List className="flex p-1 space-x-1 bg-blue-900/5 rounded-xl">
+							<Tab
+								className={({ selected }) =>
+									classNames(
+										"transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg",
 
-									<div className="absolute flex flex-col justify-between w-full h-full p-10 text-gray-200 scrim">
-										<div className="prose">
-											<h1>{event.name}</h1>
-										</div>
-										<div className="flex flex-row">
-											<p className="flex-1 hidden prose-sm prose md:block ">
-												{event.description}
-											</p>
+										selected
+											? "bg-white text-blue-700 shadow"
+											: "  hover:bg-white/[0.12] text-gray-400 hover:text-blue-700"
+									)
+								}
+							>
+								Upcoming events
+							</Tab>
+							<Tab
+								className={({ selected }) =>
+									classNames(
+										"transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg",
 
-											<div className="flex flex-row items-end justify-end flex-1 ">
-												<div className="mr-10 text-white bg-transparent ">
-													<div className="stat-title">When (your timezone)</div>
-													<div className="">{moment(event.when).format("lll")}</div>
-												</div>
-												<div className="text-right text-white bg-transparent drop-shadow">
-													<div className="stat-title">Avaliable slots</div>
-													<div className="">40/{event.slots}</div>
-												</div>
-											</div>
-										</div>
-									</div>
+										selected
+											? "bg-white text-blue-700 shadow"
+											: "  hover:bg-white/[0.12] text-gray-400 hover:text-blue-700"
+									)
+								}
+							>
+								Past events
+							</Tab>
+						</Tab.List>
+						<Tab.Panels className="mt-2 ">
+							<Tab.Panel>
+								<div className="mx-1 my-10 space-y-10 md:mx-12">
+									{upcomingEvents.map((event) => (
+										<Link key={event.name} href={`/events/${event.slug}`} passHref>
+											<a>
+												<EventCardList event={event}></EventCardList>
+											</a>
+										</Link>
+									))}
 								</div>
-							</div>
-						</Link>
-					))}
-				</div>
+							</Tab.Panel>
 
-				<div className="mx-4 mt-10 prose lg:prose-xl">
-					<h2>Past Events:</h2>
-				</div>
-
-				<div className="mx-1 my-10 space-y-10 md:mx-12">
-					{pastEvents.map((event) => (
-						<Link key={event.name} href={`/events/${event.slug}`} passHref>
-							<div className="mb-10 transition-all duration-300 hover:cursor-pointer xl:hover:-mx-10">
-								<div className="relative drop-shadow-xl shadow-strong card">
-									<figure style={{ aspectRatio: "16/4", minHeight: 300 }}>
-										<Image
-											quality={100}
-											src={event.image}
-											layout={"fill"}
-											objectFit="cover"
-											alt={"Event cover image"}
-										/>
-									</figure>
-
-									<div className="absolute flex flex-col justify-between w-full h-full p-10 text-gray-200 scrim">
-										<div className="prose">
-											<h1>{event.name}</h1>
-										</div>
-										<div className="flex flex-row">
-											<p className="flex-1 hidden prose-sm prose md:block ">
-												{event.description}
-											</p>
-
-											<div className="flex flex-row items-end justify-end flex-1 ">
-												<div className="mr-10 text-white bg-transparent ">
-													<div className="stat-title">When (your timezone)</div>
-													<div className="">{moment(event.when).format("lll")}</div>
-												</div>
-												<div className="text-right text-white bg-transparent drop-shadow">
-													<div className="stat-title">Avaliable slots</div>
-													<div className="">40/{event.slots}</div>
-												</div>
-											</div>
-										</div>
-									</div>
+							<Tab.Panel>
+								<div className="mx-1 my-10 space-y-10 md:mx-12">
+									{pastEvents.map((event) => (
+										<Link key={event.name} href={`/events/${event.slug}`} passHref>
+											<a>
+												<EventCardList event={event}></EventCardList>
+											</a>
+										</Link>
+									))}
 								</div>
-							</div>
-						</Link>
-					))}
+							</Tab.Panel>
+						</Tab.Panels>
+					</Tab.Group>
 				</div>
 			</div>
 		</>
