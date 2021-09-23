@@ -16,6 +16,7 @@
     "@tailwindcss/line-clamp": "^0.2.1",
     "@tailwindcss/typography": "^0.4.1",
     "@types/react": "^17.0.19",
+    "axios": "^0.21.4",
     "babel-plugin-superjson-next": "^0.3.1",
     "clsx": "^1.1.1",
     "daisyui": "^1.14.0",

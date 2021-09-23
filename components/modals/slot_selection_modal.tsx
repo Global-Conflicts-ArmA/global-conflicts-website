@@ -1,11 +1,17 @@
 import { Dialog, RadioGroup, Transition } from "@headlessui/react";
 import { CheckIcon, QuestionMarkCircleIcon } from "@heroicons/react/outline";
+import Link from "next/link";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import ReactMde from "react-mde";
 import useSWR from "swr";
 import fetcher from "../../lib/fetcher";
 
-export default function SlotSelectionModal({ isOpen, onClose, event }) {
+export default function SlotSelectionModal({
+	isOpen,
+	onClose,
+	onReserve,
+	event,
+}) {
 	let refDiv = useRef(null);
 	const [selected, setSelected] = useState(null);
 	return (
@@ -49,10 +55,13 @@ export default function SlotSelectionModal({ isOpen, onClose, event }) {
 								<div>
 									Slots for <b>{event.name}</b>
 								</div>
-								<a className=" btn btn-ghost btn-md">
-									How it works
-									<QuestionMarkCircleIcon height={25}></QuestionMarkCircleIcon>
-								</a>
+
+								<Link href="/guides/events#signup-and-slotting-procedure" passHref>
+									<a className="btn btn-ghost btn-md" target="_blank">
+										How it works{" "}
+										<QuestionMarkCircleIcon height={25}></QuestionMarkCircleIcon>
+									</a>
+								</Link>
 							</Dialog.Title>
 
 							<div className="mt-2 overflow-y-auto" style={{ maxHeight: "75vh" }}>
@@ -116,8 +125,17 @@ export default function SlotSelectionModal({ isOpen, onClose, event }) {
 							</div>
 
 							<div className="flex flex-row justify-between mt-4">
-								<button type="button" className="btn btn-sm" onClick={onClose}>
+								<button type="button" className="btn" onClick={onClose}>
 									Close
+								</button>
+								<button
+									disabled={!selected}
+									className="btn btn-primary btn-wide"
+									onClick={() => {
+										onReserve(selected);
+									}}
+								>
+									Reserve
 								</button>
 							</div>
 						</div>

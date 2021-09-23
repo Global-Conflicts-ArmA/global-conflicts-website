@@ -18,6 +18,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
 import SlotSelectionModal from "../../components/modals/slot_selection_modal";
+import axios from "axios";
 
 const Completionist = () => <span>It has started!</span>;
 
@@ -62,6 +63,21 @@ const renderer = ({ days, hours, minutes, seconds, completed }) => {
 		);
 	}
 };
+
+async function reserveSlot(event, slot) {
+	axios
+		.post("/api/events/reserve", {
+			eventName: event.name,
+			slot: slot,
+		})
+		.then((response) => {
+			console.log(response);
+		})
+		.catch((error)=>{
+			console.log(error);
+		})
+		;
+}
 
 export default function EventHome({ event }) {
 	const [content, setContent] = useState(event.tabs[0].content);
@@ -117,7 +133,7 @@ export default function EventHome({ event }) {
 									<div className="">{moment(event.when).format("lll")}</div>
 								</div>
 								<div className="text-right text-white bg-transparent">
-									<div className="font-bold text-gray-200">Avaliable slots</div>
+									<div className="font-bold text-gray-200">Reserved slots</div>
 									<div className="">40/{event.slots}</div>
 								</div>
 							</div>
@@ -126,15 +142,19 @@ export default function EventHome({ event }) {
 				</div>
 
 				{!event.completed && (
-					<div className="flex my-10 space-x-2">
-						<label className="flex-1 btn btn-lg btn-primary">
-							<button
-								onClick={() => {
-									setSlotsModalOpen(true);
-								}}
-							/>
-							{"Sign up"}
-						</label>
+					<div className="flex flex-1 my-10 space-x-2">
+						<button
+							className="flex-1 btn btn-lg btn-primary"
+							onClick={() => {
+								setSlotsModalOpen(true);
+							}}
+						>
+							Reserve a slot
+						</button>
+						<button className="flex-1 btn btn-lg btn-secondary">Attending</button>
+						<button className="flex-1 btn btn-lg btn-warning">
+							Can&apos;t make it
+						</button>
 					</div>
 				)}
 			</div>
@@ -173,6 +193,9 @@ export default function EventHome({ event }) {
 			<SlotSelectionModal
 				isOpen={slotsModalOpen}
 				event={event}
+				onReserve={async (slot) => {
+					await reserveSlot(event, slot);
+				}}
 				onClose={() => {
 					setSlotsModalOpen(false);
 				}}

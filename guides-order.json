@@ -33,6 +33,11 @@
       "type": "section"
    },
    {
+      "slug": "events",
+      "title": "Events",
+      "type": "single"
+   },
+   {
       "title": "Tecnhical",
       "children": [
          {
