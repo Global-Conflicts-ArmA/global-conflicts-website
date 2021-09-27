@@ -206,7 +206,7 @@ export default function EventHome({ event }) {
 										</span>
 									</div>
 									<div>
-										{event.signups.length + (isSignedUp ? 1 : 0)}/{event.slots}
+										{(event.signups?.length ?? 0) + (isSignedUp ? 1 : 0)}/{event.slots}
 									</div>
 								</div>
 							</div>
