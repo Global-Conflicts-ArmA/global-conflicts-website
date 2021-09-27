@@ -3,10 +3,10 @@ import DiscordProvider from "next-auth/providers/discord";
 
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import MyMongo from "../../../lib/mongodb";
-import Discord from 'discord.js';
+import Discord from "discord.js";
 
 export default NextAuth({
-	// Configure one or more authentication providers
+	// Configure one or more authentication providers A
 	providers: [
 		DiscordProvider({
 			clientId: process.env.DISCORD_TEST_APP_ID,
@@ -25,7 +25,7 @@ export default NextAuth({
 				}
 
 				const client = new Discord.Client();
-				
+
 				client.login(process.env.DISCORD_BOT_TOKEN);
 
 				const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
@@ -33,7 +33,7 @@ export default NextAuth({
 				const member = await guild.members.fetch(profile["id"]);
 
 				const roles = member.roles.cache
-					.filter((value) => value.name != "@everyone")																
+					.filter((value) => value.name != "@everyone")
 					.map(function (value) {
 						return { id: value.id, name: value.name, color: value.hexColor };
 					});
