@@ -13,48 +13,55 @@ export default async function handler(
 	const user = await validateUser(req, res, CREDENTIAL.MEMBER).catch((error) => {
 		return res.status(401).send("");
 	});
-	console.log(user);
 
-	const slotName = req.body.slot?.name;
 	const eventSlug = req.body.eventSlug;
 
-	const eventFound = await MyMongo.collection("events").findOne(
-		{ slug: eventSlug },
-		{ projection: { _id: 1 } }
-	);
-	if (!eventFound) {
+	const cantMakeIt = req.body.cantMakeIt ?? false;
+
+	let cantMakeItResult: UpdateResult;
+	let canMakeItResult: UpdateResult;
+
+	const userIsSignedUp = await MyMongo.collection("users").findOne({
+		discord_id: user["discord_id"],
+		"eventsSignedUp.eventSlut": eventSlug,
+	});
+	if (userIsSignedUp) {
 		return res.status(400).send("");
 	}
 
-	let addResult: UpdateResult;
-	let pullResult: UpdateResult;
-	if (slotName) {
-		addResult = await MyMongo.collection("users").updateOne(
+	if (cantMakeIt) {
+		cantMakeItResult = await MyMongo.collection("users").updateOne(
 			{
 				discord_id: user["discord_id"],
-				"eventsSignedUp.eventSlug": eventSlug,
 			},
 			{
-				$set: {
-					"eventsSignedUp.$.reservedSlotName": slotName,
+				$addToSet: {
+					cantMakeIt: {
+						eventSlug: eventSlug,
+					},
 				},
 			}
 		);
 	} else {
-		pullResult = await MyMongo.collection("users").updateOne(
+		canMakeItResult = await MyMongo.collection("users").updateOne(
 			{
 				discord_id: user["discord_id"],
-				"eventsSignedUp.eventSlug": eventSlug,
 			},
 			{
-				$unset: {
-					"eventsSignedUp.$.reservedSlotName": 1,
+				$pull: {
+					cantMakeIt: {
+						eventSlug: eventSlug,
+					},
 				},
 			}
 		);
 	}
 
-	if (slotName ? addResult.modifiedCount > 0 : pullResult.modifiedCount > 0) {
+	if (
+		cantMakeIt
+			? cantMakeItResult.modifiedCount > 0
+			: canMakeItResult.modifiedCount > 0
+	) {
 		return res.status(200).send("");
 	} else {
 		return res.status(400).send("");

@@ -10,10 +10,20 @@ export default function SlotSelectionModal({
 	isOpen,
 	onClose,
 	onReserve,
+	reservedSlotName,
 	event,
 }) {
 	let refDiv = useRef(null);
 	const [selected, setSelected] = useState(null);
+
+	useEffect(() => {
+		for (const slot of event.slotsInfo.slotsList) {
+			if (slot.name == reservedSlotName) {
+				setSelected(slot);
+			}
+		}
+	}, [event.slotsInfo.slotsList, reservedSlotName]);
+
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog

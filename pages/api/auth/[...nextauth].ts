@@ -26,7 +26,7 @@ export default NextAuth({
 
 				const client = new Discord.Client();
 				
-				client.login(process.env.token);
+				client.login(process.env.DISCORD_BOT_TOKEN);
 
 				const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
 
