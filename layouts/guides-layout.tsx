@@ -1,32 +1,20 @@
 import React, { createContext, useContext } from "react";
-import GuideItem from "../components/guide-item";
+import NavBarItem from "../components/navbar_item";
+
 import _guidesOrder from "../guides-order.json";
-
-export interface GuideOrder {
-	title: string;
-	file?: string;
-	type: string;
-	children?: Child[];
-}
-
-export interface Child {
-	title: string;
-	file: string;
-}
+import { ISideNavItem } from "../interfaces/navbar_item";
 
 export default function GuidesLayout({ children }) {
-	const guidesOrder = _guidesOrder as GuideOrder[];
+	const guidesOrder = _guidesOrder as ISideNavItem[];
 
 	return (
 		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-row">
-				<aside
-					className={"px-4 py-6  relative h-full overflow-y-auto "}
-				>
+				<aside className={"px-4 py-6  relative h-full overflow-y-auto "}>
 					<nav>
 						{guidesOrder.map((guide) => (
 							<ul key={guide["title"]} className="">
-								<GuideItem guide={guide}></GuideItem>
+								<NavBarItem item={guide}></NavBarItem>
 							</ul>
 						))}
 					</nav>
@@ -36,4 +24,3 @@ export default function GuidesLayout({ children }) {
 		</div>
 	);
 }
-

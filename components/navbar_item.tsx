@@ -4,25 +4,25 @@ import Link from "next/link";
 import ChevronUpIcon from "@heroicons/react/outline/ChevronUpIcon";
 import React from "react";
 
-export default function GuideItem({ guide, onClick = null }) {
+export default function NavBarItem({ item, onClick = null }) {
 	return (
 		<div className="w-full pt-4">
 			<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
-				{guide["children"] ? (
+				{item["children"] ? (
 					<Disclosure defaultOpen={true}>
 						{({ open }) => (
 							<>
 								<Disclosure.Button className="flex justify-between w-full px-4 py-2 mb-3 text-sm font-medium text-left rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-gray-200 focus-visible:ring-opacity-75">
-									<span>{guide["title"]}</span>
+									<span>{item["title"]}</span>
 									<ChevronUpIcon
 										className={`${
 											open ? "transform rotate-180" : ""
 										} w-5 h-5 text-gray-500`}
 									/>
 								</Disclosure.Button>
-								{guide["children"].map((child) => (
+								{item["children"].map((child) => (
 									<Transition
-										key={guide["sectionName"]}
+										key={item["sectionName"]}
 										show={open}
 										enter="transition duration-400 ease-out"
 										enterFrom="transform scale-95 opacity-0"
@@ -56,22 +56,22 @@ export default function GuideItem({ guide, onClick = null }) {
 					</Disclosure>
 				) : (
 					<div>
-						{guide["slug"] ? (
-							<Link href={`/guides/${guide["slug"]}`}>
+						{item["slug"] ? (
+							<Link href={`/guides/${item["slug"]}`}>
 								<a>
 									<div className="p-4 mb-4 text-sm font-medium text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100">
-										{guide["title"]}
+										{item["title"]}
 									</div>
 								</a>
 							</Link>
 						) : (
 							<div
 								onClick={() => {
-									onClick(guide);
+									onClick(item);
 								}}
 								className="p-4 mb-4 ml-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100"
 							>
-								{guide["title"]}
+								{item["title"]}
 							</div>
 						)}
 					</div>

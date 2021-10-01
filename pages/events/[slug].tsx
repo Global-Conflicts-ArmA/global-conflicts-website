@@ -262,7 +262,7 @@ export default function EventHome({ event }) {
 											setSlotsModalOpen(true);
 										}}
 									>
-										Reserve Slot
+										Reserve Slot (Optional)
 									</button>
 
 									<button

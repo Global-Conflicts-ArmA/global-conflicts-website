@@ -66,12 +66,7 @@ export default function SlotSelectionModal({
 									Slots for <b>{event.name}</b>
 								</div>
 
-								<Link href="/guides/events#signup-and-slotting-procedure" passHref>
-									<a className="btn btn-ghost btn-md" target="_blank">
-										How it works{" "}
-										<QuestionMarkCircleIcon height={25}></QuestionMarkCircleIcon>
-									</a>
-								</Link>
+							
 							</Dialog.Title>
 
 							<div className="mt-2 overflow-y-auto" style={{ maxHeight: "75vh" }}>
