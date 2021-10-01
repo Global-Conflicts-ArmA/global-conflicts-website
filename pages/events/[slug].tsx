@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import Countdown from "react-countdown";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import GuideItem from "../../components/guide-item";
+ 
 
 import MyMongo from "../../lib/mongodb";
 import { Params } from "next/dist/server/router";
@@ -18,6 +18,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import QuestionMarkCircleIcon from "@heroicons/react/outline/QuestionMarkCircleIcon";
 import AboutSignUpModal from "../../components/modals/about_sign_ups_modal";
+import NavBarItem from "../../components/navbar_item";
 
 const Completionist = () => <span>It has started!</span>;
 
@@ -358,8 +359,8 @@ export default function EventHome({ event }) {
 						<nav>
 							{event.tabs.map((tabs) => (
 								<ul key={tabs["title"]} className="">
-									<GuideItem
-										guide={tabs}
+									<NavBarItem
+										item={tabs}
 										onClick={(child) => {
 											console.log(event);
 											console.log(child);
@@ -367,7 +368,7 @@ export default function EventHome({ event }) {
 
 											console.log("ASDASDS");
 										}}
-									></GuideItem>
+									></NavBarItem>
 								</ul>
 							))}
 						</nav>
