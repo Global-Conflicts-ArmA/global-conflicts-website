@@ -4,7 +4,11 @@ import Link from "next/link";
 import ChevronUpIcon from "@heroicons/react/outline/ChevronUpIcon";
 import React from "react";
 
-export default function NavBarItem({ item, onClick = null }) {
+export default function NavBarItem({
+	item,
+	onClick = null,
+	isSelected = false,
+}) {
 	return (
 		<div className="w-full pt-4">
 			<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
@@ -35,7 +39,7 @@ export default function NavBarItem({ item, onClick = null }) {
 											<Link href={`/guides/${child["slug"]}`}>
 												<a>
 													<Disclosure.Panel className="p-4 mb-4 ml-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100">
-														{child["title"]}
+														{isSelected ? "•" : ""} {child["title"]}
 													</Disclosure.Panel>
 												</a>
 											</Link>
@@ -46,7 +50,7 @@ export default function NavBarItem({ item, onClick = null }) {
 												}}
 												className="p-4 mb-4 ml-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100"
 											>
-												{child["title"]}
+												{isSelected ? "•" : ""} {child["title"]}
 											</div>
 										)}
 									</Transition>
@@ -60,7 +64,7 @@ export default function NavBarItem({ item, onClick = null }) {
 							<Link href={`/guides/${item["slug"]}`}>
 								<a>
 									<div className="p-4 mb-4 text-sm font-medium text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100">
-										{item["title"]}
+									{isSelected ? "•" : ""} {item["title"]}
 									</div>
 								</a>
 							</Link>
@@ -69,9 +73,11 @@ export default function NavBarItem({ item, onClick = null }) {
 								onClick={() => {
 									onClick(item);
 								}}
-								className="p-4 mb-4 ml-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100"
+								className={`p-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 break-all ${
+									isSelected ? "font-bold" : ""
+								}`}
 							>
-								{item["title"]}
+								{isSelected ? "•" : ""} {item["title"]}
 							</div>
 						)}
 					</div>

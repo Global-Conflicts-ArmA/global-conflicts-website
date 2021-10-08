@@ -6,7 +6,7 @@ import MyMongo from "../../lib/mongodb";
 import { Params } from "next/dist/server/router";
 import moment from "moment";
 import { Tab } from "@headlessui/react";
-import EventCardList from "../../components/event_list_card";
+import EventCard from "../../components/event_list_card";
 
 const Completionist = () => <span>It has started!</span>;
 
@@ -116,7 +116,7 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
 									{upcomingEvents.map((event) => (
 										<Link key={event.name} href={`/events/${event.slug}`} passHref>
 											<a>
-												<EventCardList event={event}></EventCardList>
+												<EventCard event={event}></EventCard>
 											</a>
 										</Link>
 									))}
@@ -128,7 +128,7 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
 									{pastEvents.map((event) => (
 										<Link key={event.name} href={`/events/${event.slug}`} passHref>
 											<a>
-												<EventCardList event={event}></EventCardList>
+												<EventCard event={event}></EventCard>
 											</a>
 										</Link>
 									))}

@@ -271,3 +271,17 @@ h3:hover .anchor-link,
 h3:hover .anchor-link {
 	opacity: 1;
 }
+
+.card-figure {
+	transition: all;
+	aspect-ratio: 16/6;
+	min-height: 250px;
+	display: flex;
+	align-items: center;
+}
+
+.event-media-safe-area{
+	border-top: solid 1px white ;
+	border-bottom: solid 1px white ;
+	z-index: 2;
+}

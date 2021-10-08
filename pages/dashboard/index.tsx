@@ -18,10 +18,13 @@ function Dashboard() {
 						</div>
 
 						<div className="flex flex-row mt-5 space-x-5">
-							<Link href="/dashboard/create_event" passHref>
+							<Link href="/dashboard/events/create" passHref>
 								<button className="btn btn-lg">CREATE EVENT</button>
 							</Link>
-							<button className="btn btn-lg">EDIT EVENT</button>
+
+							<Link href="/dashboard/events/list" passHref>
+								<button className="btn btn-lg">EDIT EVENT</button>
+							</Link>
 						</div>
 					</section>
 				</main>

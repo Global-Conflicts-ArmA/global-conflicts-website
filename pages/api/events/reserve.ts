@@ -16,6 +16,7 @@ export default async function handler(
 	console.log(user);
 
 	const slotName = req.body.slot?.name;
+	const factionTitle = req.body.factionTitle
 	const eventSlug = req.body.eventSlug;
 
 	const eventFound = await MyMongo.collection("events").findOne(
@@ -37,6 +38,7 @@ export default async function handler(
 			{
 				$set: {
 					"eventsSignedUp.$.reservedSlotName": slotName,
+					"eventsSignedUp.$.reservedSlotFactionTitle": factionTitle,
 				},
 			}
 		);
@@ -49,6 +51,7 @@ export default async function handler(
 			{
 				$unset: {
 					"eventsSignedUp.$.reservedSlotName": 1,
+					"eventsSignedUp.$.reservedSlotFactionTitle": 1,
 				},
 			}
 		);

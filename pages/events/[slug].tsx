@@ -4,7 +4,6 @@ import ReactDOM from "react-dom";
 import Countdown from "react-countdown";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
- 
 
 import MyMongo from "../../lib/mongodb";
 import { Params } from "next/dist/server/router";
@@ -19,8 +18,13 @@ import { toast } from "react-toastify";
 import QuestionMarkCircleIcon from "@heroicons/react/outline/QuestionMarkCircleIcon";
 import AboutSignUpModal from "../../components/modals/about_sign_ups_modal";
 import NavBarItem from "../../components/navbar_item";
+import EventCard from "../../components/event_list_card";
 
-const Completionist = () => <span>It has started!</span>;
+const Completionist = () => (
+	<div className="my-10 prose">
+		<h3>It has begun!</h3>
+	</div>
+);
 
 // Renderer callback with condition
 const renderer = ({ days, hours, minutes, seconds, completed }) => {
@@ -34,41 +38,53 @@ const renderer = ({ days, hours, minutes, seconds, completed }) => {
 		var minutesStyle = { "--value": minutes } as React.CSSProperties;
 		var secondsStyle = { "--value": seconds } as React.CSSProperties;
 		return (
-			<div className="flex items-center grid-flow-col gap-5 mx-10 text-sm text-center auto-cols-max">
-				<div className="flex flex-col">
-					<span className="font-mono text-2xl countdown">
-						<span style={daysStyle}></span>
-					</span>
-					days
+			<>
+				<div className="my-10 prose">
+					<h1>Starts in:</h1>
 				</div>
-				<div className="flex flex-col">
-					<span className="font-mono text-2xl countdown">
-						<span style={hoursStyle}></span>
-					</span>
-					hours
+				<div className="flex items-center grid-flow-col gap-5 mx-10 text-sm text-center auto-cols-max">
+					<div className="flex flex-col">
+						<span className="font-mono text-2xl countdown">
+							<span style={daysStyle}></span>
+						</span>
+						days
+					</div>
+					<div className="flex flex-col">
+						<span className="font-mono text-2xl countdown">
+							<span style={hoursStyle}></span>
+						</span>
+						hours
+					</div>
+					<div className="flex flex-col">
+						<span className="font-mono text-2xl countdown">
+							<span style={minutesStyle}></span>
+						</span>
+						min
+					</div>
+					<div className="flex flex-col">
+						<span className="font-mono text-2xl countdown">
+							<span style={secondsStyle}></span>
+						</span>
+						sec
+					</div>
 				</div>
-				<div className="flex flex-col">
-					<span className="font-mono text-2xl countdown">
-						<span style={minutesStyle}></span>
-					</span>
-					min
-				</div>
-				<div className="flex flex-col">
-					<span className="font-mono text-2xl countdown">
-						<span style={secondsStyle}></span>
-					</span>
-					sec
-				</div>
-			</div>
+			</>
 		);
 	}
 };
 
-async function callReserveSlot(event, onSuccess, onError, slot?) {
+async function callReserveSlot(
+	event,
+	onSuccess,
+	onError,
+	slot?,
+	factionTitle?
+) {
 	axios
 		.post("/api/events/reserve", {
 			eventSlug: event.slug,
 			slot: slot,
+			factionTitle: factionTitle,
 		})
 		.then((response) => {
 			console.log(response);
@@ -113,7 +129,9 @@ async function callSignUp(event, onSuccess, onError, doSignup) {
 }
 
 export default function EventHome({ event }) {
-	const [content, setContent] = useState(event.tabs[0].content);
+	const [currentContentPage, setCurrentContentPage] = useState(
+		event.contentPages[0]
+	);
 
 	let [slotsModalOpen, setSlotsModalOpen] = useState(false);
 	let [aboutSignUpModalOpen, setAboutSignUpModalOpen] = useState(false);
@@ -121,6 +139,7 @@ export default function EventHome({ event }) {
 
 	let [isSignedUp, setIsSignedUp] = useState(false);
 	let [reservedSlotName, setReservedSlotName] = useState(null);
+	let [reservedSlotFactionTitle, setReservedSlotFactionTitle] = useState(null);
 	let [cantMakeIt, setCantMakeIt] = useState(false);
 
 	useEffect(() => {
@@ -128,8 +147,10 @@ export default function EventHome({ event }) {
 			if (session.user["eventsSignedUp"]) {
 				for (const eventSingedUp of session.user["eventsSignedUp"]) {
 					if (eventSingedUp["eventSlug"] == event.slug) {
+						console.log("aaaaaaa");
 						setIsSignedUp(true);
 						setReservedSlotName(eventSingedUp["reservedSlotName"]);
+						setReservedSlotFactionTitle(eventSingedUp["reservedSlotFactionTitle"]);
 						break;
 					}
 				}
@@ -165,55 +186,11 @@ export default function EventHome({ event }) {
 					</div>
 				) : (
 					<div className="flex flex-row">
-						<div className="my-10 prose">
-							<h1>Starts in:</h1>
-						</div>
 						<Countdown date={event.when} renderer={renderer}></Countdown>
 					</div>
 				)}
 
-				<div className="relative shadow-xl card">
-					<figure style={{ aspectRatio: "16/7" }}>
-						<Image
-							quality={100}
-							src={event.image}
-							layout={"fill"}
-							objectFit="cover"
-							alt={"Event cover image"}
-						/>
-					</figure>
-					<div className="absolute flex flex-col justify-between w-full h-full p-10 text-white scrim">
-						<div className="prose textshadow">
-							<h1>{event.name}</h1>
-						</div>
-						<div className="flex flex-row textshadow">
-							<p className="flex-1 prose ">{event.description}</p>
-
-							<div className="flex flex-row items-end justify-end flex-1 ">
-								<div className="mr-10 text-white bg-transparent">
-									<div className="font-bold text-gray-200">When (your timezone)</div>
-									<div className="">{moment(event.when).format("lll")}</div>
-								</div>
-								<div className="text-right text-white bg-transparent ">
-									<div className="flex flex-row items-center font-bold text-gray-200">
-										Sign ups{" "}
-										<span
-											onClick={() => {
-												setAboutSignUpModalOpen(true);
-											}}
-											className="cursor-pointer"
-										>
-											<QuestionMarkCircleIcon height={18}></QuestionMarkCircleIcon>
-										</span>
-									</div>
-									<div>
-										{(event.signups?.length ?? 0) + (isSignedUp ? 1 : 0)}/{event.slots}
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+				<EventCard event={event} aspectRatio={"16/9"} isViewOnly={true}></EventCard>
 
 				<div className="my-5 ml-auto">
 					<Link href="/guides/events#signup-and-slotting-procedure" passHref>
@@ -235,7 +212,7 @@ export default function EventHome({ event }) {
 										}}
 									>
 										<div>
-											<div className="text-sm">{reservedSlotName}</div>
+											<div className="text-sm">Slot reserved: {reservedSlotName}</div>
 											<div className="text-xs">Click here to change</div>
 										</div>
 									</button>
@@ -357,16 +334,13 @@ export default function EventHome({ event }) {
 				<div className="flex flex-row">
 					<aside className={"px-4 py-6  relative h-full overflow-y-auto "}>
 						<nav>
-							{event.tabs.map((tabs) => (
-								<ul key={tabs["title"]} className="">
+							{event.contentPages.map((contentPage) => (
+								<ul key={contentPage["title"]} className="">
 									<NavBarItem
-										item={tabs}
+										item={contentPage}
+										isSelected={contentPage.title == currentContentPage.title}
 										onClick={(child) => {
-											console.log(event);
-											console.log(child);
-											setContent(child.content);
-
-											console.log("ASDASDS");
+											setCurrentContentPage(contentPage);
 										}}
 									></NavBarItem>
 								</ul>
@@ -375,11 +349,11 @@ export default function EventHome({ event }) {
 					</aside>
 					<main className="flex-grow">
 						<div className="prose">
-							<h1>Event Summary:</h1>
+							<h1>Event Details:</h1>
 						</div>
 						<article className="max-w-3xl prose">
 							<kbd className="hidden kbd"></kbd>
-							<MDXRemote {...content} />
+							<MDXRemote {...currentContentPage.parsedMarkdownContent} />
 						</article>
 					</main>
 				</div>
@@ -388,17 +362,20 @@ export default function EventHome({ event }) {
 			<SlotSelectionModal
 				isOpen={slotsModalOpen}
 				event={event}
+				reservedSlotFactionTitle={reservedSlotFactionTitle}
 				reservedSlotName={reservedSlotName}
-				onReserve={async (slot) => {
+				onReserve={async (slot, factionTitle) => {
 					await callReserveSlot(
 						event,
 						() => {
 							setReservedSlotName(slot.name);
+							setReservedSlotFactionTitle(factionTitle);
 							setSlotsModalOpen(false);
 							toast.success(`Slot "${slot.name}" Reserved`);
 						},
 						() => {},
-						slot
+						slot,
+						factionTitle
 					);
 				}}
 				onClose={() => {
@@ -426,20 +403,19 @@ export async function getStaticProps({ params }: Params) {
 	// const content = await markdownToHtml(post.content || "");
 	// const mdxSource = await serialize(post.content);
 
-	async function iterateTabs(tabs) {
+	async function iterateContentPages(contentPages) {
 		await Promise.all(
-			tabs.map(async (tab) => {
-				if (tab.content) {
-					tab.content = await serialize(tab.content);
-				}
-				if (tab.children) {
-					await iterateTabs(tab.children);
+			contentPages.map(async (contentPage) => {
+				if (contentPage.markdownContent) {
+					contentPage.parsedMarkdownContent = await serialize(
+						contentPage.markdownContent
+					);
 				}
 			})
 		);
 	}
 
-	await iterateTabs(event.tabs);
+	await iterateContentPages(event.contentPages);
 
 	return { props: { event: event } };
 }
