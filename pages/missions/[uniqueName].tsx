@@ -23,7 +23,7 @@ import MissionAuditModal from "../../components/modals/mission_audit_modal";
 import MissionMediaCard from "../../components/mission_media_card";
 import { NextSeo, VideoJsonLd } from "next-seo";
 import Head from "next/head";
- 
+
 let updateOutside;
 export default function MissionDetails({ mission }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
@@ -139,14 +139,18 @@ export default function MissionDetails({ mission }) {
 				<meta property="og:type" content="website" />
 
 				<meta property="og:title" content={mission.name} />
-				<meta property="og:video" content="https://gc-next-website.vercel.app/missionsCoverMedia/COOP44_rolland_the_headless_client.mp4" />
+				<meta property="og:video:type" content="application/mp4" />
+
+				<meta
+					property="og:video"
+					content="https://gc-next-website.vercel.app/missionsCoverMedia/COOP44_rolland_the_headless_client.mp4"
+				/>
+				<meta property="og:video:width" content="640" />
+				<meta property="og:video:height" content="426" />
 				<meta name="twitter:card" content={mission.description} />
 				<meta property="og:description" content={mission.description} />
 
-
-
- 
-
+				<meta property="og:site_name" content="Global Conflicts" />
 			</Head>
 			<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
 				<div className="flex flex-row m-10 md:space-x-10">
