@@ -143,8 +143,14 @@ export default function MissionDetails({ mission }) {
 
 				<meta
 					property="og:video"
-					content="https://gc-next-website.vercel.app/missionsCoverMedia/COOP44_rolland_the_headless_client.mp4"
+					content="https://www.youtube.com/watch?v=bLhCbtRXPTM"
 				/>
+
+<meta
+					property="og:proxy_url"
+					content="https://www.youtube.com/watch?v=bLhCbtRXPTM"
+				/>
+
 				<meta property="og:video:width" content="640" />
 				<meta property="og:video:height" content="426" />
 				<meta name="twitter:card" content={mission.description} />
