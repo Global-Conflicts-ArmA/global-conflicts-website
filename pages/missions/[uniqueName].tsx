@@ -22,7 +22,8 @@ import fetcher from "../../lib/fetcher";
 import MissionAuditModal from "../../components/modals/mission_audit_modal";
 import MissionMediaCard from "../../components/mission_media_card";
 import { NextSeo, VideoJsonLd } from "next-seo";
-
+import Head from "next/head";
+ 
 let updateOutside;
 export default function MissionDetails({ mission }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
@@ -131,17 +132,19 @@ export default function MissionDetails({ mission }) {
 
 	return (
 		<>
-			<VideoJsonLd
-				name={mission.name}
-				description={mission.description}
-				contentUrl="../missionsCoverMedia/COOP44_rolland_the_headless_client.mp4"
-				uploadDate="2018-02-05T08:00:00+08:00"
-				thumbnailUrls={[
-					'https://i.imgur.com/8zAdIPD.jpg',
+			<Head>
+				<title>{mission.name}</title>
 
-				 ]}
-			/>
+				<meta property="og:url" content="https://globalconflicts.net/" />
+				<meta property="og:type" content="website" />
 
+				<meta property="og:title" content={mission.name} />
+				<meta property="og:video" content="../missionsCoverMedia/COOP44_rolland_the_headless_client.mp4" />
+				<meta name="twitter:card" content={mission.description} />
+				<meta property="og:description" content={mission.description} />
+
+
+			</Head>
 			<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
 				<div className="flex flex-row m-10 md:space-x-10">
 					<div className="flex-1 hidden overflow-hidden shadow-lg rounded-xl md:block">
