@@ -139,10 +139,13 @@ export default function MissionDetails({ mission }) {
 				<meta property="og:type" content="website" />
 
 				<meta property="og:title" content={mission.name} />
-				<meta property="og:video" content="../missionsCoverMedia/COOP44_rolland_the_headless_client.mp4" />
+				<meta property="og:video" content="https://gc-next-website.vercel.app/missionsCoverMedia/COOP44_rolland_the_headless_client.mp4" />
 				<meta name="twitter:card" content={mission.description} />
 				<meta property="og:description" content={mission.description} />
 
+
+
+ 
 
 			</Head>
 			<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
