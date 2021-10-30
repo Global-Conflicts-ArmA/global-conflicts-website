@@ -1,7 +1,7 @@
 import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
 import MyMongo from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
-import { UpdateResult } from "mongodb";
+import { ObjectId, UpdateResult } from "mongodb";
 
 export default async function handler(
 	req: NextApiRequest,
@@ -15,10 +15,11 @@ export default async function handler(
 	});
 
 	const doSignup = req.body.doSignup;
-	const eventSlug = req.body.eventSlug;
-
+	const eventId = req.body.eventId;
+	const eventObjectId = new ObjectId(eventId);
 	let addResult: UpdateResult;
 	let pullResult: UpdateResult;
+ 
 	if (doSignup) {
 		addResult = await MyMongo.collection("users").updateOne(
 			{
@@ -27,20 +28,20 @@ export default async function handler(
 			{
 				$addToSet: {
 					eventsSignedUp: {
-						eventSlug: eventSlug,
+						eventId: eventObjectId,
 					},
 				},
 
 				$pull: {
 					cantMakeIt: {
-						eventSlug: eventSlug,
+						eventId: eventObjectId,
 					},
 				},
 			}
 		);
 		if (addResult.modifiedCount > 0) {
 			await MyMongo.collection("events").updateOne(
-				{ slug: eventSlug },
+				{ _id: eventObjectId },
 				{
 					$addToSet: {
 						signups: user["discord_id"],
@@ -57,14 +58,14 @@ export default async function handler(
 			{
 				$pull: {
 					eventsSignedUp: {
-						eventSlug: eventSlug,
+						eventId: eventObjectId,
 					},
 				},
 			}
 		);
 		if (pullResult.modifiedCount > 0) {
 			await MyMongo.collection("events").updateOne(
-				{ slug: eventSlug },
+				{ _id: eventObjectId },
 				{
 					$pull: {
 						signups: user["discord_id"],

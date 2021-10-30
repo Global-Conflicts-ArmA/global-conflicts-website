@@ -1,5 +1,3 @@
-import Document, { Html, Head, Main, NextScript } from "next/document";
-
 export default function InvalidIcon() {
 	return (
 		<svg

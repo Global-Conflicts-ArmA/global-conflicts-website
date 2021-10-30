@@ -1,7 +1,7 @@
 import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
 import MyMongo from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
-import { UpdateResult } from "mongodb";
+import { ObjectId, UpdateResult } from "mongodb";
 
 export default async function handler(
 	req: NextApiRequest,
@@ -14,8 +14,8 @@ export default async function handler(
 		return res.status(401).send("");
 	});
 
-	const eventSlug = req.body.eventSlug;
-
+	const eventId = req.body.eventId;
+	const eventObjectId = new ObjectId(eventId);
 	const cantMakeIt = req.body.cantMakeIt ?? false;
 
 	let cantMakeItResult: UpdateResult;
@@ -23,8 +23,9 @@ export default async function handler(
 
 	const userIsSignedUp = await MyMongo.collection("users").findOne({
 		discord_id: user["discord_id"],
-		"eventsSignedUp.eventSlut": eventSlug,
+		"eventsSignedUp.eventId": eventId,
 	});
+
 	if (userIsSignedUp) {
 		return res.status(400).send("");
 	}
@@ -37,11 +38,22 @@ export default async function handler(
 			{
 				$addToSet: {
 					cantMakeIt: {
-						eventSlug: eventSlug,
+						eventId: eventId,
 					},
 				},
 			}
 		);
+		if (cantMakeItResult.modifiedCount > 0) {
+			await MyMongo.collection("events").updateOne(
+				{ _id: eventObjectId },
+				{
+					$addToSet: {
+						cantMakeIt: user["discord_id"],
+					},
+				}
+			);
+			return res.status(200).send("");
+		}
 	} else {
 		canMakeItResult = await MyMongo.collection("users").updateOne(
 			{
@@ -50,12 +62,24 @@ export default async function handler(
 			{
 				$pull: {
 					cantMakeIt: {
-						eventSlug: eventSlug,
+						eventId: eventId,
 					},
 				},
 			}
 		);
+		if (canMakeItResult.modifiedCount > 0) {
+			await MyMongo.collection("events").updateOne(
+				{ _id: eventObjectId },
+				{
+					$pull: {
+						cantMakeIt: user["discord_id"],
+					},
+				}
+			);
+			return res.status(200).send("");
+		}
 	}
+
 
 	if (
 		cantMakeIt

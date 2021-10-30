@@ -20,6 +20,7 @@ import GameplayHistoryModal from "../../components/modals/gameplay_history";
 import useSWR from "swr";
 import fetcher from "../../lib/fetcher";
 import MissionAuditModal from "../../components/modals/mission_audit_modal";
+import MissionMediaCard from "../../components/mission_media_card";
 
 let updateOutside;
 export default function MissionDetails({ mission }) {
@@ -130,15 +131,13 @@ export default function MissionDetails({ mission }) {
 	return (
 		<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-row m-10 md:space-x-10">
-				<div className="relative flex-1 hidden rounded-xl shadow-strong xl:h-96 lg:h-72 md:h-56 md:block">
-					<Image
-						alt="card"
-						className="rounded-xl "
-						src={mission.image}
-						quality={100}
-						objectFit="cover"
-						layout="fill"
-					/>
+				<div className="flex-1 hidden overflow-hidden shadow-lg rounded-xl md:block">
+					<MissionMediaCard
+						createObjectURL={
+							"../missionsCoverMedia/COOP44_rolland_the_headless_client.mp4"
+						}
+						isVideo={true}
+					></MissionMediaCard>
 				</div>
 
 				<div className="flex-1 prose ">
@@ -186,13 +185,11 @@ export default function MissionDetails({ mission }) {
 						</div>
 						<div className="m-2">
 							<div className="stat-title">Respawn</div>
-							<div className="text-sm stat-value">
-								{mission.respawn ? "Yes" : "No"}
-							</div>
+							<div className="text-sm stat-value">{mission.respawn}</div>
 						</div>
 						<div className="m-2">
 							<div className="stat-title">JIP</div>
-							<div className="text-sm stat-value ">{mission.jip ? "Yes" : "No"}</div>
+							<div className="text-sm stat-value ">{mission.jip}</div>
 						</div>
 					</div>
 				</div>
@@ -453,6 +450,7 @@ export async function getStaticProps({ params }) {
 			.toArray()
 	)[0];
 
+	console.log("!niosandoiasndias");
 	mission["uploadDate"] = mission["uploadDate"]?.getTime();
 	mission["lastPlayed"] = mission["lastPlayed"]?.getTime();
 
@@ -515,6 +513,7 @@ export async function getStaticProps({ params }) {
 		update["date"] = moment(update["date"]).format("ll");
 		update["authorName"] =
 			update["author"]?.nickname ?? update["author"]?.username ?? "Unknown";
+		delete update["author"];
 	});
 
 	return {

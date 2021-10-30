@@ -19,10 +19,14 @@ import QuestionMarkCircleIcon from "@heroicons/react/outline/QuestionMarkCircleI
 import AboutSignUpModal from "../../components/modals/about_sign_ups_modal";
 import NavBarItem from "../../components/navbar_item";
 import EventCard from "../../components/event_list_card";
+import {
+	ExclamationCircleIcon,
+	InformationCircleIcon,
+} from "@heroicons/react/outline";
 
 const Completionist = () => (
 	<div className="my-10 prose">
-		<h3>It has begun!</h3>
+		<h1>It has begun!</h1>
 	</div>
 );
 
@@ -82,7 +86,7 @@ async function callReserveSlot(
 ) {
 	axios
 		.post("/api/events/reserve", {
-			eventSlug: event.slug,
+			eventId: event._id,
 			slot: slot,
 			factionTitle: factionTitle,
 		})
@@ -99,7 +103,8 @@ async function callReserveSlot(
 async function callCantMakeIt(event, onSuccess, onError, cantMakeIt) {
 	axios
 		.post("/api/events/cant_make_it", {
-			eventSlug: event.slug,
+			eventId: event._id,
+
 			cantMakeIt: cantMakeIt,
 		})
 		.then((response) => {
@@ -115,7 +120,7 @@ async function callCantMakeIt(event, onSuccess, onError, cantMakeIt) {
 async function callSignUp(event, onSuccess, onError, doSignup) {
 	axios
 		.post("/api/events/sign_up", {
-			eventSlug: event.slug,
+			eventId: event._id,
 			doSignup: doSignup,
 		})
 		.then((response) => {
@@ -138,6 +143,7 @@ export default function EventHome({ event }) {
 	const { data: session, status } = useSession();
 
 	let [isSignedUp, setIsSignedUp] = useState(false);
+	let [didSignUp, setDidSignUp] = useState(null);
 	let [reservedSlotName, setReservedSlotName] = useState(null);
 	let [reservedSlotFactionTitle, setReservedSlotFactionTitle] = useState(null);
 	let [cantMakeIt, setCantMakeIt] = useState(false);
@@ -146,7 +152,7 @@ export default function EventHome({ event }) {
 		if (session != null) {
 			if (session.user["eventsSignedUp"]) {
 				for (const eventSingedUp of session.user["eventsSignedUp"]) {
-					if (eventSingedUp["eventSlug"] == event.slug) {
+					if (eventSingedUp["eventId"] == event._id) {
 						console.log("aaaaaaa");
 						setIsSignedUp(true);
 						setReservedSlotName(eventSingedUp["reservedSlotName"]);
@@ -156,7 +162,7 @@ export default function EventHome({ event }) {
 				}
 
 				for (const eventCantMakeIt of session.user["cantMakeIt"] ?? []) {
-					if (eventCantMakeIt["eventSlug"] == event.slug) {
+					if (eventCantMakeIt["eventId"] == event._id) {
 						setCantMakeIt(true);
 						break;
 					}
@@ -164,6 +170,14 @@ export default function EventHome({ event }) {
 			}
 		}
 	}, [event, session]);
+
+	function hasReservableSlots() {
+		console.log("asd");
+		for (const faction of event.eventReservableSlotsInfo) {
+			return faction.slots?.length > 0;
+		}
+		return false;
+	}
 
 	return (
 		<>
@@ -185,12 +199,54 @@ export default function EventHome({ event }) {
 						<h1>Event concluded</h1>
 					</div>
 				) : (
-					<div className="flex flex-row">
-						<Countdown date={event.when} renderer={renderer}></Countdown>
+					<div className="flex flex-row mt-16 mb-10">
+						{event.closeReason == "CANCELED" && (
+							<div className="alert alert-error">
+								<div className="items-center flex-1">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										className="w-6 h-6 mx-2 stroke-current"
+									>
+										<ExclamationCircleIcon></ExclamationCircleIcon>
+									</svg>
+									<h2>
+										This event has been canceled. It is not being listed anymore and you
+										can only access it via a direct link.
+									</h2>
+								</div>
+							</div>
+						)}
+						{event.closeReason == "COMPLETED" && (
+							<div className="alert alert-info">
+								<div className="items-center flex-1">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+										className="w-6 h-6 mx-2 stroke-current"
+									>
+										<InformationCircleIcon></InformationCircleIcon>
+									</svg>
+									<h2>
+										This event has been completed. You can not sign up for it anymore.
+									</h2>
+								</div>
+							</div>
+						)}
+						{!event.closeReason && (
+							<Countdown date={event.when} renderer={renderer}></Countdown>
+						)}
 					</div>
 				)}
 
-				<EventCard event={event} aspectRatio={"16/9"} isViewOnly={true}></EventCard>
+				<EventCard
+					event={event}
+					aspectRatio={"16/9"}
+					isViewOnly={true}
+					didSignUp={didSignUp}
+				></EventCard>
 
 				<div className="my-5 ml-auto">
 					<Link href="/guides/events#signup-and-slotting-procedure" passHref>
@@ -200,7 +256,7 @@ export default function EventHome({ event }) {
 						</a>
 					</Link>
 				</div>
-				{!event.completed &&
+				{!event.closeReason &&
 					(session?.user["roles"] ? (
 						isSignedUp ? (
 							reservedSlotName ? (
@@ -235,12 +291,18 @@ export default function EventHome({ event }) {
 							) : (
 								<div className="flex flex-1 space-x-2">
 									<button
-										className="flex-1 flex-grow btn btn-lg btn-primary"
+										className={`flex-1 flex-grow btn btn-lg  ${
+											hasReservableSlots() ? "btn-primary" : "btn-disabled"
+										}`}
 										onClick={() => {
-											setSlotsModalOpen(true);
+											if (hasReservableSlots()) {
+												setSlotsModalOpen(true);
+											}
 										}}
 									>
-										Reserve Slot (Optional)
+										{hasReservableSlots()
+											? "Reserve a Slot (Optional)"
+											: "This event has no reservable slots"}
 									</button>
 
 									<button
@@ -250,6 +312,7 @@ export default function EventHome({ event }) {
 												() => {
 													setIsSignedUp(false);
 													toast.success(`You have retracted your sign up`);
+													setDidSignUp(false);
 												},
 												() => {},
 												false
@@ -294,6 +357,7 @@ export default function EventHome({ event }) {
 											() => {
 												toast.success(`You have signed up for this event`);
 												setIsSignedUp(true);
+												setDidSignUp(true);
 											},
 											() => {},
 											true
@@ -395,10 +459,9 @@ export default function EventHome({ event }) {
 
 export async function getStaticProps({ params }: Params) {
 	console.log(params);
-	const event = await MyMongo.collection("events").findOne(
-		{ slug: params.slug },
-		{ projection: { _id: 0 } }
-	);
+	const event = await MyMongo.collection("events").findOne({
+		slug: params.slug,
+	});
 
 	// const content = await markdownToHtml(post.content || "");
 	// const mdxSource = await serialize(post.content);
@@ -417,7 +480,7 @@ export async function getStaticProps({ params }: Params) {
 
 	await iterateContentPages(event.contentPages);
 
-	return { props: { event: event } };
+	return { props: { event: { ...event, _id: event["_id"].toString() } } };
 }
 
 // This function gets called at build time on server-side.

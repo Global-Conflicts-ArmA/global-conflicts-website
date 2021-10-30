@@ -1,14 +1,7 @@
 import { Tab, Transition } from "@headlessui/react";
-import {
-	ExclamationIcon,
-	QuestionMarkCircleIcon,
-	TrashIcon,
-	VolumeOffIcon,
-	VolumeUpIcon,
-} from "@heroicons/react/outline";
-import moment from "moment";
+import { ExclamationIcon, TrashIcon } from "@heroicons/react/outline";
+
 import Head from "next/head";
-import Image from "next/image";
 
 import React, { useEffect, useRef, useState } from "react";
 import ReactMde from "react-mde";
@@ -22,9 +15,13 @@ import "react-mde/lib/styles/css/react-mde-all.css";
 import AddIcon from "../../../components/icons/add";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
-import placeholder_event from "../../../public/placeholder_event.jpg";
+
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
+import { getSession, useSession } from "next-auth/react";
+import EventEditingCard from "../../../components/event_editing_card";
+import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
+import { CREDENTIAL } from "../../../lib/credsChecker";
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -32,29 +29,25 @@ function classNames(...classes) {
 
 function EventsDashboardPage() {
 	const [showFactionsTip, setShowFactionsTip] = React.useState(true);
+	const [isLoading, setIsLoading] = useState(false);
+	const { data: session, status } = useSession();
 
 	useEffect(() => {
 		const doNotShowFactionsTip = localStorage.getItem("doNotShowFactionsTip");
 		setShowFactionsTip(!doNotShowFactionsTip);
-	}, []);
+		console.log(session?.user);
+	}, [session]);
 
 	const [datePickerModalOpen, setDatePickerModalOpen] = useState(false);
 	const [createSlotsModalOpen, setCreateSlotsModalOpen] = useState(false);
-	const [eventName, setEventName] = useState(null);
 
-	const [eventDescription, setEventDescription] = useState(null);
-	const [eventStartDate, setEventStartDate] = useState(new Date());
-	const [eventSlotCount, setEventSlotCount] = useState(50);
-	const [eventCoverMedia, setEventCoverMedia] = useState(null);
-	const [videoMuted, setVideoMuted] = useState(true);
 	const [createObjectURL, setCreateObjectURL] = useState(null);
 	const videoRef = useRef(null);
 	const displayImage = (event) => {
 		if (event.target.files && event.target.files[0]) {
 			const i = event.target.files[0];
-			setEventCoverMedia(i);
+			eventDataFormik.setFieldValue("eventCoverMedia", i);
 			setCreateObjectURL(URL.createObjectURL(i));
-			setVideoMuted(true);
 			setTimeout(() => {
 				if (videoRef.current) {
 					videoRef.current.defaultMuted = true;
@@ -99,8 +92,6 @@ function EventsDashboardPage() {
 	const [newSectionTitle, setNewSectionTitle] = useState(null);
 	const [newReservableSlottitle, setNewReservableSlottitle] = useState(null);
 
-	//const [eventReservableSlots, setReserevableSlots] = useState([]);
-
 	const validateSlotForm = (values) => {
 		const errors = {};
 		if (!values.reservedSlotName) {
@@ -112,7 +103,69 @@ function EventsDashboardPage() {
 
 		return errors;
 	};
-	const formik = useFormik({
+
+	const eventDataFormik = useFormik({
+		initialValues: {
+			eventName: "",
+			eventDescription: "",
+			eventSlotCount: 0,
+			eventCoverMedia: null,
+			eventOrganizer: session?.user
+				? session.user["nickname"] ?? session.user["username"]
+				: "",
+			eventStartDate: null,
+		},
+		validate: validateFields,
+		onSubmit: (values) => {
+			if (isLoading) {
+				return;
+			}
+			setIsLoading(true);
+			const config = {
+				headers: { "content-type": "multipart/form-data" },
+				onUploadProgress: (event) => {
+					console.log(
+						`Current progress:`,
+						Math.round((event.loaded * 100) / event.total)
+					);
+				},
+			};
+
+			const formData = new FormData();
+
+			formData.append(
+				"eventJsonData",
+				JSON.stringify({
+					eventName: values.eventName,
+					eventDescription: values.eventDescription,
+					eventSlotCount: values.eventSlotCount,
+					eventOrganizer: values.eventOrganizer,
+					eventStartDate: values.eventStartDate,
+					eventContentPages,
+					eventReservableSlotsInfo,
+				})
+			);
+			formData.append("eventCoverMedia", values.eventCoverMedia);
+
+			axios
+				.post("/api/events", formData, config)
+				.then((response) => {
+					console.log(response);
+					eventDataFormik.resetForm();
+					toast.success("Event submited, redirecting to it...");
+					setTimeout(() => {
+						window.open(`/events/${response.data.slug}`, "_self");
+					}, 2000);
+				})
+				.catch((error) => {
+					console.log(error);
+					toast.success("Error submiting event");
+					setIsLoading(false);
+				});
+		},
+	});
+
+	const newSlotFormik = useFormik({
 		initialValues: {
 			reservedSlotName: "",
 			reservedSlotDescription: "",
@@ -139,7 +192,7 @@ function EventsDashboardPage() {
 			];
 			setEventCurrentReservableSlotInfo(eventCurrentReservableSlotInfo);
 			//setReserevableSlots();
-			formik.resetForm();
+			eventDataFormik.resetForm();
 		},
 	});
 
@@ -164,224 +217,208 @@ function EventsDashboardPage() {
 
 		setEventCurrentReservableSlotInfo(eventCurrentReservableSlotInfo);
 	};
-
-	function submitEvent() {
-		const config = {
-			headers: { "content-type": "multipart/form-data" },
-			onUploadProgress: (event) => {
-				console.log(
-					`Current progress:`,
-					Math.round((event.loaded * 100) / event.total)
-				);
-			},
-		};
-
-		console.log(eventCoverMedia);
-		const formData = new FormData();
-
-		formData.append(
-			"eventJsonData",
-			JSON.stringify({
-				eventName,
-				eventDescription,
-				eventSlotCount,
-				eventStartDate,
-				eventContentPages,
-				eventReservableSlotsInfo,
-			})
-		);
-		formData.append("eventCoverMedia", eventCoverMedia);
-
-		axios
-			.post("/api/events", formData, config)
-			.then((response) => {
-				console.log(response);
-				toast.success("Event submited");
-			})
-			.catch((error) => {
-				console.log(error);
-				toast.success("Error submiting event");
-			});
+ 
+	function validateFields(values) {
+		let errors = {};
+		if (values.eventName.trim().length < 4) {
+			errors["eventName"] = "Too short. Min 4 characters.";
+		}
+		if (values.eventName.trim().length > 35) {
+			errors["eventName"] = "Too long. Max 35 characters.";
+		}
+		if (values.eventDescription.trim().length > 200) {
+			errors["eventDescription"] = "Too long. Max 200 characters.";
+		}
+		if (values.eventDescription.trim().length < 4) {
+			errors["eventDescription"] = "Too short. Min 4 characters.";
+		}
+		if (values.eventSlotCount < 2) {
+			errors["eventSlotCount"] = "Min 2 players.";
+		}
+		if (values.eventSlotCount > 200) {
+			errors["eventSlotCount"] = "Max 200 players.";
+		}
+		if (values.eventOrganizer.trim() > 35) {
+			errors["eventOrganizer"] = "Too long. Max 35 characters.";
+		}
+		if (values.eventOrganizer.trim() == "") {
+			errors["eventOrganizer"] = "Required.";
+		}
+		if (!values.eventCoverMedia) {
+			errors["eventCoverMedia"] = "Event cover media required.";
+		}
+		if (!values.eventCoverMedia) {
+			errors["eventCoverMedia"] = "Event cover media required.";
+		}
+		if (!values.eventStartDate) {
+			errors["eventStartDate"] = "Time and date required.";
+		}
+ 
+		return errors;
 	}
 
 	return (
-		<>
+		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
 				<title>Create Event</title>
 			</Head>
 
 			<div className="max-w-screen-xl px-5 mx-auto mt-24">
-				<div className="flex flex-row justify-between">
-					<div className="prose">
-						<h1>Creating new event</h1>
-					</div>
+				<form onSubmit={eventDataFormik.handleSubmit}>
+					<div className="flex flex-row justify-between">
+						<div className="prose">
+							<h1>Creating new event</h1>
+						</div>
 
-					<button
-						className="btn btn-lg btn-primary"
-						onClick={() => {
-							submitEvent();
-						}}
-					>
-						SUBMIT EVENT
-					</button>
-				</div>
-
-				<div className="flex flex-row items-end justify-between mt-5 space-x-6">
-					<div className="flex-1 form-control">
-						<label className="label">
-							<span className="label-text">Event Name</span>
-						</label>
-						<input
-							type="text"
-							placeholder="Event Name"
-							value={eventName}
-							onChange={(val) => {
-								if (val.target.value.length > 0) {
-									setEventName(val.target.value);
-								} else {
-									setEventName(null);
-								}
-							}}
-							className="input input-lg input-bordered"
-						/>
-					</div>
-
-					<div className="flex ">
-						<label className="btn btn-primary btn-lg">
-							<input type="file" onChange={displayImage} />
-							Select Image, GIF or video Clip(8mb max)
-						</label>
-					</div>
-				</div>
-				<div className="flex flex-row justify-between space-x-2">
-					<div className="flex-1 form-control">
-						<label className="label">
-							<span className="label-text">Description</span>
-						</label>
-						<textarea
-							placeholder="Description"
-							value={eventDescription}
-							onChange={(val) => {
-								if (val.target.value.length > 0) {
-									setEventDescription(val.target.value);
-								} else {
-									setEventDescription(null);
-								}
-							}}
-							className="h-24 textarea textarea-bordered"
-						/>
-					</div>
-				</div>
-
-				<div className="flex flex-row items-end space-x-6 ">
-					<div>
 						<button
-							className="btn btn-lg btn-primary"
-							onClick={() => {
-								setDatePickerModalOpen(true);
-							}}
+							className={
+								isLoading ? "btn btn-lg btn-primary loading" : "btn btn-lg btn-primary"
+							}
+							type="submit"
 						>
-							Select a time and date
+							{isLoading ? "SUBMITING EVENT..." : "SUBMIT EVENT"}
 						</button>
 					</div>
-					<div className="form-control ">
-						<label className="label">
-							<span className="label-text">Max players</span>
-						</label>
-						<input
-							type="tel"
-							placeholder="Max players"
-							value={eventSlotCount}
-							onChange={(e) => {
-								const re = /^[0-9\b]+$/;
 
-								if (e.target.value === "") {
-									setEventSlotCount(0);
-								} else if (re.test(e.target.value)) {
-									setEventSlotCount(parseInt(e.target.value));
-								}
-							}}
-							className="input input-bordered input-lg"
-						/>
-					</div>
-				</div>
-
-				<div className="relative mt-10 shadow-xl card">
-					<figure style={{ aspectRatio: "16/6" }} className="flex items-center">
-						{eventCoverMedia?.type?.includes("webm") ||
-						eventCoverMedia?.type?.includes("mp4") ? (
-							<video autoPlay loop key={createObjectURL} ref={videoRef}>
-								<source src={createObjectURL} />
-							</video>
-						) : (
-							<Image
-								quality={100}
-								src={createObjectURL ?? placeholder_event}
-								layout={"fill"}
-								objectFit="cover"
-								alt={"Event cover image"}
+					<div className="flex flex-row justify-between mt-5 space-x-6 items-top">
+						<div className="flex-1 form-control">
+							<label className="label">
+								<span className="label-text">Event Name</span>
+							</label>
+							<input
+								type="text"
+								placeholder="Event Name"
+								onChange={eventDataFormik.handleChange}
+								onBlur={eventDataFormik.handleBlur}
+								value={eventDataFormik.values.eventName}
+								name={"eventName"}
+								className="input input-lg input-bordered"
 							/>
-						)}
-					</figure>
-					<div className="absolute flex flex-col justify-between w-full h-full p-10 text-white scrim">
-						<div className="flex justify-between flex-1">
-							<div className="prose textshadow">
-								<h1>{eventName ?? "Insert a name for the event"}</h1>
-							</div>
-
-							{(eventCoverMedia?.type?.includes("webm") ||
-								eventCoverMedia?.type?.includes("mp4")) && (
-								<button
-									className="btn btn-circle btn-ghost"
-									onClick={() => {
-										//open bug since 2017 that you cannot set muted in video element https://github.com/facebook/react/issues/10389
-										setVideoMuted(!videoMuted);
-										if (videoRef) {
-											videoRef.current.defaultMuted = !videoMuted;
-											videoRef.current.muted = !videoMuted;
-										}
-									}}
-								>
-									{!videoMuted ? (
-										<VolumeUpIcon height={25}></VolumeUpIcon>
-									) : (
-										<VolumeOffIcon height={25}></VolumeOffIcon>
-									)}
-								</button>
-							)}
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventName}
+							</span>
 						</div>
 
-						<div className="flex flex-row textshadow">
-							<p className="flex-1 prose">
-								{eventDescription ??
-									"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
-							</p>
-
-							<div className="flex flex-row items-end justify-end flex-1 ">
-								<div className="mr-10 text-white bg-transparent">
-									<div className="font-bold text-gray-200">When (your timezone)</div>
-									<div className="">{moment(eventStartDate).format("lll")}</div>
-								</div>
-								<div className="text-right text-white bg-transparent ">
-									<div className="flex flex-row items-center font-bold text-gray-200">
-										Sign ups
-										<span
-											onClick={() => {
-												//setAboutSignUpModalOpen(true);
-											}}
-											className="cursor-pointer"
-										>
-											<QuestionMarkCircleIcon height={18}></QuestionMarkCircleIcon>
-										</span>
-									</div>
-									<div>0/{eventSlotCount ?? 0}</div>
-								</div>
-							</div>
+						<div className="flex flex-col">
+							<label className="label">
+								<span className="label-text">Cover media</span>
+							</label>
+							<label className="btn btn-primary btn-lg">
+								<input type="file" onChange={displayImage} />
+								Select Image, GIF or video Clip(8mb max)
+							</label>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventCoverMedia}
+							</span>
 						</div>
+					</div>
+					<div className="flex flex-row justify-between space-x-2">
+						<div className="flex-1 form-control">
+							<label className="label">
+								<span className="label-text">Description</span>
+							</label>
+							<textarea
+								placeholder="Description"
+								onChange={eventDataFormik.handleChange}
+								onBlur={eventDataFormik.handleBlur}
+								value={eventDataFormik.values.eventDescription}
+								name={"eventDescription"}
+								className="h-24 textarea textarea-bordered"
+							/>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventDescription}
+							</span>
+						</div>
+					</div>
+
+					<div className="flex flex-row space-x-6 items-top ">
+						<div className="flex flex-col">
+							<label className="label">
+								<span className="label-text">Time and date</span>
+							</label>
+							<button
+								className="btn btn-lg btn-primary"
+								onClick={() => {
+									setDatePickerModalOpen(true);
+								}}
+							>
+								Select a time and date
+							</button>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventStartDate}
+							</span>
+						</div>
+						<div className="form-control ">
+							<label className="label">
+								<span className="label-text">Max players</span>
+							</label>
+							<input
+								type="tel"
+								placeholder="Max players"
+								onChange={(e) => {
+									const re = /^[0-9\b]+$/;
+									if (e.target.value === "" || re.test(e.target.value)) {
+										eventDataFormik.handleChange(e);
+									}
+								}}
+								onBlur={eventDataFormik.handleBlur}
+								value={eventDataFormik.values.eventSlotCount}
+								name={"eventSlotCount"}
+								className="input input-bordered input-lg"
+							/>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventSlotCount}
+							</span>
+						</div>
+						<div className="form-control ">
+							<label className="label">
+								<span className="label-text">Organizer</span>
+							</label>
+							<input
+								type="tel"
+								placeholder="Organizer"
+								onBlur={eventDataFormik.handleBlur}
+								value={eventDataFormik.values.eventOrganizer}
+								onChange={eventDataFormik.handleChange}
+								name={"eventOrganizer"}
+								className="input input-bordered input-lg"
+							/>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventOrganizer}
+							</span>
+						</div>
+					</div>
+				</form>
+				<EventEditingCard
+					createObjectURL={createObjectURL}
+					isVideo={
+						eventDataFormik.values.eventCoverMedia?.type.includes("mp4") ||
+						eventDataFormik.values.eventCoverMedia?.type.includes("webm")
+					}
+					eventDescription={eventDataFormik.values.eventDescription}
+					eventName={eventDataFormik.values.eventName}
+					eventSlotCount={eventDataFormik.values.eventSlotCount}
+					eventStartDate={eventDataFormik.values.eventStartDate}
+				></EventEditingCard>
+
+				<div className="mt-5 alert alert-info">
+					<div className="flex-1">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							className="w-6 h-6 mx-2 stroke-current"
+						>
+							<ExclamationIcon></ExclamationIcon>
+						</svg>
+						<label>
+							The white lines are the safe area. The card will be of that height when
+							viewed in the event list.
+						</label>
 					</div>
 				</div>
 
-				<div className="w-full px-2 py-16 sm:px-0">
+				<div className="w-full px-2 mt-5 mb-20 sm:px-0">
 					<Tab.Group>
 						<Tab.List className="flex p-1 space-x-1 bg-blue-900/5 rounded-xl">
 							<Tab
@@ -688,7 +725,7 @@ function EventsDashboardPage() {
 										</aside>
 										<main className="flex-grow">
 											<div>
-												<form onSubmit={formik.handleSubmit}>
+												<form onSubmit={newSlotFormik.handleSubmit}>
 													<div className="flex flex-row space-x-2">
 														<div className="flex-1 space-y-2">
 															<div className="form-control">
@@ -699,14 +736,14 @@ function EventsDashboardPage() {
 																	type="text"
 																	placeholder="Rifleman AT"
 																	name="reservedSlotName"
-																	onChange={formik.handleChange}
-																	onBlur={formik.handleBlur}
-																	value={formik.values.reservedSlotName}
+																	onChange={newSlotFormik.handleChange}
+																	onBlur={newSlotFormik.handleBlur}
+																	value={newSlotFormik.values.reservedSlotName}
 																	className="input input-bordered"
 																/>
 
-																<span className="label-text-alt">
-																	{formik.errors.reservedSlotName}
+																<span className="text-red-500 label-text-alt">
+																	{newSlotFormik.errors.reservedSlotName}
 																</span>
 															</div>
 
@@ -718,9 +755,9 @@ function EventsDashboardPage() {
 																	type="text"
 																	placeholder="Description"
 																	name="reservedSlotDescription"
-																	onChange={formik.handleChange}
-																	onBlur={formik.handleBlur}
-																	value={formik.values.reservedSlotDescription}
+																	onChange={newSlotFormik.handleChange}
+																	onBlur={newSlotFormik.handleBlur}
+																	value={newSlotFormik.values.reservedSlotDescription}
 																	className="input input-bordered"
 																/>
 															</div>
@@ -733,18 +770,18 @@ function EventsDashboardPage() {
 																<input
 																	placeholder="Count"
 																	name="reservedSlotCount"
-																	onBlur={formik.handleBlur}
+																	onBlur={newSlotFormik.handleBlur}
 																	onChange={(e) => {
 																		const re = /^[0-9\b]+$/;
 																		if (e.target.value === "" || re.test(e.target.value)) {
-																			formik.handleChange(e);
+																			newSlotFormik.handleChange(e);
 																		}
 																	}}
-																	value={formik.values.reservedSlotCount}
+																	value={newSlotFormik.values.reservedSlotCount}
 																	className="input input-bordered"
 																/>
-																<span className="label-text-alt">
-																	{formik.errors.reservedSlotCount}
+																<span className="text-red-500 label-text-alt">
+																	{newSlotFormik.errors.reservedSlotCount}
 																</span>
 															</div>
 															<button className="btn btn-block" type="submit">
@@ -832,7 +869,9 @@ function EventsDashboardPage() {
 			</div>
 
 			<EventDatePickerModal
-				onDateSelect={setEventStartDate}
+				onDateSelect={(date) => {
+					eventDataFormik.setFieldValue("eventStartDate", date);
+				}}
 				isOpen={datePickerModalOpen}
 				onClose={() => {
 					setDatePickerModalOpen(false);
@@ -845,8 +884,17 @@ function EventsDashboardPage() {
 					setCreateSlotsModalOpen(false);
 				}}
 			></CreateSlotsModal>
-		</>
+		</CredentialLockLayout>
 	);
 }
 
 export default EventsDashboardPage;
+
+export async function getServerSideProps(context) {
+	const session = await getSession(context);
+
+	console.log(session);
+	return {
+		props: { session },
+	};
+}

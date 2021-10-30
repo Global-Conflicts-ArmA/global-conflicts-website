@@ -144,14 +144,19 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
 
 export async function getStaticProps({ params }: Params) {
 	const pastEvents = await MyMongo.collection("events")
-		.find({ completed: true }, { projection: { _id: 0, tabs: 0 } })
+		.find(
+			{
+				closeReason: "COMPLETED",
+			},
+			{ projection: { _id: 0, tabs: 0 } }
+		)
 		.toArray();
 
 	const upcomingEvents = await MyMongo.collection("events")
 		.find(
 			{
-				completed: {
-					$in: [null, false],
+				closeReason: {
+					$nin: ["CANCELED", "COMPLETED"],
 				},
 			},
 			{ projection: { _id: 0, tabs: 0 } }

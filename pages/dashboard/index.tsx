@@ -1,11 +1,15 @@
+import { getSession, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import React from "react";
+import { CredentialLockLayout } from "../../layouts/credential-lock-layout";
 import DashBoardLayout from "../../layouts/dashboard-layout";
+import hasCreds, { CREDENTIAL } from "../../lib/credsChecker";
 
 function Dashboard() {
+	const { data: session } = useSession();
 	return (
-		<>
+		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
 				<title>GC Dashboard</title>
 			</Head>
@@ -29,8 +33,18 @@ function Dashboard() {
 					</section>
 				</main>
 			</div>
-		</>
+		</CredentialLockLayout>
 	);
+}
+
+// This function gets called at build time
+export async function getServerSideProps(context) {
+	const session = await getSession(context);
+	return {
+		props: {
+			session,
+		},
+	};
 }
 
 export default Dashboard;

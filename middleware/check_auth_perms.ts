@@ -1,16 +1,16 @@
+import { NextApiRequest } from "next";
 import { getSession } from "next-auth/react";
 
 export enum CREDENTIAL {
-
-	NEW_GUY,
-	MEMBER,
-	MISSION_MAKER,
-	MISSION_REVIEWER,
-	GM,
-	ADMIN,
+	NEW_GUY = "New Guy",
+	MEMBER = "Member",
+	MISSION_MAKER = "Mission Maker",
+	MISSION_REVIEWER = "Mission Reviewer Team",
+	GM = "GM",
+	ADMIN = "Admin",
 }
 
-export default function validateUser(req, res, creds: CREDENTIAL) {
+export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 	return new Promise(async (resolve, reject) => {
 		const session = await getSession({ req });
 		if (!session) {
@@ -19,34 +19,27 @@ export default function validateUser(req, res, creds: CREDENTIAL) {
 
 		for (var i = 0; i < session.user["roles"].length; i++) {
 			if (session.user["roles"][i].name == "Admin") {
-				return resolve(session.user);
-			}
-		}
+				if (next) {
+					req.session = session;
 
-		if (creds == CREDENTIAL.MEMBER) {
-			for (var i = 0; i < session.user["roles"].length; i++) {
-				if (session.user["roles"][i].name == "Member") {
+					return next();
+				} else {
 					return resolve(session.user);
 				}
 			}
 		}
 
-		if (creds == CREDENTIAL.MISSION_MAKER) {
-			for (var i = 0; i < session.user["roles"].length; i++) {
-				if (session.user["roles"][i].name == "Mission Maker") {
+		for (var i = 0; i < session.user["roles"].length; i++) {
+			if (session.user["roles"][i].name == creds) {
+				if (next) {
+					req.session = "bbbb";
+					next();
+				} else {
 					return resolve(session.user);
 				}
 			}
 		}
 
-		if (creds == CREDENTIAL.MISSION_REVIEWER) {
-			for (var i = 0; i < session.user["roles"].length; i++) {
-				if (session.user["roles"][i].name == "Mission Review Team") {
-					return resolve(session.user);
-				}
-			}
-		}
-
-      return reject(401);
+		return reject(401);
 	});
 }

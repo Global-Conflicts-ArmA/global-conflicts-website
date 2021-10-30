@@ -123,7 +123,7 @@ function MissionList({ missions }) {
 							</div>
 						</nav>
 					</aside>
-					<main className="flex-grow max-h-screen m-10">
+					<main className="flex-grow m-10">
 						<div className="flex flex-row justify-between">
 							<div>Found {missions.length} missions.</div>
 							<div>

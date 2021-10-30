@@ -7,7 +7,8 @@ const withMDX = require("@next/mdx")({
 	},
 });
 module.exports = withMDX({
-	pageExtensions: ["js", "jsx", "ts", "tsx", ],
+	swcMinify: true,
+	pageExtensions: ["js", "jsx", "ts", "tsx"],
 	images: {
 		domains: [
 			"source.unsplash.com",
@@ -21,6 +22,7 @@ module.exports = withMDX({
 	},
 	webpack: (config, options) => {
 		config.experiments = {
+			layers: true,
 			topLevelAwait: true,
 		};
 		return config;

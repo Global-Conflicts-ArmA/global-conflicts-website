@@ -9,6 +9,7 @@ export default function EventCard({
 	event,
 	aspectRatio = "16/6",
 	isViewOnly = false,
+	didSignUp = null,
 }) {
 	const videoRef = useRef(null);
 	const [videoMuted, setVideoMuted] = useState(true);
@@ -20,25 +21,52 @@ export default function EventCard({
 				videoRef.current.defaultMuted = true;
 				videoRef.current.muted = true;
 				if (isViewOnly) {
-					videoRef.current.play();
-					videoRef.current.volume = 0.5;
+					if (videoRef.current) {
+						videoRef.current.play();
+						videoRef.current.volume = 0.5;
+					}
 				}
 			}
 		}, 20);
 	}, [isViewOnly]);
 
+	function getCurrentSignUps() {
+		let signups = event.signups?.length ?? 0;
+		if (signups == 0) {
+			if (didSignUp == false) {
+				return 0;
+			} else if (didSignUp == true) {
+				return signups + 1;
+			} else {
+				return 0;
+			}
+		} else {
+			if (didSignUp == false) {
+				return signups - 1;
+			}
+			if (didSignUp == true) {
+				return signups + 1;
+			} else {
+				return signups;
+			}
+		}
+	}
+
 	return (
 		<div
 			onMouseOver={(event) => {
-				console.log("aisnodas");
 				if (!isViewOnly) {
-					videoRef.current.play();
-					videoRef.current.volume = 0.6;
+					if (videoRef.current) {
+						videoRef.current.play();
+						videoRef.current.volume = 0.5;
+					}
 				}
 			}}
 			onMouseOut={(event) => {
 				if (!isViewOnly) {
-					videoRef.current.pause();
+					if (videoRef.current) {
+						videoRef.current.pause();
+					}
 				}
 			}}
 			className={
@@ -109,7 +137,7 @@ export default function EventCard({
 							<div className="hidden text-left text-white bg-transparent drop-shadow xs:block">
 								<div className="font-bold text-gray-200">Avaliable slots</div>
 								<div className="">
-									{event.signups?.length ?? 0}/{event.slots}
+									{getCurrentSignUps()}/{event.slots}
 								</div>
 							</div>
 						</div>

@@ -18,9 +18,9 @@ const upload = multer({
 			const fileExt = file.originalname.split(".").pop();
 			const slug: string = body["eventName"]
 				.normalize("NFD")
-				.replace(/[\u0300-\u036f]/g, "")
-				.replace(" ", "_")
-				.replace(/\W/g, "")
+				.replaceAll(/[\u0300-\u036f]/g, "")
+				.replaceAll(" ", "_")
+				.replaceAll(/\W/g, "")
 				.trim()
 				.toLowerCase();
 			const fileName = slug + "." + fileExt;
@@ -55,9 +55,9 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	console.log(body);
 	let slug: string = body["eventName"]
 		.normalize("NFD")
-		.replace(/[\u0300-\u036f]/g, "")
-		.replace(" ", "_")
-		.replace(/\W/g, "")
+		.replaceAll(/[\u0300-\u036f]/g, "")
+		.replaceAll(" ", "_")
+		.replaceAll(/\W/g, "")
 		.trim()
 		.toLowerCase();
 
@@ -69,13 +69,14 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		slots: body["eventSlotCount"],
 		description: body["eventDescription"],
 		contentPages: body["eventContentPages"],
+		organizer: body["eventOrganizer"],
 		eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
-		when: body["eventStartDate"],
+		when: Date.parse(body["eventStartDate"]),
 		imageLink: eventCoverMediaPath + fileName,
 		slug: slug,
 	});
 
-	res.status(200).json({ body });
+	res.status(200).json({ slug: slug });
 });
 
 apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
@@ -84,31 +85,36 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	let slug: string = body["eventName"]
 		.normalize("NFD")
 		.replace(/[\u0300-\u036f]/g, "")
-		.replace(" ", "_")
-		.replace(/\W/g, "")
+		.replaceAll(" ", "_")
+		.replaceAll(/\W/g, "")
 		.trim()
 		.toLowerCase();
 
-	const fileExt = req["files"][0].originalname.split(".").pop();
-	const fileName = slug + "." + fileExt;
+	let setData = {
+		name: body["eventName"],
+		slots: body["eventSlotCount"],
+		description: body["eventDescription"],
+		contentPages: body["eventContentPages"],
+		organizer: body["eventOrganizer"],
+		eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
+		when: Date.parse(body["eventStartDate"]),
+		slug: slug,
+	};
+
+	if (req["files"][0]) {
+		const fileExt = req["files"][0].originalname.split(".").pop();
+		const fileName = slug + "." + fileExt;
+		setData["imageLink"] = eventCoverMediaPath + fileName;
+	}
 
 	await MyMongo.collection("events").updateOne(
 		{ _id: new ObjectId(body["_id"]) },
 		{
-			$set: {
-				name: body["eventName"],
-				slots: body["eventSlotCount"],
-				description: body["eventDescription"],
-				contentPages: body["eventContentPages"],
-				eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
-				when: body["eventStartDate"],
-				imageLink: eventCoverMediaPath + fileName,
-				slug: slug,
-			},
+			$set: setData,
 		}
 	);
 
-	res.status(200).json({ body });
+	res.status(200).json({ slug: slug });
 });
 
 export const config = {

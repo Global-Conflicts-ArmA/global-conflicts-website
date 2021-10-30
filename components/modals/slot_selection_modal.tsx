@@ -79,7 +79,7 @@ export default function SlotSelectionModal({
 								</div>
 							</Dialog.Title>
 
-							{event.eventReservableSlotsInfo.length > 1 && (
+							{event.eventReservableSlotsInfo.length > 0 && (
 								<Tab.Group>
 									<Tab.List className="flex p-1 mt-5 space-x-1 bg-blue-900/5 rounded-xl">
 										{event.eventReservableSlotsInfo.map((faction) => {
@@ -160,7 +160,7 @@ export default function SlotSelectionModal({
 																								checked ? "text-sky-100" : ""
 																							}`}
 																						>
-																							<div className="flex flex-1">Description</div>
+																							<div className="flex flex-1">{slot.description}</div>
 																							<div>
 																								{checked
 																									? (slot.amountTaken ?? 0) + 1

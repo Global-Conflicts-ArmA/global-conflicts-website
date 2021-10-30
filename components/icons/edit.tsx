@@ -1,4 +1,4 @@
-import Document, { Html, Head, Main, NextScript } from "next/document";
+ 
 
 export default function EditIcon({ className = "w-6 h-6" }) {
 	return (

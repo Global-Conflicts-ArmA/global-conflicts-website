@@ -8,6 +8,9 @@ import moment from "moment";
 import { Tab } from "@headlessui/react";
 import EventCard from "../../../components/event_list_card";
 import DataTable from "react-data-table-component";
+import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
+import { CREDENTIAL } from "../../../lib/credsChecker";
+import { getSession, useSession } from "next-auth/react";
 
 export default function DashboardEventList({ events }) {
 	const columns = [
@@ -45,17 +48,31 @@ export default function DashboardEventList({ events }) {
 			compact: true,
 		},
 		{
-			name: "# of players",
-			selector: (row) => row.signups?.length,
+			name: "Status",
+			selector: (row) => {
+				console.log(row);
+				console.log(moment(row.when) >= moment());
+				return row.closeReason
+					? row.closeReason
+					: moment(row.when) <= moment()
+					? "Happening now"
+					: "Upcoming";
+			},
 			sortable: true,
 			compact: true,
 			width: "100px",
-			 
+		},
+		{
+			name: "# of participants",
+			selector: (row) => row.numberOfParticipants,
+			sortable: true,
+			compact: true,
+			width: "130px",
 		},
 	];
-
+	const { data: session } = useSession();
 	return (
-		<>
+		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
 				<title>Dashboard - Event List</title>
 			</Head>
@@ -87,15 +104,14 @@ export default function DashboardEventList({ events }) {
 					></DataTable>
 				</div>
 			</div>
-		</>
+		</CredentialLockLayout>
 	);
 }
 
-export async function getStaticProps({ params }: Params) {
+export async function getServerSideProps(context) {
+	const session = await getSession(context);
 	const events = await MyMongo.collection("events")
-		.find({},{ projection: { _id: 0, contentPages: 0 } })
+		.find({}, { projection: { _id: 0, contentPages: 0 } })
 		.toArray();
-
-		console.log(events);
-	return { props: { events: events } };
+	return { props: { events, session } };
 }

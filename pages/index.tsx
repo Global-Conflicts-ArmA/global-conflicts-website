@@ -9,6 +9,7 @@ import card_3_bg from "../public/card_3_bg.jpg";
 import card_4_bg from "../public/card_4_bg.jpg";
 import DecorativeCard from "../components/decorative_card/decorative_card";
 
+const weavy = `data:image/svg+xml,<svg id='patternId' width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'><defs><pattern id='a' patternUnits='userSpaceOnUse' width='40' height='40' patternTransform='scale(3) rotate(0)'><rect x='0' y='0' width='100%' height='100%' fill='hsla(4, 0%, 100%, 1)'/><path d='M45.69 13.342c-1.677.945-3.557 1.6-5.48 1.588-1.922-.012-3.795-.691-5.462-1.653-1.668-.962-3.156-2.202-4.637-3.435-1.48-1.232-2.97-2.47-4.641-3.427-1.67-.957-3.547-1.628-5.47-1.628-1.923 0-3.8.67-5.47 1.628-1.67.956-3.161 2.195-4.641 3.427-1.48 1.233-2.97 2.473-4.637 3.435-1.667.962-3.54 1.641-5.463 1.653-1.922.012-3.802-.643-5.478-1.588v13.316c1.676-.945 3.556-1.6 5.478-1.588 1.923.012 3.796.691 5.463 1.653 1.668.962 3.156 2.202 4.637 3.435 1.48 1.232 2.97 2.47 4.641 3.427 1.67.957 3.547 1.628 5.47 1.628 1.923 0 3.8-.67 5.47-1.628 1.67-.956 3.161-2.195 4.641-3.427 1.48-1.233 2.97-2.473 4.637-3.435 1.667-.962 3.54-1.641 5.463-1.653 1.922-.012 3.802.643 5.478 1.588z'  stroke-width='0.5' stroke='hsla(88, 0%, 42%, 1)' fill='none'/></pattern></defs><rect width='800%' height='800%' transform='translate(0,-93)' fill='url(%23a)'/></svg>`;
 function Home() {
 	return (
 		<div>
@@ -40,7 +41,7 @@ function Home() {
 					</h1>
 				</div>
 
-				<div className="flex home-bg2">
+				<div className="flex home-bg2" style={{ backgroundImage: `url("${weavy}")` }}>
 					<div className="z-10 w-full max-w-screen-lg mx-auto mt-24 xl:max-w-screen-xl">
 						<h1 className="mt-10 mb-8 text-4xl font-bold leading-none tracking-tight text-transparent whitespace-pre-wrap bg-clip-text bg-gradient-to-br from-gray-800 to-gray-900 sm:text-5xl lg:text-6xl xl:text-7xl font-heading sm:mt-14 sm:mb-10">
 							{"Tactical Arma 3 gameplay \n with no strings attached."}

@@ -1,16 +1,7 @@
-import MyMongo from "../../../../lib/mongodb";
-
 import { Tab, Transition } from "@headlessui/react";
-import {
-	ExclamationIcon,
-	QuestionMarkCircleIcon,
-	TrashIcon,
-	VolumeOffIcon,
-	VolumeUpIcon,
-} from "@heroicons/react/outline";
-import moment from "moment";
+import { ExclamationIcon, TrashIcon } from "@heroicons/react/outline";
+
 import Head from "next/head";
-import Image from "next/image";
 
 import React, { useEffect, useRef, useState } from "react";
 import ReactMde from "react-mde";
@@ -24,65 +15,53 @@ import "react-mde/lib/styles/css/react-mde-all.css";
 import AddIcon from "../../../../components/icons/add";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
-import placeholder_event from "../../../../public/placeholder_event.jpg";
+
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import axios from "axios";
+import { getSession, useSession } from "next-auth/react";
+import EventEditingCard from "../../../../components/event_editing_card";
+
+import MyMongo from "../../../../lib/mongodb";
 import { Params } from "next/dist/server/router";
+import CloseEventModal from "../../../../components/modals/close_event_modal";
+import { CredentialLockLayout } from "../../../../layouts/credential-lock-layout";
+import { CREDENTIAL } from "../../../../lib/credsChecker";
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
 
 export default function EditEvent({ event }) {
+	const [isLoading, setIsLoading] = useState(false);
 	const [showFactionsTip, setShowFactionsTip] = React.useState(true);
+	const { data: session } = useSession();
+	const [eventOrganizer, setEventOrganizer] = useState(null);
 
-	const [isVideo, setIsVideo] = useState(false);
 	useEffect(() => {
 		const doNotShowFactionsTip = localStorage.getItem("doNotShowFactionsTip");
 		setShowFactionsTip(!doNotShowFactionsTip);
-
-		setEventName(event.name);
-		setEventSlotCount(event.slots);
-		setEventDescription(event.description);
-		setEventContentPages(event.contentPages);
-		setEventReservableSlotsInfo(event.eventReservableSlotsInfo);
-		setEventStartDate(event.when);
-		setCurrentContentPage(event.contentPages[0]);
-		console.log("ioasdnf");
-		setEventCurrentReservableSlotInfo(event.eventReservableSlotsInfo[0]);
-		setCreateObjectURL(event.imageLink);
-		if (event.imageLink?.includes("webm") || event.imageLink?.includes("mp4")) {
-			setIsVideo(true);
+		if (session?.user) {
+			setEventOrganizer(session.user["nickname"] ?? session.user["username"]);
 		}
-		setVideoMuted(true);
-		setTimeout(() => {
-			if (videoRef.current) {
-				videoRef.current.defaultMuted = true;
-				videoRef.current.muted = true;
-
-				videoRef.current.play();
-				videoRef.current.volume = 0.5;
-			}
-		}, 20);
-	}, [event]);
+	}, [session]);
 
 	const [datePickerModalOpen, setDatePickerModalOpen] = useState(false);
+	const [closeModalOpen, setCloseModalOpen] = useState(false);
 	const [createSlotsModalOpen, setCreateSlotsModalOpen] = useState(false);
-	const [eventName, setEventName] = useState(null);
 
-	const [eventDescription, setEventDescription] = useState(null);
-	const [eventStartDate, setEventStartDate] = useState(new Date());
-	const [eventSlotCount, setEventSlotCount] = useState(50);
-	const [eventCoverMedia, setEventCoverMedia] = useState(null);
-	const [videoMuted, setVideoMuted] = useState(true);
-	const [createObjectURL, setCreateObjectURL] = useState(null);
+	const [createObjectURL, setCreateObjectURL] = useState(event.imageLink);
+
+	const [isVideo, setIsVideo] = useState(
+		event.imageLink?.includes("mp4") || event.imageLink?.includes("webm")
+	);
+
 	const videoRef = useRef(null);
 	const displayImage = (event) => {
 		if (event.target.files && event.target.files[0]) {
-			const i = event.target.files[0];
-			setEventCoverMedia(i);
-			setCreateObjectURL(URL.createObjectURL(i));
-			setVideoMuted(true);
+			const file = event.target.files[0];
+			eventDataFormik.setFieldValue("eventCoverMedia", file);
+			setCreateObjectURL(URL.createObjectURL(file));
+			setIsVideo(file?.type.includes("mp4") || file?.type.includes("webm"));
 			setTimeout(() => {
 				if (videoRef.current) {
 					videoRef.current.defaultMuted = true;
@@ -107,7 +86,7 @@ export default function EditEvent({ event }) {
 		},
 	]);
 	const [eventCurrentReservableSlotInfo, setEventCurrentReservableSlotInfo] =
-		useState(null);
+		useState(eventReservableSlotsInfo[0]);
 
 	const [currentContentPage, setCurrentContentPage] = useState(
 		eventContentPages[0]
@@ -140,7 +119,68 @@ export default function EditEvent({ event }) {
 
 		return errors;
 	};
-	const formik = useFormik({
+
+	const eventDataFormik = useFormik({
+		initialValues: {
+			eventName: event.name,
+			eventDescription: event.description,
+			eventSlotCount: event.slots,
+			eventCoverMedia: null,
+			eventOrganizer: event.organizer,
+			eventStartDate: event.when,
+		},
+		validate: validateFields,
+		onSubmit: (values) => {
+			if (isLoading) {
+				return;
+			}
+
+			setIsLoading(true);
+
+			const config = {
+				headers: { "content-type": "multipart/form-data" },
+				onUploadProgress: (event) => {
+					console.log(
+						`Current progress:`,
+						Math.round((event.loaded * 100) / event.total)
+					);
+				},
+			};
+
+			const formData = new FormData();
+
+			formData.append(
+				"eventJsonData",
+				JSON.stringify({
+					_id: event._id,
+					eventName: values.eventName,
+					eventDescription: values.eventDescription,
+					eventSlotCount: values.eventSlotCount,
+					eventOrganizer: values.eventOrganizer,
+					eventStartDate: values.eventStartDate,
+					eventContentPages,
+					eventReservableSlotsInfo,
+				})
+			);
+			formData.append("eventCoverMedia", values.eventCoverMedia);
+
+			axios
+				.put("/api/events", formData, config)
+				.then((response) => {
+					eventDataFormik.resetForm();
+					toast.success("Event edited, redirecting to it...");
+					setTimeout(() => {
+						window.open(`/events/${response.data.slug}`, "_self");
+					}, 2000);
+				})
+				.catch((error) => {
+					setIsLoading(false);
+					toast.error("Error submiting event");
+				});
+		},
+	});
+
+	const newSlotFormik = useFormik({
 		initialValues: {
 			reservedSlotName: "",
 			reservedSlotDescription: "",
@@ -166,7 +206,7 @@ export default function EditEvent({ event }) {
 			];
 			setEventCurrentReservableSlotInfo(eventCurrentReservableSlotInfo);
 			//setReserevableSlots();
-			formik.resetForm();
+			eventDataFormik.resetForm();
 		},
 	});
 
@@ -192,226 +232,223 @@ export default function EditEvent({ event }) {
 		setEventCurrentReservableSlotInfo(eventCurrentReservableSlotInfo);
 	};
 
-	function updateEvent() {
-		const config = {
-			headers: { "content-type": "multipart/form-data" },
-			onUploadProgress: (event) => {
-				console.log(
-					`Current progress:`,
-					Math.round((event.loaded * 100) / event.total)
-				);
-			},
-		};
+	function validateFields(values) {
+		let errors = {};
+		if (values.eventName.trim().length < 4) {
+			errors["eventName"] = "Too short. Min 4 characters.";
+		}
+		if (values.eventName.trim().length > 35) {
+			errors["eventName"] = "Too long. Max 35 characters.";
+		}
+		if (values.eventDescription.trim().length > 200) {
+			errors["eventDescription"] = "Too long. Max 200 characters.";
+		}
+		if (values.eventDescription.trim().length < 4) {
+			errors["eventDescription"] = "Too short. Min 4 characters.";
+		}
+		if (values.eventSlotCount < 2) {
+			errors["eventSlotCount"] = "Min 2 players.";
+		}
+		if (values.eventSlotCount > 200) {
+			errors["eventSlotCount"] = "Max 200 players.";
+		}
+		if (values.eventOrganizer.trim() > 35) {
+			errors["eventOrganizer"] = "Too long. Max 35 characters.";
+		}
+		if (values.eventOrganizer.trim() == "") {
+			errors["eventOrganizer"] = "Required.";
+		}
+		if (!values.eventCoverMedia) {
+			errors["eventCoverMedia"] = "Event cover media required.";
+		}
+		if (!values.eventCoverMedia) {
+			errors["eventCoverMedia"] = "Event cover media required.";
+		}
+		if (!values.eventStartDate) {
+			errors["eventStartDate"] = "Time and date required.";
+		}
 
-		console.log(eventCoverMedia);
-		const formData = new FormData();
-		const _id = event["_id"];
-		formData.append(
-			"eventJsonData",
-			JSON.stringify({
-				_id,
-				eventName,
-				eventDescription,
-				eventSlotCount,
-				eventStartDate,
-				eventContentPages,
-				eventReservableSlotsInfo,
-			})
-		);
-		formData.append("eventCoverMedia", eventCoverMedia);
+		return errors;
+	}
 
+	function callCloseEvent(reason: string, numberOfParticipants: number) {
+		if (isLoading) {
+			return;
+		}
 		axios
-			.put("/api/events", formData, config)
+			.post("/api/events/close", {
+				eventId: event._id,
+				reason,
+				numberOfParticipants,
+			})
 			.then((response) => {
-				console.log(response);
-				toast.success("Event Updated");
+				toast.success("Event closed, returning to the event list");
+				setTimeout(() => {
+					window.open(`/dashboard/events/list`, "_self");
+				}, 2000);
 			})
 			.catch((error) => {
-				console.log(error);
-				toast.success("Error updating event");
+				setIsLoading(false);
+				toast.error("Error closing event event");
 			});
 	}
 
 	return (
-		<>
+		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
-				<title>Edit Event</title>
+				<title>Editing {event.name}</title>
 			</Head>
 
 			<div className="max-w-screen-xl px-5 mx-auto mt-24">
-				<div className="flex flex-row justify-between">
-					<div className="prose">
-						<h1>Editing an event</h1>
-					</div>
-
-					<button
-						className="btn btn-lg btn-primary"
-						onClick={() => {
-							updateEvent();
-						}}
-					>
-						UPDATE EVENT
-					</button>
-				</div>
-
-				<div className="flex flex-row items-end justify-between mt-5 space-x-6">
-					<div className="flex-1 form-control">
-						<label className="label">
-							<span className="label-text">Event Name</span>
-						</label>
-						<input
-							type="text"
-							placeholder="Event Name"
-							value={eventName}
-							onChange={(val) => {
-								if (val.target.value.length > 0) {
-									setEventName(val.target.value);
-								} else {
-									setEventName(null);
-								}
-							}}
-							className="input input-lg input-bordered"
-						/>
-					</div>
-
-					<div className="flex ">
-						<label className="btn btn-primary btn-lg">
-							<input type="file" onChange={displayImage} />
-							Select Image, GIF or video Clip(8mb max)
-						</label>
-					</div>
-				</div>
-				<div className="flex flex-row justify-between space-x-2">
-					<div className="flex-1 form-control">
-						<label className="label">
-							<span className="label-text">Description</span>
-						</label>
-						<textarea
-							placeholder="Description"
-							value={eventDescription}
-							onChange={(val) => {
-								if (val.target.value.length > 0) {
-									setEventDescription(val.target.value);
-								} else {
-									setEventDescription(null);
-								}
-							}}
-							className="h-24 textarea textarea-bordered"
-						/>
-					</div>
-				</div>
-
-				<div className="flex flex-row items-end space-x-6 ">
-					<div>
-						<button
-							className="btn btn-lg btn-primary"
-							onClick={() => {
-								setDatePickerModalOpen(true);
-							}}
-						>
-							Select a time and date
-						</button>
-					</div>
-					<div className="form-control ">
-						<label className="label">
-							<span className="label-text">Max players</span>
-						</label>
-						<input
-							type="tel"
-							placeholder="Max players"
-							value={eventSlotCount}
-							onChange={(e) => {
-								const re = /^[0-9\b]+$/;
-
-								if (e.target.value === "") {
-									setEventSlotCount(0);
-								} else if (re.test(e.target.value)) {
-									setEventSlotCount(parseInt(e.target.value));
-								}
-							}}
-							className="input input-bordered input-lg"
-						/>
-					</div>
-				</div>
-
-				<div className="relative flex justify-center mt-10 shadow-xl card">
-					<figure style={{ aspectRatio: "16/9" }} className="flex items-center">
-						{isVideo ? (
-							<video autoPlay loop key={createObjectURL} ref={videoRef}>
-								<source src={createObjectURL} />
-							</video>
-						) : (
-							<Image
-								quality={100}
-								src={createObjectURL ?? placeholder_event}
-								layout={"fill"}
-								objectFit="cover"
-								alt={"Event cover image"}
-							/>
-						)}
-					</figure>
-
-					<div
-						className="absolute self-center w-full event-media-safe-area"
-						style={{ aspectRatio: "16/6" }}
-					></div>
-
-					<div className="absolute flex flex-col justify-between w-full h-full p-10 text-white scrim">
-						<div className="flex justify-between flex-1">
-							<div className="prose textshadow">
-								<h1>{eventName ?? "Insert a name for the event"}</h1>
-							</div>
-
-							{isVideo && (
+				<form onSubmit={eventDataFormik.handleSubmit}>
+					<div className="flex flex-row justify-between">
+						<div className="prose">
+							<h1>Editing event {event.closeReason && "a closed event"}</h1>
+						</div>
+						<div className="space-x-2">
+							{!event.closeReason && (
 								<button
-									className="btn btn-circle btn-ghost"
+									className={"btn btn-lg btn-warning"}
 									onClick={() => {
-										//open bug since 2017 that you cannot set muted in video element https://github.com/facebook/react/issues/10389
-										setVideoMuted(!videoMuted);
-										if (videoRef) {
-											videoRef.current.defaultMuted = !videoMuted;
-											videoRef.current.muted = !videoMuted;
+										if (isLoading) {
+											return;
 										}
+										setCloseModalOpen(true);
 									}}
 								>
-									{!videoMuted ? (
-										<VolumeUpIcon height={25}></VolumeUpIcon>
-									) : (
-										<VolumeOffIcon height={25}></VolumeOffIcon>
-									)}
+									CLOSE EVENT
 								</button>
 							)}
-						</div>
 
-						<div className="flex flex-row textshadow">
-							<p className="flex-1 prose">
-								{eventDescription ??
-									"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
-							</p>
-
-							<div className="flex flex-row items-end justify-end flex-1 ">
-								<div className="mr-10 text-white bg-transparent">
-									<div className="font-bold text-gray-200">When (your timezone)</div>
-									<div className="">{moment(eventStartDate).format("lll")}</div>
-								</div>
-								<div className="text-right text-white bg-transparent ">
-									<div className="flex flex-row items-center font-bold text-gray-200">
-										Sign ups
-										<span
-											onClick={() => {
-												//setAboutSignUpModalOpen(true);
-											}}
-											className="cursor-pointer"
-										>
-											<QuestionMarkCircleIcon height={18}></QuestionMarkCircleIcon>
-										</span>
-									</div>
-									<div>0/{eventSlotCount ?? 0}</div>
-								</div>
-							</div>
+							<button
+								className={
+									isLoading ? "btn btn-lg btn-primary loading" : "btn btn-lg btn-primary"
+								}
+								type="submit"
+							>
+								{isLoading ? "UPDATING EVENT..." : "UPDATE EVENT"}
+							</button>
 						</div>
 					</div>
-				</div>
+
+					<div className="flex flex-row justify-between mt-5 space-x-6 items-top">
+						<div className="flex-1 form-control">
+							<label className="label">
+								<span className="label-text">Event Name</span>
+							</label>
+							<input
+								type="text"
+								placeholder="Event Name"
+								onChange={eventDataFormik.handleChange}
+								onBlur={eventDataFormik.handleBlur}
+								value={eventDataFormik.values.eventName}
+								name={"eventName"}
+								className="input input-lg input-bordered"
+							/>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventName}
+							</span>
+						</div>
+
+						<div className="flex flex-col">
+							<label className="label">
+								<span className="label-text">Cover media</span>
+							</label>
+							<label className="btn btn-primary btn-lg">
+								<input type="file" onChange={displayImage} />
+								Select Image, GIF or video Clip(8mb max)
+							</label>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventCoverMedia}
+							</span>
+						</div>
+					</div>
+					<div className="flex flex-row justify-between space-x-2">
+						<div className="flex-1 form-control">
+							<label className="label">
+								<span className="label-text">Description</span>
+							</label>
+							<textarea
+								placeholder="Description"
+								onChange={eventDataFormik.handleChange}
+								onBlur={eventDataFormik.handleBlur}
+								value={eventDataFormik.values.eventDescription}
+								name={"eventDescription"}
+								className="h-24 textarea textarea-bordered"
+							/>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventDescription}
+							</span>
+						</div>
+					</div>
+
+					<div className="flex flex-row space-x-6 items-top ">
+						<div className="flex flex-col">
+							<label className="label">
+								<span className="label-text">Time and date</span>
+							</label>
+							<button
+								className="btn btn-lg btn-primary"
+								onClick={() => {
+									setDatePickerModalOpen(true);
+								}}
+							>
+								Select a time and date
+							</button>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventStartDate}
+							</span>
+						</div>
+						<div className="form-control ">
+							<label className="label">
+								<span className="label-text">Max players</span>
+							</label>
+							<input
+								type="tel"
+								placeholder="Max players"
+								onChange={(e) => {
+									const re = /^[0-9\b]+$/;
+									if (e.target.value === "" || re.test(e.target.value)) {
+										eventDataFormik.handleChange(e);
+									}
+								}}
+								onBlur={eventDataFormik.handleBlur}
+								value={eventDataFormik.values.eventSlotCount}
+								name={"eventSlotCount"}
+								className="input input-bordered input-lg"
+							/>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventSlotCount}
+							</span>
+						</div>
+						<div className="form-control ">
+							<label className="label">
+								<span className="label-text">Organizer</span>
+							</label>
+							<input
+								type="tel"
+								placeholder="Organizer"
+								onBlur={eventDataFormik.handleBlur}
+								value={eventDataFormik.values.eventOrganizer}
+								onChange={eventDataFormik.handleChange}
+								name={"eventOrganizer"}
+								className="input input-bordered input-lg"
+							/>
+							<span className="text-red-500 label-text-alt">
+								{eventDataFormik.errors.eventOrganizer}
+							</span>
+						</div>
+					</div>
+				</form>
+				<EventEditingCard
+					createObjectURL={createObjectURL}
+					isVideo={isVideo}
+					eventDescription={eventDataFormik.values.eventDescription}
+					eventName={eventDataFormik.values.eventName}
+					eventSlotCount={eventDataFormik.values.eventSlotCount}
+					eventStartDate={eventDataFormik.values.eventStartDate}
+				></EventEditingCard>
+
 				<div className="mt-5 alert alert-info">
 					<div className="flex-1">
 						<svg
@@ -428,6 +465,7 @@ export default function EditEvent({ event }) {
 						</label>
 					</div>
 				</div>
+
 				<div className="w-full px-2 mt-5 mb-20 sm:px-0">
 					<Tab.Group>
 						<Tab.List className="flex p-1 space-x-1 bg-blue-900/5 rounded-xl">
@@ -505,7 +543,7 @@ export default function EditEvent({ event }) {
 														<AddIcon></AddIcon>
 													</button>
 												</div>
-												{eventContentPages?.map((contentPage) => (
+												{eventContentPages.map((contentPage) => (
 													<ul key={contentPage["title"]} className="">
 														<div className="flex flex-row items-center">
 															<EventNavBarFactionItem
@@ -697,7 +735,7 @@ export default function EditEvent({ event }) {
 														<AddIcon></AddIcon>
 													</button>
 												</div>
-												{eventReservableSlotsInfo?.map((reservableSlotsInfo) => (
+												{eventReservableSlotsInfo.map((reservableSlotsInfo) => (
 													<ul key={reservableSlotsInfo["title"]} className="">
 														<div className="flex flex-row items-center">
 															<EventNavBarFactionItem
@@ -720,7 +758,6 @@ export default function EditEvent({ event }) {
 																		);
 
 																		setEventReservableSlotsInfo(newList);
-																		console.log(eventReservableSlotsInfo);
 																		setEventCurrentReservableSlotInfo(newList[0]);
 																		//forceUpdate();
 																	}}
@@ -735,7 +772,7 @@ export default function EditEvent({ event }) {
 										</aside>
 										<main className="flex-grow">
 											<div>
-												<form onSubmit={formik.handleSubmit}>
+												<form onSubmit={newSlotFormik.handleSubmit}>
 													<div className="flex flex-row space-x-2">
 														<div className="flex-1 space-y-2">
 															<div className="form-control">
@@ -746,14 +783,14 @@ export default function EditEvent({ event }) {
 																	type="text"
 																	placeholder="Rifleman AT"
 																	name="reservedSlotName"
-																	onChange={formik.handleChange}
-																	onBlur={formik.handleBlur}
-																	value={formik.values.reservedSlotName}
+																	onChange={newSlotFormik.handleChange}
+																	onBlur={newSlotFormik.handleBlur}
+																	value={newSlotFormik.values.reservedSlotName}
 																	className="input input-bordered"
 																/>
 
-																<span className="label-text-alt">
-																	{formik.errors.reservedSlotName}
+																<span className="text-red-500 label-text-alt">
+																	{newSlotFormik.errors.reservedSlotName}
 																</span>
 															</div>
 
@@ -765,9 +802,9 @@ export default function EditEvent({ event }) {
 																	type="text"
 																	placeholder="Description"
 																	name="reservedSlotDescription"
-																	onChange={formik.handleChange}
-																	onBlur={formik.handleBlur}
-																	value={formik.values.reservedSlotDescription}
+																	onChange={newSlotFormik.handleChange}
+																	onBlur={newSlotFormik.handleBlur}
+																	value={newSlotFormik.values.reservedSlotDescription}
 																	className="input input-bordered"
 																/>
 															</div>
@@ -780,18 +817,18 @@ export default function EditEvent({ event }) {
 																<input
 																	placeholder="Count"
 																	name="reservedSlotCount"
-																	onBlur={formik.handleBlur}
+																	onBlur={newSlotFormik.handleBlur}
 																	onChange={(e) => {
 																		const re = /^[0-9\b]+$/;
 																		if (e.target.value === "" || re.test(e.target.value)) {
-																			formik.handleChange(e);
+																			newSlotFormik.handleChange(e);
 																		}
 																	}}
-																	value={formik.values.reservedSlotCount}
+																	value={newSlotFormik.values.reservedSlotCount}
 																	className="input input-bordered"
 																/>
-																<span className="label-text-alt">
-																	{formik.errors.reservedSlotCount}
+																<span className="text-red-500 label-text-alt">
+																	{newSlotFormik.errors.reservedSlotCount}
 																</span>
 															</div>
 															<button className="btn btn-block" type="submit">
@@ -830,7 +867,6 @@ export default function EditEvent({ event }) {
 																									<button
 																										className="btn btn-sm btn-ghost"
 																										onClick={() => {
-																											console.log("eventCurrentReservableSlotInfo");
 																											eventCurrentReservableSlotInfo.slots =
 																												eventCurrentReservableSlotInfo.slots.filter(
 																													(rs) => rs.name != item.name
@@ -878,8 +914,21 @@ export default function EditEvent({ event }) {
 				</div>
 			</div>
 
+			<CloseEventModal
+				isOpen={closeModalOpen}
+				onClose={(closeReason, numberOfParticipants) => {
+					if (closeReason) {
+						setIsLoading(true);
+						setCloseModalOpen(false);
+						callCloseEvent(closeReason, numberOfParticipants);
+					}
+				}}
+			></CloseEventModal>
+
 			<EventDatePickerModal
-				onDateSelect={setEventStartDate}
+				onDateSelect={(date) => {
+					eventDataFormik.setFieldValue("eventStartDate", date);
+				}}
 				isOpen={datePickerModalOpen}
 				onClose={() => {
 					setDatePickerModalOpen(false);
@@ -892,18 +941,16 @@ export default function EditEvent({ event }) {
 					setCreateSlotsModalOpen(false);
 				}}
 			></CreateSlotsModal>
-		</>
+		</CredentialLockLayout>
 	);
 }
 
-export async function getStaticProps({ params }: Params) {
+export async function getServerSideProps(context) {
+	const session = await getSession(context);
 	const event = await MyMongo.collection("events").findOne({
-		slug: params.slug,
+		slug: context.params.slug,
 	});
-
-	console.log({ ...event, _id: event["_id"].toString() });
-	return { props: { event: { ...event, _id: event["_id"].toString() } } };
-}
-export async function getStaticPaths() {
-	return { paths: [], fallback: "blocking" };
+	return {
+		props: { event: { ...event, _id: event["_id"].toString() }, session },
+	};
 }

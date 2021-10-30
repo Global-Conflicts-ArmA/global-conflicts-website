@@ -75,10 +75,10 @@ export default function NavBar() {
 										{navigation.map((item) => {
 											if (item.submenus != undefined) {
 												return (
-													<Menu as="div" className="relative z-20 ml-3">
+													<Menu as="div" key={item.name} className="relative z-20 ml-3">
 														<div>
 															<Menu.Button className="">
-																<div key={item.name} className="px-3 py-2 ">
+																<div className="px-3 py-2 ">
 																	<a
 																		href={item.href}
 																		className={classNames(
