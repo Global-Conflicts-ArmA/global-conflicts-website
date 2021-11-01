@@ -32,7 +32,7 @@ const toNumber = (value: string | number) => {
 };
 
 function UploadMission() {
-	const isDesktopResolution = useMatchMedia('(min-width:1280px)', true)
+	const isDesktopResolution = useMatchMedia("(min-width:1280px)", true);
 	const [missionFile, setMissionFile] = useState<File | undefined>(null);
 	const [imageObjectUrl, setImageObjectUrl] = useState(null);
 	const uploadProgressToast = React.useRef(null);
@@ -46,8 +46,8 @@ function UploadMission() {
 			setImageObjectUrl(URL.createObjectURL(file));
 			missionFormik.setFieldValue("media", file);
 			missionFormik.setFieldTouched("media", true, false);
-			if (file.size >= 1024 * 1024 * 20.5) {
-				missionFormik.setFieldError("media", "Invalid file. Max size: 2.5MB");
+			if (file.size >= 1024 * 1024 * 1.5) {
+				missionFormik.setFieldError("media", "Invalid file. Max size: 1.5MB");
 			} else {
 				missionFormik.setFieldError("media", null);
 			}
@@ -200,8 +200,8 @@ function UploadMission() {
 			}
 
 			if (fields.media) {
-				if (fields.media.size >= 1024 * 1024 * 20.5) {
-					errors["media"] = "Invalid file. Max size: 2.5MB";
+				if (fields.media.size >= 1024 * 1024 * 1.5) {
+					errors["media"] = "Invalid file. Max size: 1.5MB";
 				}
 			}
 
@@ -260,7 +260,14 @@ function UploadMission() {
 					})
 					.catch((error) => {
 						console.log(error);
-						toast.error("Error uploading the mission, Let the admins know.");
+						if (error.response.status == 500) {
+							toast.error("Error uploading the mission, Let the admins know.");
+						} else {
+							if (error.response.data && error.response.data.error) {
+								toast.error(error.response.data.error);
+							}
+						}
+
 						setIsLoading(false);
 					})
 					.finally(() => {});
@@ -417,7 +424,8 @@ function UploadMission() {
 							<div className="flex mb-4">
 								<label className="label">
 									<span className="label-text">
-										Cover media. Aspect Ratio: 16:10. 2.5MB Max. (Optional)
+										Cover image. Aspect Ratio: 16:10. PNG, JPG or GIF. 1.5mb Max.
+										(Optional)
 									</span>
 								</label>
 
@@ -426,19 +434,18 @@ function UploadMission() {
 										type="file"
 										name={"image"}
 										onChange={displayMedia}
-										accept="image/png, image/jpeg, image/gif, video/mp4, video/webm, video/quicktime"
+										accept="image/png, image/jpeg, image/gif"
 									/>
 									Select Media
 								</label>
 							</div>
 
-							{(imageObjectUrl&&isDesktopResolution)? (
+							{imageObjectUrl && isDesktopResolution ? (
 								<div className="flex-1 overflow-hidden shadow-lg rounded-xl ">
 									<MissionMediaCard
 										createObjectURL={imageObjectUrl}
 										isVideo={missionFormik.values.media?.type.includes("video") ?? false}
 									></MissionMediaCard>
-							 
 								</div>
 							) : (
 								<div className="preview-img"></div>
@@ -460,12 +467,12 @@ function UploadMission() {
 							</label>
 						</div>
 
-						{(imageObjectUrl&&!isDesktopResolution) && (
+						{imageObjectUrl && !isDesktopResolution && (
 							<div className="flex-1 overflow-hidden shadow-xl rounded-xl">
 								<MissionMediaCard
-										createObjectURL={imageObjectUrl}
-										isVideo={missionFormik.values.media?.type.includes("video") ?? false}
-									></MissionMediaCard>
+									createObjectURL={imageObjectUrl}
+									isVideo={missionFormik.values.media?.type.includes("video") ?? false}
+								></MissionMediaCard>
 							</div>
 						)}
 						<FormikErrortext formik={missionFormik} name={"image"} />

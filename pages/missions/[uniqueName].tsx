@@ -139,20 +139,11 @@ export default function MissionDetails({ mission }) {
 				<meta property="og:type" content="website" />
 
 				<meta property="og:title" content={mission.name} />
-				<meta property="og:video:type" content="application/mp4" />
-
 				<meta
-					property="og:video"
-					content="https://www.youtube.com/watch?v=bLhCbtRXPTM"
+					property="og:image"
+					content={`https://gc-next-website.vercel.app/missionsCoverMedia/${mission._id}`}
 				/>
 
-<meta
-					property="og:proxy_url"
-					content="https://www.youtube.com/watch?v=bLhCbtRXPTM"
-				/>
-
-				<meta property="og:video:width" content="640" />
-				<meta property="og:video:height" content="426" />
 				<meta name="twitter:card" content={mission.description} />
 				<meta property="og:description" content={mission.description} />
 
@@ -162,10 +153,8 @@ export default function MissionDetails({ mission }) {
 				<div className="flex flex-row m-10 md:space-x-10">
 					<div className="flex-1 hidden overflow-hidden shadow-lg rounded-xl md:block">
 						<MissionMediaCard
-							createObjectURL={
-								"../missionsCoverMedia/COOP44_rolland_the_headless_client.mp4"
-							}
-							isVideo={true}
+							createObjectURL={`/missionsCoverMedia/${mission._id}`}
+							isVideo={false}
 						></MissionMediaCard>
 					</div>
 
@@ -473,7 +462,6 @@ export async function getStaticProps({ params }) {
 						"updates.author.email": 0,
 						"updates.author.discord_id": 0,
 						"updates.author.emailVerified": 0,
-						_id: 0,
 					},
 				},
 			])
@@ -546,6 +534,7 @@ export async function getStaticProps({ params }) {
 		delete update["author"];
 	});
 
+	mission["_id"] = mission["_id"].toString();
 	return {
 		props: {
 			mission,

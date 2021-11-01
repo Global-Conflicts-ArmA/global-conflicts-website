@@ -12,6 +12,7 @@ export enum CREDENTIAL {
 
 export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 	return new Promise(async (resolve, reject) => {
+		console.log('CHECKING CREDS');
 		const session = await getSession({ req });
 		if (!session) {
 			return reject(401);

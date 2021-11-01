@@ -20,7 +20,7 @@ export default function MissionMediaCard({ isVideo, createObjectURL }) {
 			}
 		}, 20);
 	}, [createObjectURL]);
-
+ 
 	return (
 		<div className="relative" style={{ aspectRatio: "16/9" }}>
 			<figure className="relative flex justify-center preview-img unset-img ">
@@ -33,9 +33,14 @@ export default function MissionMediaCard({ isVideo, createObjectURL }) {
 						className="custom-img"
 						quality="100"
 						layout="fill"
-						src={createObjectURL ?? placeholder_event}
+						
+						onError={() => {
+							console.log("IMAGE ERROR")
+						 
+					  }}
+						src={createObjectURL}
 						objectFit="cover"
-						alt={"Event cover image"}
+						alt={"Mission cover image"}
 					/>
 				)}
 			</figure>
