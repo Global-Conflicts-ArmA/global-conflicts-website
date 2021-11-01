@@ -7,15 +7,15 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@dnd-kit/core": "^4.0.0",
+    "@dnd-kit/core": "^4.0.1",
     "@dnd-kit/sortable": "^5.0.0",
     "@emotion/styled": "^11.3.0",
-    "@headlessui/react": "^1.4.0",
-    "@heroicons/react": "^1.0.4",
+    "@headlessui/react": "^1.4.1",
+    "@heroicons/react": "^1.0.5",
     "@mapbox/rehype-prism": "^0.8.0",
     "@mdx-js/loader": "^1.6.22",
     "@next-auth/mongodb-adapter": "0.0.2-pr.193-1fc34f1e.284",
-    "@next/mdx": "^12.0.1",
+    "@next/mdx": "^12.0.2",
     "@tailwindcss/line-clamp": "^0.2.2",
     "@tailwindcss/typography": "^0.4.1",
     "@types/react": "^17.0.33",
@@ -34,7 +34,7 @@
     "moment": "^2.29.1",
     "mongodb": "^4.1.3",
     "multer": "^1.4.3",
-    "next": "^12.0.1",
+    "next": "^12.0.2",
     "next-auth": "4.0.0-beta.2",
     "next-connect": "^0.11.0",
     "next-mdx-remote": "^3.0.7",
@@ -66,7 +66,7 @@
     "remark": "^14.0.1",
     "remark-html": "^15.0.0",
     "remark-prism": "^1.3.6",
-    "rich-markdown-editor": "^11.18.14",
+    "rich-markdown-editor": "^11.18.15",
     "showdown": "^1.9.1",
     "styled-components": "^5.3.3",
     "superjson": "^1.8.0",
@@ -74,13 +74,13 @@
     "tailwindcss-scrims": "^1.0.0"
   },
   "devDependencies": {
-    "autoprefixer": "^10.3.3",
+    "autoprefixer": "^10.4.0",
     "eslint": "7.32.0",
-    "eslint-config-next": "12.0.1",
+    "eslint-config-next": "12.0.2",
     "eslint-config-prettier": "^8.3.0",
     "postcss": "^8.3.6",
     "postcss-preset-env": "^6.7.0",
-    "tailwindcss": "^2.2.17",
+    "tailwindcss": "^2.2.19",
     "typescript": "^4.4.4"
   }
 }

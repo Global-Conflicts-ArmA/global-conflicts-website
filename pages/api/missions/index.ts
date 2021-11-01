@@ -213,18 +213,18 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	maxPlayers = padZeros(maxPlayers);
 	console.log(tags);
 
-	const insertResult = await MyMongo.collection("missions").insertOne({
+	await MyMongo.collection("missions").insertOne({
 		uniqueName: `${safeName}`,
 		name: name,
 		authorID: session.user.discord_id,
 		description: description,
 		era: era,
 		jip: jip,
-
 		uploadDate: new Date(),
 		lastVersion: {
 			major: 1,
 		},
+		mediaFileName: req["mediaName"],
 		respawn: respawn,
 		size: {
 			min: parseInt(minPlayers),
@@ -247,16 +247,6 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		type: type,
 		tags: tags.map((item) => item.value),
 	});
-
-	console.log(insertResult);
-	fs.rename(
-		`${mediaFolder}/${req["mediaName"]}`,
-		`${mediaFolder}/${insertResult.insertedId.toString()}`,
-
-		function (err) {
-			if (err) console.log("ERROR: " + err);
-		}
-	);
 
 	res.status(200).json({ slug: safeName });
 });

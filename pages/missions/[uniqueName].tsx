@@ -130,6 +130,18 @@ export default function MissionDetails({ mission }) {
 		},
 	];
 
+	function getMissionMediaPath(absolute = false) {
+		if (mission.mediaFileName) {
+			return absolute
+				? `https://gc-next-website.vercel.app/missionsCoverMedia/${mission.mediaFileName}`
+				: `/missionsCoverMedia/${mission.mediaFileName}`;
+		} else {
+			return absolute
+				? `https://gc-next-website.vercel.app/terrain_pics/${mission.mediaFileName}`
+				: `/terrain_pics/${mission.terrain}`;
+		}
+	}
+
 	return (
 		<>
 			<Head>
@@ -139,17 +151,8 @@ export default function MissionDetails({ mission }) {
 				<meta property="og:type" content="website" />
 
 				<meta property="og:title" content={mission.name} />
-				<meta
-					property="og:image"
-					content={`https://gc-next-website.vercel.app/missionsCoverMedia/${mission._id}`}
-				/>
-					<meta
-					property="twitter:image"
-					content={`https://gc-next-website.vercel.app/missionsCoverMedia/${mission._id}`}
-				/>
-	 
- 
-
+				<meta property="og:image" content={getMissionMediaPath(true)} />
+				<meta property="twitter:image" content={getMissionMediaPath(true)} />
 
 				<meta name="twitter:card" content="summary_large_image" />
 				<meta property="og:description" content={mission.description} />
@@ -160,7 +163,7 @@ export default function MissionDetails({ mission }) {
 				<div className="flex flex-row m-10 md:space-x-10">
 					<div className="flex-1 hidden overflow-hidden shadow-lg rounded-xl md:block">
 						<MissionMediaCard
-							createObjectURL={`/missionsCoverMedia/${mission._id}`}
+							createObjectURL={getMissionMediaPath()}
 							isVideo={false}
 						></MissionMediaCard>
 					</div>
