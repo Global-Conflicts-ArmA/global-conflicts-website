@@ -23,6 +23,8 @@ import MissionAuditModal from "../../components/modals/mission_audit_modal";
 import MissionMediaCard from "../../components/mission_media_card";
 import { NextSeo, VideoJsonLd } from "next-seo";
 import Head from "next/head";
+import { serialize } from "next-mdx-remote/serialize";
+import { MDXRemote } from "next-mdx-remote";
 
 let updateOutside;
 export default function MissionDetails({ mission }) {
@@ -155,13 +157,16 @@ export default function MissionDetails({ mission }) {
 				<meta property="twitter:image" content={getMissionMediaPath(true)} />
 
 				<meta name="twitter:card" content="summary_large_image" />
-				<meta property="og:description" content={mission.description} />
+				<meta property="og:description" content={mission.descriptionNoMarkdown} />
 
 				<meta property="og:site_name" content="Global Conflicts" />
 			</Head>
-			<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
+			<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl ">
 				<div className="flex flex-row m-10 md:space-x-10">
-					<div className="flex-1 hidden overflow-hidden shadow-lg rounded-xl md:block">
+					<div
+						className="flex-1 hidden overflow-hidden rounded-lg shadow-lg md:block"
+						style={{ height: "fit-content" }}
+					>
 						<MissionMediaCard
 							createObjectURL={getMissionMediaPath()}
 							isVideo={false}
@@ -174,7 +179,8 @@ export default function MissionDetails({ mission }) {
 							<div className="mb-1 text-4xl font-bold ">{mission.name}</div>
 
 							<div>by {mission.missionMaker}</div>
-							<p>{mission.description}</p>
+
+							<MDXRemote {...mission.descriptionMarkdown} />
 
 							{mission.tags.map((role) => (
 								<span
@@ -545,6 +551,7 @@ export async function getStaticProps({ params }) {
 	});
 
 	mission["_id"] = mission["_id"].toString();
+	mission["descriptionMarkdown"] = await serialize(mission.description);
 	return {
 		props: {
 			mission,

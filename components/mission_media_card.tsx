@@ -20,9 +20,12 @@ export default function MissionMediaCard({ isVideo, createObjectURL }) {
 			}
 		}, 20);
 	}, [createObjectURL]);
- 
+
 	return (
-		<div className="relative" style={{ aspectRatio: "16/9" }}>
+		<div
+			className="relative overflow-hidden rounded-lg shadow-lg"
+			style={{ aspectRatio: "16/10" }}
+		>
 			<figure className="relative flex justify-center preview-img unset-img ">
 				{isVideo ? (
 					<video autoPlay loop key={createObjectURL} ref={videoRef}>
@@ -33,11 +36,9 @@ export default function MissionMediaCard({ isVideo, createObjectURL }) {
 						className="custom-img"
 						quality="100"
 						layout="fill"
-						
 						onError={() => {
-							console.log("IMAGE ERROR")
-						 
-					  }}
+							console.log("IMAGE ERROR");
+						}}
 						src={createObjectURL}
 						objectFit="cover"
 						alt={"Mission cover image"}
@@ -47,7 +48,6 @@ export default function MissionMediaCard({ isVideo, createObjectURL }) {
 			<div className="absolute top-2 right-2">
 				{isVideo && (
 					<span
-						 
 						className="text-white btn btn-circle btn-ghost"
 						onClick={() => {
 							//open bug since 2017 that you cannot set muted in video element https://github.com/facebook/react/issues/10389

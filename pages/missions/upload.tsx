@@ -137,8 +137,8 @@ function UploadMission() {
 				errors["description"] = "Too short. Min 4 characters.";
 			}
 
-			if (fields.description.trim().length > 300) {
-				errors["description"] = "Too long. Max 300 characters.";
+			if (fields.description.trim().length > 600) {
+				errors["description"] = "Too long. Max 600 characters.";
 			}
 
 			if (!fields.era) {

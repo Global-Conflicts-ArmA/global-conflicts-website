@@ -7,7 +7,8 @@ import { ObjectId } from "bson";
 import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
 import { getSession } from "next-auth/react";
 import formidable from "formidable";
-
+import { remark } from "remark";
+import strip from "strip-markdown";
 const oneMegabyteInBytes = 10000000000000;
 const missionsFolder = "./public/missions";
 const mediaFolder = "./public/missionsCoverMedia";
@@ -213,11 +214,14 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	maxPlayers = padZeros(maxPlayers);
 	console.log(tags);
 
+	const descriptionNoMarkdown = await remark().use(strip).process(description);
+
 	await MyMongo.collection("missions").insertOne({
 		uniqueName: `${safeName}`,
 		name: name,
 		authorID: session.user.discord_id,
 		description: description,
+		descriptionNoMarkdown: descriptionNoMarkdown.value,
 		era: era,
 		jip: jip,
 		uploadDate: new Date(),
