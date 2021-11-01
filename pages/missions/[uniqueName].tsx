@@ -143,8 +143,15 @@ export default function MissionDetails({ mission }) {
 					property="og:image"
 					content={`https://gc-next-website.vercel.app/missionsCoverMedia/${mission._id}`}
 				/>
+					<meta
+					property="twitter:image"
+					content={`https://gc-next-website.vercel.app/missionsCoverMedia/${mission._id}`}
+				/>
+	 
+ 
 
-				<meta name="twitter:card" content={mission.description} />
+
+				<meta name="twitter:card" content="summary_large_image" />
 				<meta property="og:description" content={mission.description} />
 
 				<meta property="og:site_name" content="Global Conflicts" />
