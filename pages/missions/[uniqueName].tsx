@@ -138,7 +138,7 @@ export default function MissionDetails({ mission }) {
 		} else {
 			return absolute
 				? `https://gc-next-website.vercel.app/terrain_pics/${mission.terrain.toLowerCase()}`
-				: `/terrain_pics/${mission.terrain.toLowerCase()}`;
+				: `/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
 		}
 	}
 
