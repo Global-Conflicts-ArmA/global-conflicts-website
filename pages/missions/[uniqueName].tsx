@@ -137,8 +137,8 @@ export default function MissionDetails({ mission }) {
 				: `/missionsCoverMedia/${mission.mediaFileName}`;
 		} else {
 			return absolute
-				? `https://gc-next-website.vercel.app/terrain_pics/${mission.mediaFileName}`
-				: `/terrain_pics/${mission.terrain}`;
+				? `https://gc-next-website.vercel.app/terrain_pics/${mission.terrain.toLowerCase()}`
+				: `/terrain_pics/${mission.terrain.toLowerCase()}`;
 		}
 	}
 
