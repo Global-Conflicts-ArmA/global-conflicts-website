@@ -21,6 +21,16 @@ function padZeros(count: number, size = 2) {
 	return stringCount;
 }
 
+function makeSafeName(name: string) {
+	return name
+		.normalize("NFD")
+		.replaceAll(/[\u0300-\u036f]/g, "")
+		.replaceAll(" ", "-")
+		.replaceAll(/\W/g, "")
+		.trim()
+		.toLowerCase();
+}
+
 async function filterMissionFile(req, file, cb) {
 	const originalNameArray = file.originalname.split(".");
 	const format = originalNameArray[originalNameArray.length - 1];
@@ -35,13 +45,7 @@ async function filterMissionFile(req, file, cb) {
 		let name = body["name"];
 		const type = body["type"].value;
 		let maxPlayers = body["maxPlayers"];
-		const safeName = name
-			.normalize("NFD")
-			.replaceAll(/[\u0300-\u036f]/g, "")
-			.replaceAll(" ", "_")
-			.replaceAll(/\W/g, "")
-			.trim()
-			.toLowerCase();
+		const safeName = makeSafeName(name);
 
 		const found = await MyMongo.collection("missions").findOne(
 			{ uniqueName: safeName },
@@ -72,16 +76,10 @@ function filterMediaFile(req, file, cb) {
 	const body = JSON.parse(req.body.missionJsonData);
 	let name = body["name"];
 
-	name = name
-		.normalize("NFD")
-		.replaceAll(/[\u0300-\u036f]/g, "")
-		.replaceAll(" ", "_")
-		.replaceAll(/\W/g, "")
-		.trim()
-		.toLowerCase();
+	const safeName = makeSafeName(name);
 
 	var format = file.originalname.split(".").pop();
-	const mediaName = `${name}.${format}`;
+	const mediaName = `${safeName}.${format}`;
 	const filExists = fs.existsSync(`${mediaFolder}/${mediaName}`);
 
 	if (filExists) {
@@ -120,14 +118,8 @@ function fileNameMediaParse(req, file, cb) {
 	let name = body["name"];
 
 	const extension = file.originalname.split(".").pop();
-	name = name
-		.normalize("NFD")
-		.replaceAll(/[\u0300-\u036f]/g, "")
-		.replaceAll(" ", "_")
-		.replaceAll(/\W/g, "")
-		.trim()
-		.toLowerCase();
-	const mediaName = `${name}.${extension}`;
+	const safeName = makeSafeName(name);
+	const mediaName = `${safeName}.${extension}`;
 	return cb(null, mediaName);
 }
 
@@ -195,13 +187,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = JSON.parse(req.body["missionJsonData"]);
 
 	let name = body["name"];
-	const safeName = name
-		.normalize("NFD")
-		.replaceAll(/[\u0300-\u036f]/g, "")
-		.replaceAll(" ", "_")
-		.replaceAll(/\W/g, "")
-		.trim()
-		.toLowerCase();
+	const safeName = makeSafeName(name);
 
 	const found = await MyMongo.collection("missions").findOne(
 		{ uniqueName: safeName },
