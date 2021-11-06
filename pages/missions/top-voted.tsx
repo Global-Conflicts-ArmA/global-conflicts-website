@@ -1,51 +1,291 @@
-import Head from "next/head";
+import MyMongo from "../../lib/mongodb";
 import { MainLayout } from "../../layouts/main-layout";
 
 import DataTable from "react-data-table-component";
+import React, { useState } from "react";
+import MissionMediaCard from "../../components/mission_media_card";
+import { remark } from "remark";
+import html from "remark-html";
+import { MDXLayoutRenderer } from "../../components/MDXComponents";
+import rehypeSlug from "rehype-slug";
+import rehypeCodeTitles from "rehype-code-titles";
+import rehypePrism from "rehype-prism-plus";
+import { bundleMDX } from "mdx-bundler";
+import { getSession, useSession } from "next-auth/react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { ThumbUpIcon } from "@heroicons/react/outline";
+import Link from "next/link";
+function getMissionMediaPath(mission, absolute = false) {
+	if (mission.mediaFileName) {
+		return absolute
+			? `https://gc-next-website.vercel.app/missionsCoverMedia/${mission.mediaFileName}`
+			: `/missionsCoverMedia/${mission.mediaFileName}`;
+	} else {
+		return absolute
+			? `https://gc-next-website.vercel.app/terrain_pics/${mission.terrain.toLowerCase()}`
+			: `/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
+	}
+}
 
-const columns = [
-	{
-		name: "Title",
-		selector: (row) => row.title,
-		sortable: true,
-	},
-	{
-		name: "Year",
-		selector: (row) => row.year,
-		sortable: true,
-	},
-];
+function TopVoted({ missions, maxVotes }) {
+	let [isLoadingVote, setIsLoadingVote] = useState(false);
+	const { data: session } = useSession();
 
-const data = [
-	{
-		id: 1,
-		title: "Beetlejuice",
-		year: "1988",
-	},
-	{
-		id: 2,
-		title: "Ghostbusters",
-		year: "1984",
-	},
-];
+	function doVote(mission) {
+		if (!session) {
+			toast.error("You must be logged in to vote!");
+			return;
+		}
 
-function TopVoted() {
+		setIsLoadingVote(true);
+		axios
+			.put(`/api/missions/${mission.uniqueName}/vote`)
+			.then((response) => {
+				mission["hasVoted"] = true;
+				mission["votes"].push(session.user["discord_id"]);
+
+				toast.success("Vote submited!");
+			})
+			.catch((error) => {
+				if (error.response.data && error.response.data.error) {
+					toast.error(error.response.data.error);
+				}
+			})
+			.finally(() => {
+				setIsLoadingVote(false);
+			});
+	}
+
+	function retractVote(mission) {
+		setIsLoadingVote(true);
+		axios
+			.delete(`/api/missions/${mission.uniqueName}/vote`)
+			.then((response) => {
+				mission["hasVoted"] = false;
+				const index = mission["votes"].indexOf(session.user["discord_id"], 0);
+				if (index > -1) {
+					mission["votes"].splice(index, 1);
+				}
+				toast.info("Vote retracted");
+			})
+			.catch((error) => {
+				if (error.response.data && error.response.data.error) {
+					toast.error(error.response.data.error);
+				}
+			})
+			.finally(() => {
+				setIsLoadingVote(false);
+			});
+	}
+
+	function getVoteCount() {
+		let voteCount = 0;
+		missions.forEach((missionItem) => {
+			if (missionItem["votes"]?.includes(session?.user["discord_id"])) {
+				voteCount++;
+			}
+		});
+		return voteCount;
+	}
+
 	return (
-		<>
-			<DataTable columns={columns} data={data} />
-		</>
+		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
+			<div className="flex flex-col max-w-screen-xl px-2 mx-auto mb-10">
+				<div className="mx-4 mt-10 prose lg:prose-xl" style={{ maxWidth: "none" }}>
+					<h1>Top voted missions</h1>
+					<p>
+						These are the missions that the community has voted for to be played on
+						the weekend sessions. This list will be reset after the weekend.
+						<br />
+						We will pick missions considering amount of votes and the player count.
+						<br />
+						New missions always take precedence, so you don&apos;t to vote for new
+						missions.
+						<br />
+					</p>
+					{session && (
+						<div className="flex flex-row">
+							You have used
+							<span className="font-bold">&nbsp;{getVoteCount()}&nbsp;</span>out of{" "}
+							<span className="font-bold">&nbsp;{maxVotes}&nbsp;</span> votes.
+						</div>
+					)}
+				</div>
+			</div>
+
+			<div className="mx-1 my-10 space-y-10 md:mx-12">
+				{missions.map((mission, index) => {
+					return (
+						<div key={mission.uniqueName} className="flex flex-row">
+							<div
+								className="flex-1 w-full overflow-hidden shadow-lg card"
+								style={{ height: "fit-content" }}
+							>
+								<MissionMediaCard
+									createObjectURL={getMissionMediaPath(mission)}
+									isVideo={false}
+									isVotingCard={false}
+									mission={mission}
+									aspectRatio="16/10"
+								></MissionMediaCard>
+							</div>
+							<div className="flex-1 ml-4 prose">
+								<div className="flex flex-row items-center justify-between">
+									<div>
+										<h2 style={{ margin: 0 }}>
+											<span className="text-accent">{index + 1})&nbsp;</span>
+
+											<Link href={`/missions/${mission.uniqueName}`}>
+											 
+												<a>{mission.name}</a>
+											</Link>
+										</h2>
+										<h4>
+											Author: <span className="font-bold">{mission.missionMaker}</span>
+										</h4>
+									</div>
+									<div>
+										<div className="flex flex-row justify-center">
+											<div className="opacity-75 stat-title">Votes: </div>
+											<div className="">{mission.votes.length}</div>
+										</div>
+										<div
+											data-tip={
+												mission["hasVoted"]
+													? "Retract vote"
+													: getVoteCount() >= 4 && !mission["hasVoted"]
+													? `You can only vote for ${maxVotes} missions per week!`
+													: "Vote for this mission to be played"
+											}
+											className="z-10 tooltip tooltip-bottom tooltip-primary"
+										>
+											<button
+												disabled={getVoteCount() >= 4 && !mission["hasVoted"]}
+												className={`btn btn-sm btn-primary whitespace-nowrap min-w-187 ${
+													isLoadingVote ? "loading" : ""
+												}`}
+												onClick={(event) => {
+													mission["hasVoted"] ? retractVote(mission) : doVote(mission);
+												}}
+											>
+												{mission["hasVoted"] ? "Retract vote" : "Vote"}
+											</button>
+										</div>
+									</div>
+								</div>
+
+								<div>
+									<MDXLayoutRenderer mdxSource={mission.descriptionMarkdown} />
+								</div>
+
+								<div className="flex flex-row flex-wrap w-full stats">
+									<div className="m-2">
+										<div className="opacity-75 stat-title">Players</div>
+										<div className="text-sm stat-value ">
+											{mission.size.min} to {mission.size.max}
+										</div>
+									</div>
+									<div className="m-2 ">
+										<div className="opacity-75 stat-title">Map</div>
+										<div className="text-sm stat-value">
+											{mission.terrainName ?? mission.terrain}
+										</div>
+									</div>
+
+									<div className="m-2">
+										<div className="opacity-75 stat-title">Type</div>
+										<div className="text-sm stat-value ">{mission.type}</div>
+									</div>
+
+									<div className="m-2">
+										<div className="opacity-75 stat-title">Respawn</div>
+										<div className="text-sm stat-value">{mission.respawn || "No"}</div>
+									</div>
+									<div className="m-2">
+										<div className="opacity-75 stat-title">JIP</div>
+										<div className="text-sm stat-value ">{mission.jip || "No"}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					);
+				})}
+			</div>
+		</div>
 	);
 }
 
-// // This gets called on every request
-// export async function getServerSideProps() {
-//    // Fetch data from external API
-//    const res = await fetch(`https://.../data`)
-//    const data = await res.json()
+// This gets called on every request
+export async function getServerSideProps(context) {
+	//{ votes: { $exists: true, $type: "array", $ne: [] } },
+	// { sort: { votes: 1 }, projection: { _id: 0, updates: 0 } }
 
-//    // Pass data to the page via props
-//    return { props: { data } }
-//  }
+	const missions = await MyMongo.collection("missions")
+		.aggregate([
+			{
+				$match: { votes: { $exists: true, $type: "array", $ne: [] } },
+			},
+			{ $sort: { votes: -1 } },
+
+			{
+				$lookup: {
+					from: "users",
+					localField: "authorID",
+					foreignField: "discord_id",
+					as: "missionMaker",
+				},
+			},
+			{
+				$project: {
+					_id: 0,
+					image: 0,
+					lastVersion: 0,
+					era: 0,
+					reports: 0,
+					reviews: 0,
+					updates: 0,
+					tags: 0,
+					history: 0,
+				},
+			},
+		])
+		.toArray();
+
+	const session = await getSession(context);
+	const maxVotes = (
+		await MyMongo.collection("configs").findOne(
+			{},
+			{ projection: { max_votes: 1 } }
+		)
+	)["max_votes"];
+
+	await Promise.all(
+		missions.map(async (mission) => {
+			const { code, frontmatter } = await bundleMDX(mission.description, {
+				xdmOptions(options) {
+					options.rehypePlugins = [
+						...(options?.rehypePlugins ?? []),
+						rehypeSlug,
+						rehypeCodeTitles,
+						rehypePrism,
+					];
+					return options;
+				},
+			});
+
+			mission["hasVoted"] = mission.votes?.includes(session?.user["discord_id"]);
+
+			mission["descriptionMarkdown"] = code;
+			mission["missionMaker"] =
+				mission["missionMaker"][0]?.nickname ??
+				mission["missionMaker"][0]?.username ??
+				"Unknown";
+		})
+	);
+
+	return { props: { missions, maxVotes } };
+}
 
 TopVoted.PageLayout = MainLayout;
 

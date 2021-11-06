@@ -70,7 +70,7 @@ function MissionList({ missions }) {
 		<>
 			<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 				<div className="flex flex-row">
-					<aside className={"px-4 py-6 relative h-full overflow-y-auto mt-10"}>
+					<aside className={"px-4 py-6 relative h-full overflow-y-auto   "}>
 						<nav>
 							<div className="fixed w-full max-w-xs pr-5 ">
 								<div className="form-control">

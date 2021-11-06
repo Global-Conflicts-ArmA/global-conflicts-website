@@ -9,9 +9,9 @@ export default function CommentBox({
 	onEditClick,
 }) {
 	return (
-		<div className="flex-1 mt-10">
+		<div className="flex-1 ">
 			<div className="flex flex-row items-center justify-between">
-				<h2>{title}</h2>
+				<h2 className="flex flex-row justify-between py-2 font-bold">{title}</h2>
 				<button onClick={onSubmitClick} className="btn btn-xs">
 					{btnText}
 				</button>

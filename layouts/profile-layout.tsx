@@ -16,9 +16,9 @@ const btns = [
 export default function ProfileLayout({ children }) {
 	return (
 		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
-			<div className="flex flex-row">
+			<div className="flex flex-row mt-10">
 				<aside
-					className={"px-4 py-6  relative h-full overflow-y-auto  mt-10"}
+					className={"px-4 py-6  relative h-full overflow-y-auto mt-10"}
 				>
 					<nav>
 						{btns.map((btn) => (

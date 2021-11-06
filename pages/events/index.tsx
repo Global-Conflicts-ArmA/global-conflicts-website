@@ -10,50 +10,7 @@ import EventCard from "../../components/event_list_card";
 
 const Completionist = () => <span>It has started!</span>;
 
-// Renderer callback with condition
-const renderer = ({ days, hours, minutes, seconds, completed }) => {
-	if (completed) {
-		// Render a complete state
-		return <Completionist />;
-	} else {
-		// Render a countdown
-		var daysStyle = { "--value": days } as React.CSSProperties;
-		var hoursStyle = { "--value": hours } as React.CSSProperties;
-		var minutesStyle = { "--value": minutes } as React.CSSProperties;
-		var secondsStyle = { "--value": seconds } as React.CSSProperties;
-		return (
-			<div className="flex items-center grid-flow-col gap-5 mx-10 text-sm text-center auto-cols-max">
-				<div className="flex flex-col">
-					<span className="font-mono text-2xl countdown">
-						<span style={daysStyle}></span>
-					</span>
-					days
-				</div>
-				<div className="flex flex-col">
-					<span className="font-mono text-2xl countdown">
-						<span style={hoursStyle}></span>
-					</span>
-					hours
-				</div>
-				<div className="flex flex-col">
-					<span className="font-mono text-2xl countdown">
-						<span style={minutesStyle}></span>
-					</span>
-					min
-				</div>
-				<div className="flex flex-col">
-					<span className="font-mono text-2xl countdown">
-						<span style={secondsStyle}></span>
-					</span>
-					sec
-				</div>
-			</div>
-		);
-	}
-};
-
-var daysStyle = { "-webkit-text-stroke": "1px black" } as React.CSSProperties;
-
+ 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }

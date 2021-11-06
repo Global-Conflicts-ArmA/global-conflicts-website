@@ -22,6 +22,7 @@ export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 			if (session.user["roles"][i].name == "Admin") {
 				if (next) {
 					req.session = session;
+					req.isAdmin = true;
 
 					return next();
 				} else {

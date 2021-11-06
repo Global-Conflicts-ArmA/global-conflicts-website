@@ -1,44 +1,54 @@
 import DataTable, { Media } from "react-data-table-component";
 
-import MyMongo from "../../lib/mongodb";
+import MyMongo from "../../../lib/mongodb";
 import Image from "next/image";
 
 import moment from "moment";
-import NotPresentIcon from "../../components/icons/not_present";
-import PresentIcon from "../../components/icons/present";
-import ValidatedIcon from "../../components/icons/validated";
-import InvalidIcon from "../../components/icons/invalid";
-import DownloadIcon from "../../components/icons/download";
+import NotPresentIcon from "../../../components/icons/not_present";
+import PresentIcon from "../../../components/icons/present";
+import ValidatedIcon from "../../../components/icons/validated";
+import InvalidIcon from "../../../components/icons/invalid";
+import DownloadIcon from "../../../components/icons/download";
 import { Dialog, Disclosure, Popover, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
-import CommentBox from "../../components/comments_box";
-import ActionsIcon from "../../components/icons/actions";
-import SubmitReviewReportModal from "../../components/modals/submit_review_report_modal";
-import ActionsModal from "../../components/modals/actions_modal";
-import AddIcon from "../../components/icons/add";
-import GameplayHistoryModal from "../../components/modals/gameplay_history";
+import CommentBox from "../../../components/comments_box";
+import ActionsIcon from "../../../components/icons/actions";
+import SubmitReviewReportModal from "../../../components/modals/submit_review_report_modal";
+import ActionsModal from "../../../components/modals/actions_modal";
+import AddIcon from "../../../components/icons/add";
+import GameplayHistoryModal from "../../../components/modals/gameplay_history";
 import useSWR from "swr";
-import fetcher from "../../lib/fetcher";
-import MissionAuditModal from "../../components/modals/mission_audit_modal";
-import MissionMediaCard from "../../components/mission_media_card";
+import fetcher from "../../../lib/fetcher";
+import MissionAuditModal from "../../../components/modals/mission_audit_modal";
+import MissionMediaCard from "../../../components/mission_media_card";
 import { NextSeo, VideoJsonLd } from "next-seo";
 import Head from "next/head";
 import { serialize } from "next-mdx-remote/serialize";
 import { MDXRemote } from "next-mdx-remote";
-
+import Link from "next/link";
+import { MDXLayoutRenderer } from "../../../components/MDXComponents";
+import { bundleMDX } from "mdx-bundler";
+import rehypeSlug from "rehype-slug";
+import rehypeCodeTitles from "rehype-code-titles";
+import rehypePrism from "rehype-prism-plus";
+import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import * as Showdown from "showdown";
+import axios from "axios";
+import { getSession, GetSessionParams, useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 let updateOutside;
-export default function MissionDetails({ mission }) {
+export default function MissionDetails({ mission, hasVoted }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
 	let [actionsModalData, setActionsModalData] = useState(null);
+	let [isLoadingVote, setIsLoadingVote] = useState(false);
+	let [hasVotedLocal, setHasVoted] = useState(hasVoted);
 
 	let [commentModalOpen, setCommentModalIsOpen] = useState(false);
 	let [commentModalData, setCommentModalData] = useState(null);
 
 	let [gameplayHistoryModalData, setgameplayHistoryModalData] = useState(null);
 	let [gameplayHistoryModalOpen, setgameplayHistoryModalOpen] = useState(false);
-
 	const { data, error } = useSWR("/api/discord_user_list", fetcher);
-
 	const columns = [
 		{
 			name: "Date",
@@ -132,6 +142,45 @@ export default function MissionDetails({ mission }) {
 		},
 	];
 
+	function doVote(event) {
+		if (!session) {
+			toast.error("You must be logged in to vote!");
+			return;
+		}
+		setIsLoadingVote(true);
+		axios
+			.put(`/api/missions/${mission.uniqueName}/vote`)
+			.then((response) => {
+				setHasVoted(true);
+				toast.success("Vote submited!");
+			})
+			.catch((error) => {
+				if (error.response.data && error.response.data.error) {
+					toast.error(error.response.data.error);
+				}
+			})
+			.finally(() => {
+				setIsLoadingVote(false);
+			});
+	}
+	function retractVote(event) {
+		setIsLoadingVote(true);
+		axios
+			.delete(`/api/missions/${mission.uniqueName}/vote`)
+			.then((response) => {
+				setHasVoted(false);
+				toast.info("Vote retracted");
+			})
+			.catch((error) => {
+				if (error.response.data && error.response.data.error) {
+					toast.error(error.response.data.error);
+				}
+			})
+			.finally(() => {
+				setIsLoadingVote(false);
+			});
+	}
+
 	function getMissionMediaPath(absolute = false) {
 		if (mission.mediaFileName) {
 			return absolute
@@ -143,7 +192,7 @@ export default function MissionDetails({ mission }) {
 				: `/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
 		}
 	}
-
+	const { data: session } = useSession();
 	return (
 		<>
 			<Head>
@@ -161,39 +210,61 @@ export default function MissionDetails({ mission }) {
 
 				<meta property="og:site_name" content="Global Conflicts" />
 			</Head>
-			<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl ">
-				<div className="flex flex-row m-10 md:space-x-10">
+			<div className="flex flex-col max-w-screen-lg mx-auto mt-5 xl:max-w-screen-xl ">
+				<div className="mt-10 mb-5">
+					<div className="mb-1 font-bold prose">
+						<h1>{mission.name}</h1>
+					</div>
+
+					<div className="flex flex-row items-center">
+						<h2 className="mr-5 text-1xl">
+							Author: <span className="font-bold">{mission.missionMaker}</span>
+						</h2>
+						<div
+							data-tip={
+								hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
+							}
+							className="z-10 tooltip tooltip-bottom tooltip-primary"
+						>
+							<button
+								className={`btn btn-sm btn-primary min-w-187 ${isLoadingVote ? "loading" : ""}`}
+								onClick={hasVotedLocal ? retractVote : doVote}
+							>
+								{hasVotedLocal ? "Retract vote" : "Vote"}
+							</button>
+						</div>
+
+						<div
+							data-tip="Edit the details of your mission"
+							className="z-10 tooltip tooltip-bottom"
+						>
+							<Link href={`/missions/${mission.uniqueName}/edit`}>
+								<a className="ml-5 text-white btn btn-sm">Edit details</a>
+							</Link>
+						</div>
+					</div>
+				</div>
+
+				<div className="flex flex-row md:space-x-10">
 					<div
 						className="flex-1 hidden overflow-hidden rounded-lg shadow-lg md:block"
 						style={{ height: "fit-content" }}
 					>
 						<MissionMediaCard
 							createObjectURL={getMissionMediaPath()}
+							mission={mission}
 							isVideo={false}
 						></MissionMediaCard>
 					</div>
 
-					<div className="flex-1 prose ">
+					<div className="flex-1 ">
 						<div className="ml-2">
-							<button className="btn btn-sm">vote</button>
-							<div className="mb-1 text-4xl font-bold ">{mission.name}</div>
-
-							<div>by {mission.missionMaker}</div>
-
-							<MDXRemote {...mission.descriptionMarkdown} />
-
-							{mission.tags.map((role) => (
-								<span
-									style={{ color: role.color }}
-									className="box-content mr-3 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box"
-									key={role}
-								>
-									{role}
-								</span>
-							))}
+							<div className="max-w-3xl prose">
+								<MDXLayoutRenderer mdxSource={mission.descriptionMarkdown} />
+							</div>
 						</div>
 
-						<div className="flex flex-row flex-wrap w-full mt-4 stats">
+						<div className="flex flex-row flex-wrap w-full stats">
 							<div className="m-2">
 								<div className=" stat-title">Players</div>
 								<div className="text-sm stat-value ">
@@ -202,7 +273,9 @@ export default function MissionDetails({ mission }) {
 							</div>
 							<div className="m-2 ">
 								<div className="stat-title">Map</div>
-								<div className="text-sm stat-value">{mission.terrain}</div>
+								<div className="text-sm stat-value">
+									{mission.terrainName ?? mission.terrain}
+								</div>
 							</div>
 
 							<div className="m-2">
@@ -228,13 +301,24 @@ export default function MissionDetails({ mission }) {
 						</div>
 					</div>
 				</div>
-
-				<h1 className="flex flex-row justify-between mt-4 text-2xl font-bold">
+				<div className="mt-4">
+					{mission.tags.map((role) => (
+						<span
+							style={{ color: role.color }}
+							className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box"
+							key={role}
+						>
+							{role}
+						</span>
+					))}
+				</div>
+				<hr className="my-5"></hr>
+				<h2 className="flex flex-row justify-between py-2 font-bold">
 					Versions{" "}
 					<button onClick={() => {}} className="btn btn-sm">
 						<AddIcon></AddIcon> Upload new version
 					</button>
-				</h1>
+				</h2>
 
 				<DataTable
 					className="ease-in-out"
@@ -244,7 +328,7 @@ export default function MissionDetails({ mission }) {
 					data={mission.updates}
 				></DataTable>
 				<hr className="my-5"></hr>
-				<h1 className="flex flex-row justify-between mt-4 text-2xl font-bold">
+				<h2 className="flex flex-row justify-between py-2 font-bold">
 					Gameplay History{" "}
 					<button
 						onClick={() => {
@@ -255,7 +339,7 @@ export default function MissionDetails({ mission }) {
 					>
 						<AddIcon></AddIcon>
 					</button>
-				</h1>
+				</h2>
 				<div>
 					{mission.history ? (
 						mission.history.map((history) => {
@@ -319,8 +403,8 @@ export default function MissionDetails({ mission }) {
 						<div>No History yet</div>
 					)}
 				</div>
-
-				<div className="flex flex-row justify-between space-x-6">
+				<hr className="my-5"></hr>
+				<div className="flex flex-row justify-between mb-16 space-x-6">
 					<CommentBox
 						title="Bug Reports"
 						btnText="Submit Report"
@@ -399,12 +483,12 @@ export default function MissionDetails({ mission }) {
 // It may be called again, on a serverless function, if
 // revalidation is enabled and a new request comes in
 
-export async function getStaticProps({ params }) {
+export async function getServerSideProps(context: GetSessionParams) {
 	const mission = (
 		await MyMongo.collection("missions")
 			.aggregate([
 				{
-					$match: { uniqueName: params.uniqueName },
+					$match: { uniqueName: context.params.uniqueName },
 				},
 
 				{
@@ -484,7 +568,6 @@ export async function getStaticProps({ params }) {
 			.toArray()
 	)[0];
 
-	console.log("!niosandoiasndias");
 	mission["uploadDate"] = mission["uploadDate"]?.getTime();
 	mission["lastPlayed"] = mission["lastPlayed"]?.getTime();
 
@@ -551,41 +634,70 @@ export async function getStaticProps({ params }) {
 	});
 
 	mission["_id"] = mission["_id"].toString();
+	const converter = new Showdown.Converter({
+		tables: true,
+		simplifiedAutoLink: true,
+		strikethrough: true,
+		tasklists: true,
+	});
 	mission["descriptionMarkdown"] = await serialize(mission.description);
+
+	const { code, frontmatter } = await bundleMDX(mission.description, {
+		xdmOptions(options) {
+			options.rehypePlugins = [
+				...(options?.rehypePlugins ?? []),
+				rehypeSlug,
+				rehypeCodeTitles,
+				rehypePrism,
+				[
+					rehypeAutolinkHeadings,
+					{
+						properties: {
+							className: ["anchor"],
+						},
+					},
+				],
+			];
+			return options;
+		},
+	});
+
+	mission["descriptionMarkdown"] = code;
+	const session = await getSession(context);
+
 	return {
 		props: {
 			mission,
+			hasVoted: session
+				? mission.votes?.includes(session?.user["discord_id"])
+				: false,
 		},
-		// Next.js will attempt to re-generate the page:
-		// - When a request comes in
-		// - At most once every 10 seconds
-		revalidate: 15, // In seconds
 	};
 }
 
-// This function gets called at build time on server-side.
-// It may be called again, on a serverless function, if
-// the path has not been generated.
-export async function getStaticPaths() {
-	const missions = await MyMongo.collection("missions")
-		.find(
-			{},
-			{
-				projection: {
-					_id: 0,
-					uniqueName: 1,
-				},
-			}
-		)
-		.toArray();
+// // This function gets called at build time on server-side.
+// // It may be called again, on a serverless function, if
+// // the path has not been generated.
+// export async function getStaticPaths() {
+// 	const missions = await MyMongo.collection("missions")
+// 		.find(
+// 			{},
+// 			{
+// 				projection: {
+// 					_id: 0,
+// 					uniqueName: 1,
+// 				},
+// 			}
+// 		)
+// 		.toArray();
 
-	// Get the paths we want to pre-render based on posts
-	const paths = missions.map((mission) => ({
-		params: { uniqueName: mission.uniqueName },
-	}));
+// 	// Get the paths we want to pre-render based on posts
+// 	const paths = missions.map((mission) => ({
+// 		params: { uniqueName: mission.uniqueName },
+// 	}));
 
-	// We'll pre-render only these paths at build time.
-	// { fallback: blocking } will server-render pages
-	// on-demand if the path doesn't exist.
-	return { paths, fallback: "blocking" };
-}
+// 	// We'll pre-render only these paths at build time.
+// 	// { fallback: blocking } will server-render pages
+// 	// on-demand if the path doesn't exist.
+// 	return { paths, fallback: "blocking" };
+// }

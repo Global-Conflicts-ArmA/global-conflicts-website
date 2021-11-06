@@ -1,23 +1,24 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import ReactSelect from "../../components/react-select/react-select";
+import ReactSelect from "../../../components/react-select/react-select";
 import makeAnimated from "react-select/animated";
 import Select from "react-select";
 import { Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
-import { CredentialLockLayout } from "../../layouts/credential-lock-layout";
-import { CREDENTIAL } from "../../lib/credsChecker";
+import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
+import { CREDENTIAL } from "../../../lib/credsChecker";
 import { getSession, useSession } from "next-auth/react";
 import { useFormik } from "formik";
-import { parseInputInteger } from "../../lib/numberParser";
+import { parseInputInteger } from "../../../lib/numberParser";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import axios from "axios";
-import FormikErrortext from "../../components/formikErrorText";
-import MissionMediaCard from "../../components/mission_media_card";
-import useMatchMedia from "../../lib/matchmedia";
+import FormikErrortext from "../../../components/formikErrorText";
+import MissionMediaCard from "../../../components/mission_media_card";
+import useMatchMedia from "../../../lib/matchmedia";
+import MyMongo from "../../../lib/mongodb";
 import {
 	eraOptions,
 	jipOptions,
@@ -25,23 +26,24 @@ import {
 	tagsOptions,
 	timeOfDayOptions,
 	typeOptions,
-} from "../../lib/missionSelectOptions";
+} from "../../../lib/missionSelectOptions";
+import { serialize } from "next-mdx-remote/serialize";
+import { MDXLayoutRenderer } from "../../../components/MDXComponents";
 import { remark } from "remark";
-import html from "remark-html";
 const converter = new Showdown.Converter({
 	tables: true,
 	simplifiedAutoLink: true,
 	strikethrough: true,
 	tasklists: true,
 });
-
+import html from "remark-html";
 const editorHeight = 338;
 const toNumber = (value: string | number) => {
 	if (typeof value === "number") return value;
 	return parseInt(value.replace(/[^\d]+/g, ""));
 };
 
-function UploadMission() {
+function EditMission({ mission }) {
 	const isDesktopResolution = useMatchMedia("(min-width:1280px)", true);
 	const [missionFile, setMissionFile] = useState<File | undefined>(null);
 	const [imageObjectUrl, setImageObjectUrl] = useState(null);
@@ -66,7 +68,7 @@ function UploadMission() {
 	const selectMissionFile = (event) => {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0];
-			console.log(file.name);
+
 			missionFormik.setFieldTouched("missionFile", true, false);
 
 			if (file.size >= 1024 * 1024 * 10) {
@@ -117,31 +119,33 @@ function UploadMission() {
 		}),
 	};
 
+	useEffect(() => {
+		if (mission.mediaFileName) {
+			setImageObjectUrl(`/missionsCoverMedia/${mission.mediaFileName}`);
+		} else {
+			setImageObjectUrl(getTerrainPic(mission.terrain));
+		}
+	}, [mission.terrain, mission.mediaFileName]);
+
 	const [isLoading, setIsLoading] = useState(false);
 
 	const missionFormik = useFormik({
 		initialValues: {
-			name: "",
-			description: "",
-			era: null,
-			jip: null,
-			respawn: null,
-			minPlayers: null,
-			maxPlayers: null,
-			timeOfDay: null,
-			type: null,
-			tags: null,
+			description: mission.description,
+			era: { value: mission.era, label: mission.era },
+			jip: { value: mission.jip, label: mission.jip },
+			respawn: { value: mission.respawn, label: mission.respawn },
+			minPlayers: mission.size.min,
+			maxPlayers: mission.size.max,
+			timeOfDay: { value: mission.timeOfDay, label: mission.timeOfDay },
+			type: { value: mission.type, label: mission.type },
+			tags: mission.tags.map((item) => {
+				return { value: item, label: item };
+			}),
 			media: null,
-			missionFile: null,
 		},
 		validate: (fields) => {
 			let errors = {};
-			if (fields.name.trim().length < 4) {
-				errors["name"] = "Too short. Min 4 characters.";
-			}
-			if (fields.name.trim().length > 30) {
-				errors["name"] = "Too long. Max 30 characters.";
-			}
 
 			if (fields.description.trim().length < 4) {
 				errors["description"] = "Too short. Min 4 characters.";
@@ -201,13 +205,6 @@ function UploadMission() {
 			if (!fields.tags) {
 				errors["tags"] = "At least one tag required";
 			}
-			if (!fields.missionFile) {
-				errors["missionFile"] = "Required";
-			} else {
-				if (fields.missionFile.size >= 1024 * 1024 * 10) {
-					errors["missionFile"] = "Invalid mission file. Max size: 10MB";
-				}
-			}
 
 			if (fields.media) {
 				if (fields.media.size >= 1024 * 1024 * 1.5) {
@@ -224,13 +221,11 @@ function UploadMission() {
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
 				onUploadProgress: (p) => {
-					console.log(`Current progress:`, Math.round((p.loaded * 100) / p.total));
-
 					const progress = p.loaded / p.total;
 
 					// check if we already displayed a toast
 					if (uploadProgressToast.current === null) {
-						uploadProgressToast.current = toast("Upload in Progress", {
+						uploadProgressToast.current = toast("Processing edit..", {
 							progress: progress,
 							progressStyle: { background: "blue" },
 						});
@@ -243,34 +238,27 @@ function UploadMission() {
 			};
 
 			const formData = new FormData();
-
 			let data = Object.assign({}, values);
-			delete data.missionFile;
 			delete data.media;
 
-			console.log(JSON.stringify(data));
-
 			formData.append("missionJsonData", JSON.stringify(data));
-			formData.append("missionFile", values.missionFile);
 			formData.append("media", values.media);
 
 			try {
 				axios
-					.post("/api/missions", formData, config)
+					.put(`/api/missions/${mission.uniqueName}`, formData, config)
 					.then((response) => {
-						console.log(response);
-						//missionFormik.resetForm();
-
 						toast.done(uploadProgressToast.current);
-						toast.success("Mission uploaded! Redirecting to the mission page...");
+						toast.success(
+							"Mission details edited! Redirecting to the mission page..."
+						);
 						setTimeout(() => {
 							window.open(`/missions/${response.data.slug}`, "_self");
 						}, 2000);
 					})
 					.catch((error) => {
-						console.log(error);
 						if (error.response.status == 500) {
-							toast.error("Error uploading the mission, Let the admins know.");
+							toast.error("Error editing the mission details, Let the admins know.");
 						} else {
 							if (error.response.data && error.response.data.error) {
 								toast.error(error.response.data.error);
@@ -289,32 +277,10 @@ function UploadMission() {
 		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl">
 				<form onSubmit={missionFormik.handleSubmit}>
-					<div className="my-10 prose">
-						<h1>Mission Upload</h1>
-					</div>
-
-					<div className="form-control">
-						<label className="label">
-							<span className="label-text">Mission name</span>
-						</label>
-						<input
-							type="text"
-							onFocus={() => {
-								const doNotShowMissionNameTip = localStorage.getItem(
-									"doNotShowMissionNameTip"
-								);
-								if (doNotShowMissionNameTip != "true") {
-									setShowMissionNameTip(true);
-								}
-							}}
-							onChange={missionFormik.handleChange}
-							onBlur={missionFormik.handleBlur}
-							value={missionFormik.values.name}
-							name={"name"}
-							placeholder="Operation Enduring Freedom"
-							className="input input-lg input-bordered duration"
-						/>
-						<FormikErrortext formik={missionFormik} name={"name"} />
+					<div className="max-w-full my-10 prose ">
+						<h1>
+							Editing Details for: <span className="italic">{mission.name}</span>
+						</h1>
 					</div>
 
 					<Transition
@@ -367,19 +333,6 @@ function UploadMission() {
 							</label>
 						</div>
 					</Transition>
-
-					<div className="form-control">
-						<label className="label">
-							<span className="label-text">Mission file</span>
-						</label>
-						<div className="flex space-x-2">
-							<label className="flex-1 text-xs leading-none break-all btn btn-lg btn-primary lg:text-lg">
-								<input type="file" onChange={selectMissionFile} accept=".pbo" />
-								{missionFile ? missionFile.name : "Select your mission file"}
-							</label>
-						</div>
-						<FormikErrortext formik={missionFormik} name={"missionFile"} />
-					</div>
 
 					<div className="flex flex-row flex-wrap space-x-5 md:my-5">
 						<div className="flex-1 h-96 max-h-96 no-resize-mde">
@@ -463,7 +416,7 @@ function UploadMission() {
 								<div className="flex-1 overflow-hidden shadow-lg rounded-xl ">
 									<MissionMediaCard
 										createObjectURL={imageObjectUrl}
-								 
+										mission={mission}
 										isVideo={missionFormik.values.media?.type.includes("video") ?? false}
 									></MissionMediaCard>
 								</div>
@@ -491,7 +444,7 @@ function UploadMission() {
 							<div className="flex-1 overflow-hidden shadow-xl rounded-xl">
 								<MissionMediaCard
 									createObjectURL={imageObjectUrl}
-							 
+									mission={mission}
 									isVideo={missionFormik.values.media?.type.includes("video") ?? false}
 								></MissionMediaCard>
 							</div>
@@ -703,14 +656,13 @@ function UploadMission() {
 							type="submit"
 							onClick={async () => {
 								await missionFormik.validateForm();
-								console.log(missionFormik.isValid);
 
 								if (!missionFormik.isValid) {
 									toast.error("Some fields are invalid!");
 								}
 							}}
 						>
-							{isLoading ? "UPLOADING MISSION..." : "UPLOAD MISSION"}
+							{isLoading ? "EDITING MISSION..." : "SUBMIT NEW DETAILS"}
 						</button>
 					</div>
 				</form>
@@ -721,11 +673,27 @@ function UploadMission() {
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
+
+	const mission = await MyMongo.collection("missions").findOne(
+		{
+			uniqueName: context.params.uniqueName,
+		},
+		{
+			projection: {
+				_id: 0,
+				image: 0,
+				reviewChecklist: 0,
+				ratios: 0,
+				history: 0,
+				updates: 0,
+				reports: 0,
+			},
+		}
+	);
+
 	return {
-		props: { session },
+		props: { mission },
 	};
 }
 
-UploadMission.PageLayout = UploadMission;
-
-export default UploadMission;
+export default EditMission;
