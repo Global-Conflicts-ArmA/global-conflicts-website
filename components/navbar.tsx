@@ -21,7 +21,7 @@ const navigation = [
 	},
 	{ name: "Events", href: "/events", current: false },
 	{ name: "Download", href: "#", current: false },
-	{ name: "Donate", href: "#", current: false },
+	{ name: "Donate", href: "/donate", current: false },
 ];
 
 function classNames(...classes) {

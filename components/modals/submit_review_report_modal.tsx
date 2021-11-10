@@ -1,6 +1,9 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useEffect, useState } from "react";
-
+import React, { Fragment, useEffect, useState } from "react";
+import ReactMde from "react-mde";
+import "react-mde/lib/styles/css/react-mde-all.css";
+import { remark } from "remark";
+import html from "remark-html";
 export default function SubmitReviewReportModal({
 	isOpen,
 	onClose,
@@ -12,7 +15,9 @@ export default function SubmitReviewReportModal({
 	}, [data?.comment?.report]);
 
 	const [comment, setNewId] = useState(data?.comment?.report);
-
+	const [selectedNoteTab, setSelectedNoteTab] = React.useState<
+		"write" | "preview"
+	>("write");
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog
@@ -55,13 +60,59 @@ export default function SubmitReviewReportModal({
 							</Dialog.Title>
 							<div className="mt-2">
 								<div className="form-control">
-									<textarea
-										className="h-24 leading-tight textarea "
-										autoFocus={true}
+									<ReactMde
+										minEditorHeight={200}
+										maxEditorHeight={500}
+										minPreviewHeight={200}
+										initialEditorHeight={200}
+										toolbarCommands={[
+											[
+												"header",
+												"bold",
+												"italic",
+												"strikethrough",
+												"link",
+												"quote",
+												"code",
+												"unordered-list",
+												"ordered-list",
+											],
+										]}
+										heightUnits={"px"}
+										onChange={(val) => {
+											setNewId(val);
+										}}
 										value={comment}
-										onChange={(e) => setNewId(e.target.value)}
-										placeholder={data?.placeholder}
-									></textarea>
+										selectedTab={selectedNoteTab}
+										onTabChange={setSelectedNoteTab}
+										childProps={{
+											writeButton: {
+												tabIndex: -1,
+												style: { padding: "0 10px" },
+											},
+											previewButton: {
+												style: { padding: "0 10px" },
+											},
+											textArea: {
+												draggable: false,
+											},
+										}}
+										generateMarkdownPreview={async (markdown) => {
+											const content = (
+												await remark().use(html).process(markdown)
+											).toString();
+											return Promise.resolve(
+												<div
+													className="max-w-3xl prose"
+													dangerouslySetInnerHTML={{
+														__html: content,
+													}}
+												></div>
+											);
+										}}
+									/>
+
+							 
 								</div>
 							</div>
 							<div className="flex flex-row justify-between mt-6">

@@ -36,6 +36,19 @@ import * as Showdown from "showdown";
 import axios from "axios";
 import { getSession, GetSessionParams, useSession } from "next-auth/react";
 import { toast } from "react-toastify";
+import deepmerge from "deepmerge";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import html from "remark-html";
+import remarkHtml from "remark-html";
+import { remark } from "remark";
+import remarkPresetLintMarkdownStyleGuide from "remark-preset-lint-markdown-style-guide";
+import remarkParse from "remark-parse";
+import { unified } from "unified";
+import remarkRehype from "remark-rehype";
+import rehypeParse from "rehype-parse";
+import rehypeStringify from "rehype-stringify";
+import rehypeFormat from "rehype-format";
+import remarkGfm from "remark-gfm";
 let updateOutside;
 export default function MissionDetails({ mission, hasVoted }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
@@ -227,7 +240,9 @@ export default function MissionDetails({ mission, hasVoted }) {
 							className="z-10 tooltip tooltip-bottom tooltip-primary"
 						>
 							<button
-								className={`btn btn-sm btn-primary min-w-187 ${isLoadingVote ? "loading" : ""}`}
+								className={`btn btn-sm btn-primary min-w-187 ${
+									isLoadingVote ? "loading" : ""
+								}`}
 								onClick={hasVotedLocal ? retractVote : doVote}
 							>
 								{hasVotedLocal ? "Retract vote" : "Vote"}
@@ -258,9 +273,20 @@ export default function MissionDetails({ mission, hasVoted }) {
 					</div>
 
 					<div className="flex-1 ">
-						<div className="ml-2">
-							<div className="max-w-3xl prose">
-								<MDXLayoutRenderer mdxSource={mission.descriptionMarkdown} />
+						<div className="mde-preview">
+							<div className="ml-2 mde-preview-content">
+								<div className="max-w-3xl prose">
+									{mission.descriptionMarkdown ? (
+										<div
+											className="max-w-3xl"
+											dangerouslySetInnerHTML={{
+												__html: mission.descriptionMarkdown,
+											}}
+										></div>
+									) : (
+										mission.description
+									)}
+								</div>
 							</div>
 						</div>
 
@@ -483,7 +509,7 @@ export default function MissionDetails({ mission, hasVoted }) {
 // It may be called again, on a serverless function, if
 // revalidation is enabled and a new request comes in
 
-export async function getServerSideProps(context: GetSessionParams) {
+export async function getServerSideProps(context) {
 	const mission = (
 		await MyMongo.collection("missions")
 			.aggregate([
@@ -634,35 +660,21 @@ export async function getServerSideProps(context: GetSessionParams) {
 	});
 
 	mission["_id"] = mission["_id"].toString();
-	const converter = new Showdown.Converter({
-		tables: true,
-		simplifiedAutoLink: true,
-		strikethrough: true,
-		tasklists: true,
-	});
-	mission["descriptionMarkdown"] = await serialize(mission.description);
 
-	const { code, frontmatter } = await bundleMDX(mission.description, {
-		xdmOptions(options) {
-			options.rehypePlugins = [
-				...(options?.rehypePlugins ?? []),
-				rehypeSlug,
-				rehypeCodeTitles,
-				rehypePrism,
-				[
-					rehypeAutolinkHeadings,
-					{
-						properties: {
-							className: ["anchor"],
-						},
-					},
-				],
-			];
-			return options;
-		},
-	});
+	try {
+		const thing = await unified()
+			.use(remarkParse)
+			.use(remarkGfm)
+			.use(remarkRehype)
+			.use(rehypeFormat)
+			.use(rehypeStringify)
+			.use(rehypeSanitize)
 
-	mission["descriptionMarkdown"] = code;
+			.process(mission["description"]);
+
+		mission["descriptionMarkdown"] = thing.value.toString();
+	} catch (error) {}
+
 	const session = await getSession(context);
 
 	return {

@@ -40,6 +40,7 @@ export async function getStaticProps({ params }: Params) {
 				rehypeSlug,
 				rehypeCodeTitles,
 				rehypePrism,
+			 
 				[
 					rehypeAutolinkHeadings,
 					{

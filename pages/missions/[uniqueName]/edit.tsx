@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
-import "react-mde/lib/styles/css/react-mde-all.css";
-import ReactSelect from "../../../components/react-select/react-select";
+import "react-mde/lib/styles/css/variables.css";
+import "react-mde/lib/styles/css/react-mde-editor.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde.css";
+
 import makeAnimated from "react-select/animated";
 import Select from "react-select";
 import { Transition } from "@headlessui/react";
@@ -27,8 +31,6 @@ import {
 	timeOfDayOptions,
 	typeOptions,
 } from "../../../lib/missionSelectOptions";
-import { serialize } from "next-mdx-remote/serialize";
-import { MDXLayoutRenderer } from "../../../components/MDXComponents";
 import { remark } from "remark";
 const converter = new Showdown.Converter({
 	tables: true,
@@ -37,6 +39,15 @@ const converter = new Showdown.Converter({
 	tasklists: true,
 });
 import html from "remark-html";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
+import rehypeFormat from "rehype-format";
+import oembed from "remark-oembed";
+import rehypeSanitize from "rehype-sanitize";
+import remarkGfm from "remark-gfm";
+import rehypePrism from "rehype-prism-plus";
 const editorHeight = 338;
 const toNumber = (value: string | number) => {
 	if (typeof value === "number") return value;
@@ -377,14 +388,20 @@ function EditMission({ mission }) {
 									},
 								}}
 								generateMarkdownPreview={async (markdown) => {
-									const content = (
-										await remark().use(html).process(markdown)
-									).toString();
+									const thing = await unified()
+										.use(remarkParse)
+										.use(remarkGfm)
+										.use(remarkRehype)
+										.use(rehypeFormat)
+										.use(rehypeStringify)
+										.use(rehypeSanitize)
+										.process(markdown);
+
 									return Promise.resolve(
 										<div
-											className="max-w-3xl prose"
+											className="max-w-3xl m-5 prose"
 											dangerouslySetInnerHTML={{
-												__html: content,
+												__html: thing.value.toString(),
 											}}
 										></div>
 									);

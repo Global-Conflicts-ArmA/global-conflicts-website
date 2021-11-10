@@ -16,6 +16,13 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import { ThumbUpIcon } from "@heroicons/react/outline";
 import Link from "next/link";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import remarkRehype from "remark-rehype";
+import rehypeFormat from "rehype-format";
+import rehypeStringify from "rehype-stringify";
+import rehypeSanitize from "rehype-sanitize";
+import { unified } from "unified";
 function getMissionMediaPath(mission, absolute = false) {
 	if (mission.mediaFileName) {
 		return absolute
@@ -137,7 +144,6 @@ function TopVoted({ missions, maxVotes }) {
 											<span className="text-accent">{index + 1})&nbsp;</span>
 
 											<Link href={`/missions/${mission.uniqueName}`}>
-											 
 												<a>{mission.name}</a>
 											</Link>
 										</h2>
@@ -176,7 +182,16 @@ function TopVoted({ missions, maxVotes }) {
 								</div>
 
 								<div>
-									<MDXLayoutRenderer mdxSource={mission.descriptionMarkdown} />
+									{mission.descriptionMarkdown ? (
+										<div
+											className="max-w-3xl prose"
+											dangerouslySetInnerHTML={{
+												__html: mission.descriptionMarkdown,
+											}}
+										></div>
+									) : (
+										mission.description
+									)}
 								</div>
 
 								<div className="flex flex-row flex-wrap w-full stats">
@@ -262,21 +277,20 @@ export async function getServerSideProps(context) {
 
 	await Promise.all(
 		missions.map(async (mission) => {
-			const { code, frontmatter } = await bundleMDX(mission.description, {
-				xdmOptions(options) {
-					options.rehypePlugins = [
-						...(options?.rehypePlugins ?? []),
-						rehypeSlug,
-						rehypeCodeTitles,
-						rehypePrism,
-					];
-					return options;
-				},
-			});
+			const thing = await unified()
+				.use(remarkParse)
+				.use(remarkGfm)
+				.use(remarkRehype)
+				.use(rehypeFormat)
+				.use(rehypeStringify)
+				.use(rehypeSanitize)
+
+				.process(mission["description"]);
+
+			mission["descriptionMarkdown"] = thing.value.toString();
 
 			mission["hasVoted"] = mission.votes?.includes(session?.user["discord_id"]);
 
-			mission["descriptionMarkdown"] = code;
 			mission["missionMaker"] =
 				mission["missionMaker"][0]?.nickname ??
 				mission["missionMaker"][0]?.username ??
