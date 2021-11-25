@@ -77,13 +77,11 @@ function MyMissions({ missions }) {
 				pointerOnHover={true}
 				striped={true}
 				onRowClicked={(row, event) => {
-					// You can set state or dispatch with something like Redux so we can use the retrieved data
-					console.log("Selected Rows: ", row);
-					console.log("Selected Rows: ", event);
+
 					if (event.ctrlKey) {
-						window.open(`/missions/${row.uniqueName}/edit`, "_blank"); //to open new page
+						window.open(`/missions/${row.uniqueName}`, "_blank"); //to open new page
 					} else {
-						window.open(`/missions/${row.uniqueName}/edit`, "_self");
+						window.open(`/missions/${row.uniqueName}`, "_self");
 					}
 				}}
 				columns={columns}

@@ -58,3 +58,28 @@ export const eraOptions = [
 	{ value: "1930-", label: "1930-" },
 	{ value: "Other", label: "Other" },
 ];
+
+export const gameplayHistoryOutcomeOptions = [
+	{ value: "Victory", label: "Victory" },
+	{ value: "Pyrrhic Victory", label: "Pyrrhic Victory" },
+	{ value: "Major Victory", label: "Major Victory" },
+	{ value: "Defeat", label: "Defeat" },
+	{ value: "Valiant Defeat", label: "Valiant Defeat" },
+	{ value: "Major Defeat", label: "Major Defeat" },
+	{ value: "Draw", label: "Draw" },
+
+	{ value: "Pyrrhic BLUFOR Victory", label: "Pyrrhic BLUFOR Victory" },
+	{ value: "Major BLUFOR Victory", label: "Major BLUFOR Victory" },
+	{ value: "BLUFOR Victory", label: "BLUFOR Victory" },
+	{ value: "Pyrrhic OPFOR Victory", label: "Pyrrhic OPFOR Victory" },
+	{ value: "Major OPFOR Victory", label: "Major OPFOR Victory" },
+	{ value: "OPFOR Victory", label: "OPFOR Victory" },
+
+	{ value: "Pyrrhic INDFOR Victory", label: "Pyrrhic INDFOR Victory" },
+	{ value: "Major INDFOR Victory", label: "Major INDFOR Victory" },
+	{ value: "INDFOR Victory", label: "INDFOR Victory" },
+
+	{ value: "Pyrrhic CIVFOR Victory", label: "Pyrrhic CIVFOR Victory" },
+	{ value: "Major CIVFOR Victory", label: "Major CIVFOR Victory" },
+	{ value: "CIVFOR Victory", label: "CIVFOR Victory" },
+];

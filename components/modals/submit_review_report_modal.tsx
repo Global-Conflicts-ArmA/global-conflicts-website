@@ -4,6 +4,13 @@ import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import { remark } from "remark";
 import html from "remark-html";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
+import rehypeFormat from "rehype-format";
+import { unified } from "unified";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
 export default function SubmitReviewReportModal({
 	isOpen,
 	onClose,
@@ -98,21 +105,25 @@ export default function SubmitReviewReportModal({
 											},
 										}}
 										generateMarkdownPreview={async (markdown) => {
-											const content = (
-												await remark().use(html).process(markdown)
-											).toString();
+											const thing = await unified()
+												.use(remarkParse)
+												.use(remarkGfm)
+												.use(remarkRehype)
+												.use(rehypeFormat)
+												.use(rehypeStringify)
+												.use(rehypeSanitize)
+												.process(markdown);
+
 											return Promise.resolve(
 												<div
-													className="max-w-3xl prose"
+													className="max-w-3xl m-5 prose"
 													dangerouslySetInnerHTML={{
-														__html: content,
+														__html: thing.value.toString(),
 													}}
 												></div>
 											);
 										}}
 									/>
-
-							 
 								</div>
 							</div>
 							<div className="flex flex-row justify-between mt-6">

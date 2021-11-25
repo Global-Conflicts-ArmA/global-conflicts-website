@@ -1,7 +1,6 @@
-import { useSession } from "next-auth/react";
-import hasCreds, { CREDENTIAL } from "../lib/credsChecker";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
+import hasCreds from "../lib/credsChecker";
 export function CredentialLockLayout(props) {
 	if (props.session == "loading") {
 		return (
@@ -22,9 +21,13 @@ export function CredentialLockLayout(props) {
 		return <>{props.children}</>;
 	} else {
 		if (props.missingPermission) {
-			return <div className="flex justify-center mt-20">{props.missingPermission}</div>;
+			return (
+				<div className="flex justify-center mt-20">{props.missingPermission}</div>
+			);
 		} else {
-			return <div className="flex justify-center mt-20">You do not have permission.</div>;
+			return (
+				<div className="flex justify-center mt-20">You do not have permission.</div>
+			);
 		}
 	}
 }

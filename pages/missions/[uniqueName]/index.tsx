@@ -1,73 +1,169 @@
 import DataTable, { Media } from "react-data-table-component";
 
 import MyMongo from "../../../lib/mongodb";
-import Image from "next/image";
-
 import moment from "moment";
 import NotPresentIcon from "../../../components/icons/not_present";
 import PresentIcon from "../../../components/icons/present";
 import ValidatedIcon from "../../../components/icons/validated";
 import InvalidIcon from "../../../components/icons/invalid";
 import DownloadIcon from "../../../components/icons/download";
-import { Dialog, Disclosure, Popover, Transition } from "@headlessui/react";
-import React, { Fragment, useEffect, useState } from "react";
+import fs from "fs";
+import React, { useEffect, useState } from "react";
 import CommentBox from "../../../components/comments_box";
 import ActionsIcon from "../../../components/icons/actions";
 import SubmitReviewReportModal from "../../../components/modals/submit_review_report_modal";
 import ActionsModal from "../../../components/modals/actions_modal";
 import AddIcon from "../../../components/icons/add";
 import GameplayHistoryModal from "../../../components/modals/gameplay_history";
-import useSWR from "swr";
-import fetcher from "../../../lib/fetcher";
-import MissionAuditModal from "../../../components/modals/mission_audit_modal";
 import MissionMediaCard from "../../../components/mission_media_card";
-import { NextSeo, VideoJsonLd } from "next-seo";
+
+import Shimmer from "react-shimmer-effect";
 import Head from "next/head";
-import { serialize } from "next-mdx-remote/serialize";
-import { MDXRemote } from "next-mdx-remote";
+import Image from "next/image";
+
 import Link from "next/link";
-import { MDXLayoutRenderer } from "../../../components/MDXComponents";
-import { bundleMDX } from "mdx-bundler";
-import rehypeSlug from "rehype-slug";
-import rehypeCodeTitles from "rehype-code-titles";
-import rehypePrism from "rehype-prism-plus";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import * as Showdown from "showdown";
+
 import axios from "axios";
-import { getSession, GetSessionParams, useSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import deepmerge from "deepmerge";
-import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
-import html from "remark-html";
-import remarkHtml from "remark-html";
-import { remark } from "remark";
-import remarkPresetLintMarkdownStyleGuide from "remark-preset-lint-markdown-style-guide";
+
+import rehypeSanitize from "rehype-sanitize";
+
 import remarkParse from "remark-parse";
 import { unified } from "unified";
 import remarkRehype from "remark-rehype";
-import rehypeParse from "rehype-parse";
+
 import rehypeStringify from "rehype-stringify";
 import rehypeFormat from "rehype-format";
 import remarkGfm from "remark-gfm";
-let updateOutside;
-export default function MissionDetails({ mission, hasVoted }) {
+
+import { REVIEW_STATE_PENDING } from "../../../lib/reviewStates";
+import {
+	BanIcon,
+	CheckCircleIcon,
+	ChevronRightIcon,
+	ClockIcon,
+	ExclamationCircleIcon,
+	QuestionMarkCircleIcon,
+} from "@heroicons/react/outline";
+import { CREDENTIAL } from "../../../middleware/check_auth_perms";
+import hasCreds from "../../../lib/credsChecker";
+import NewVersionModal from "../../../components/modals/new_version_modal";
+import useSWR from "swr";
+import fetcher from "../../../lib/fetcher";
+import { Disclosure, Transition } from "@headlessui/react";
+
+export default function MissionDetails({
+	_mission,
+	discordUsers,
+	hasVoted,
+	missionTestingQuestions,
+}) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
+	let [newVersionModalOpen, setNewVersionModalOpen] = useState(false);
 	let [actionsModalData, setActionsModalData] = useState(null);
 	let [isLoadingVote, setIsLoadingVote] = useState(false);
 	let [hasVotedLocal, setHasVoted] = useState(hasVoted);
+	let [mission, setMission] = useState(_mission);
 
 	let [commentModalOpen, setCommentModalIsOpen] = useState(false);
 	let [commentModalData, setCommentModalData] = useState(null);
 
 	let [gameplayHistoryModalData, setgameplayHistoryModalData] = useState(null);
 	let [gameplayHistoryModalOpen, setgameplayHistoryModalOpen] = useState(false);
-	const { data, error } = useSWR("/api/discord_user_list", fetcher);
+
+	const [windowSize, setWindowSize] = useState({
+		width: undefined,
+		height: undefined,
+	});
+	function handleResize() {
+		// Set window width/height to state
+		setWindowSize({
+			width: window.innerWidth,
+			height: window.innerHeight,
+		});
+	}
+
+	const _windowSize = useWindowSize();
+	function useWindowSize() {
+		// Initialize state with undefined width/height so server and client renders match
+		// Learn more here: https://joshwcomeau.com/react/the-perils-of-rehydration/
+
+		useEffect(() => {
+			// only execute all the code below in client side
+			if (typeof window !== "undefined") {
+				// Handler to call on window resize
+
+				// Add event listener
+				window.addEventListener("resize", handleResize);
+
+				// Call handler right away so state gets updated with initial window size
+				handleResize();
+
+				// Remove event listener on cleanup
+				return () => window.removeEventListener("resize", handleResize);
+			}
+		}, []); // Empty array ensures that effect is only run on mount
+		return windowSize;
+	}
+	const { data: session } = useSession();
+	function getAuditIcon(reviewState) {
+		if (reviewState == null) {
+			return (
+				<div data-tip="Audit not yet requested" className="tooltip">
+					<QuestionMarkCircleIcon className="w-6 h-6"></QuestionMarkCircleIcon>
+				</div>
+			);
+		}
+		if (reviewState == "review_pending") {
+			return (
+				<div data-tip="Pending audit" className="tooltip">
+					<ClockIcon color={"#58baff"} className="w-6 h-6"></ClockIcon>
+				</div>
+			);
+		}
+		if (reviewState == "review_reproved") {
+			return (
+				<div data-tip="Rejected" className="tooltip">
+					<ExclamationCircleIcon
+						color={"#ff2d0b"}
+						className="w-6 h-6"
+					></ExclamationCircleIcon>
+				</div>
+			);
+		}
+		if (reviewState == "review_accepted") {
+			return (
+				<div data-tip="Accepted" className="tooltip">
+					<CheckCircleIcon color={"#2ced4c"} className="w-6 h-6"></CheckCircleIcon>
+				</div>
+			);
+		}
+	}
+
+	function omitActions() {
+		return !(
+			mission.authorID == session?.user["discord_id"] ||
+			hasCreds(session, CREDENTIAL.MISSION_REVIEWER)
+		);
+	}
+	function omitDownload() {
+		return session != null;
+	}
+
+	function canSubmitAAR(leader) {
+		return (
+			leader.discordID == session?.user["discord_id"] ||
+			hasCreds(session, CREDENTIAL.ADMIN)
+		);
+	}
+
 	const columns = [
 		{
 			name: "Date",
 			selector: (row) => row.date,
 			sortable: true,
-			hide: Media.SM,
+			hide: Media.MD,
 			width: "115px",
 		},
 		{
@@ -81,40 +177,85 @@ export default function MissionDetails({ mission, hasVoted }) {
 		{
 			name: "Author",
 			selector: (row) => row.authorName,
+			hide: Media.SM,
 		},
 
 		{
-			name: "Status",
+			name: "Archived",
 			// eslint-disable-next-line react/display-name
 			cell: (row) => {
-				return (
-					<div className="grid grid-flow-row grid-cols-4 gap-5 whitespace-nowrap">
-						<div className="flex flex-col items-center">
-							<div className="">Archive</div>
-							<NotPresentIcon></NotPresentIcon>
-						</div>
-						<div className="flex flex-col items-center ">
-							<div>Main</div>
-							<PresentIcon></PresentIcon>
-						</div>
-
-						<div className="flex flex-col items-center">
-							<div>Test</div>
-							<InvalidIcon></InvalidIcon>
-						</div>
-						<div className="flex flex-col items-center">
-							<div>Validated</div>
-							<ValidatedIcon></ValidatedIcon>
-						</div>
+				return row.archive ? (
+					<div data-tip="Mission archived" className="tooltip">
+						<CheckCircleIcon color={"#2ced4c"} className="w-6 h-6 "></CheckCircleIcon>
+					</div>
+				) : (
+					<div data-tip="Mission not archived" className="tooltip">
+						<BanIcon className="w-6 h-6 "></BanIcon>
 					</div>
 				);
 			},
-
-			grow: 1,
+			compact: true,
 			center: true,
-			minWidth: "250px",
+			width: windowSize.width <= 700 ? "50px" : "70px",
 		},
-		{ hide: Media.MD },
+
+		{
+			name: "Main",
+			// eslint-disable-next-line react/display-name
+			cell: (row) => {
+				return row.main ? (
+					<div data-tip="Present on Main Server" className="tooltip">
+						<CheckCircleIcon color={"#2ced4c"} className="w-6 h-6 "></CheckCircleIcon>
+					</div>
+				) : (
+					<div data-tip="Not present" className="tooltip">
+						<BanIcon className="w-6 h-6 "></BanIcon>
+					</div>
+				);
+			},
+			compact: true,
+			center: true,
+			width: windowSize.width <= 700 ? "50px" : "70px",
+		},
+
+		{
+			name: "Test",
+			// eslint-disable-next-line react/display-name
+			cell: (row) => {
+				return row.test ? (
+					<div data-tip="Present on the Test Server" className="tooltip">
+						<CheckCircleIcon color={"#2ced4c"} className="w-6 h-6 "></CheckCircleIcon>
+					</div>
+				) : (
+					<div data-tip="Not present" className="tooltip">
+						<BanIcon className="w-6 h-6 "></BanIcon>
+					</div>
+				);
+			},
+			compact: true,
+			center: true,
+			width: windowSize.width <= 700 ? "50px" : "70px",
+		},
+		{
+			name: "Validated",
+			// eslint-disable-next-line react/display-name
+			cell: (row) => {
+				return getAuditIcon(row.testingAudit?.reviewState);
+			},
+			compact: true,
+			center: true,
+			width: windowSize.width <= 700 ? "53px" : "70px",
+		},
+
+		{
+			minWidth: "0px",
+			grow: 1,
+			compact: true,
+			// eslint-disable-next-line react/display-name
+			cell: (row) => {
+				return <></>;
+			},
+		},
 		{
 			name: "Download",
 			// eslint-disable-next-line react/display-name
@@ -131,7 +272,9 @@ export default function MissionDetails({ mission, hasVoted }) {
 					</button>
 				);
 			},
+			omit: session == null,
 			center: true,
+			grow: 1,
 			width: "88px",
 		},
 		{
@@ -150,6 +293,7 @@ export default function MissionDetails({ mission, hasVoted }) {
 					</button>
 				);
 			},
+			omit: omitActions(),
 			center: true,
 			width: "88px",
 		},
@@ -205,7 +349,15 @@ export default function MissionDetails({ mission, hasVoted }) {
 				: `/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
 		}
 	}
-	const { data: session } = useSession();
+
+	const { data: history, error } = useSWR(
+		`/api/missions/${mission.uniqueName}/history`,
+		fetcher
+	);
+	function getHistory() {
+		return history || mission.history;
+	}
+
 	return (
 		<>
 			<Head>
@@ -341,9 +493,17 @@ export default function MissionDetails({ mission, hasVoted }) {
 				<hr className="my-5"></hr>
 				<h2 className="flex flex-row justify-between py-2 font-bold">
 					Versions{" "}
-					<button onClick={() => {}} className="btn btn-sm">
-						<AddIcon></AddIcon> Upload new version
-					</button>
+					{(mission.authorID == session?.user["discord_id"] ||
+						hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
+						<button
+							onClick={() => {
+								setNewVersionModalOpen(true);
+							}}
+							className="btn btn-sm"
+						>
+							<AddIcon></AddIcon> Upload new version
+						</button>
+					)}
 				</h2>
 
 				<DataTable
@@ -356,72 +516,126 @@ export default function MissionDetails({ mission, hasVoted }) {
 				<hr className="my-5"></hr>
 				<h2 className="flex flex-row justify-between py-2 font-bold">
 					Gameplay History{" "}
-					<button
-						onClick={() => {
-							setgameplayHistoryModalOpen(true);
-							setgameplayHistoryModalData(mission);
-						}}
-						className="btn btn-sm"
-					>
-						<AddIcon></AddIcon>
-					</button>
+					{hasCreds(session, CREDENTIAL.ADMIN) && (
+						<button
+							onClick={() => {
+								setgameplayHistoryModalOpen(true);
+								setgameplayHistoryModalData(mission);
+							}}
+							className="btn btn-sm"
+						>
+							<AddIcon></AddIcon>
+						</button>
+					)}
 				</h2>
 				<div>
-					{mission.history ? (
-						mission.history.map((history) => {
+					{getHistory() ? (
+						getHistory().map((history, index) => {
 							return (
 								<div key={history._id}>
-									<div className="flex flex-row justify-between my-3">
-										<div>Outcome: {history.outcome}</div>
-										<div className="flex flex-row space-x-1">
-											<button
-												className="btn btn-xs"
-												onClick={() => {
-													console.log("a");
-												}}
-											>
+									<div className="flex flex-row justify-between mb-2 align-baseline">
+										<div className="font-bold align-text-bottom">
+											<div>{moment(history.date).format("LL")}</div>
+											<div>Outcome: {history.outcome}</div>
+										</div>
+										<div className="flex flex-row items-center space-x-1">
+											<button className="btn btn-xs" onClick={() => {}}>
 												AAR Replay
 											</button>
-											<button
-												className="btn btn-xs"
-												onClick={() => {
-													console.log("a");
-												}}
-											>
+											<button className="btn btn-xs" onClick={() => {}}>
 												GM Notes
 											</button>
-											<div>{moment(history.date).format("ll")}</div>
 										</div>
 									</div>
 
 									{history.leaders.map((leader) => {
 										return (
-											<div
-												key={leader._id}
-												className="border-2 bg-gray-50 hover:bg-gray-100 collapse collapse-arrow"
-											>
-												<input type="checkbox"></input>
-												<div className="font-medium collapse-title">
-													{leader.name} AAR - {leader.side} Leader{" "}
-													<button
-														className="absolute z-10 ml-2 btn btn-xs"
-														onClick={() => {
-															console.log("a");
-														}}
-													>
-														Submit AAR
-													</button>
-												</div>
-												<div className="collapse-content">
-													<div className="prose">
-														<p>{leader.aar ?? "No AAR submit yet"}</p>
-													</div>
-												</div>
-											</div>
+											<Disclosure key={leader.discordID}>
+												{({ open }) => (
+													<>
+														<Disclosure.Button className="flex flex-row items-center justify-between w-full p-2 mb-2 text-white bg-gray-600 rounded-lg">
+															<div className="flex flex-row items-center ">
+																{" "}
+																{!leader.avatar && (
+																	<Shimmer>
+																		<div
+																			className="avatar mask mask-circle"
+																			style={{ width: 50, height: 50 }}
+																		/>
+																	</Shimmer>
+																)}
+																{leader.avatar && (
+																	<Image
+																		className="avatar mask mask-circle"
+																		src={leader.avatar}
+																		width={50}
+																		height={50}
+																		alt="user avatar"
+																	/>
+																)}
+																<div className="flex flex-row items-end ml-5 text-2xl">
+																	{!leader.avatar && (
+																		<Shimmer>
+																			<div
+																				className="rounded-lg "
+																				style={{ width: 90, height: 26 }}
+																			/>
+																		</Shimmer>
+																	)}
+																	<div>
+																		{leader.name},{" "}
+																		<span
+																			className={`font-bold text-${leader.side.toLowerCase()}`}
+																		>
+																			{" "}
+																			{leader.side}
+																		</span>{" "}
+																		Leader AAR:
+																	</div>
+																</div>
+															</div>
+
+															<ChevronRightIcon
+																className={`duration-100 ${open ? "transform rotate-90" : ""}`}
+																width={35}
+																height={35}
+																color="white"
+															>
+																{" "}
+															</ChevronRightIcon>
+														</Disclosure.Button>
+
+														<Transition
+															show={open}
+															enter="transition duration-100 ease-out"
+															enterFrom="transform scale-95 opacity-0 max-h-0"
+															enterTo="transform scale-100 opacity-100 max-h-9000px"
+															leave="transition duration-75 ease-out"
+															leaveFrom="transform scale-100 opacity-100"
+															leaveTo="transform scale-95 opacity-0"
+														>
+															<Disclosure.Panel static className="mb-3 prose">
+																{leader.aar ? (
+																	<p>{leader.aar}</p>
+																) : (
+																	<div className="flex flex-row items-center">
+																		<div>No AAR Submited yet.</div>
+																		{canSubmitAAR(leader) && (
+																			<button className="z-10 ml-2 btn btn-xs " onClick={() => {}}>
+																				Click here to submit your AAR
+																			</button>
+																		)}
+																	</div>
+																)}
+															</Disclosure.Panel>
+														</Transition>
+													</>
+												)}
+											</Disclosure>
 										);
 									})}
 
-									<hr className="my-5"></hr>
+									{index + 1 != getHistory().length && <hr className="mt-5 mb-3"></hr>}
 								</div>
 							);
 						})
@@ -486,18 +700,68 @@ export default function MissionDetails({ mission, hasVoted }) {
 
 				<ActionsModal
 					isOpen={actionsModalOpen}
-					actionsModalData={actionsModalData}
+					update={actionsModalData}
+					questions={missionTestingQuestions}
+					mission={mission}
+					updateTestingAudit={(testingAudit) => {
+						if (testingAudit) {
+							let updates: any[] = mission.updates;
+							const index = updates.indexOf(actionsModalData);
+							updates[index].testingAudit = testingAudit;
+							mission.updates = [...updates];
+							setActionsModalData(updates[index]);
+						}
+						setActionsModalIsOpen(true);
+					}}
+					updateCopyMission={(destination, present) => {
+						setActionsModalIsOpen(false);
+						let updates: any[] = mission.updates;
+						const index = updates.indexOf(actionsModalData);
+						updates[index][destination] = present;
+
+						mission.updates = [...updates];
+						setActionsModalData(updates[index]);
+					}}
+					updateAskAudit={() => {
+						setActionsModalIsOpen(false);
+						let updates: any[] = mission.updates;
+						const index = updates.indexOf(actionsModalData);
+						updates[index].testingAudit = {
+							reviewState: REVIEW_STATE_PENDING,
+						};
+
+						mission.updates = [...updates];
+						setActionsModalData(updates[index]);
+					}}
 					onAuditOpen={() => {}}
 					onClose={() => {
 						setActionsModalIsOpen(false);
 					}}
 				></ActionsModal>
 
+				<NewVersionModal
+					isOpen={newVersionModalOpen}
+					mission={mission}
+					onClose={(update) => {
+						if (!update) {
+							setNewVersionModalOpen(false);
+							return;
+						}
+						let updates: any[] = mission.updates;
+						update.authorName = session.user["nickname"] ?? session.user["username"];
+						update.archive = true;
+						updates.push(update);
+						mission.updates = [...updates];
+						setNewVersionModalOpen(false);
+					}}
+				></NewVersionModal>
+
 				<GameplayHistoryModal
-					discordUsers={data}
+					discordUsers={discordUsers}
+					mission={mission}
 					isOpen={gameplayHistoryModalOpen}
 					onClose={() => {
-						setActionsModalIsOpen(false);
+						setgameplayHistoryModalOpen(false);
 					}}
 				></GameplayHistoryModal>
 			</div>
@@ -640,11 +904,14 @@ export async function getServerSideProps(context) {
 				await Promise.all(
 					history["leaders"]?.map(async (leader) => {
 						var user = await MyMongo.collection("users").findOne(
-							{ _id: leader["_id"] },
-							{ projection: { username: 1, nickname: 1, image: 1 } }
+							{ discord_id: leader["discordID"] },
+							{ projection: { username: 1, nickname: 1 } }
 						);
-						leader["name"] = user?.nickname ?? user?.username ?? "Unknown";
-						leader["_id"] = leader["_id"].toString();
+						if (user) {
+							leader["name"] = user?.nickname ?? user?.username ?? "Unknown";
+							leader["discordID"] = leader["discordID"].toString();
+						}
+						leader["aar"] = leader["aar"];
 					})
 				);
 			})
@@ -652,6 +919,17 @@ export async function getServerSideProps(context) {
 	}
 
 	mission["updates"]?.map((update) => {
+		update.main = fs.existsSync(
+			`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.filename}`
+		);
+
+		update.test = fs.existsSync(
+			`${process.env.ROOT_FOLDER}/${process.env.TEST_SERVER_MPMissions}/${update.filename}`
+		);
+
+		update.archive = fs.existsSync(
+			`${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}/${update.filename}`
+		);
 		update["_id"] = update["_id"].toString();
 		update["date"] = moment(update["date"]).format("ll");
 		update["authorName"] =
@@ -659,6 +937,7 @@ export async function getServerSideProps(context) {
 		delete update["author"];
 	});
 
+	mission["_id"] = mission["_id"].toString();
 	mission["_id"] = mission["_id"].toString();
 
 	try {
@@ -677,12 +956,30 @@ export async function getServerSideProps(context) {
 
 	const session = await getSession(context);
 
+	const isMissionReviewer = hasCreds(session, CREDENTIAL.MISSION_REVIEWER);
+	let missionTestingQuestions = null;
+	if (isMissionReviewer) {
+		const configs = await MyMongo.collection("configs").findOne(
+			{},
+			{ projection: { mission_review_questions: 1 } }
+		);
+		missionTestingQuestions = configs["mission_review_questions"];
+	}
+
+	let discordUsers = [];
+	if (hasCreds(session, CREDENTIAL.ADMIN)) {
+		const botResponse = await axios.get(`http://localhost:3001/users`);
+		discordUsers = botResponse.data;
+	}
+
 	return {
 		props: {
-			mission,
+			_mission: mission,
+			discordUsers: discordUsers,
 			hasVoted: session
 				? mission.votes?.includes(session?.user["discord_id"])
 				: false,
+			missionTestingQuestions,
 		},
 	};
 }

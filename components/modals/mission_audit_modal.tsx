@@ -3,38 +3,90 @@ import React, { Fragment, useEffect, useRef, useState } from "react";
 import ReactMde from "react-mde";
 import useSWR from "swr";
 import fetcher from "../../lib/fetcher";
-import * as Showdown from "showdown";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
+import rehypeFormat from "rehype-format";
+import { unified } from "unified";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { REVIEW_STATE_ACCEPTED, REVIEW_STATE_REPROVED } from "../../lib/reviewStates";
 
-const converter = new Showdown.Converter({
-	tables: true,
-	simplifiedAutoLink: true,
-	strikethrough: true,
-	tasklists: true,
-});
 
 export default function MissionAuditModal({
 	isOpen,
-	actionsModalData,
-	onClose,
+	update,
+	mission,
+	onCloseAuditModal,
+	questions,
 }) {
-	let refDiv = useRef(null);
+	const [reviewerNotes, setReviewerNotes] = useState(
+		update?.testingAudit?.reviewerNotes ?? ""
+	);
+	const [selectedNoteTab, setSelectedNoteTab] = useState<"write" | "preview">(
+		"write"
+	);
 
-	const { data, error } = useSWR("/api/audit/questionnaire", fetcher);
+	const [questionsUsing, setQuestions] = useState(
+		update?.testingAudit?.reviewChecklist ?? questions
+	);
 
-	const [reviewerNotes, setReviewerNotes] = React.useState("**Hello world!!!**");
-	const [selectedNoteTab, setSelectedNoteTab] = React.useState<
-		"write" | "preview"
-	>("write");
+	const [isLoading, setIsLoading] = useState(false);
+
+	function isQuestionarieInvalid() {
+		if (!questionsUsing) {
+			return true;
+		}
+		for (const question of questionsUsing) {
+			if (!question.value) {
+				return true;
+			}
+		}
+		return false;
+	}
+	useEffect(() => {
+		setQuestions(update?.testingAudit?.reviewChecklist ?? questions);
+		setReviewerNotes(update?.testingAudit?.reviewerNotes ?? "");
+	}, [update, questions]);
+
+	async function sendAudit(aprove: boolean) {
+		setIsLoading(true);
+
+		axios
+			.put(`/api/audit/${mission.uniqueName}/${update._id}`, {
+				reviewState: aprove ? REVIEW_STATE_ACCEPTED : REVIEW_STATE_REPROVED,
+				reviewerNotes: reviewerNotes,
+				reviewChecklist: questionsUsing,
+			})
+			.then((response) => {
+				setIsLoading(false);
+				onCloseAuditModal({
+					reviewState: aprove ? REVIEW_STATE_ACCEPTED : REVIEW_STATE_REPROVED,
+					reviewerNotes,
+					questionsUsing,
+				});
+				if (aprove) {
+					toast.success("Version Approved!");
+				} else {
+					toast.info("Version rejected!");
+				}
+			})
+			.catch((error) => {
+				if (error.response.data && error.response.data.error) {
+					toast.error(error.response.data.error);
+				} else {
+					toast.error("Error submting this audit.");
+				}
+				setIsLoading(false);
+			});
+	}
 
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
-			<Dialog
-				as="div"
-				initialFocus={refDiv}
-				className="fixed inset-0 z-10 "
-				onClose={onClose}
-			>
-				<div ref={refDiv} className="min-h-screen px-4 text-center">
+			<Dialog as="div" className="fixed inset-0 z-10 " onClose={onCloseAuditModal}>
+				<div className="min-h-screen px-4 text-center">
 					<Transition.Child
 						as={Fragment}
 						enter="ease-out duration-300"
@@ -59,23 +111,17 @@ export default function MissionAuditModal({
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-110"
 					>
-						<div
-							className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl "
-							
-						>
+						<div className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl ">
 							<Dialog.Title
 								as="h3"
 								className="text-lg font-medium leading-6 text-gray-900"
 							>
-								Review parameters for version:{" "}
-								<b>
-									{actionsModalData?.version.major +
-										(actionsModalData?.version.minor ?? "")}
-								</b>
+								Audit parameters for version:{" "}
+								<b>{update?.version.major + (update?.version.minor ?? "")}</b>
 							</Dialog.Title>
 							<div className="pr-2 mt-2 overflow-y-auto" style={{ maxHeight: "75vh" }}>
-								{data &&
-									data.map((item, index) => {
+								{questionsUsing &&
+									questionsUsing.map((item, index) => {
 										return (
 											<div key={item.text}>
 												<div>
@@ -88,10 +134,14 @@ export default function MissionAuditModal({
 																<span className="label-text">Yes</span>
 																<input
 																	type="radio"
-																	name="opt"
-																	checked={true}
+																	name={item.text}
+																	onChange={(e) => {
+																		item.value = e.currentTarget.value;
+																		setQuestions([...questionsUsing]);
+																	}}
+																	checked={item.value == "YES"}
 																	className="ml-3 radio radio-xs"
-																	value=""
+																	value={"YES"}
 																/>
 															</label>
 														</div>
@@ -101,10 +151,14 @@ export default function MissionAuditModal({
 																<span className="label-text">No</span>
 																<input
 																	type="radio"
-																	name="opt"
-																	checked={true}
+																	name={item.text}
+																	onChange={(e) => {
+																		item.value = e.currentTarget.value;
+																		setQuestions([...questionsUsing]);
+																	}}
+																	checked={item.value == "FALSE"}
 																	className="ml-3 radio radio-xs"
-																	value=""
+																	value={"FALSE"}
 																/>
 															</label>
 														</div>
@@ -115,10 +169,14 @@ export default function MissionAuditModal({
 																	<span className="label-text">N/A</span>
 																	<input
 																		type="radio"
-																		name="opt"
-																		checked={true}
+																		name={item.text}
+																		onChange={(e) => {
+																			item.value = e.currentTarget.value;
+																			setQuestions([...questionsUsing]);
+																		}}
+																		checked={item.value == "N/A"}
 																		className="ml-3 radio radio-xs"
-																		value=""
+																		value={"N/A"}
 																	/>
 																</label>
 															</div>
@@ -128,28 +186,19 @@ export default function MissionAuditModal({
 											</div>
 										);
 									})}
+
+								<label>Optional Notes:</label>
 								<ReactMde
+									minEditorHeight={200}
+									maxEditorHeight={200}
+									minPreviewHeight={200}
 									value={reviewerNotes}
 									toolbarCommands={[
-										[
-											"header",
-											"bold",
-											"italic",
-											"strikethrough",
-											"link",
-											"quote",
-											"code",
-											"unordered-list",
-											"ordered-list",
-										],
+										["bold", "italic", "strikethrough", "quote", "code"],
 									]}
 									onChange={setReviewerNotes}
 									selectedTab={selectedNoteTab}
 									onTabChange={setSelectedNoteTab}
-									classes={{
-										textArea: "",
-										reactMde: ",de",
-									}}
 									childProps={{
 										writeButton: {
 											tabIndex: -1,
@@ -159,29 +208,63 @@ export default function MissionAuditModal({
 											style: { padding: "0 10px" },
 										},
 									}}
-									generateMarkdownPreview={(markdown) =>
-										Promise.resolve(converter.makeHtml(markdown))
-									}
+									generateMarkdownPreview={async (markdown) => {
+										const thing = await unified()
+											.use(remarkParse)
+											.use(remarkGfm)
+											.use(remarkRehype)
+											.use(rehypeFormat)
+											.use(rehypeStringify)
+											.use(rehypeSanitize)
+											.process(markdown);
+
+										return Promise.resolve(
+											<div
+												className="max-w-3xl m-5 prose"
+												dangerouslySetInnerHTML={{
+													__html: thing.value.toString(),
+												}}
+											></div>
+										);
+									}}
 								/>
 							</div>
 
 							<div className="flex flex-row justify-between mt-4">
-								<button type="button" className="btn btn-sm" onClick={onClose}>
+								<button
+									type="button"
+									className="btn btn-sm"
+									onClick={onCloseAuditModal}
+								>
 									Close
 								</button>
 
 								<div className="flex flex-row space-x-2">
 									<button
 										type="button"
-										className="btn btn-warning btn-sm"
-										onClick={onClose}
+										disabled={isQuestionarieInvalid()}
+										className={
+											isLoading
+												? "btn btn-warning btn-sm loading"
+												: "btn btn-warning btn-sm"
+										}
+										onClick={() => {
+											sendAudit(false);
+										}}
 									>
 										Reject
 									</button>
 									<button
 										type="button"
-										className="btn btn-success btn-sm"
-										onClick={onClose}
+										disabled={isQuestionarieInvalid()}
+										className={
+											isLoading
+												? "btn btn-success btn-sm loading"
+												: "btn btn-success btn-sm"
+										}
+										onClick={() => {
+											sendAudit(true);
+										}}
 									>
 										Approve
 									</button>

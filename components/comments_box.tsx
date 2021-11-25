@@ -1,5 +1,6 @@
 import EditIcon from "./icons/edit";
 import DeleteIcon from "./icons/delete";
+import { useSession } from "next-auth/react";
 
 export default function CommentBox({
 	title,
@@ -8,13 +9,17 @@ export default function CommentBox({
 	onSubmitClick,
 	onEditClick,
 }) {
+	const { data: session } = useSession();
 	return (
 		<div className="flex-1 ">
 			<div className="flex flex-row items-center justify-between">
 				<h2 className="flex flex-row justify-between py-2 font-bold">{title}</h2>
-				<button onClick={onSubmitClick} className="btn btn-xs">
-					{btnText}
-				</button>
+
+				{session && (
+					<button onClick={onSubmitClick} className="btn btn-xs">
+						{btnText}
+					</button>
+				)}
 			</div>
 
 			<div className="mt-4 space-y-2 overflow-auto max-h-96">

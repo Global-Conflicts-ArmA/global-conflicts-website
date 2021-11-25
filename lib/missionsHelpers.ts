@@ -3,6 +3,7 @@ export const missionsFolder = "./public/missions";
 export const mediaFolder = "./public/missionsCoverMedia";
 import fs from "fs";
 import MyMongo from "../lib/mongodb";
+import { Version } from "../pages/api/missions/[uniqueName]/update";
 
 export function padZeros(count: number, size = 2) {
 	let stringCount = count.toString();
@@ -13,8 +14,6 @@ export function padZeros(count: number, size = 2) {
 }
 
 export function makeSafeName(name: string) {
-	+console.log("aiaiaia");
-
 	return name
 		.normalize("NFD")
 		.replaceAll(/[\u0300-\u036f]/g, "")
@@ -24,7 +23,7 @@ export function makeSafeName(name: string) {
 		.toLowerCase();
 }
 
-export async function filterMissionFile(req, file, cb) {
+export async function filterMissionFile(req, file, cb, isUpdate = false) {
 	const originalNameArray = file.originalname.split(".");
 	const format = originalNameArray[originalNameArray.length - 1];
 
@@ -36,31 +35,33 @@ export async function filterMissionFile(req, file, cb) {
 		}
 		const body = JSON.parse(req.body.missionJsonData);
 		let name = body["name"];
-		const type = body["type"].value;
-		let maxPlayers = body["maxPlayers"];
-		const safeName = makeSafeName(name);
+		if (!isUpdate) {
+			const type = body["type"].value;
+			let maxPlayers = body["maxPlayers"];
+			const safeName = makeSafeName(name);
 
-		const found = await MyMongo.collection("missions").findOne(
-			{ uniqueName: safeName },
-			{ projection: { _id: 1 } }
-		);
-		if (found != null) {
-			return cb(new Error("A mission with this name already exists."));
-		}
+			const found = await MyMongo.collection("missions").findOne(
+				{ uniqueName: safeName },
+				{ projection: { _id: 1 } }
+			);
+			if (found != null) {
+				return cb(new Error("A mission with this name already exists."));
+			}
+			const mapClass = file.originalname.substring(
+				file.originalname.indexOf(".") + 1,
+				file.originalname.lastIndexOf(".")
+			);
 
-		const mapClass = file.originalname.substring(
-			file.originalname.indexOf(".") + 1,
-			file.originalname.lastIndexOf(".")
-		);
+			const missionFileName = `${type}${maxPlayers}_${safeName}_V1.${mapClass}.pbo`;
 
-		const missionFileName = `${type}${maxPlayers}_${safeName}_V1.${mapClass}.pbo`;
-
-		const filExists = fs.existsSync(`${missionsFolder}/${missionFileName}`);
-		if (filExists) {
-			return cb(new Error("A mission file with this name already exists."));
+			const filExists = fs.existsSync(`${missionsFolder}/${missionFileName}`);
+			if (filExists) {
+				return cb(new Error("A mission file with this name already exists."));
+			} else {
+				req.mapClass = mapClass;
+				return cb(null, true);
+			}
 		} else {
-			req.mapClass = mapClass;
-			return cb(null, true);
 		}
 	}
 }
@@ -108,4 +109,15 @@ export function fileNameMediaParse(req, file, cb, missionName) {
 	const safeName = makeSafeName(missionName);
 	const mediaName = `${safeName}.${extension}`;
 	return cb(null, mediaName);
+}
+
+export function buildVersionStr(versionObj: Version): string {
+	if (versionObj.major === -1) {
+		return "General";
+	}
+	let string = versionObj.major.toString();
+	if (versionObj.minor) {
+		string = string + versionObj.minor;
+	}
+	return string;
 }

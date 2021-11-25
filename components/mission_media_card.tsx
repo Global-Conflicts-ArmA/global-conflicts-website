@@ -39,9 +39,7 @@ export default function MissionMediaCard({
 						className="custom-img"
 						quality="100"
 						layout="fill"
-						onError={() => {
-							console.log("IMAGE ERROR");
-						}}
+					
 						src={createObjectURL}
 						objectFit="cover"
 						alt={"Mission cover image"}

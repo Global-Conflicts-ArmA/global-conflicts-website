@@ -6,8 +6,8 @@ import fetcher from "../../lib/fetcher";
 
  
 function ProfileIndex() {
-	const { data, error }  = useSWR("api/user/syncdiscord", fetcher);
-	console.log(data);
+	const { data, error }  = useSWR("/api/user/syncdiscord", fetcher);
+
    if (error) return <div>failed to load</div>
   if (!data) return <div>loading...</div>
 	return (

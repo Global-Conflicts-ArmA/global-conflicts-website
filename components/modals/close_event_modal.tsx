@@ -72,7 +72,7 @@ export default function CloseEventModal({ isOpen, onClose }) {
 										placeholder="Number of players who participated"
 										onChange={(e) => {
 											const re = /^[0-9\b]+$/;
-											console.log(e.target.value);
+										
 											if (e.target.value === "" || re.test(e.target.value)) {
 												const val = parseInt(e.target.value);
 

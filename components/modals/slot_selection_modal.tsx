@@ -111,7 +111,6 @@ export default function SlotSelectionModal({
 														<RadioGroup
 															value={selectedSlot}
 															onChange={(val) => {
-																console.log(val);
 																setSelectedSlot(val);
 																setSelectedFactionTitle(faction.title);
 															}}

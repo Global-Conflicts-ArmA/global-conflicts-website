@@ -1,29 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
-
 import nextConnect from "next-connect";
-import { remark } from "remark";
-import {
-	fileNameMediaParse,
-	fileNameParse,
-	filterMediaFile,
-	filterMissionFile,
-	mediaFolder,
-	missionsFolder,
-	oneMegabyteInBytes,
-	padZeros,
-} from "../../../../lib/missionsHelpers";
 import MyMongo from "../../../../lib/mongodb";
-import strip from "strip-markdown";
-
-import validateUser, {
-	CREDENTIAL,
-} from "../../../../middleware/check_auth_perms";
-import multer from "multer";
 import { getSession } from "next-auth/react";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
-		console.error(error);
+
 		res.status(500).json({ error: `${error.message}` });
 	},
 	onNoMatch(req, res: NextApiResponse) {
@@ -47,11 +29,9 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		{ projection: { max_votes: 1 } }
 	);
 	if (voteCountResult >= maxvotesResult["max_votes"]) {
-		return res
-			.status(400)
-			.json({
-				error: `You can only vote ${maxvotesResult["max_votes"]} times per week! `,
-			});
+		return res.status(400).json({
+			error: `You can only vote ${maxvotesResult["max_votes"]} times per week! `,
+		});
 	}
 
 	const result = await MyMongo.collection("missions").updateOne(
@@ -85,7 +65,7 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 	const session = await getSession({ req });
-	console.log(session);
+
 
 	const result = await MyMongo.collection("missions").findOne({
 		uniqueName: uniqueName,

@@ -18,6 +18,7 @@ module.exports = withMDX({
 			"globalconflicts.net",
 			"imgur.com",
 			"imgur.com",
+			"cdn.discordapp.com",
 		],
 	},
 	webpack: (config, options) => {

@@ -25,7 +25,7 @@ import MyMongo from "../../../../lib/mongodb";
 import { Params } from "next/dist/server/router";
 import CloseEventModal from "../../../../components/modals/close_event_modal";
 import { CredentialLockLayout } from "../../../../layouts/credential-lock-layout";
-import { CREDENTIAL } from "../../../../lib/credsChecker";
+import { CREDENTIAL } from "../../../../middleware/check_auth_perms";
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -140,10 +140,8 @@ export default function EditEvent({ event }) {
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
 				onUploadProgress: (event) => {
-					console.log(
-						`Current progress:`,
-						Math.round((event.loaded * 100) / event.total)
-					);
+
+				
 				},
 			};
 

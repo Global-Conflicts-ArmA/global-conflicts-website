@@ -140,9 +140,7 @@ function MissionList({ missions }) {
 								dense={denseMode}
 								striped={true}
 								onRowClicked={(row, event) => {
-									// You can set state or dispatch with something like Redux so we can use the retrieved data
-									console.log("Selected Rows: ", row);
-									console.log("Selected Rows: ", event);
+
 									if (event.ctrlKey) {
 										window.open(`/missions/${row.uniqueName}`, "_blank") //to open new page
 									}else{
@@ -194,7 +192,7 @@ export async function getServerSideProps() {
 			mission["missionMaker"][0]?.username ??
 			"Unknown";
 	});
-	console.log(missions);
+
 
 	return { props: { missions } };
 }

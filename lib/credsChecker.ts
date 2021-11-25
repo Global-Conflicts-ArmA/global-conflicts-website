@@ -1,11 +1,6 @@
-export enum CREDENTIAL {
-	NEW_GUY = "New Guy",
-	MEMBER = "Member",
-	MISSION_MAKER = "Mission Maker",
-	MISSION_REVIEWER = "Mission Reviewer Team",
-	GM = "GM",
-	ADMIN = "Admin",
-}
+import { CREDENTIAL } from "../middleware/check_auth_perms";
+
+ 
 
 export default function hasCreds(session, cred: CREDENTIAL) {
 	if (!session) {

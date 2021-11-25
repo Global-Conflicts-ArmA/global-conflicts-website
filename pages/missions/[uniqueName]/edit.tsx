@@ -12,7 +12,7 @@ import Select from "react-select";
 import { Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
 import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
-import { CREDENTIAL } from "../../../lib/credsChecker";
+ 
 import { getSession, useSession } from "next-auth/react";
 import { useFormik } from "formik";
 import { parseInputInteger } from "../../../lib/numberParser";
@@ -48,6 +48,7 @@ import oembed from "remark-oembed";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import rehypePrism from "rehype-prism-plus";
+import { CREDENTIAL } from "../../../middleware/check_auth_perms";
 const editorHeight = 338;
 const toNumber = (value: string | number) => {
 	if (typeof value === "number") return value;

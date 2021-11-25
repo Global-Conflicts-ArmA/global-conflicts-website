@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { Line, Circle } from "rc-progress";
 import ProgressBar from "@ramonak/react-progress-bar";
 
-function Donate({ currentAmountNum, currentAmountString, goals }) {
+function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 	const [goalsToUse, setGoalsToUse] = useState(goals);
 
 	useEffect(() => {
@@ -29,9 +29,12 @@ function Donate({ currentAmountNum, currentAmountString, goals }) {
 			</Head>
 
 			<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
-				<main className="m-10 mx-auto mt-20 ">
+				<main className="m-10 mx-10 mx-auto mt-20">
+					<div className="max-w-2xl mb-10 prose">
+						<h1>Help maintain and grow our servers:</h1>
+					</div>
 					<div className="flex flex-row justify-evenly ">
-						<div className={""}>
+						<div>
 							<Image
 								className="flex-grow "
 								quality="100"
@@ -46,7 +49,7 @@ function Donate({ currentAmountNum, currentAmountString, goals }) {
 						<div className="flex-1 flex-grow ml-10">
 							{goalsToUse.map((goal) => {
 								return (
-									<div key={goal.id} className="my-10">
+									<div key={goal.id} className="mb-10">
 										<h2>{goal.description.replace("<br>", "")}</h2>
 										<div>
 											{currentAmountString} of {goal.amountDollarsString} per month
@@ -71,7 +74,33 @@ function Donate({ currentAmountNum, currentAmountString, goals }) {
 						</Link>
 					</div>
 					<div>
-						<h2>Members who are contributing:</h2>
+						<div className="prose">
+							<h2>Members who are contributing:</h2>
+						</div>
+
+						<div className="grid grid-cols-2 mt-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-5">
+							{donators.map((donator) => (
+								<div
+									key={donator.userId}
+									className="flex flex-col items-center content-center justify-center"
+								>
+									<div className="avatar">
+										<div className="w-24 h-24">
+											<Image
+												alt={"donator avatar"}
+												className="rounded-full "
+												src={donator.displayAvatarURL}
+												layout={"fill"}
+											></Image>
+										</div>
+									</div>
+
+									<div className="text-lg font-bold ">
+										{donator.nickname ?? donator.displayName}
+									</div>
+								</div>
+							))}
+						</div>
 					</div>
 				</main>
 			</div>
@@ -82,9 +111,11 @@ function Donate({ currentAmountNum, currentAmountString, goals }) {
 // This function gets called at build time
 export async function getServerSideProps(context) {
 	try {
-		const response = await axios.get("https://www.patreon.com/globalconflicts");
+		const patreonResponse = await axios.get(
+			"https://www.patreon.com/globalconflicts"
+		);
 
-		const body = response.data;
+		const body = patreonResponse.data;
 		const functionString = "Object.assign(window.patreon.bootstrap, ";
 		const scriptStart = body.indexOf(functionString);
 		const lastIndex = scriptStart + body.substring(scriptStart).indexOf(");");
@@ -118,8 +149,11 @@ export async function getServerSideProps(context) {
 			return goal;
 		});
 
+		const botResponse = await axios.get("http://localhost:3001/users/donators");
+		const donators = botResponse.data;
+
 		return {
-			props: { currentAmountNum, currentAmountString, goals },
+			props: { currentAmountNum, currentAmountString, goals, donators },
 		};
 	} catch (error) {
 		return {

@@ -3,7 +3,7 @@ import DiscordProvider from "next-auth/providers/discord";
 
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import MyMongo from "../../../lib/mongodb";
-import Discord from "discord.js";
+import axios from "axios";
 
 export default NextAuth({
 	// Configure one or more authentication providers A
@@ -24,25 +24,16 @@ export default NextAuth({
 					] = `https://cdn.discordapp.com/avatars/${profile["id"]}/${profile["avatar"]}.${format}`;
 				}
 
-				const client = new Discord.Client();
+				const botResponse = await axios.get(
+					`http://localhost:3001/users/${profile["id"]}`
+				);
 
-				client.login(process.env.DISCORD_BOT_TOKEN);
-
-				const guild = await client.guilds.fetch(process.env.DISCORD_SERVER_ID);
-
-				const member = await guild.members.fetch(profile["id"]);
-
-				const roles = member.roles.cache
-					.filter((value) => value.name != "@everyone")
-					.map(function (value) {
-						return { id: value.id, name: value.name, color: value.hexColor };
-					});
-				console.log("5");
+				const member = botResponse.data;
 
 				return {
 					id: profile["id"],
 					discord_id: profile["id"],
-					roles: roles,
+					roles: member.rolesMap,
 					username: member.displayName,
 					nickname: member.nickname,
 					image: profile["image_url"],

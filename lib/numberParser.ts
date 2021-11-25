@@ -1,5 +1,4 @@
 export function parseInputInteger(incomeValue, asString?) {
-	console.log("ting")
 	const re = /^[0-9\b]+$/;
 	if (incomeValue === "" || re.test(incomeValue)) {
 		const val = parseInt(incomeValue);

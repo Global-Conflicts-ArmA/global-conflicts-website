@@ -21,8 +21,8 @@ import axios from "axios";
 import { getSession, useSession } from "next-auth/react";
 import EventEditingCard from "../../../components/event_editing_card";
 import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
-import { CREDENTIAL } from "../../../lib/credsChecker";
-
+import { CREDENTIAL } from "../../../middleware/check_auth_perms";
+ 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
@@ -35,7 +35,7 @@ function EventsDashboardPage() {
 	useEffect(() => {
 		const doNotShowFactionsTip = localStorage.getItem("doNotShowFactionsTip");
 		setShowFactionsTip(!doNotShowFactionsTip);
-		console.log(session?.user);
+
 	}, [session]);
 
 	const [datePickerModalOpen, setDatePickerModalOpen] = useState(false);
@@ -124,10 +124,7 @@ function EventsDashboardPage() {
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
 				onUploadProgress: (event) => {
-					console.log(
-						`Current progress:`,
-						Math.round((event.loaded * 100) / event.total)
-					);
+			
 				},
 			};
 
@@ -150,7 +147,7 @@ function EventsDashboardPage() {
 			axios
 				.post("/api/events", formData, config)
 				.then((response) => {
-					console.log(response);
+
 					eventDataFormik.resetForm();
 					toast.success("Event submited, redirecting to it...");
 					setTimeout(() => {
@@ -158,7 +155,7 @@ function EventsDashboardPage() {
 					}, 2000);
 				})
 				.catch((error) => {
-					console.log(error);
+	
 					toast.success("Error submiting event");
 					setIsLoading(false);
 				});
@@ -173,7 +170,7 @@ function EventsDashboardPage() {
 		},
 		validate: validateSlotForm,
 		onSubmit: (values) => {
-			console.log("asd");
+
 			const found = eventCurrentReservableSlotInfo.slots.findIndex(
 				(rs) => rs.name == values.reservedSlotName
 			);
@@ -710,7 +707,6 @@ function EventsDashboardPage() {
 																		);
 
 																		setEventReservableSlotsInfo(newList);
-																		console.log(eventReservableSlotsInfo);
 																		setEventCurrentReservableSlotInfo(newList[0]);
 																		//forceUpdate();
 																	}}
@@ -820,7 +816,6 @@ function EventsDashboardPage() {
 																									<button
 																										className="btn btn-sm btn-ghost"
 																										onClick={() => {
-																											console.log("eventCurrentReservableSlotInfo");
 																											eventCurrentReservableSlotInfo.slots =
 																												eventCurrentReservableSlotInfo.slots.filter(
 																													(rs) => rs.name != item.name
@@ -892,8 +887,6 @@ export default EventsDashboardPage;
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-
-	console.log(session);
 	return {
 		props: { session },
 	};

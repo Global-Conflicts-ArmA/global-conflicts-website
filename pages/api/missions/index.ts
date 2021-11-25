@@ -26,9 +26,9 @@ const missionUpload = multer({
 		destination: function (req, file, cb) {
 			switch (file.fieldname) {
 				case "missionFile":
-					return cb(null, missionsFolder);
+					return cb(null, `${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}`);
 				case "media":
-					return cb(null, mediaFolder);
+					return cb(null, `${process.env.ROOT_FOLDER}/${process.env.MEDIA_FOLDER}`);
 				default:
 					cb(new Error("Invalid file"), null);
 			}
@@ -58,7 +58,7 @@ const missionUpload = multer({
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
-		console.error(error);
+
 		res.status(501).json({ error: `${error.message}` });
 	},
 	onNoMatch(req, res: NextApiResponse) {
@@ -151,7 +151,9 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			},
 		],
 		terrain: mapClass,
-		terrainName: terrainsMap.find((item) => item.class.toLowerCase() == mapClass.toLowerCase()).display_name,
+		terrainName: terrainsMap.find(
+			(item) => item.class.toLowerCase() == mapClass.toLowerCase()
+		).display_name,
 		timeOfDay: timeOfDay,
 		type: type,
 		tags: tags.map((item) => item.value),

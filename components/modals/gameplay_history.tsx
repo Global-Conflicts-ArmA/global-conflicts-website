@@ -4,25 +4,32 @@ import Autocomplete from "../autocomplete";
 import ReactMde, { getDefaultToolbarCommands } from "react-mde";
 import * as Showdown from "showdown";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import Select from "react-select";
+import Select, { ActionMeta, OnChangeValue } from "react-select";
 import { UserRemoveIcon } from "@heroicons/react/outline";
 import MenuList from "../react-select/menu-list";
 import Option from "../react-select/option";
 import ReactSelect from "../react-select/react-select";
-
-const converter = new Showdown.Converter({
-	tables: true,
-	simplifiedAutoLink: true,
-	strikethrough: true,
-	tasklists: true,
-});
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
+import rehypeFormat from "rehype-format";
+import { unified } from "unified";
+import remarkGfm from "remark-gfm";
+import rehypeSanitize from "rehype-sanitize";
+import { gameplayHistoryOutcomeOptions } from "../../lib/missionSelectOptions";
+import CreatableSelect from "react-select/creatable";
+import NumberFormat from "react-number-format";
+import moment from "moment";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 export default function GameplayHistoryModal({
 	isOpen,
 	discordUsers,
 	onClose,
+	mission,
 }) {
-	const [gmNotes, setGmNotes] = React.useState("**Hello world!!!**");
+	const [gmNotes, setGmNotes] = React.useState("");
 	const [selectedNoteTab, setSelectedNoteTab] = React.useState<
 		"write" | "preview"
 	>("write");
@@ -30,10 +37,58 @@ export default function GameplayHistoryModal({
 	let [selectedDiscordUser, setSelectedDiscordUser] = useState(null);
 
 	let [listOfLeaders, setListOfLeaders] = useState([]);
+	let [outcome, setOutcome] = useState(null);
 
 	const addLeader = (leader) => {
 		setListOfLeaders([...listOfLeaders, leader]);
 	};
+	const [dateObj, setDateObj] = useState(new Date());
+	const [dateString, setDateString] = useState(moment().format("DD/MM/YYYY"));
+	const [dateError, setDateError] = useState("");
+	const [isLoading, setIsLoading] = useState(false);
+	const [aarReplayLink, setAARReplayLink] = useState("");
+
+	function addHistory() {
+		setIsLoading(true);
+		try {
+			const data = {
+				aarReplayLink,
+				date: dateObj,
+				leaders: listOfLeaders.map((leader) => {
+					return {
+						discordID: leader.userId,
+						role: leader.role.value,
+						side: leader.side.value,
+					};
+				}),
+
+				outcome: outcome.value,
+			};
+			console.log(data);
+
+			axios
+				.post(`/api/missions/${mission.uniqueName}/history`, data)
+				.then((response) => {
+					onClose(response.data);
+				})
+				.catch((error) => {
+					if (error.response.status == 500) {
+						toast.error("Error submiting history");
+					} else {
+						if (error.response.data && error.response.data.error) {
+							toast.error(error.response.data.error);
+						}
+					}
+				})
+				.finally(() => {
+					setIsLoading(false);
+				});
+		} catch (error) {
+			console.error(error);
+			toast.error("Error submiting history");
+			setIsLoading(false);
+		}
+	}
 
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
@@ -68,7 +123,7 @@ export default function GameplayHistoryModal({
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-110"
 					>
-						<div className="inline-block w-full max-w-2xl p-6 my-8 overflow-visible text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+						<div className="inline-block w-full max-w-3xl p-6 my-8 overflow-visible text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
 							<Dialog.Title
 								as="h3"
 								className="text-lg font-medium leading-6 text-gray-900"
@@ -76,47 +131,50 @@ export default function GameplayHistoryModal({
 								New Gameplay History
 							</Dialog.Title>
 							<div className="mt-2 space-y-5 ">
-								<ReactSelect
-									options={[
-										"Victory",
-										"Pyrrhic Victory",
-										"Major Victory",
-										"Defeat",
-										"Valiant Defeat",
-										"Major Defeat",
-										"Draw",
-
-										"Pyrrhic BLUFOR Victory",
-										"Major BLUFOR Victory",
-										"BLUFOR Victory",
-										"Pyrrhic OPFOR Victory",
-										"Major OPFOR Victory",
-										"OPFOR Victory",
-
-										"Pyrrhic INDFOR Victory",
-										"Major INDFOR Victory",
-										"INDFOR Victory",
-
-										"Pyrrhic CIVFOR Victory",
-										"Major CIVFOR Victory",
-										"CIVFOR Victory",
-									]}
+								<CreatableSelect
+									options={gameplayHistoryOutcomeOptions}
 									placeholder="Outcome... (Open ended)"
 									blurInputOnSelect={true}
-									onChange={(val) => {}}
+									onChange={setOutcome}
 									isSearchable={true}
-									value={selectedDiscordUser}
-									getOptionLabel={(option) => option}
+									isClearable
+									value={outcome}
 								/>
 
-								<input
-									type="text"
-									placeholder="Date"
-									className="w-full input input-bordered"
+								<NumberFormat
+									format="##/##/####"
+									placeholder="DD/MM/YYYY"
+									className="w-full rounded-lg input input-bordered"
+									value={dateString}
+									mask={["D", "D", "M", "M", "Y", "Y", "Y", "Y"]}
+									onValueChange={(e) => {
+										var dateString = e.formattedValue;
+										var dateMomentObject = moment(dateString, "DD/MM/YYYY");
+										var dateObject = dateMomentObject.toDate();
+										if (e.value.length == 8) {
+											const isValid = moment(dateString, "DD/MM/YYYY", true).isValid();
+											if (!isValid) {
+												setDateError("Invalid Date");
+											} else {
+												setDateObj(dateObject);
+												setDateError(null);
+											}
+										} else {
+											setDateError(null);
+										}
+									}}
 								/>
+								{dateError && (
+									<span className="text-red-500 label-text-alt">{dateError}</span>
+								)}
+
 								<input
 									type="text"
 									placeholder="AAR Link"
+									value={aarReplayLink}
+									onChange={(e) => {
+										setAARReplayLink(e.target.value.trim());
+									}}
 									className="w-full rounded-lg input input-bordered"
 								/>
 
@@ -151,57 +209,84 @@ export default function GameplayHistoryModal({
 											style: { padding: "0 10px" },
 										},
 									}}
-									generateMarkdownPreview={(markdown) =>
-										Promise.resolve(converter.makeHtml(markdown))
-									}
+									generateMarkdownPreview={async (markdown) => {
+										const thing = await unified()
+											.use(remarkParse)
+											.use(remarkGfm)
+											.use(remarkRehype)
+											.use(rehypeFormat)
+											.use(rehypeStringify)
+											.use(rehypeSanitize)
+											.process(markdown);
+
+										return Promise.resolve(
+											<div
+												className="max-w-3xl m-5 prose"
+												dangerouslySetInnerHTML={{
+													__html: thing.value.toString(),
+												}}
+											></div>
+										);
+									}}
 								/>
 
-								<ReactSelect
+								<Select
 									options={discordUsers}
 									placeholder="Selected a leader..."
 									blurInputOnSelect={true}
 									onChange={(val) => {
+										if (listOfLeaders.includes(val)) {
+											return;
+										}
 										addLeader(val);
 										setSelectedDiscordUser(null);
-										console.log(val);
 									}}
 									isSearchable={true}
 									value={selectedDiscordUser}
-									getOptionLabel={(option) => option.name}
+									getOptionLabel={(option) => {
+										return option.nickname ?? option.displayName;
+									}}
 								/>
 								<div className="space-y-1 slashed-zero">
 									{listOfLeaders.map((entry) => (
 										<div
-											key={entry.userID}
+											key={entry.userId}
 											className="flex flex-row items-center space-x-1"
 										>
-											<div>{entry.name}</div>
+											<div>{entry.nickname ?? entry.displayName}</div>
 											<div className="flex-1"></div>
-											<div className="w-28">
-												<ReactSelect
+											<div className="w-32">
+												<Select
 													options={[
 														{ value: "BLUFOR", label: "BLUFOR" },
 														{ value: "OPFOR", label: "OPFOR" },
 														{ value: "INDFOR", label: "INDFOR" },
 														{ value: "CIV", label: "CIV" },
 													]}
-													value={null}
-													onChange={(val) => {}}
+													getOptionValue={(option) => option.value}
+													value={entry["side"]}
+													onChange={(val) => {
+														entry["side"] = val;
+														setListOfLeaders([...listOfLeaders]);
+													}}
 													placeholder="Select"
 													getOptionLabel={(option) => option.label}
 													blurInputOnSelect={true}
 												/>
 											</div>
 											<div className="w-44">
-												<ReactSelect
+												<Select
 													options={[
 														{ value: "Leader", label: "Leader" },
 														{ value: "Took Command", label: "Took Command" },
 													]}
-													value={null}
+													value={entry["role"]}
 													placeholder="Select"
 													getOptionLabel={(option) => option.label}
-													onChange={(val) => {}}
+													onChange={(val) => {
+														entry["role"] = val;
+														setListOfLeaders([...listOfLeaders]);
+													}}
 													blurInputOnSelect={true}
 												/>
 											</div>
@@ -220,14 +305,25 @@ export default function GameplayHistoryModal({
 								</div>
 							</div>
 
-							<div className="mt-4">
-								<button
-									type="button"
-									className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-									onClick={onClose}
-								>
+							<div className="flex flex-row justify-between mt-4">
+								<button type="button" className="btn btn-sm" onClick={onClose}>
 									Close
 								</button>
+								<div className="flex flex-row space-x-2">
+									<button
+										type="button"
+										className={
+											isLoading
+												? "btn btn-primary btn-sm loading"
+												: "btn btn-primary btn-sm"
+										}
+										onClick={() => {
+											addHistory();
+										}}
+									>
+										SUMIT HISTORY
+									</button>
+								</div>
 							</div>
 						</div>
 					</Transition.Child>

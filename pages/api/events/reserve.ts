@@ -13,7 +13,6 @@ export default async function handler(
 	const user = await validateUser(req, res, CREDENTIAL.MEMBER).catch((error) => {
 		return res.status(401).send("");
 	});
-	console.log(user);
 
 	const slotName = req.body.slot?.name;
 	const factionTitle = req.body.factionTitle;

@@ -12,7 +12,7 @@ export enum CREDENTIAL {
 
 export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 	return new Promise(async (resolve, reject) => {
-		console.log('CHECKING CREDS');
+ 
 		const session = await getSession({ req });
 		if (!session) {
 			return reject(401);
@@ -21,6 +21,7 @@ export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 		for (var i = 0; i < session.user["roles"].length; i++) {
 			if (session.user["roles"][i].name == "Admin") {
 				if (next) {
+					session.user["isAdmin"] = true;
 					req.session = session;
 					req.isAdmin = true;
 

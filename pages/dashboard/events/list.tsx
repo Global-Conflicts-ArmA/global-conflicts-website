@@ -9,8 +9,8 @@ import { Tab } from "@headlessui/react";
 import EventCard from "../../../components/event_list_card";
 import DataTable from "react-data-table-component";
 import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
-import { CREDENTIAL } from "../../../lib/credsChecker";
 import { getSession, useSession } from "next-auth/react";
+import { CREDENTIAL } from "../../../middleware/check_auth_perms";
 
 export default function DashboardEventList({ events }) {
 	const columns = [
@@ -50,8 +50,6 @@ export default function DashboardEventList({ events }) {
 		{
 			name: "Status",
 			selector: (row) => {
-				console.log(row);
-				console.log(moment(row.when) >= moment());
 				return row.closeReason
 					? row.closeReason
 					: moment(row.when) <= moment()
@@ -90,9 +88,6 @@ export default function DashboardEventList({ events }) {
 						dense={true}
 						striped={true}
 						onRowClicked={(row, event) => {
-							// You can set state or dispatch with something like Redux so we can use the retrieved data
-							console.log("Selected Rows: ", row);
-							console.log("Selected Rows: ", event);
 							if (event.ctrlKey) {
 								window.open(`/dashboard/events/${row.slug}/edit`, "_blank"); //to open new page
 							} else {

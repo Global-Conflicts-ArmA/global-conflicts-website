@@ -91,11 +91,11 @@ async function callReserveSlot(
 			factionTitle: factionTitle,
 		})
 		.then((response) => {
-			console.log(response);
+
 			onSuccess();
 		})
 		.catch((error) => {
-			console.log(error);
+
 			onError();
 		});
 }
@@ -108,11 +108,11 @@ async function callCantMakeIt(event, onSuccess, onError, cantMakeIt) {
 			cantMakeIt: cantMakeIt,
 		})
 		.then((response) => {
-			console.log(response);
+
 			onSuccess();
 		})
 		.catch((error) => {
-			console.log(error);
+
 			onError();
 		});
 }
@@ -124,11 +124,11 @@ async function callSignUp(event, onSuccess, onError, doSignup) {
 			doSignup: doSignup,
 		})
 		.then((response) => {
-			console.log(response);
+
 			onSuccess();
 		})
 		.catch((error) => {
-			console.log(error);
+
 			onError();
 		});
 }
@@ -153,7 +153,7 @@ export default function EventHome({ event }) {
 			if (session.user["eventsSignedUp"]) {
 				for (const eventSingedUp of session.user["eventsSignedUp"]) {
 					if (eventSingedUp["eventId"] == event._id) {
-						console.log("aaaaaaa");
+
 						setIsSignedUp(true);
 						setReservedSlotName(eventSingedUp["reservedSlotName"]);
 						setReservedSlotFactionTitle(eventSingedUp["reservedSlotFactionTitle"]);
@@ -172,7 +172,7 @@ export default function EventHome({ event }) {
 	}, [event, session]);
 
 	function hasReservableSlots() {
-		console.log("asd");
+
 		for (const faction of event.eventReservableSlotsInfo) {
 			return faction.slots?.length > 0;
 		}
@@ -458,7 +458,7 @@ export default function EventHome({ event }) {
 }
 
 export async function getStaticProps({ params }: Params) {
-	console.log(params);
+
 	const event = await MyMongo.collection("events").findOne({
 		slug: params.slug,
 	});

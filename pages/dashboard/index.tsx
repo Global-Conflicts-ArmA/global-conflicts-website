@@ -4,8 +4,8 @@ import Link from "next/link";
 import React from "react";
 import { CredentialLockLayout } from "../../layouts/credential-lock-layout";
 import DashBoardLayout from "../../layouts/dashboard-layout";
-import hasCreds, { CREDENTIAL } from "../../lib/credsChecker";
-
+import { CREDENTIAL } from "../../middleware/check_auth_perms";
+ 
 function Dashboard() {
 	const { data: session } = useSession();
 	return (

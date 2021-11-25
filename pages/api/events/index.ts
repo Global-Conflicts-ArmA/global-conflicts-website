@@ -52,7 +52,6 @@ apiRoute.use(upload.any());
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = JSON.parse(req.body.eventJsonData);
-	console.log(body);
 	let slug: string = body["eventName"]
 		.normalize("NFD")
 		.replaceAll(/[\u0300-\u036f]/g, "")
@@ -81,7 +80,6 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = JSON.parse(req.body.eventJsonData);
-	console.log(body);
 	let slug: string = body["eventName"]
 		.normalize("NFD")
 		.replace(/[\u0300-\u036f]/g, "")

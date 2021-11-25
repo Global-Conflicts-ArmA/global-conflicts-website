@@ -8,7 +8,7 @@ import Select from "react-select";
 import { Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
 import { CredentialLockLayout } from "../../layouts/credential-lock-layout";
-import { CREDENTIAL } from "../../lib/credsChecker";
+ 
 import { getSession, useSession } from "next-auth/react";
 import { useFormik } from "formik";
 import { parseInputInteger } from "../../lib/numberParser";
@@ -28,6 +28,7 @@ import {
 } from "../../lib/missionSelectOptions";
 import { remark } from "remark";
 import html from "remark-html";
+import { CREDENTIAL } from "../../middleware/check_auth_perms";
 const converter = new Showdown.Converter({
 	tables: true,
 	simplifiedAutoLink: true,
@@ -66,7 +67,7 @@ function UploadMission() {
 	const selectMissionFile = (event) => {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0];
-			console.log(file.name);
+
 			missionFormik.setFieldTouched("missionFile", true, false);
 
 			if (file.size >= 1024 * 1024 * 10) {
@@ -224,7 +225,6 @@ function UploadMission() {
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
 				onUploadProgress: (p) => {
-					console.log(`Current progress:`, Math.round((p.loaded * 100) / p.total));
 
 					const progress = p.loaded / p.total;
 
@@ -248,7 +248,7 @@ function UploadMission() {
 			delete data.missionFile;
 			delete data.media;
 
-			console.log(JSON.stringify(data));
+	 
 
 			formData.append("missionJsonData", JSON.stringify(data));
 			formData.append("missionFile", values.missionFile);
@@ -258,9 +258,6 @@ function UploadMission() {
 				axios
 					.post("/api/missions", formData, config)
 					.then((response) => {
-						console.log(response);
-						//missionFormik.resetForm();
-
 						toast.done(uploadProgressToast.current);
 						toast.success("Mission uploaded! Redirecting to the mission page...");
 						setTimeout(() => {
@@ -268,7 +265,7 @@ function UploadMission() {
 						}, 2000);
 					})
 					.catch((error) => {
-						console.log(error);
+
 						if (error.response.status == 500) {
 							toast.error("Error uploading the mission, Let the admins know.");
 						} else {
@@ -703,7 +700,7 @@ function UploadMission() {
 							type="submit"
 							onClick={async () => {
 								await missionFormik.validateForm();
-								console.log(missionFormik.isValid);
+
 
 								if (!missionFormik.isValid) {
 									toast.error("Some fields are invalid!");
