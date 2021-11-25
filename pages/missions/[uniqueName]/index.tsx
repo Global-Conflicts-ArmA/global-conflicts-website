@@ -355,6 +355,13 @@ export default function MissionDetails({
 		fetcher
 	);
 	function getHistory() {
+		if (error) {
+			return mission.history;
+		}
+		if (history?.error) {
+			return mission.history;
+		}
+
 		return history || mission.history;
 	}
 

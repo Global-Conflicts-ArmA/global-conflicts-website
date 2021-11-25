@@ -21,25 +21,28 @@ const apiRoute = nextConnect({
 	},
 });
 
-
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
-
 	const { uniqueName } = req.query;
-	console.log('iaomndia');
+	console.log("iaomndia");
 	const result = await MyMongo.collection("missions").findOne(
 		{
 			uniqueName: uniqueName,
 		},
 		{ projection: { history: 1 } }
 	);
-	console.log('iaomndia');
+	console.log("iaomndia");
 	for (let history of result.history) {
 		for (let leader of history.leaders) {
-			const botResponse = await axios.get(
-				`http://localhost:3001/users/${leader.discordID}`
-			);
-			leader.name = botResponse.data.nickname ?? botResponse.data.displayName;
-			leader.avatar = botResponse.data.displayAvatarURL;
+			try {
+				const botResponse = await axios.get(
+					`https://angry-snail-77.loca.lt/users/${leader.discordID}`
+				);
+
+				leader.name = botResponse.data.nickname ?? botResponse.data.displayName;
+				leader.avatar = botResponse.data.displayAvatarURL;
+			} catch (error) {
+				console.error(error);
+			}
 		}
 	}
 
@@ -49,8 +52,6 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 apiRoute.use((req, res, next) =>
 	validateUser(req, res, CREDENTIAL.ADMIN, next)
 );
-
-
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
