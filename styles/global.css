@@ -45,7 +45,6 @@
 	padding: 20px;
 	width: 100%;
 	background-color: #000000;
- 
 }
 
 .home-bg-3 {
@@ -226,10 +225,7 @@ input[type="file"] {
 	width: 100%;
 	object-fit: cover;
 	width: 100% !important;
-
 }
-
- 
 
 .input:focus {
 	box-shadow: 0 0 0 0px hsl(var(--b1)), 0 0 0 2px hsla(var(--bc) / 0.2) !important;
@@ -300,14 +296,26 @@ h3:hover .anchor-link {
 
 .unset-img {
 	width: 100%;
- }
- .unset-img > span {
+}
+.unset-img > span {
 	position: unset !important;
- }
- .custom-img {
+}
+.custom-img {
 	object-fit: cover;
 	width: 100% !important;
 	position: relative !important;
 	height: unset !important;
 	aspect-ratio: 16/10;
- }
+}
+.text-blufor {
+	color: #2ea8ff;
+}
+.text-opfor {
+	color: #ff2135;
+}
+.text-civ {
+	color: purple;
+}
+.text-independent {
+	color: green;
+}

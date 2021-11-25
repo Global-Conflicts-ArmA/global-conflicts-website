@@ -17,14 +17,8 @@ module.exports = {
 			370: "376px",
 			70: "70px",
 		},
-	
+
 		extend: {
-			colors: {
-				blufor: "#2ea8ff",
-				opfor: "#ff2135",
-				civ: "purple",
-				ind: "green",
-			},
 			width: {
 				700: "700px",
 			},
