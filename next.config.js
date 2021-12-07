@@ -9,7 +9,9 @@ const withMDX = require("@next/mdx")({
 module.exports = withMDX({
 	swcMinify: true,
 	pageExtensions: ["js", "jsx", "ts", "tsx"],
+
 	images: {
+		formats: ["image/avif", "image/webp"],
 		domains: [
 			"source.unsplash.com",
 			"tailwindui.com",

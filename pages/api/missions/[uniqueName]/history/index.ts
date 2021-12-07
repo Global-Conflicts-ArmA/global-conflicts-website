@@ -28,20 +28,26 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 		{
 			uniqueName: uniqueName,
 		},
-		{ projection: { history: 1 } }
+		{ projection: { history: 1 }, sort: { "history.date": 1 } }
 	);
-	console.log("iaomndia");
-	for (let history of result.history) {
-		for (let leader of history.leaders) {
-			try {
-				const botResponse = await axios.get(
-					`https://angry-snail-77.loca.lt/users/${leader.discordID}`
-				);
+	console.log("100110");
+	if (result["history"]) {
+		result["history"].sort((a, b) => {
+			return new Date(b.date).getTime() - new Date(a.date).getTime();
+		});
 
-				leader.name = botResponse.data.nickname ?? botResponse.data.displayName;
-				leader.avatar = botResponse.data.displayAvatarURL;
-			} catch (error) {
-				console.error(error);
+		for (let history of result.history) {
+			for (let leader of history.leaders) {
+				try {
+					const botResponse = await axios.get(
+						`http://localhost:3001/users/${leader.discordID}`
+					);
+					console.log("100110");
+					leader.name = botResponse.data.nickname ?? botResponse.data.displayName;
+					leader.displayAvatarURL = botResponse.data.displayAvatarURL;
+				} catch (error) {
+					console.error(error);
+				}
 			}
 		}
 	}
@@ -58,6 +64,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const history = req.body;
 	history["_id"] = new ObjectId();
+	history["date"] = new Date(history["date"]);
 	const updateResult = await MyMongo.collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
@@ -74,17 +81,19 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const history = req.body;
-
+	console.log(history);
+	history["_id"] = new ObjectId(history["_id"]);
+	history["date"] = new Date(history["date"]);
 	const updateResult = await MyMongo.collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
-			"history._id": history["_id"],
+			"history._id": history["_id"] ,
 		},
 		{
 			$set: { "history.$": history },
 		}
 	);
-
+	console.log(updateResult)
 	return res.status(200).json({ ok: true });
 });
 

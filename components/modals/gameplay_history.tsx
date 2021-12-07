@@ -22,14 +22,16 @@ import NumberFormat from "react-number-format";
 import moment from "moment";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { ObjectID } from "bson";
 
 export default function GameplayHistoryModal({
 	isOpen,
 	discordUsers,
 	onClose,
 	mission,
+	historyToLoad,
 }) {
-	const [gmNotes, setGmNotes] = React.useState("");
+	const [gmNote, setGmNote] = React.useState("");
 	const [selectedNoteTab, setSelectedNoteTab] = React.useState<
 		"write" | "preview"
 	>("write");
@@ -54,28 +56,37 @@ export default function GameplayHistoryModal({
 			const data = {
 				aarReplayLink,
 				date: dateObj,
+				gmNote: gmNote,
+				_id: historyToLoad ? historyToLoad._id : new ObjectID(),
 				leaders: listOfLeaders.map((leader) => {
 					return {
+						displayAvatarURL: leader.displayAvatarURL,
+						name: leader.name ?? leader.nickname ?? leader.displayName,
 						discordID: leader.userId,
-						role: leader.role.value,
-						side: leader.side.value,
+						role: leader.role?.value,
+						side: leader.side?.value,
 					};
 				}),
 
 				outcome: outcome.value,
 			};
-			console.log(data);
-
 			axios
-				.post(`/api/missions/${mission.uniqueName}/history`, data)
+				.request({
+					method: historyToLoad ? "PUT" : "POST",
+					url: `/api/missions/${mission.uniqueName}/history`,
+					data: data,
+				})
+
 				.then((response) => {
-					onClose(response.data);
+					clear();
+					onClose(data, !!historyToLoad);
 				})
 				.catch((error) => {
-					if (error.response.status == 500) {
+					console.error(error);
+					if (error?.response?.status == 500) {
 						toast.error("Error submiting history");
 					} else {
-						if (error.response.data && error.response.data.error) {
+						if (error?.response?.data && error?.response?.data?.error) {
 							toast.error(error.response.data.error);
 						}
 					}
@@ -90,6 +101,38 @@ export default function GameplayHistoryModal({
 		}
 	}
 
+	useEffect(() => {
+		if (historyToLoad) {
+			setGmNote(historyToLoad.gmNote);
+			const leadersClone = historyToLoad.leaders.map((item) => {
+				return {
+					userId: item.discordID,
+					name: item.name,
+					displayAvatarURL: item.displayAvatarURL,
+					role: item.role ? { value: item.role, label: item.role } : null,
+					side: item.side ? { value: item.side, label: item.side } : null,
+				};
+			});
+
+			setListOfLeaders(leadersClone);
+			setOutcome({ value: historyToLoad.outcome, label: historyToLoad.outcome });
+			const date = moment(historyToLoad.date);
+			setDateObj(date.toDate());
+			setDateString(date.format("DD/MM/YYYY"));
+			setAARReplayLink(historyToLoad.aarReplayLink);
+		} else {
+			clear();
+		}
+	}, [historyToLoad]);
+	function clear() {
+		setGmNote("");
+		setListOfLeaders([]);
+		setOutcome(null);
+		setDateObj(new Date());
+		setDateString(moment().format("DD/MM/YYYY"));
+		setDateError("");
+		setAARReplayLink("");
+	}
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog
@@ -156,6 +199,7 @@ export default function GameplayHistoryModal({
 											if (!isValid) {
 												setDateError("Invalid Date");
 											} else {
+												setDateString(e.formattedValue);
 												setDateObj(dateObject);
 												setDateError(null);
 											}
@@ -179,7 +223,7 @@ export default function GameplayHistoryModal({
 								/>
 
 								<ReactMde
-									value={gmNotes}
+									value={gmNote}
 									toolbarCommands={[
 										[
 											"header",
@@ -193,7 +237,7 @@ export default function GameplayHistoryModal({
 											"ordered-list",
 										],
 									]}
-									onChange={setGmNotes}
+									onChange={setGmNote}
 									selectedTab={selectedNoteTab}
 									onTabChange={setSelectedNoteTab}
 									classes={{
@@ -253,7 +297,7 @@ export default function GameplayHistoryModal({
 											key={entry.userId}
 											className="flex flex-row items-center space-x-1"
 										>
-											<div>{entry.nickname ?? entry.displayName}</div>
+											<div>{entry.name ?? entry.nickname ?? entry.displayName}</div>
 											<div className="flex-1"></div>
 											<div className="w-32">
 												<Select
@@ -306,7 +350,13 @@ export default function GameplayHistoryModal({
 							</div>
 
 							<div className="flex flex-row justify-between mt-4">
-								<button type="button" className="btn btn-sm" onClick={onClose}>
+								<button
+									type="button"
+									className="btn btn-sm"
+									onClick={() => {
+										onClose();
+									}}
+								>
 									Close
 								</button>
 								<div className="flex flex-row space-x-2">
@@ -321,7 +371,7 @@ export default function GameplayHistoryModal({
 											addHistory();
 										}}
 									>
-										SUMIT HISTORY
+										{historyToLoad ? "EDIT" : "SUMIT HISTORY"}
 									</button>
 								</div>
 							</div>

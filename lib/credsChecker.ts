@@ -3,6 +3,7 @@ import { CREDENTIAL } from "../middleware/check_auth_perms";
  
 
 export default function hasCreds(session, cred: CREDENTIAL) {
+	console.log(session)
 	if (!session) {
 		return false;
 	}

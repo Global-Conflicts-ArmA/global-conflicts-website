@@ -2,29 +2,166 @@ import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
 import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
-import { remark } from "remark";
-import html from "remark-html";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
-import rehypeFormat from "rehype-format";
-import { unified } from "unified";
-import remarkGfm from "remark-gfm";
-import rehypeSanitize from "rehype-sanitize";
+
+import hasCreds from "../../lib/credsChecker";
+import { CREDENTIAL } from "../../middleware/check_auth_perms";
+import { useSession } from "next-auth/react";
+import axios from "axios";
+import { toast } from "react-toastify";
+import Select, { ActionMeta, OnChangeValue } from "react-select";
+
+import { Version } from "../../pages/api/missions/[uniqueName]/update";
+import { generateMarkdown } from "../../lib/markdownToHtml";
+import { capitalize } from "../../lib/captlize";
 export default function SubmitReviewReportModal({
 	isOpen,
 	onClose,
-
+	onRemove,
+	onSubmit,
+	onEdit,
+	mission,
 	data,
 }) {
 	useEffect(() => {
-		setNewId(data?.comment?.report);
-	}, [data?.comment?.report]);
+		if (data?.comment) {
+			setText(data?.comment?.text);
+			const versionObj = data?.comment?.version;
+			let label = versionObj?.major?.toString();
+			if (versionObj?.major === -1) {
+				label = "General";
+			} else {
+				if (versionObj?.minor) {
+					label = label + versionObj.minor;
+				}
+			}
+			setSelectedVersion({ value: data?.comment.version, label: label });
+		}
+	}, [data?.comment]);
 
-	const [comment, setNewId] = useState(data?.comment?.report);
+	const generalVersionOption = {
+		value: { major: -1 },
+		label: "General",
+	};
+	const [text, setText] = useState(data?.comment?.text);
+	const { data: session } = useSession();
 	const [selectedNoteTab, setSelectedNoteTab] = React.useState<
 		"write" | "preview"
 	>("write");
+	const [isLoading, setIsLoading] = useState(false);
+
+	const [versions, setVersions] = useState([generalVersionOption]);
+	const [selectedVersion, setSelectedVersion] = useState(versions[0]);
+
+	function remove() {
+		setIsLoading(true);
+		try {
+			axios
+				.request({
+					method: "DELETE",
+					url: `/api/missions/${mission.uniqueName}/${data.type}`,
+					data: {
+						id: data.comment._id,
+					},
+				})
+				.then((response) => {
+					onRemove({ ...data?.comment, type: data.type });
+					onClose();
+					toast.info(`${capitalize(data.type)} Removed`);
+					setTimeout(() => {
+						setText("");
+						setSelectedVersion(generalVersionOption);
+					}, 200);
+				})
+				.catch((error) => {
+					console.error(error);
+					if (error?.response?.status == 500) {
+						toast.error(`Error submiting ${data.type}`);
+					} else {
+						if (error?.response?.data && error?.response?.data?.error) {
+							toast.error(error.response.data.error);
+						}
+					}
+				})
+				.finally(() => {
+					setIsLoading(false);
+				});
+		} catch (error) {
+			console.error(error);
+			toast.error("Error submiting AAR");
+			setIsLoading(false);
+		}
+	}
+
+	function submit() {
+		setIsLoading(true);
+		try {
+			console.log(mission);
+			const payload = {
+				...data?.comment,
+				version: selectedVersion.value,
+				text: text,
+				authorName: session.user["nickname"] ?? session.user["username"],
+				type: data.type,
+			};
+
+			axios
+				.request({
+					method: data?.comment?.text ? "PUT" : "POST",
+					url: `/api/missions/${mission.uniqueName}/${data.type}`,
+					data: payload,
+				})
+				.then((response) => {
+					console.log("asmodmas");
+					if (data?.comment?.text) {
+						toast.info(`${capitalize(data.type)} Edited`);
+						onEdit(payload);
+					} else {
+						toast.success(`${capitalize(data.type)} Submited`);
+						onSubmit(payload);
+					}
+					setTimeout(() => {
+						setText("");
+						setSelectedVersion(generalVersionOption);
+					}, 200);
+					onClose();
+				})
+				.catch((error) => {
+					console.error(error);
+					if (error?.response?.status == 500) {
+						toast.error(`Error submiting ${data.type}`);
+					} else {
+						if (error?.response?.data && error?.response?.data?.error) {
+							toast.error(error.response.data.error);
+						}
+					}
+				})
+				.finally(() => {
+					setIsLoading(false);
+				});
+		} catch (error) {
+			console.error(error);
+			toast.error("Error submiting AAR");
+			setIsLoading(false);
+		}
+	}
+
+	function buildVersionOption(versionObj) {
+		let string = versionObj.major.toString();
+		if (versionObj.minor) {
+			string = string + versionObj.minor;
+		}
+		return { value: versionObj, label: string };
+	}
+
+	useEffect(() => {
+		console.log(mission);
+		let versions = [{ value: { major: -1 }, label: "General" }];
+		mission.updates.forEach((element) => {
+			versions.push(buildVersionOption(element.version));
+		});
+		setVersions(versions);
+	}, [mission]);
+
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog
@@ -66,6 +203,19 @@ export default function SubmitReviewReportModal({
 								{data?.title}
 							</Dialog.Title>
 							<div className="mt-2">
+								<label>Version:</label>
+								<Select
+									options={versions}
+									defaultValue={versions[0]}
+									className="mb-5"
+									placeholder="Selected a version..."
+									blurInputOnSelect={true}
+									onChange={(val) => {
+										setSelectedVersion(val);
+									}}
+									isSearchable={true}
+									value={selectedVersion}
+								/>
 								<div className="form-control">
 									<ReactMde
 										minEditorHeight={200}
@@ -87,9 +237,9 @@ export default function SubmitReviewReportModal({
 										]}
 										heightUnits={"px"}
 										onChange={(val) => {
-											setNewId(val);
+											setText(val);
 										}}
-										value={comment}
+										value={text}
 										selectedTab={selectedNoteTab}
 										onTabChange={setSelectedNoteTab}
 										childProps={{
@@ -101,29 +251,26 @@ export default function SubmitReviewReportModal({
 												style: { padding: "0 10px" },
 											},
 											textArea: {
+												style: { maxHeight: 500, height: 300, minHeight: 100 },
 												draggable: false,
 											},
 										}}
 										generateMarkdownPreview={async (markdown) => {
-											const thing = await unified()
-												.use(remarkParse)
-												.use(remarkGfm)
-												.use(remarkRehype)
-												.use(rehypeFormat)
-												.use(rehypeStringify)
-												.use(rehypeSanitize)
-												.process(markdown);
-
 											return Promise.resolve(
 												<div
-													className="max-w-3xl m-5 prose"
+													className="font-light leading-normal prose break-words"
 													dangerouslySetInnerHTML={{
-														__html: thing.value.toString(),
+														__html: generateMarkdown(markdown),
 													}}
 												></div>
 											);
 										}}
 									/>
+									{text?.length > 300 && (
+										<span className="text-red-500 label-text-alt">
+											Max length: 300 characters
+										</span>
+									)}
 								</div>
 							</div>
 							<div className="flex flex-row justify-between mt-6">
@@ -137,11 +284,26 @@ export default function SubmitReviewReportModal({
 									Close
 								</button>
 								<div className="flex flex-row space-x-2">
-									<button type="button" className="btn btn-warning" onClick={onClose}>
-										Remove
-									</button>
-									<button type="button" className="btn btn-primary" onClick={onClose}>
-										Submit
+									{hasCreds(session, CREDENTIAL.ADMIN) && data?.comment?.text && (
+										<button
+											type="button"
+											className="btn btn-warning"
+											onClick={() => {
+												remove();
+											}}
+										>
+											Remove
+										</button>
+									)}
+									<button
+										type="button"
+										className="btn btn-primary"
+										disabled={!text}
+										onClick={() => {
+											submit();
+										}}
+									>
+										{data?.comment?.text ? "Edit" : "Submit"}
 									</button>
 								</div>
 							</div>

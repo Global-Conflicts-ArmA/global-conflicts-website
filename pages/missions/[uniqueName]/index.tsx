@@ -52,6 +52,8 @@ import NewVersionModal from "../../../components/modals/new_version_modal";
 import useSWR from "swr";
 import fetcher from "../../../lib/fetcher";
 import { Disclosure, Transition } from "@headlessui/react";
+import SubmitAARModal from "../../../components/modals/submit_aar_modal";
+import { generateMarkdown } from "../../../lib/markdownToHtml";
 
 export default function MissionDetails({
 	_mission,
@@ -67,10 +69,14 @@ export default function MissionDetails({
 	let [mission, setMission] = useState(_mission);
 
 	let [commentModalOpen, setCommentModalIsOpen] = useState(false);
+	let [submitAARModalOpen, setSubmitAARModalOpen] = useState(false);
+	let [aarTextToLoad, setAarTextToLoad] = useState("");
+	let [historyIdToLoadForAAR, setHistoryIdToLoadForAAR] = useState("");
 	let [commentModalData, setCommentModalData] = useState(null);
 
-	let [gameplayHistoryModalData, setgameplayHistoryModalData] = useState(null);
 	let [gameplayHistoryModalOpen, setgameplayHistoryModalOpen] = useState(false);
+	let [gameplayHistoryModalHistoryToLoad, setGameplayHistoryModalHistoryToLoad] =
+		useState(null);
 
 	const [windowSize, setWindowSize] = useState({
 		width: undefined,
@@ -152,10 +158,7 @@ export default function MissionDetails({
 	}
 
 	function canSubmitAAR(leader) {
-		return (
-			leader.discordID == session?.user["discord_id"] ||
-			hasCreds(session, CREDENTIAL.ADMIN)
-		);
+		return leader.discordID == session?.user["discord_id"];
 	}
 
 	const columns = [
@@ -350,19 +353,54 @@ export default function MissionDetails({
 		}
 	}
 
-	const { data: history, error } = useSWR(
-		`/api/missions/${mission.uniqueName}/history`,
-		fetcher
-	);
+	const {
+		data: history,
+		mutate,
+		error,
+	} = useSWR(`/api/missions/${mission.uniqueName}/history`, fetcher, {
+		revalidateOnFocus: false,
+	});
 	function getHistory() {
 		if (error) {
+			console.log("error");
 			return mission.history;
 		}
 		if (history?.error) {
+			console.log("history?.error");
 			return mission.history;
 		}
 
 		return history || mission.history;
+	}
+
+	function getLeaderString(leader) {
+		if (leader.role == "Took Command") {
+			return (
+				<>
+					{leader.name} - Took
+					{leader.side && (
+						<span className={`font-bold text-${leader.side.toLowerCase()}`}>
+							{" "}
+							{leader.side}{" "}
+						</span>
+					)}
+					command AAR:
+				</>
+			);
+		} else {
+			return (
+				<>
+					{leader.name && <>{leader.name} - </>}
+					{leader.side && (
+						<span className={`font-bold text-${leader.side.toLowerCase()}`}>
+							{" "}
+							{leader.side}{" "}
+						</span>
+					)}
+					&nbsp;Leader AAR:
+				</>
+			);
+		}
 	}
 
 	return (
@@ -527,7 +565,6 @@ export default function MissionDetails({
 						<button
 							onClick={() => {
 								setgameplayHistoryModalOpen(true);
-								setgameplayHistoryModalData(mission);
 							}}
 							className="btn btn-sm"
 						>
@@ -537,15 +574,28 @@ export default function MissionDetails({
 				</h2>
 				<div>
 					{getHistory() ? (
-						getHistory().map((history, index) => {
+						getHistory().map((historyItem, index) => {
 							return (
-								<div key={history._id}>
+								<div key={historyItem._id}>
 									<div className="flex flex-row justify-between mb-2 align-baseline">
 										<div className="font-bold align-text-bottom">
-											<div>{moment(history.date).format("LL")}</div>
-											<div>Outcome: {history.outcome}</div>
+											<div>{moment(historyItem.date).format("LL")}</div>
+											<div>Outcome: {historyItem.outcome}</div>
 										</div>
 										<div className="flex flex-row items-center space-x-1">
+											{hasCreds(session, CREDENTIAL.ADMIN) && (
+												<button
+													className="btn btn-xs"
+													onClick={() => {
+														console.log(historyItem);
+														setGameplayHistoryModalHistoryToLoad(historyItem);
+														setgameplayHistoryModalOpen(true);
+													}}
+												>
+													Edit AAR
+												</button>
+											)}
+
 											<button className="btn btn-xs" onClick={() => {}}>
 												AAR Replay
 											</button>
@@ -555,15 +605,19 @@ export default function MissionDetails({
 										</div>
 									</div>
 
-									{history.leaders.map((leader) => {
+									{historyItem.leaders.map((leader) => {
 										return (
 											<Disclosure key={leader.discordID}>
 												{({ open }) => (
 													<>
-														<Disclosure.Button className="flex flex-row items-center justify-between w-full p-2 mb-2 text-white bg-gray-600 rounded-lg">
+														<Disclosure.Button
+															className={`flex flex-row items-center justify-between w-full p-2 mb-2 text-white transition-shadow duration-300 bg-gray-600 rounded-lg hover:shadow-lg ${
+																open ? "shadow-lg" : "shadow-none"
+															}`}
+														>
 															<div className="flex flex-row items-center ">
 																{" "}
-																{!leader.avatar && (
+																{!leader.displayAvatarURL && (
 																	<Shimmer>
 																		<div
 																			className="avatar mask mask-circle"
@@ -571,17 +625,17 @@ export default function MissionDetails({
 																		/>
 																	</Shimmer>
 																)}
-																{leader.avatar && (
+																{leader.displayAvatarURL && (
 																	<Image
 																		className="avatar mask mask-circle"
-																		src={leader.avatar}
+																		src={leader.displayAvatarURL}
 																		width={50}
 																		height={50}
 																		alt="user avatar"
 																	/>
 																)}
 																<div className="flex flex-row items-end ml-5 text-2xl">
-																	{!leader.avatar && (
+																	{!leader.name && (
 																		<Shimmer>
 																			<div
 																				className="rounded-lg "
@@ -589,21 +643,14 @@ export default function MissionDetails({
 																			/>
 																		</Shimmer>
 																	)}
-																	<div>
-																		{leader.name},{" "}
-																		<span
-																			className={`font-bold text-${leader.side.toLowerCase()}`}
-																		>
-																			{" "}
-																			{leader.side}
-																		</span>{" "}
-																		Leader AAR:
-																	</div>
+																	<div>{getLeaderString(leader)}</div>
 																</div>
 															</div>
 
 															<ChevronRightIcon
-																className={`duration-100 ${open ? "transform rotate-90" : ""}`}
+																className={`duration-150 ease-in-out ${
+																	open ? "transform  rotate-90" : ""
+																}`}
 																width={35}
 																height={35}
 																color="white"
@@ -623,12 +670,44 @@ export default function MissionDetails({
 														>
 															<Disclosure.Panel static className="mb-3 prose">
 																{leader.aar ? (
-																	<p>{leader.aar}</p>
+																	<>
+																		<div className="max-w-3xl prose">
+																			{leader.aar && (
+																				<div
+																					className="max-w-3xl"
+																					dangerouslySetInnerHTML={{
+																						__html: generateMarkdown(leader.aar),
+																					}}
+																				></div>
+																			)}
+																		</div>
+																		{canSubmitAAR(leader) && (
+																			<button
+																				className="z-10 ml-2 btn btn-xs "
+																				onClick={() => {
+																					console.log(leader.aar);
+																					setAarTextToLoad(leader.aar);
+																					setHistoryIdToLoadForAAR(historyItem._id);
+
+																					setSubmitAARModalOpen(true);
+																				}}
+																			>
+																				Edit AAR
+																			</button>
+																		)}
+																	</>
 																) : (
 																	<div className="flex flex-row items-center">
 																		<div>No AAR Submited yet.</div>
 																		{canSubmitAAR(leader) && (
-																			<button className="z-10 ml-2 btn btn-xs " onClick={() => {}}>
+																			<button
+																				className="z-10 ml-2 btn btn-xs "
+																				onClick={() => {
+																					setAarTextToLoad(leader.aar);
+																					setHistoryIdToLoadForAAR(historyItem._id);
+																					setSubmitAARModalOpen(true);
+																				}}
+																			>
 																				Click here to submit your AAR
 																			</button>
 																		)}
@@ -651,52 +730,113 @@ export default function MissionDetails({
 					)}
 				</div>
 				<hr className="my-5"></hr>
-				<div className="flex flex-row justify-between mb-16 space-x-6">
-					<CommentBox
-						title="Bug Reports"
-						btnText="Submit Report"
-						onSubmitClick={() => {
-							setCommentModalIsOpen(true);
-							setCommentModalData({
-								title: "Submit Bug Report",
-								placeholder: "Enter the description of the bug here",
-							});
-						}}
-						onEditClick={(comment) => {
-							setCommentModalIsOpen(true);
-							setCommentModalData({
-								title: "Edit Bug Report",
-								placeholder: "Enter the description of the bug here",
-								comment: comment,
-							});
-						}}
-						comments={mission["reports"]}
-					></CommentBox>
+				<div className="flex flex-wrap w-full mb-16">
+					<div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
+						<CommentBox
+							title="Bug Reports"
+							btnText="Submit Report"
+							onSubmitClick={() => {
+								setCommentModalIsOpen(true);
+								setCommentModalData({
+									title: "Submit Bug Report",
+									type: "report",
+									placeholder: "Enter the description of the bug here",
+								});
+							}}
+							onEditClick={(comment) => {
+								setCommentModalIsOpen(true);
+								setCommentModalData({
+									title: "Edit Bug Report",
+									type: "report",
+									placeholder: "Enter the description of the bug here",
+									comment: comment,
+								});
+							}}
+							comments={mission["reports"]}
+						></CommentBox>
+					</div>
 
-					<CommentBox
-						onSubmitClick={() => {
-							setCommentModalIsOpen(true);
-							setCommentModalData({
-								title: "Submit review",
-								placeholder: "Enter your review of this mission here",
-							});
-						}}
-						onEditClick={(comment) => {
-							setCommentModalIsOpen(true);
-							setCommentModalData({
-								title: "Edit review",
-								placeholder: "Enter your review of this mission here",
-								comment: comment,
-							});
-						}}
-						title="Reviews"
-						btnText="Submit Review"
-					></CommentBox>
+					<div className="flex-1 min-w-full sm:min-w-300">
+						<CommentBox
+							comments={mission["reviews"]}
+							onSubmitClick={() => {
+								setCommentModalIsOpen(true);
+								setCommentModalData({
+									title: "Submit review",
+									type: "review",
+									placeholder: "Enter your review of this mission here",
+								});
+							}}
+							onEditClick={(comment) => {
+								setCommentModalIsOpen(true);
+								setCommentModalData({
+									title: "Edit review",
+									type: "review",
+									placeholder: "Enter your review of this mission here",
+									comment: comment,
+								});
+							}}
+							title="Reviews"
+							btnText="Submit Review"
+						></CommentBox>
+					</div>
 				</div>
+
+				<SubmitAARModal
+					isOpen={submitAARModalOpen}
+					aarText={aarTextToLoad == "" ? null : aarTextToLoad}
+					mission={mission}
+					historyIdToLoadForAAR={historyIdToLoadForAAR}
+					onClose={(aar) => {
+						setSubmitAARModalOpen(false);
+						setTimeout(() => {
+							setAarTextToLoad("");
+							setHistoryIdToLoadForAAR("");
+						}, 200);
+						const currentHistory = history ?? [];
+						let newHistory = [];
+
+						let historyIndex = currentHistory.findIndex(
+							(history) => history._id == historyIdToLoadForAAR
+						);
+						let leaderIndex = currentHistory[historyIndex].leaders.findIndex(
+							(leader) => leader.discordID == session.user["discord_id"]
+						);
+						currentHistory[historyIndex].leaders[leaderIndex].aar = aar;
+						newHistory = [...currentHistory];
+						mutate(newHistory, false);
+					}}
+				></SubmitAARModal>
 
 				<SubmitReviewReportModal
 					isOpen={commentModalOpen}
 					data={commentModalData}
+					mission={mission}
+					onRemove={(comment) => {
+						const list = mission[comment.type + "s"] ?? [];
+						console.log(commentModalData);
+						let itemIndex = list.findIndex(
+							(item) => item._id == commentModalData.comment._id
+						);
+						list.splice(itemIndex, 1);
+
+						mission[comment.type + "s"] = [...list];
+					}}
+					onEdit={(comment) => {
+						const list = mission[comment.type + "s"];
+						console.log(commentModalData);
+						let itemIndex = list.findIndex(
+							(item) => item._id == commentModalData.comment._id
+						);
+						list[itemIndex] = comment;
+						mission[comment.type + "s"] = [...list];
+					}}
+					onSubmit={(comment) => {
+						console.log("aoaooa");
+						const list = mission[comment.type + "s"] ?? [];
+						const newlist = [...list, comment];
+						mission[comment.type + "s"] = newlist;
+					}}
 					onClose={() => {
 						setCommentModalIsOpen(false);
 						setTimeout(() => {
@@ -767,7 +907,36 @@ export default function MissionDetails({
 					discordUsers={discordUsers}
 					mission={mission}
 					isOpen={gameplayHistoryModalOpen}
-					onClose={() => {
+					historyToLoad={gameplayHistoryModalHistoryToLoad}
+					onClose={(data, isUpdate) => {
+						setTimeout(() => {
+							setGameplayHistoryModalHistoryToLoad(null);
+						}, 200);
+						if (!data) {
+							setgameplayHistoryModalOpen(false);
+							return;
+						}
+						const currentHistory = history ?? [];
+						let newHistory = [];
+						if (isUpdate) {
+							let itemIndex = currentHistory.findIndex((item) => item._id == data._id);
+							currentHistory[itemIndex] = data;
+							newHistory = [...currentHistory];
+						} else {
+							newHistory = [data, ...currentHistory];
+						}
+
+						for (const historyItem of newHistory) {
+							if (typeof historyItem.date == "string") {
+								historyItem.date = moment(historyItem.date).toDate();
+							}
+						}
+
+						newHistory.sort((a, b) => {
+							return b.date.getTime() - a.date.getTime();
+						});
+						mutate(newHistory, false);
+
 						setgameplayHistoryModalOpen(false);
 					}}
 				></GameplayHistoryModal>
@@ -882,6 +1051,7 @@ export async function getServerSideProps(context) {
 				);
 
 				report["_id"] = report["_id"].toString();
+				report["authorID"] = user?.discord_id;
 				report["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
 				report["authorAvatar"] = user?.image;
 			})
@@ -897,6 +1067,7 @@ export async function getServerSideProps(context) {
 				);
 
 				review["_id"] = review["_id"].toString();
+				review["discord_id"] = user?.discord_id;
 				review["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
 				review["authorAvatar"] = user?.image;
 			})
@@ -923,6 +1094,9 @@ export async function getServerSideProps(context) {
 				);
 			})
 		);
+		mission["history"].sort((a, b) => {
+			return b.date.getTime() - a.date.getTime();
+		});
 	}
 
 	mission["updates"]?.map((update) => {
@@ -990,30 +1164,3 @@ export async function getServerSideProps(context) {
 		},
 	};
 }
-
-// // This function gets called at build time on server-side.
-// // It may be called again, on a serverless function, if
-// // the path has not been generated.
-// export async function getStaticPaths() {
-// 	const missions = await MyMongo.collection("missions")
-// 		.find(
-// 			{},
-// 			{
-// 				projection: {
-// 					_id: 0,
-// 					uniqueName: 1,
-// 				},
-// 			}
-// 		)
-// 		.toArray();
-
-// 	// Get the paths we want to pre-render based on posts
-// 	const paths = missions.map((mission) => ({
-// 		params: { uniqueName: mission.uniqueName },
-// 	}));
-
-// 	// We'll pre-render only these paths at build time.
-// 	// { fallback: blocking } will server-render pages
-// 	// on-demand if the path doesn't exist.
-// 	return { paths, fallback: "blocking" };
-// }

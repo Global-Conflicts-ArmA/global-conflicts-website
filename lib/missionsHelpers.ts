@@ -2,6 +2,13 @@ export const oneMegabyteInBytes = 10000000000000;
 export const missionsFolder = "./public/missions";
 export const mediaFolder = "./public/missionsCoverMedia";
 import fs from "fs";
+import rehypeFormat from "rehype-format";
+import rehypeSanitize from "rehype-sanitize";
+import rehypeStringify from "rehype-stringify";
+import remarkGfm from "remark-gfm";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import { unified } from "unified";
 import MyMongo from "../lib/mongodb";
 import { Version } from "../pages/api/missions/[uniqueName]/update";
 
@@ -121,3 +128,4 @@ export function buildVersionStr(versionObj: Version): string {
 	}
 	return string;
 }
+

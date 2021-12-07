@@ -2,6 +2,7 @@ import { NextApiRequest } from "next";
 import { getSession } from "next-auth/react";
 
 export enum CREDENTIAL {
+	ANY = "ANY",
 	NEW_GUY = "New Guy",
 	MEMBER = "Member",
 	MISSION_MAKER = "Mission Maker",
@@ -12,10 +13,18 @@ export enum CREDENTIAL {
 
 export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 	return new Promise(async (resolve, reject) => {
- 
 		const session = await getSession({ req });
 		if (!session) {
 			return reject(401);
+		}
+		if (creds == CREDENTIAL.ANY) {
+			console.log(creds)
+			if (next) {
+				req.session = session;
+				return next();
+			} else {
+				return resolve(session.user);
+			}
 		}
 
 		for (var i = 0; i < session.user["roles"].length; i++) {
@@ -35,8 +44,8 @@ export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 		for (var i = 0; i < session.user["roles"].length; i++) {
 			if (session.user["roles"][i].name == creds) {
 				if (next) {
-					req.session = "bbbb";
-					next();
+					req.session = session;
+					return next();
 				} else {
 					return resolve(session.user);
 				}

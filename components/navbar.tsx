@@ -1,35 +1,65 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Image from "next/image";
 import SignInBtn from "./sigin_btn";
 import SignOutBtn from "./signout_btn";
-const navigation = [
-	{ name: "Home", href: "/", current: true },
-	{ name: "Guides", href: "/guides", current: false },
-	{
-		name: "Missions",
-		href: "#",
-		current: false,
-		submenus: [
-			{ name: "Mission List", href: "/missions", current: false },
-			{ name: "Upload", href: "/missions/upload", current: false },
-			{ name: "Top Voted", href: "/missions/top-voted", current: false },
-		],
-	},
-	{ name: "Events", href: "/events", current: false },
-	{ name: "Download", href: "#", current: false },
-	{ name: "Donate", href: "/donate", current: false },
-];
-
-function classNames(...classes) {
-	return classes.filter(Boolean).join(" ");
-}
+import { useRouter } from "next/router";
+import Link from "next/link";
 
 export default function NavBar() {
 	const { data: session } = useSession();
+	const router = useRouter();
+
+	const navigation = [
+		{ name: "Guides", href: "/guides", current: router.pathname == "/guides" },
+		{
+			name: "Missions",
+			href: "#",
+			current: router.pathname.includes("/missions"),
+			submenus: [
+				{
+					name: "Mission List",
+					href: "/missions",
+					current: router.pathname == "/missions",
+				},
+				{
+					name: "Upload",
+					href: "/missions/upload",
+					current: router.pathname == "/missions/upload",
+				},
+				{
+					name: "Top Voted",
+					href: "/missions/top-voted",
+					current: router.pathname == "/missions/top-voted",
+				},
+			],
+		},
+		{
+			name: "Events",
+			href: "/events",
+			current: router.pathname == "/events",
+		},
+		{
+			name: "Downloads",
+			href: "#",
+			current: router.pathname.includes("/downloads"),
+		},
+		{
+			name: "Donate",
+			href: "/donate",
+			current: router.pathname.includes("/donate"),
+		},
+	];
+
+	function classNames(...classes) {
+		return classes.filter(Boolean).join(" ");
+	}
+	useEffect(() => {
+		console.log(router.pathname);
+	}, [router.pathname]);
 
 	return (
 		<Disclosure as="nav" className="bg-gray-800">
@@ -48,44 +78,52 @@ export default function NavBar() {
 									)}
 								</Disclosure.Button>
 							</div>
-							<div className="flex items-center justify-center flex-1 sm:items-stretch sm:justify-start">
+							<div className="flex items-center justify-start flex-1 pl-10 sm:pl-0 sm:justify-start">
 								<div className="flex items-center flex-shrink-0">
-									<div className="block lg:hidden">
-										<Image
-											className="block w-auto h-8 lg:hidden"
-											width="30"
-											height="36"
-											src="https://tailwindui.com/img/logos/workflow-mark-indigo-500.svg"
-											alt="Workflow"
-										/>
+									<div className="hidden p-1 rounded-md md:block ">
+										<Link href={"/"} passHref={true}>
+											<a className="flex ">
+												<Image
+													className="block w-auto h-8"
+													width="151"
+													height="50"
+													src={"/../public/new_website_banner_white2.png"}
+													alt="Global Conflicts Logo"
+												/>
+											</a>
+										</Link>
 									</div>
 
-									<div className="hidden lg:block ">
-										<Image
-											className="hidden w-auto h-8 lg:block"
-											width="100"
-											height="36"
-											src="https://tailwindui.com/img/logos/workflow-logo-indigo-500-mark-white-text.svg"
-											alt="Workflow"
-										/>
+									<div className="hidden rounded-md max-sm:block hover:bg-gray-700">
+										<Link href={"/"} passHref={true}>
+											<a>
+												<Image
+													className="block w-auto h-8"
+													width="151"
+													height="50"
+													src={"/../public/new_website_banner_white2.png"}
+													alt="Global Conflicts Logo"
+												/>
+											</a>
+										</Link>
 									</div>
 								</div>
-								<div className="hidden sm:block sm:ml-6">
-									<div className="flex space-x-4">
+								<div className="hidden sm:block md:ml-6">
+									<div className="flex space-x-0 md:space-x-4">
 										{navigation.map((item) => {
 											if (item.submenus != undefined) {
 												return (
 													<Menu as="div" key={item.name} className="relative z-20 ml-3">
 														<div>
 															<Menu.Button className="">
-																<div className="px-3 py-2 ">
+																<div className="px-0 py-2 md:px-2 min-w-70">
 																	<a
 																		href={item.href}
 																		className={classNames(
 																			item.current
 																				? "bg-gray-900 text-white"
 																				: "text-gray-300 hover:bg-gray-700 hover:text-white",
-																			"px-3 py-2 rounded-md text-sm font-medium"
+																			"px-0  md:px-3 py-2 rounded-md text-sm font-medium"
 																		)}
 																		aria-current={item.current ? "page" : undefined}
 																	>
@@ -127,7 +165,7 @@ export default function NavBar() {
 												);
 											} else {
 												return (
-													<div key={item.name} className="px-3 py-2 ">
+													<div key={item.name} className="px-0 py-2 md:px-3 min-w-70">
 														<a
 															href={item.href}
 															className={classNames(
