@@ -7,6 +7,7 @@ import card_1_bg from "../public/card_1_bg.jpg";
 import card_2_bg from "../public/card_2_bg.jpg";
 import card_3_bg from "../public/card_3_bg.jpg";
 import card_4_bg from "../public/card_4_bg.jpg";
+import gcBanner from "../public/new_website_banner.png";
 import DecorativeCard from "../components/decorative_card/decorative_card";
 import useMatchMedia from "../lib/matchmedia";
 import { useWindowSize } from "../lib/windowsize";
@@ -82,7 +83,7 @@ function Home() {
 							width={833}
 							height={275}
 							quality={100}
-							src={"/../public/new_website_banner.png"}
+							src={gcBanner}
 						/>
 					</div>
 				</div>

@@ -8,6 +8,8 @@ import SignInBtn from "./sigin_btn";
 import SignOutBtn from "./signout_btn";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import gcWhiteBanner from "../public/new_website_banner_white2.png";
+import gcSmallLogo from "../public/new_website_small_logo.webp";
 
 export default function NavBar() {
 	const { data: session } = useSession();
@@ -80,28 +82,40 @@ export default function NavBar() {
 							</div>
 							<div className="flex items-center justify-start flex-1 pl-10 sm:pl-0 sm:justify-start">
 								<div className="flex items-center flex-shrink-0">
-									<div className="hidden p-1 rounded-md md:block ">
+									<div className="hidden p-1 rounded-md lg:flex ">
 										<Link href={"/"} passHref={true}>
 											<a className="flex ">
 												<Image
 													className="block w-auto h-8"
 													width="151"
 													height="50"
-													src={"/../public/new_website_banner_white2.png"}
+													src={gcWhiteBanner}
 													alt="Global Conflicts Logo"
 												/>
 											</a>
 										</Link>
 									</div>
-
-									<div className="hidden rounded-md max-sm:block hover:bg-gray-700">
+									<div className="hidden rounded-md sm:flex lg:hidden ">
 										<Link href={"/"} passHref={true}>
-											<a>
+											<a className="flex ">
+												<Image
+													className="block w-auto h-8"
+													width="50"
+													height="50"
+													src={gcSmallLogo}
+													alt="Global Conflicts Logo"
+												/>
+											</a>
+										</Link>
+									</div>
+									<div className="hidden rounded-md max-sm:flex ">
+										<Link href={"/"} passHref={true}>
+											<a className="flex ">
 												<Image
 													className="block w-auto h-8"
 													width="151"
 													height="50"
-													src={"/../public/new_website_banner_white2.png"}
+													src={gcWhiteBanner}
 													alt="Global Conflicts Logo"
 												/>
 											</a>
@@ -109,21 +123,21 @@ export default function NavBar() {
 									</div>
 								</div>
 								<div className="hidden sm:block md:ml-6">
-									<div className="flex space-x-0 md:space-x-4">
+									<div className="flex space-x-0 md:space-x-2">
 										{navigation.map((item) => {
 											if (item.submenus != undefined) {
 												return (
 													<Menu as="div" key={item.name} className="relative z-20 ml-3">
 														<div>
 															<Menu.Button className="">
-																<div className="px-0 py-2 md:px-2 min-w-70">
+																<div className="px-1 py-2 md:px-2 min-w-70">
 																	<a
 																		href={item.href}
 																		className={classNames(
 																			item.current
 																				? "bg-gray-900 text-white"
 																				: "text-gray-300 hover:bg-gray-700 hover:text-white",
-																			"px-0  md:px-3 py-2 rounded-md text-sm font-medium"
+																			"px-3  md:px-3 py-2 rounded-md text-sm font-medium"
 																		)}
 																		aria-current={item.current ? "page" : undefined}
 																	>
