@@ -160,7 +160,7 @@ function Home() {
 									Global Conflicts is an Arma community formed by people from different
 									countries with more than 11 years in experience in the Arma series.
 									Teamwork, tactical play and good fun are our core values. We achieve
-									this by encouraging a culture of mutual Improvement and cherishing
+									this by encouraging a culture of mutual improvement and cherishing
 									for authentic scenarios in our missions. While our missions have a
 									defined chain-of-command, such is not the same for our community. There
 									are no ranks and e-salutes here — everyone is welcomed to take critical
