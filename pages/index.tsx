@@ -182,7 +182,7 @@ function Home() {
 										members of our community.
 									</p>
 									<p>
-										Each mission is a handcrafted experience with beginning and end,
+										Each mission is a handcrafted experience, with beginning and a end,
 										defined objectives, that are any length but usually last up to one
 										hour on average each. When a mission is selected, we ask for
 										volunteers to lead the mission — anyone can step up.
