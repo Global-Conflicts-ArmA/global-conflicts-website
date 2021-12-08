@@ -57,45 +57,9 @@ function Home() {
 	return (
 		<>
 			<Head>
-				<title>Tactical Arma 3 Gameplay - No Strings Attached</title>
-				<meta
-					name="description"
-					content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
-				/>
+				<title>Global Conflicts</title>
 
-				<meta property="og:url" content="https://gc-next-website.vercel.app/" />
-				<meta property="og:type" content="website" />
-				<meta
-					property="og:title"
-					content="Tactical Arma 3 Gameplay - No Strings Attached"
-				/>
-				<meta
-					property="og:description"
-					content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
-				/>
-				<meta
-					property="og:image"
-					content="https://gc-next-website.vercel.app/new_website_small_logo.webp"
-				/>
-
-				<meta name="twitter:card" content="summary_large_image" />
-				<meta property="twitter:domain" content="gc-next-website.vercel.app" />
-				<meta
-					property="twitter:url"
-					content="https://gc-next-website.vercel.app/"
-				/>
-				<meta
-					name="twitter:title"
-					content="Tactical Arma 3 Gameplay - No Strings Attached"
-				/>
-				<meta
-					name="twitter:description"
-					content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
-				/>
-				<meta
-					name="twitter:image"
-					content="https://gc-next-website.vercel.app/new_website_small_logo.webp"
-				/>
+ 
 			</Head>
 
 			<div className="relative overflow-x-hidden ">
