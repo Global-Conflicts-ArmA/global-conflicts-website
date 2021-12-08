@@ -57,9 +57,47 @@ function Home() {
 	return (
 		<>
 			<Head>
-				<title>Global Conflicts</title>
 
- 
+				<title>Tactical Arma 3 Gameplay - No Strings Attached</title>
+				<meta
+					name="description"
+					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
+				/>
+
+				<meta property="og:url" content="https://gc-next-website.vercel.app/" />
+				<meta property="og:type" content="website" />
+				<meta
+					property="og:title"
+					content="Tactical Arma 3 Gameplay - No Strings Attached"
+				/>
+				<meta
+					property="og:description"
+					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
+				/>
+				<meta
+					property="og:image"
+					content="https://gc-next-website.vercel.app/new_website_small_logo.webp"
+				/>
+
+				<meta name="twitter:card" content="summary_large_image" />
+				<meta property="twitter:domain" content="gc-next-website.vercel.app" />
+				<meta
+					property="twitter:url"
+					content="https://gc-next-website.vercel.app/"
+				/>
+				<meta
+					name="twitter:title"
+					content="Tactical Arma 3 Gameplay - No Strings Attached"
+				/>
+				<meta
+					name="twitter:description"
+					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
+				/>
+				<meta
+					name="twitter:image"
+					content="https://gc-next-website.vercel.app/new_website_small_logo.webp"
+				/>
+
 			</Head>
 
 			<div className="relative overflow-x-hidden ">
@@ -122,19 +160,18 @@ function Home() {
 								<h1>Who we are</h1>
 								<p>
 									Global Conflicts is an Arma community formed by people from different
-									countries with more than 11 years in experience in the Arma series.
-									Teamwork, tactical play and good fun are our core values. We achieve
-									this by instilling a culture of reciprocal improvment and cherishing
-									for authentic scenarios in our missions. While our missions have a
-									defined chain-of-command, such is not the same for our community. There
-									are no ranks and e-salutes here — everyone is welcomed to take critical
-									roles and leadership in-game.
+									countries with more than 11 years&apos; experience throughout the arma series.
+									Teamwork, tactical play and good fun are our core values. We achieve this 
+									by encouraging a culture of mutual improvement and enthusiasm for authentic 
+									scenarios in our missions. While our missions have a defined chain-of-command, 
+									such is not the same for our community. There are no ranks and e-salutes here 
+									— everyone is welcomed to take critical roles and leadership in-game. 
 								</p>
 							</div>
 						</div>
 					</div>
 
-					<div className="h-10"></div>
+					<div className="h-10"></div> 
 					<div className="mx-2 ">
 						<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
 							{WideCard(c9, -0)}
@@ -147,7 +184,7 @@ function Home() {
 										members of our community.
 									</p>
 									<p>
-										Each mission is a handcrafted experience with beginning and end,
+										Each mission is a handcrafted experience, with beginning and a end,
 										defined objectives, that are any length but usually last up to one
 										hour on average each. When a mission is selected, we ask for
 										volunteers to lead the mission — anyone can step up.
@@ -247,8 +284,8 @@ function Home() {
 							</div>
 						</div>
 						<div className="mx-2">
-							<div className="flex flex-row max-w-screen-lg mx-auto mb-5 mt-14 xl:max-w-screen-xl">
-								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl ">
+							<div className="flex flex-row flex-wrap max-w-screen-lg mx-auto mb-5 space-y-5 mt-14 xl:max-w-screen-xl ">
+								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300 ">
 									<h2>Requirements </h2>
 									<p>
 										We don&apos;t have any pre-requisites besides a working microphone and
@@ -257,7 +294,7 @@ function Home() {
 									</p>
 									<p>No attendence requirments or mandatory trainings.</p>
 								</div>
-								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl ">
+								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300">
 									<h2>Sessions times</h2>
 									<div>Saturday and Sunday</div>
 									<div>19:00 UTC</div>
@@ -292,9 +329,8 @@ function Home() {
 
 									<h3>Mission Framework</h3>
 									<p>
-										We have a robust and costumazible framework for making missions. With
-										it you can quickly make quality scenarios without re-inventing the
-										wheel.
+									We have a robust in-house made customizable framework for making missions. 
+									With it you can quickly produce high quality scenarios, in quick time, without re-inventing the wheel.
 									</p>
 									<h3>Mission catalog and voting system</h3>
 									<p>
