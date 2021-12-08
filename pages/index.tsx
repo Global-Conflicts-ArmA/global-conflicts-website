@@ -283,8 +283,8 @@ function Home() {
 							</div>
 						</div>
 						<div className="mx-2">
-							<div className="flex flex-row max-w-screen-lg mx-auto mb-5 mt-14 xl:max-w-screen-xl">
-								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl ">
+							<div className="flex flex-row max-w-screen-lg mx-auto mb-5 mt-14 xl:max-w-screen-xl flex-wrap space-y-5 ">
+								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300 ">
 									<h2>Requirements </h2>
 									<p>
 										We don&apos;t have any pre-requisites besides a working microphone and
@@ -293,7 +293,7 @@ function Home() {
 									</p>
 									<p>No attendence requirments or mandatory trainings.</p>
 								</div>
-								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl ">
+								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300">
 									<h2>Sessions times</h2>
 									<div>Saturday and Sunday</div>
 									<div>19:00 UTC</div>
