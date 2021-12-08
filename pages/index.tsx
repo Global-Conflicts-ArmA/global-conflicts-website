@@ -166,7 +166,7 @@ function Home() {
 									— everyone is welcomed to take critical roles and leadership in-game. 
 								</p>
 							</div>
-						</div>''
+						</div>
 					</div>
 
 					<div className="h-10"></div> 
