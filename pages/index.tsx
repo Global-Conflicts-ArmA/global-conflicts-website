@@ -60,7 +60,7 @@ function Home() {
 				<title>Tactical Arma 3 Gameplay - No Strings Attached</title>
 				<meta
 					name="description"
-					content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
+					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
 				/>
 
 				<meta property="og:url" content="https://gc-next-website.vercel.app/" />
@@ -71,7 +71,7 @@ function Home() {
 				/>
 				<meta
 					property="og:description"
-					content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
+					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
 				/>
 				<meta
 					property="og:image"
@@ -90,7 +90,7 @@ function Home() {
 				/>
 				<meta
 					name="twitter:description"
-					content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
+					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
 				/>
 				<meta
 					name="twitter:image"
@@ -158,19 +158,18 @@ function Home() {
 								<h1>Who we are</h1>
 								<p>
 									Global Conflicts is an Arma community formed by people from different
-									countries with more than 11 years in experience in the Arma series.
-									Teamwork, tactical play and good fun are our core values. We achieve
-									this by encouraging a culture of mutual improvement and cherishing
-									for authentic scenarios in our missions. While our missions have a
-									defined chain-of-command, such is not the same for our community. There
-									are no ranks and e-salutes here — everyone is welcomed to take critical
-									roles and leadership in-game.
+									countries with more than 11 years' experience throughout the arma series.
+									Teamwork, tactical play and good fun are our core values. We achieve this 
+									by encouraging a culture of mutual improvement and enthusiasm for authentic 
+									scenarios in our missions. While our missions have a defined chain-of-command, 
+									such is not the same for our community. There are no ranks and e-salutes here 
+									— everyone is welcomed to take critical roles and leadership in-game. 
 								</p>
 							</div>
-						</div>
+						</div>''
 					</div>
 
-					<div className="h-10"></div>
+					<div className="h-10"></div> 
 					<div className="mx-2 ">
 						<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
 							{WideCard(c9, -0)}
@@ -328,9 +327,8 @@ function Home() {
 
 									<h3>Mission Framework</h3>
 									<p>
-										We have a robust and costumazible framework for making missions. With
-										it you can quickly make quality scenarios without re-inventing the
-										wheel.
+									We have a robust in-house made customizable framework for making missions. 
+									With it you can quickly produce high quality scenarios, in quick time, without re-inventing the wheel.
 									</p>
 									<h3>Mission catalog and voting system</h3>
 									<p>
