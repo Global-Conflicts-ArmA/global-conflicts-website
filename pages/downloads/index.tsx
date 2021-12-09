@@ -21,14 +21,14 @@ function Downloads({}) {
 					<div className="max-w-2xl mb-10 prose">
 						<h1>Downloads</h1>
 					</div>
-					<div>
-						<div className="prose">
+					<section className="my-5">
+						<div className="prose ">
 							<h2>Global Conflicts Laucher</h2>
 						</div>
 						<a
 							href="api/downloads/torrents"
 							download
-							className="text-white btn btn-xl btn-wide"
+							className="my-5 text-white btn btn-xl btn-wide"
 						>
 							DOWNLOAD
 						</a>
@@ -87,7 +87,28 @@ function Downloads({}) {
 								</Disclosure>
 							</div>
 						</div>
-					</div>
+					</section>
+					<section className="my-5">
+						<div className="prose">
+							<h2>Teamspeak</h2>
+						</div>
+						<a
+							href="https://www.teamspeak.com/en/downloads/"
+							download
+							className="my-5 text-white btn btn-xl btn-wide"
+						>
+							DOWNLOAD
+						</a>
+
+						<div className="prose">
+							<p>
+								Teamspeak is a program used for voice communication. It allow us to
+								simulate direct and radio communications via the ACRE2 mod. If you never
+								used it and are a bit confused, check out this guide about Teamspeak and
+								ACRE2.
+							</p>
+						</div>
+					</section>
 				</main>
 			</div>
 		</>
