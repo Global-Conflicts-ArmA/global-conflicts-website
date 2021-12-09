@@ -46,7 +46,7 @@ export default function NavBar() {
 		},
 		{
 			name: "Downloads",
-			href: "#",
+			href: "/downloads",
 			current: router.pathname.includes("/downloads"),
 		},
 		{

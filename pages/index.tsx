@@ -57,7 +57,6 @@ function Home() {
 	return (
 		<>
 			<Head>
-
 				<title>Tactical Arma 3 Gameplay - No Strings Attached</title>
 				<meta
 					name="description"
@@ -97,7 +96,6 @@ function Home() {
 					name="twitter:image"
 					content="https://gc-next-website.vercel.app/new_website_small_logo.webp"
 				/>
-
 			</Head>
 
 			<div className="relative overflow-x-hidden ">
@@ -160,18 +158,19 @@ function Home() {
 								<h1>Who we are</h1>
 								<p>
 									Global Conflicts is an Arma community formed by people from different
-									countries with more than 11 years&apos; experience throughout the arma series.
-									Teamwork, tactical play and good fun are our core values. We achieve this 
-									by encouraging a culture of mutual improvement and enthusiasm for authentic 
-									scenarios in our missions. While our missions have a defined chain-of-command, 
-									such is not the same for our community. There are no ranks and e-salutes here 
-									— everyone is welcomed to take critical roles and leadership in-game. 
+									countries with more than 11 years&apos; experience throughout the arma
+									series. Teamwork, tactical play and good fun are our core values. We
+									achieve this by encouraging a culture of mutual improvement and
+									enthusiasm for authentic scenarios in our missions. While our missions
+									have a defined chain-of-command, such is not the same for our
+									community. There are no ranks and e-salutes here — everyone is welcomed
+									to take critical roles and leadership in-game.
 								</p>
 							</div>
 						</div>
 					</div>
 
-					<div className="h-10"></div> 
+					<div className="h-10"></div>
 					<div className="mx-2 ">
 						<div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
 							{WideCard(c9, -0)}
@@ -184,7 +183,7 @@ function Home() {
 										members of our community.
 									</p>
 									<p>
-										Each mission is a handcrafted experience, with beginning and a end,
+										Each mission is a handcrafted experience, with beginning and an end,
 										defined objectives, that are any length but usually last up to one
 										hour on average each. When a mission is selected, we ask for
 										volunteers to lead the mission — anyone can step up.
@@ -326,11 +325,16 @@ function Home() {
 											warn you when you first run the program. You can ignore it.
 										</small>
 									</p>
-
-									<h3>Mission Framework</h3>
+									<Link
+										href="https://github.com/Global-Conflicts-ArmA/Olsen-Framework-Arma-3"
+										passHref={true}
+									>
+										<h3 className="hover:cursor-pointer">Mission Framework</h3>
+									</Link>
 									<p>
-									We have a robust in-house made customizable framework for making missions. 
-									With it you can quickly produce high quality scenarios, in quick time, without re-inventing the wheel.
+										We have a robust in-house made customizable framework for making
+										missions. With it you can quickly produce high quality scenarios, in
+										quick time, without re-inventing the wheel.
 									</p>
 									<h3>Mission catalog and voting system</h3>
 									<p>
