@@ -1,20 +1,13 @@
 import MyMongo from "../../lib/mongodb";
 import { MainLayout } from "../../layouts/main-layout";
 
-import DataTable from "react-data-table-component";
 import React, { useState } from "react";
 import MissionMediaCard from "../../components/mission_media_card";
-import { remark } from "remark";
-import html from "remark-html";
-import { MDXLayoutRenderer } from "../../components/MDXComponents";
-import rehypeSlug from "rehype-slug";
-import rehypeCodeTitles from "rehype-code-titles";
-import rehypePrism from "rehype-prism-plus";
-import { bundleMDX } from "mdx-bundler";
+
 import { getSession, useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { ThumbUpIcon } from "@heroicons/react/outline";
+
 import Link from "next/link";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";

@@ -33,14 +33,15 @@ export async function getStaticProps({ params }: Params) {
 		{ projection: { _id: 0 } }
 	);
 
-	const { code, frontmatter } = await bundleMDX(guide["content"], {
+	const { code, frontmatter } = await bundleMDX({
+		source: guide["content"],
 		xdmOptions(options) {
 			options.rehypePlugins = [
 				...(options?.rehypePlugins ?? []),
 				rehypeSlug,
 				rehypeCodeTitles,
 				rehypePrism,
-			 
+
 				[
 					rehypeAutolinkHeadings,
 					{

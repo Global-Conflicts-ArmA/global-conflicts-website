@@ -37,7 +37,8 @@ export async function getGuideBySlug(slug: string, fields: string[] = []) {
 
  
 
-	const { code, frontmatter } = await bundleMDX(fileContents, {
+	const { code, frontmatter } = await bundleMDX( {
+		source:fileContents,
 		xdmOptions(options) {
 			options.rehypePlugins = [
 				...(options?.rehypePlugins ?? []),
