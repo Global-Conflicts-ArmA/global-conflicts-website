@@ -58,10 +58,7 @@ function Home() {
 		<>
 			<Head>
 				<title>Global Conflicts</title>
-				<meta
-					name="description"
-					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
-				/>
+			 
  
 			</Head>
 

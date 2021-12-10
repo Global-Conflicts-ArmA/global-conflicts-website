@@ -46,22 +46,18 @@ class MyDocument extends Document {
 					<link rel="manifest" href="/manifest.json" />
 					<meta
 						name="description"
-						content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
+						content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
 					/>
 
 					<meta property="og:url" content="https://gc-next-website.vercel.app/" />
 					<meta property="og:type" content="website" />
 					<meta
 						property="og:title"
-						content="Global Conflicts - Tactical Arma 3 gameplay with no Strings Attached"
+						content="Global Conflicts - Open Tactical Arma 3 Gameplay"
 					/>
 					<meta
 						property="og:description"
-						content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
-					/>
-					<meta
-						property="og:image"
-						content="https://gc-next-website.vercel.app/ogimage.jpg"
+						content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
 					/>
 
 					<meta name="twitter:card" content="summary_large_image" />
@@ -76,11 +72,15 @@ class MyDocument extends Document {
 					/>
 					<meta
 						name="twitter:description"
-						content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
+						content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
 					/>
 					<meta
 						name="twitter:image"
-						content="https://gc-next-website.vercel.app/new_website_small_logo.webp"
+						content="https://gc-next-website.vercel.app/twitterimage.jpg"
+					/>
+					<meta
+						property="og:image"
+						content="https://gc-next-website.vercel.app/ogimage.jpg"
 					/>
 				</Head>
 				<body>
