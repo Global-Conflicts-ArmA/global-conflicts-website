@@ -43,7 +43,7 @@ class MyDocument extends Document {
 					/>
 					<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 					<link rel="alternate icon" href="/favicon.ico" />
-
+					<link rel="manifest" href="/manifest.json" />
 					<meta
 						name="description"
 						content="Open Arma 3 community formed by people with more than 11 years in experience in the Arma series. Teamwork, tactical play and good fun are our core values."
