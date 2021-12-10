@@ -53,7 +53,7 @@ class MyDocument extends Document {
 					<meta property="og:type" content="website" />
 					<meta
 						property="og:title"
-						content="Tactical Arma 3 Gameplay - No Strings Attached"
+						content="Global Conflicts - Tactical Arma 3 gameplay with no Strings Attached"
 					/>
 					<meta
 						property="og:description"
@@ -61,7 +61,7 @@ class MyDocument extends Document {
 					/>
 					<meta
 						property="og:image"
-						content="https://gc-next-website.vercel.app/new_website_small_logo.webp"
+						content="https://gc-next-website.vercel.app/ogimage.jpg"
 					/>
 
 					<meta name="twitter:card" content="summary_large_image" />
