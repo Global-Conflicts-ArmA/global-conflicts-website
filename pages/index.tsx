@@ -313,7 +313,12 @@ function Home() {
 								</div>
 								<div className="p-5 prose lg:prose-xl">
 									<h1>Our tools</h1>
-									<h3>Custom Launcher</h3>
+									<Link href="/downloads" passHref={true}>
+										<a className="no-underline-important underline-important-hover">
+											<h3 className="hover:cursor-pointer">Custom Launcher</h3>
+										</a>
+									</Link>
+
 									<p>
 										Our custom launcher will download all the mods necessary in a few
 										clicks. It can detect mods that you already have downloaded via Steam
@@ -329,14 +334,20 @@ function Home() {
 										href="https://github.com/Global-Conflicts-ArmA/Olsen-Framework-Arma-3"
 										passHref={true}
 									>
-										<h3 className="hover:cursor-pointer">Mission Framework</h3>
+										<a className="no-underline-important underline-important-hover">
+											<h3>Mission Framework</h3>
+										</a>
 									</Link>
 									<p>
 										We have a robust in-house made customizable framework for making
 										missions. With it you can quickly produce high quality scenarios, in
 										quick time, without re-inventing the wheel.
 									</p>
-									<h3>Mission catalog and voting system</h3>
+									<Link href="http://localhost:3000/missions/top-voted" passHref={true}>
+										<a className="no-underline-important underline-important-hover">
+											<h3>Mission catalog and voting system</h3>
+										</a>
+									</Link>
 									<p>
 										An in-house solution to keep tabs on the hundreds of missions we have.
 										We can track mission testing status and how many times it has been
@@ -344,7 +355,11 @@ function Home() {
 										want to play on the sessions and also leave review notes for the
 										mission makers.
 									</p>
-									<h3>After Action Review</h3>
+									<Link href="https://aar.globalconflicts.net/" passHref={true}>
+										<a className="no-underline-important underline-important-hover">
+											<h3 className="hover:cursor-pointer">After Action Review</h3>
+										</a>
+									</Link>
 									<p>
 										The AAR system allows us to see a replay of our missions and thus give
 										an opportunity to see what worked and what didn&apos;t. With this tool

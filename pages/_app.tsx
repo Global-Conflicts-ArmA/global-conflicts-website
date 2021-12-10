@@ -7,12 +7,11 @@ import Image from "next/image";
 import "react-toastify/dist/ReactToastify.min.css";
 import { ToastContainer } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useHistory } from "react-router-dom";
-import gcSmallLogo from "../public/new_website_small_logo.webp";
+ 
+ 
 import gcBanner from "../public/new_website_banner.png";
 import Link from "next/link";
-import { topography } from "../lib/inlinesvgs";
-
+ 
 export default function MyApp({
 	Component,
 	pageProps: { session, ...pageProps },

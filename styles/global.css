@@ -52,9 +52,8 @@
 	clip-path: polygon(0 0, 100% 25%, 100% 100%, 0 77%);
 }
 .home-bg-3-mobile {
- 
 	height: 107%;
-	margin-top:-2%;
+	margin-top: -2%;
 	padding: 20px;
 	width: 100%;
 	clip-path: polygon(0 9%, 100% 0, 100% 90%, 0 100%);
@@ -348,4 +347,13 @@ h3:hover .anchor-link {
 
 .header-gradient {
 	background-image: linear-gradient(54deg, #1f2937, #3e4856);
+}
+
+.underline-important-hover:hover {
+	text-decoration: underline !important;
+}
+
+
+.no-underline-important {
+	text-decoration: none !important;
 }
