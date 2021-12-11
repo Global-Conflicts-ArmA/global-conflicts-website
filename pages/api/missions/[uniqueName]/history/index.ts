@@ -40,7 +40,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 			for (let leader of history.leaders) {
 				try {
 					const botResponse = await axios.get(
-						`http://localhost:3001/users/${leader.discordID}`
+						`https://warm-dog-93.loca.lt/users/${leader.discordID}`
 					);
 					console.log("100110");
 					leader.name = botResponse.data.nickname ?? botResponse.data.displayName;
@@ -84,6 +84,8 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	console.log(history);
 	history["_id"] = new ObjectId(history["_id"]);
 	history["date"] = new Date(history["date"]);
+	
+
 	const updateResult = await MyMongo.collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,

@@ -44,44 +44,6 @@ class MyDocument extends Document {
 					<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 					<link rel="alternate icon" href="/favicon.ico" />
 					<link rel="manifest" href="/manifest.json" />
-					<meta
-						name="description"
-						content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
-					/>
-
-					<meta property="og:url" content="https://gc-next-website.vercel.app/" />
-					<meta property="og:type" content="website" />
-					<meta
-						property="og:title"
-						content="Global Conflicts - Open Tactical Arma 3 Gameplay"
-					/>
-					<meta
-						property="og:description"
-						content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
-					/>
-
-					<meta name="twitter:card" content="summary_large_image" />
-					<meta property="twitter:domain" content="gc-next-website.vercel.app" />
-					<meta
-						property="twitter:url"
-						content="https://gc-next-website.vercel.app/"
-					/>
-					<meta
-						name="twitter:title"
-						content="Tactical Arma 3 Gameplay - No Strings Attached"
-					/>
-					<meta
-						name="twitter:description"
-						content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
-					/>
-					<meta
-						name="twitter:image"
-						content="https://gc-next-website.vercel.app/twitterimage.jpg"
-					/>
-					<meta
-						property="og:image"
-						content="https://gc-next-website.vercel.app/ogimage.jpg"
-					/>
 				</Head>
 				<body>
 					<Main />

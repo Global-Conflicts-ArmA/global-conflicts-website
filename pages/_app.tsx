@@ -7,11 +7,11 @@ import Image from "next/image";
 import "react-toastify/dist/ReactToastify.min.css";
 import { ToastContainer } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
- 
- 
+
 import gcBanner from "../public/new_website_banner.png";
 import Link from "next/link";
- 
+import Head from "next/head";
+
 export default function MyApp({
 	Component,
 	pageProps: { session, ...pageProps },
@@ -22,6 +22,49 @@ export default function MyApp({
 
 	return (
 		<SessionProvider session={session}>
+			<Head>
+
+				<meta
+					name="description"
+					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
+					key="description"
+				/>
+
+				<meta property="og:url" content="https://gc-next-website.vercel.app/" />
+				<meta property="og:type" content="website" />
+				<meta
+					property="og:title"
+					content="Global Conflicts - Open Tactical Arma 3 Gameplay"
+				/>
+				<meta
+					property="og:description"
+					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
+					key="description"
+				/>
+
+				<meta name="twitter:card" content="summary_large_image" />
+				<meta property="twitter:domain" content="gc-next-website.vercel.app" />
+				<meta
+					property="twitter:url"
+					content="https://gc-next-website.vercel.app/"
+				/>
+				<meta
+					name="twitter:title"
+					content="Global Conflicts - Open Tactical Arma 3 Gameplay"
+				/>
+				<meta
+					name="twitter:description"
+					content="Open Arma 3 community with more than 10 year's experience. Teamwork, tactical play and good fun are our core values."
+				/>
+				<meta
+					name="twitter:image"
+					content="https://gc-next-website.vercel.app/twitterimage.jpg"
+				/>
+				<meta
+					property="og:image"
+					content="https://gc-next-website.vercel.app/ogimage.jpg"
+				/>
+			</Head>
 			<div className="flex flex-col min-h-screen">
 				<div className="flex-grow">
 					<MainLayout>
@@ -35,8 +78,9 @@ export default function MyApp({
 					</MainLayout>
 				</div>
 				<footer
-				style={{backgroundImage: "url(topography.svg)"}}
-				className="bottom-0 p-10 bg-gray-800 footer text-neutral-content footer-center">
+					style={{ backgroundImage: "url(topography.svg)" }}
+					className="bottom-0 p-10 bg-gray-800 footer text-neutral-content footer-center"
+				>
 					<div>
 						<Link href={"/"} passHref={true}>
 							<a className="flex ">

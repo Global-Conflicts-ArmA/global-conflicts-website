@@ -58,8 +58,6 @@ function Home() {
 		<>
 			<Head>
 				<title>Global Conflicts</title>
-			 
- 
 			</Head>
 
 			<div className="relative overflow-x-hidden ">
@@ -307,7 +305,7 @@ function Home() {
 										missions. With it you can quickly produce high quality scenarios, in
 										quick time, without re-inventing the wheel.
 									</p>
-									<Link href="http://localhost:3000/missions/top-voted" passHref={true}>
+									<Link href="/missions/top-voted" passHref={true}>
 										<a className="no-underline-important underline-important-hover">
 											<h3>Mission catalog and voting system</h3>
 										</a>

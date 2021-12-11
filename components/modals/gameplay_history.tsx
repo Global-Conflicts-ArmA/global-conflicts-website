@@ -60,6 +60,7 @@ export default function GameplayHistoryModal({
 				_id: historyToLoad ? historyToLoad._id : new ObjectID(),
 				leaders: listOfLeaders.map((leader) => {
 					return {
+						aar: leader.aar,
 						displayAvatarURL: leader.displayAvatarURL,
 						name: leader.name ?? leader.nickname ?? leader.displayName,
 						discordID: leader.userId,
@@ -106,6 +107,7 @@ export default function GameplayHistoryModal({
 			setGmNote(historyToLoad.gmNote);
 			const leadersClone = historyToLoad.leaders.map((item) => {
 				return {
+					aar: item.aar,
 					userId: item.discordID,
 					name: item.name,
 					displayAvatarURL: item.displayAvatarURL,

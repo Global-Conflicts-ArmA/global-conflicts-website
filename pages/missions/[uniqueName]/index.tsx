@@ -403,6 +403,21 @@ export default function MissionDetails({
 		}
 	}
 
+	function getOutcomeClass(outcomeText: string) {
+		const outcomeTextLC = outcomeText.toLowerCase();
+		if (outcomeTextLC.includes("blufor")) {
+			return "text-blufor";
+		}
+		if (outcomeTextLC.includes("opfor")) {
+			return "text-opfor";
+		}
+		if (outcomeTextLC.includes("indfor")) {
+			return "text-indfor";
+		}
+		if (outcomeTextLC.includes("civ")) {
+			return "text-civ";
+		}
+	}
 	return (
 		<>
 			<Head>
@@ -417,10 +432,10 @@ export default function MissionDetails({
 
 				<meta name="twitter:card" content="summary_large_image" />
 				<meta property="og:description" content={mission.descriptionNoMarkdown} />
-
+				<meta property="description" content={mission.descriptionNoMarkdown} />
 				<meta property="og:site_name" content="Global Conflicts" />
 			</Head>
-			<div className="flex flex-col max-w-screen-lg mx-auto mt-5 xl:max-w-screen-xl ">
+			<div className="flex flex-col max-w-screen-lg mx-2 mx-auto mt-5 xl:max-w-screen-xl">
 				<div className="mt-10 mb-5">
 					<div className="mb-1 font-bold prose">
 						<h1>{mission.name}</h1>
@@ -580,7 +595,12 @@ export default function MissionDetails({
 									<div className="flex flex-row justify-between mb-2 align-baseline">
 										<div className="font-bold align-text-bottom">
 											<div>{moment(historyItem.date).format("LL")}</div>
-											<div>Outcome: {historyItem.outcome}</div>
+											<div>
+												Outcome:{" "}
+												<span className={getOutcomeClass(historyItem.outcome)}>
+													{historyItem.outcome}
+												</span>
+											</div>
 										</div>
 										<div className="flex flex-row items-center space-x-1">
 											{hasCreds(session, CREDENTIAL.ADMIN) && (
@@ -1149,7 +1169,7 @@ export async function getServerSideProps(context) {
 
 	let discordUsers = [];
 	if (hasCreds(session, CREDENTIAL.ADMIN)) {
-		const botResponse = await axios.get(`http://localhost:3001/users`);
+		const botResponse = await axios.get(`https://warm-dog-93.loca.lt/users`);
 		discordUsers = botResponse.data;
 	}
 
