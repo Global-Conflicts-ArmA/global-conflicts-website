@@ -13,6 +13,7 @@ import rehypeSanitize from "rehype-sanitize";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { REVIEW_STATE_ACCEPTED, REVIEW_STATE_REPROVED } from "../../lib/reviewStates";
+import { generateMarkdown } from "../../lib/markdownToHtml";
 
 
 export default function MissionAuditModal({
@@ -209,20 +210,11 @@ export default function MissionAuditModal({
 										},
 									}}
 									generateMarkdownPreview={async (markdown) => {
-										const thing = await unified()
-											.use(remarkParse)
-											.use(remarkGfm)
-											.use(remarkRehype)
-											.use(rehypeFormat)
-											.use(rehypeStringify)
-											.use(rehypeSanitize)
-											.process(markdown);
-
 										return Promise.resolve(
 											<div
-												className="max-w-3xl m-5 prose"
+												className="prose f "
 												dangerouslySetInnerHTML={{
-													__html: thing.value.toString(),
+													__html: generateMarkdown(markdown),
 												}}
 											></div>
 										);

@@ -149,7 +149,7 @@ export async function getServerSideProps(context) {
 			return goal;
 		});
 
-		const botResponse = await axios.get("https://warm-dog-93.loca.lt/users/donators");
+		const botResponse = await axios.get("http://localhost:3001/users/donators");
 		const donators = botResponse.data;
 
 		return {

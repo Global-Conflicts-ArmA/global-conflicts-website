@@ -11,6 +11,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import gcBanner from "../public/new_website_banner.png";
 import Link from "next/link";
 import Head from "next/head";
+import topography from "../public/topography.svg";
 
 export default function MyApp({
 	Component,
@@ -23,7 +24,6 @@ export default function MyApp({
 	return (
 		<SessionProvider session={session}>
 			<Head>
-
 				<meta
 					name="description"
 					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
@@ -35,6 +35,7 @@ export default function MyApp({
 				<meta
 					property="og:title"
 					content="Global Conflicts - Open Tactical Arma 3 Gameplay"
+					key="title"
 				/>
 				<meta
 					property="og:description"
@@ -51,18 +52,22 @@ export default function MyApp({
 				<meta
 					name="twitter:title"
 					content="Global Conflicts - Open Tactical Arma 3 Gameplay"
+					key="title"
 				/>
 				<meta
 					name="twitter:description"
 					content="Open Arma 3 community with more than 10 year's experience. Teamwork, tactical play and good fun are our core values."
+					key="description"
 				/>
 				<meta
 					name="twitter:image"
 					content="https://gc-next-website.vercel.app/twitterimage.jpg"
+					key="image"
 				/>
 				<meta
 					property="og:image"
 					content="https://gc-next-website.vercel.app/ogimage.jpg"
+					key="image"
 				/>
 			</Head>
 			<div className="flex flex-col min-h-screen">
@@ -77,10 +82,7 @@ export default function MyApp({
 						)}
 					</MainLayout>
 				</div>
-				<footer
-					style={{ backgroundImage: "url(topography.svg)" }}
-					className="bottom-0 p-10 bg-gray-800 footer text-neutral-content footer-center"
-				>
+				<footer className="bottom-0 p-10 bg-gray-800 footer text-neutral-content footer-center">
 					<div>
 						<Link href={"/"} passHref={true}>
 							<a className="flex ">

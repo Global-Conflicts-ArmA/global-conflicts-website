@@ -353,7 +353,21 @@ h3:hover .anchor-link {
 	text-decoration: underline !important;
 }
 
-
 .no-underline-important {
 	text-decoration: none !important;
+}
+footer {
+	background-image: url("../public/topography.svg");
+}
+.comma-list {
+	display: inline;
+}
+.comma-list span::after {
+	content: ", ";
+}
+.comma-list span:last-child::after {
+	content: "";
+}
+textarea:focus {
+	box-shadow: 0 0 0 0px hsl(var(--b1)), 0 0 0 2px hsla(var(--bc) / 0.2) !important;
 }

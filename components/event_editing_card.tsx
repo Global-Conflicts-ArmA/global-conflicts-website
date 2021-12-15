@@ -29,8 +29,8 @@ export default function EventEditingCard({
 	}, [createObjectURL]);
 
 	return (
-		<div className="relative flex justify-center ">
-			<figure style={{ aspectRatio: "16/9" }} className="flex items-center">
+		<div className="relative flex justify-center card drop-shadow-xl shadow-strong " style={{ aspectRatio: "16/9" }}>
+			<figure  className="card-figure">
 				{isVideo ? (
 					<video autoPlay loop key={createObjectURL} ref={videoRef}>
 						<source src={createObjectURL} />
@@ -48,7 +48,7 @@ export default function EventEditingCard({
 
 			<div
 				className="absolute self-center w-full event-media-safe-area"
-				style={{ aspectRatio: "16/9" }}
+				style={{ aspectRatio: "16/6" }}
 			></div>
 
 			<div className="absolute flex flex-col justify-between w-full h-full p-10 text-white scrim">

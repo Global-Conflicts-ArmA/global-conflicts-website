@@ -426,379 +426,393 @@ export default function MissionDetails({
 				<meta property="og:url" content="https://globalconflicts.net/" />
 				<meta property="og:type" content="website" />
 
-				<meta property="og:title" content={mission.name} />
-				<meta property="og:image" content={getMissionMediaPath(true)} />
-				<meta property="twitter:image" content={getMissionMediaPath(true)} />
+				<meta property="og:title" content={mission.name} key="title" />
+				<meta property="og:image" content={getMissionMediaPath(true)} key="image" />
+				<meta
+					property="twitter:image"
+					content={getMissionMediaPath(true)}
+					key="image"
+				/>
 
 				<meta name="twitter:card" content="summary_large_image" />
-				<meta property="og:description" content={mission.descriptionNoMarkdown} />
-				<meta property="description" content={mission.descriptionNoMarkdown} />
+				<meta
+					property="og:description"
+					content={mission.descriptionNoMarkdown}
+					key="description"
+				/>
+				<meta
+					property="description"
+					content={mission.descriptionNoMarkdown}
+					key="description"
+				/>
 				<meta property="og:site_name" content="Global Conflicts" />
 			</Head>
-			<div className="flex flex-col max-w-screen-lg mx-2 mx-auto mt-5 xl:max-w-screen-xl">
-				<div className="mt-10 mb-5">
-					<div className="mb-1 font-bold prose">
-						<h1>{mission.name}</h1>
-					</div>
+			<div className="flex flex-col max-w-screen-lg mx-auto mt-5 xl:max-w-screen-xl">
+				<div className="mx-2">
+					<div className="mt-10 mb-5">
+						<div className="mb-1 font-bold prose">
+							<h1>{mission.name}</h1>
+						</div>
 
-					<div className="flex flex-row items-center">
-						<h2 className="mr-5 text-1xl">
-							Author: <span className="font-bold">{mission.missionMaker}</span>
-						</h2>
-						<div
-							data-tip={
-								hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
-							}
-							className="z-10 tooltip tooltip-bottom tooltip-primary"
-						>
-							<button
-								className={`btn btn-sm btn-primary min-w-187 ${
-									isLoadingVote ? "loading" : ""
-								}`}
-								onClick={hasVotedLocal ? retractVote : doVote}
+						<div className="flex flex-row items-center">
+							<h2 className="mr-5 text-1xl">
+								Author: <span className="font-bold">{mission.missionMaker}</span>
+							</h2>
+							<div
+								data-tip={
+									hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
+								}
+								className="z-10 tooltip tooltip-bottom tooltip-primary"
 							>
-								{hasVotedLocal ? "Retract vote" : "Vote"}
-							</button>
-						</div>
+								<button
+									className={`btn btn-sm btn-primary min-w-187 ${
+										isLoadingVote ? "loading" : ""
+									}`}
+									onClick={hasVotedLocal ? retractVote : doVote}
+								>
+									{hasVotedLocal ? "Retract vote" : "Vote"}
+								</button>
+							</div>
 
+							<div
+								data-tip="Edit the details of your mission"
+								className="z-10 tooltip tooltip-bottom"
+							>
+								<Link href={`/missions/${mission.uniqueName}/edit`}>
+									<a className="ml-5 text-white btn btn-sm">Edit details</a>
+								</Link>
+							</div>
+						</div>
+					</div>
+
+					<div className="flex flex-row md:space-x-10">
 						<div
-							data-tip="Edit the details of your mission"
-							className="z-10 tooltip tooltip-bottom"
+							className="flex-1 hidden overflow-hidden rounded-lg shadow-lg md:block"
+							style={{ height: "fit-content" }}
 						>
-							<Link href={`/missions/${mission.uniqueName}/edit`}>
-								<a className="ml-5 text-white btn btn-sm">Edit details</a>
-							</Link>
+							<MissionMediaCard
+								createObjectURL={getMissionMediaPath()}
+								mission={mission}
+								isVideo={false}
+							></MissionMediaCard>
 						</div>
-					</div>
-				</div>
 
-				<div className="flex flex-row md:space-x-10">
-					<div
-						className="flex-1 hidden overflow-hidden rounded-lg shadow-lg md:block"
-						style={{ height: "fit-content" }}
-					>
-						<MissionMediaCard
-							createObjectURL={getMissionMediaPath()}
-							mission={mission}
-							isVideo={false}
-						></MissionMediaCard>
-					</div>
+						<div className="flex flex-col justify-between flex-1 ">
+						 
+								<div className="ml-2">
+									<div className="max-w-3xl prose">
+										{mission.descriptionMarkdown ? (
+											<div
+												className="max-w-3xl"
+												dangerouslySetInnerHTML={{
+													__html: mission.descriptionMarkdown,
+												}}
+											></div>
+										) : (
+											mission.description
+										)}
+									</div>
+								 
+							</div>
 
-					<div className="flex-1 ">
-						<div className="mde-preview">
-							<div className="ml-2 mde-preview-content">
-								<div className="max-w-3xl prose">
-									{mission.descriptionMarkdown ? (
-										<div
-											className="max-w-3xl"
-											dangerouslySetInnerHTML={{
-												__html: mission.descriptionMarkdown,
-											}}
-										></div>
-									) : (
-										mission.description
-									)}
+							<div className="flex flex-row flex-wrap w-full stats">
+								<div className="m-2">
+									<div className=" stat-title">Players</div>
+									<div className="text-sm stat-value ">
+										{mission.size.min} to {mission.size.max}
+									</div>
+								</div>
+								<div className="m-2 ">
+									<div className="stat-title">Map</div>
+									<div className="text-sm stat-value">
+										{mission.terrainName ?? mission.terrain}
+									</div>
+								</div>
+
+								<div className="m-2">
+									<div className="stat-title">Type</div>
+									<div className="text-sm stat-value ">{mission.type}</div>
+								</div>
+								<div className="m-2">
+									<div className="stat-title">Time of day</div>
+									<div className="text-sm stat-value ">{mission.timeOfDay}</div>
+								</div>
+								<div className="m-2">
+									<div className="stat-title">Era</div>
+									<div className="text-sm stat-value ">{mission.era}</div>
+								</div>
+								<div className="m-2">
+									<div className="stat-title">Respawn</div>
+									<div className="text-sm stat-value">{mission.respawn}</div>
+								</div>
+								<div className="m-2">
+									<div className="stat-title">JIP</div>
+									<div className="text-sm stat-value ">{mission.jip}</div>
 								</div>
 							</div>
 						</div>
-
-						<div className="flex flex-row flex-wrap w-full stats">
-							<div className="m-2">
-								<div className=" stat-title">Players</div>
-								<div className="text-sm stat-value ">
-									{mission.size.min} to {mission.size.max}
-								</div>
-							</div>
-							<div className="m-2 ">
-								<div className="stat-title">Map</div>
-								<div className="text-sm stat-value">
-									{mission.terrainName ?? mission.terrain}
-								</div>
-							</div>
-
-							<div className="m-2">
-								<div className="stat-title">Type</div>
-								<div className="text-sm stat-value ">{mission.type}</div>
-							</div>
-							<div className="m-2">
-								<div className="stat-title">Time of day</div>
-								<div className="text-sm stat-value ">{mission.timeOfDay}</div>
-							</div>
-							<div className="m-2">
-								<div className="stat-title">Era</div>
-								<div className="text-sm stat-value ">{mission.era}</div>
-							</div>
-							<div className="m-2">
-								<div className="stat-title">Respawn</div>
-								<div className="text-sm stat-value">{mission.respawn}</div>
-							</div>
-							<div className="m-2">
-								<div className="stat-title">JIP</div>
-								<div className="text-sm stat-value ">{mission.jip}</div>
-							</div>
-						</div>
 					</div>
-				</div>
-				<div className="mt-4">
-					{mission.tags.map((role) => (
-						<span
-							style={{ color: role.color }}
-							className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box"
-							key={role}
-						>
-							{role}
-						</span>
-					))}
-				</div>
-				<hr className="my-5"></hr>
-				<h2 className="flex flex-row justify-between py-2 font-bold">
-					Versions{" "}
-					{(mission.authorID == session?.user["discord_id"] ||
-						hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
-						<button
-							onClick={() => {
-								setNewVersionModalOpen(true);
-							}}
-							className="btn btn-sm"
-						>
-							<AddIcon></AddIcon> Upload new version
-						</button>
-					)}
-				</h2>
+					<div className="mt-4">
+						{mission.tags.map((role) => (
+							<span
+								style={{ color: role.color }}
+								className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box"
+								key={role}
+							>
+								{role}
+							</span>
+						))}
+					</div>
+					<hr className="my-5"></hr>
+					<h2 className="flex flex-row justify-between py-2 font-bold">
+						Versions{" "}
+						{(mission.authorID == session?.user["discord_id"] ||
+							hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
+							<button
+								onClick={() => {
+									setNewVersionModalOpen(true);
+								}}
+								className="btn btn-sm"
+							>
+								<AddIcon></AddIcon> Upload new version
+							</button>
+						)}
+					</h2>
 
-				<DataTable
-					className="ease-in-out"
-					highlightOnHover={true}
-					striped={true}
-					columns={columns}
-					data={mission.updates}
-				></DataTable>
-				<hr className="my-5"></hr>
-				<h2 className="flex flex-row justify-between py-2 font-bold">
-					Gameplay History{" "}
-					{hasCreds(session, CREDENTIAL.ADMIN) && (
-						<button
-							onClick={() => {
-								setgameplayHistoryModalOpen(true);
-							}}
-							className="btn btn-sm"
-						>
-							<AddIcon></AddIcon>
-						</button>
-					)}
-				</h2>
-				<div>
-					{getHistory() ? (
-						getHistory().map((historyItem, index) => {
-							return (
-								<div key={historyItem._id}>
-									<div className="flex flex-row justify-between mb-2 align-baseline">
-										<div className="font-bold align-text-bottom">
-											<div>{moment(historyItem.date).format("LL")}</div>
-											<div>
-												Outcome:{" "}
-												<span className={getOutcomeClass(historyItem.outcome)}>
-													{historyItem.outcome}
-												</span>
+					<DataTable
+						className="ease-in-out"
+						highlightOnHover={true}
+						striped={true}
+						columns={columns}
+						data={mission.updates}
+					></DataTable>
+					<hr className="my-5"></hr>
+					<h2 className="flex flex-row justify-between py-2 font-bold">
+						Gameplay History{" "}
+						{hasCreds(session, CREDENTIAL.ADMIN) && (
+							<button
+								onClick={() => {
+									setgameplayHistoryModalOpen(true);
+								}}
+								className="btn btn-sm"
+							>
+								<AddIcon></AddIcon>
+							</button>
+						)}
+					</h2>
+					<div>
+						{getHistory() ? (
+							getHistory().map((historyItem, index) => {
+								return (
+									<div key={historyItem._id}>
+										<div className="flex flex-row justify-between mb-2 align-baseline">
+											<div className="font-bold align-text-bottom">
+												<div>{moment(historyItem.date).format("LL")}</div>
+												<div>
+													Outcome:{" "}
+													<span className={getOutcomeClass(historyItem.outcome)}>
+														{historyItem.outcome}
+													</span>
+												</div>
+											</div>
+											<div className="flex flex-row items-center space-x-1">
+												{hasCreds(session, CREDENTIAL.ADMIN) && (
+													<button
+														className="btn btn-xs"
+														onClick={() => {
+															console.log(historyItem);
+															setGameplayHistoryModalHistoryToLoad(historyItem);
+															setgameplayHistoryModalOpen(true);
+														}}
+													>
+														Edit AAR
+													</button>
+												)}
+
+												<button className="btn btn-xs" onClick={() => {}}>
+													AAR Replay
+												</button>
+												<button className="btn btn-xs" onClick={() => {}}>
+													GM Notes
+												</button>
 											</div>
 										</div>
-										<div className="flex flex-row items-center space-x-1">
-											{hasCreds(session, CREDENTIAL.ADMIN) && (
-												<button
-													className="btn btn-xs"
-													onClick={() => {
-														console.log(historyItem);
-														setGameplayHistoryModalHistoryToLoad(historyItem);
-														setgameplayHistoryModalOpen(true);
-													}}
-												>
-													Edit AAR
-												</button>
-											)}
 
-											<button className="btn btn-xs" onClick={() => {}}>
-												AAR Replay
-											</button>
-											<button className="btn btn-xs" onClick={() => {}}>
-												GM Notes
-											</button>
-										</div>
-									</div>
-
-									{historyItem.leaders.map((leader) => {
-										return (
-											<Disclosure key={leader.discordID}>
-												{({ open }) => (
-													<>
-														<Disclosure.Button
-															className={`flex flex-row items-center justify-between w-full p-2 mb-2 text-white transition-shadow duration-300 bg-gray-600 rounded-lg hover:shadow-lg ${
-																open ? "shadow-lg" : "shadow-none"
-															}`}
-														>
-															<div className="flex flex-row items-center ">
-																{" "}
-																{!leader.displayAvatarURL && (
-																	<Shimmer>
-																		<div
-																			className="avatar mask mask-circle"
-																			style={{ width: 50, height: 50 }}
-																		/>
-																	</Shimmer>
-																)}
-																{leader.displayAvatarURL && (
-																	<Image
-																		className="avatar mask mask-circle"
-																		src={leader.displayAvatarURL}
-																		width={50}
-																		height={50}
-																		alt="user avatar"
-																	/>
-																)}
-																<div className="flex flex-row items-end ml-5 text-2xl">
-																	{!leader.name && (
+										{historyItem.leaders.map((leader) => {
+											return (
+												<Disclosure key={leader.discordID}>
+													{({ open }) => (
+														<>
+															<Disclosure.Button
+																className={`flex flex-row items-center justify-between w-full p-2 mb-2 text-white transition-shadow duration-300 bg-gray-600 rounded-lg hover:shadow-lg ${
+																	open ? "shadow-lg" : "shadow-none"
+																}`}
+															>
+																<div className="flex flex-row items-center ">
+																	{" "}
+																	{!leader.displayAvatarURL && (
 																		<Shimmer>
 																			<div
-																				className="rounded-lg "
-																				style={{ width: 90, height: 26 }}
+																				className="avatar mask mask-circle"
+																				style={{ width: 50, height: 50 }}
 																			/>
 																		</Shimmer>
 																	)}
-																	<div>{getLeaderString(leader)}</div>
-																</div>
-															</div>
-
-															<ChevronRightIcon
-																className={`duration-150 ease-in-out ${
-																	open ? "transform  rotate-90" : ""
-																}`}
-																width={35}
-																height={35}
-																color="white"
-															>
-																{" "}
-															</ChevronRightIcon>
-														</Disclosure.Button>
-
-														<Transition
-															show={open}
-															enter="transition duration-100 ease-out"
-															enterFrom="transform scale-95 opacity-0 max-h-0"
-															enterTo="transform scale-100 opacity-100 max-h-9000px"
-															leave="transition duration-75 ease-out"
-															leaveFrom="transform scale-100 opacity-100"
-															leaveTo="transform scale-95 opacity-0"
-														>
-															<Disclosure.Panel static className="mb-3 prose">
-																{leader.aar ? (
-																	<>
-																		<div className="max-w-3xl prose">
-																			{leader.aar && (
+																	{leader.displayAvatarURL && (
+																		<Image
+																			className="avatar mask mask-circle"
+																			src={leader.displayAvatarURL}
+																			width={50}
+																			height={50}
+																			alt="user avatar"
+																		/>
+																	)}
+																	<div className="flex flex-row items-end ml-5 text-2xl">
+																		{!leader.name && (
+																			<Shimmer>
 																				<div
-																					className="max-w-3xl"
-																					dangerouslySetInnerHTML={{
-																						__html: generateMarkdown(leader.aar),
+																					className="rounded-lg "
+																					style={{ width: 90, height: 26 }}
+																				/>
+																			</Shimmer>
+																		)}
+																		<div>{getLeaderString(leader)}</div>
+																	</div>
+																</div>
+
+																<ChevronRightIcon
+																	className={`duration-150 ease-in-out ${
+																		open ? "transform  rotate-90" : ""
+																	}`}
+																	width={35}
+																	height={35}
+																	color="white"
+																>
+																	{" "}
+																</ChevronRightIcon>
+															</Disclosure.Button>
+
+															<Transition
+																show={open}
+																enter="transition duration-100 ease-out"
+																enterFrom="transform scale-95 opacity-0 max-h-0"
+																enterTo="transform scale-100 opacity-100 max-h-9000px"
+																leave="transition duration-75 ease-out"
+																leaveFrom="transform scale-100 opacity-100"
+																leaveTo="transform scale-95 opacity-0"
+															>
+																<Disclosure.Panel static className="mb-3 prose">
+																	{leader.aar ? (
+																		<>
+																			<div className="max-w-3xl prose">
+																				{leader.aar && (
+																					<div
+																						className="max-w-3xl"
+																						dangerouslySetInnerHTML={{
+																							__html: generateMarkdown(leader.aar),
+																						}}
+																					></div>
+																				)}
+																			</div>
+																			{canSubmitAAR(leader) && (
+																				<button
+																					className="z-10 ml-2 btn btn-xs "
+																					onClick={() => {
+																						console.log(leader.aar);
+																						setAarTextToLoad(leader.aar);
+																						setHistoryIdToLoadForAAR(historyItem._id);
+
+																						setSubmitAARModalOpen(true);
 																					}}
-																				></div>
+																				>
+																					Edit AAR
+																				</button>
+																			)}
+																		</>
+																	) : (
+																		<div className="flex flex-row items-center">
+																			<div>No AAR Submited yet.</div>
+																			{canSubmitAAR(leader) && (
+																				<button
+																					className="z-10 ml-2 btn btn-xs "
+																					onClick={() => {
+																						setAarTextToLoad(leader.aar);
+																						setHistoryIdToLoadForAAR(historyItem._id);
+																						setSubmitAARModalOpen(true);
+																					}}
+																				>
+																					Click here to submit your AAR
+																				</button>
 																			)}
 																		</div>
-																		{canSubmitAAR(leader) && (
-																			<button
-																				className="z-10 ml-2 btn btn-xs "
-																				onClick={() => {
-																					console.log(leader.aar);
-																					setAarTextToLoad(leader.aar);
-																					setHistoryIdToLoadForAAR(historyItem._id);
+																	)}
+																</Disclosure.Panel>
+															</Transition>
+														</>
+													)}
+												</Disclosure>
+											);
+										})}
 
-																					setSubmitAARModalOpen(true);
-																				}}
-																			>
-																				Edit AAR
-																			</button>
-																		)}
-																	</>
-																) : (
-																	<div className="flex flex-row items-center">
-																		<div>No AAR Submited yet.</div>
-																		{canSubmitAAR(leader) && (
-																			<button
-																				className="z-10 ml-2 btn btn-xs "
-																				onClick={() => {
-																					setAarTextToLoad(leader.aar);
-																					setHistoryIdToLoadForAAR(historyItem._id);
-																					setSubmitAARModalOpen(true);
-																				}}
-																			>
-																				Click here to submit your AAR
-																			</button>
-																		)}
-																	</div>
-																)}
-															</Disclosure.Panel>
-														</Transition>
-													</>
-												)}
-											</Disclosure>
-										);
-									})}
-
-									{index + 1 != getHistory().length && <hr className="mt-5 mb-3"></hr>}
-								</div>
-							);
-						})
-					) : (
-						<div>No History yet</div>
-					)}
-				</div>
-				<hr className="my-5"></hr>
-				<div className="flex flex-wrap w-full mb-16">
-					<div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
-						<CommentBox
-							title="Bug Reports"
-							btnText="Submit Report"
-							onSubmitClick={() => {
-								setCommentModalIsOpen(true);
-								setCommentModalData({
-									title: "Submit Bug Report",
-									type: "report",
-									placeholder: "Enter the description of the bug here",
-								});
-							}}
-							onEditClick={(comment) => {
-								setCommentModalIsOpen(true);
-								setCommentModalData({
-									title: "Edit Bug Report",
-									type: "report",
-									placeholder: "Enter the description of the bug here",
-									comment: comment,
-								});
-							}}
-							comments={mission["reports"]}
-						></CommentBox>
+										{index + 1 != getHistory().length && <hr className="mt-5 mb-3"></hr>}
+									</div>
+								);
+							})
+						) : (
+							<div>No History yet</div>
+						)}
 					</div>
+					<hr className="my-5"></hr>
+					<div className="flex flex-wrap w-full mb-16">
+						<div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
+							<CommentBox
+								title="Bug Reports"
+								btnText="Submit Report"
+								onSubmitClick={() => {
+									setCommentModalIsOpen(true);
+									setCommentModalData({
+										title: "Submit Bug Report",
+										type: "report",
+										placeholder: "Enter the description of the bug here",
+									});
+								}}
+								onEditClick={(comment) => {
+									setCommentModalIsOpen(true);
+									setCommentModalData({
+										title: "Edit Bug Report",
+										type: "report",
+										placeholder: "Enter the description of the bug here",
+										comment: comment,
+									});
+								}}
+								comments={mission["reports"]}
+							></CommentBox>
+						</div>
 
-					<div className="flex-1 min-w-full sm:min-w-300">
-						<CommentBox
-							comments={mission["reviews"]}
-							onSubmitClick={() => {
-								setCommentModalIsOpen(true);
-								setCommentModalData({
-									title: "Submit review",
-									type: "review",
-									placeholder: "Enter your review of this mission here",
-								});
-							}}
-							onEditClick={(comment) => {
-								setCommentModalIsOpen(true);
-								setCommentModalData({
-									title: "Edit review",
-									type: "review",
-									placeholder: "Enter your review of this mission here",
-									comment: comment,
-								});
-							}}
-							title="Reviews"
-							btnText="Submit Review"
-						></CommentBox>
+						<div className="flex-1 min-w-full sm:min-w-300">
+							<CommentBox
+								comments={mission["reviews"]}
+								onSubmitClick={() => {
+									setCommentModalIsOpen(true);
+									setCommentModalData({
+										title: "Submit review",
+										type: "review",
+										placeholder: "Enter your review of this mission here",
+									});
+								}}
+								onEditClick={(comment) => {
+									setCommentModalIsOpen(true);
+									setCommentModalData({
+										title: "Edit review",
+										type: "review",
+										placeholder: "Enter your review of this mission here",
+										comment: comment,
+									});
+								}}
+								title="Reviews"
+								btnText="Submit Review"
+							></CommentBox>
+						</div>
 					</div>
 				</div>
 
@@ -1167,9 +1181,22 @@ export async function getServerSideProps(context) {
 		missionTestingQuestions = configs["mission_review_questions"];
 	}
 
+	const configs = await MyMongo.collection("configs").findOne(
+		{},
+		{ projection: { allowed_terrains: 1 } }
+	);
+	const terrainsMap = configs["allowed_terrains"];
+
+	console.log("mission");
+	if (!mission.terrainName) {
+		mission.terrainName = terrainsMap.find(
+			(item) => item.class.toLowerCase() == mission.terrain.toLowerCase()
+		).display_name;
+	}
+
 	let discordUsers = [];
 	if (hasCreds(session, CREDENTIAL.ADMIN)) {
-		const botResponse = await axios.get(`https://warm-dog-93.loca.lt/users`);
+		const botResponse = await axios.get(`http://localhost:3001/users`);
 		discordUsers = botResponse.data;
 	}
 

@@ -23,6 +23,7 @@ import moment from "moment";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { ObjectID } from "bson";
+import { generateMarkdown } from "../../lib/markdownToHtml";
 
 export default function GameplayHistoryModal({
 	isOpen,
@@ -256,20 +257,11 @@ export default function GameplayHistoryModal({
 										},
 									}}
 									generateMarkdownPreview={async (markdown) => {
-										const thing = await unified()
-											.use(remarkParse)
-											.use(remarkGfm)
-											.use(remarkRehype)
-											.use(rehypeFormat)
-											.use(rehypeStringify)
-											.use(rehypeSanitize)
-											.process(markdown);
-
 										return Promise.resolve(
 											<div
-												className="max-w-3xl m-5 prose"
+												className="prose"
 												dangerouslySetInnerHTML={{
-													__html: thing.value.toString(),
+													__html: generateMarkdown(markdown),
 												}}
 											></div>
 										);

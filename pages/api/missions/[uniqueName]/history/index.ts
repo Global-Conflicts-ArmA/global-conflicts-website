@@ -40,7 +40,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 			for (let leader of history.leaders) {
 				try {
 					const botResponse = await axios.get(
-						`https://warm-dog-93.loca.lt/users/${leader.discordID}`
+						`http://localhost:3001/users/${leader.discordID}`
 					);
 					console.log("100110");
 					leader.name = botResponse.data.nickname ?? botResponse.data.displayName;

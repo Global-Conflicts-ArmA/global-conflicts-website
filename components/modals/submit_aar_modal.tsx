@@ -13,6 +13,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSanitize from "rehype-sanitize";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { generateMarkdown } from "../../lib/markdownToHtml";
 export default function SubmitAARModal({
 	isOpen,
 	onClose,
@@ -152,20 +153,11 @@ export default function SubmitAARModal({
 											},
 										}}
 										generateMarkdownPreview={async (markdown) => {
-											const thing = await unified()
-												.use(remarkParse)
-												.use(remarkGfm)
-												.use(remarkRehype)
-												.use(rehypeFormat)
-												.use(rehypeStringify)
-												.use(rehypeSanitize)
-												.process(markdown);
-
 											return Promise.resolve(
 												<div
-													className="max-w-3xl m-5 prose"
+													className="prose"
 													dangerouslySetInnerHTML={{
-														__html: thing.value.toString(),
+														__html: generateMarkdown(markdown),
 													}}
 												></div>
 											);

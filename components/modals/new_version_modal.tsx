@@ -15,6 +15,7 @@ import { toast, Slide, Zoom, Flip, Bounce } from "react-toastify";
 
 import Link from "next/link";
 import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
+import { generateMarkdown } from "../../lib/markdownToHtml";
 
 export default function NewVersionModal({ isOpen, onClose, mission }) {
 	const [selectedNoteTab, setSelectedNoteTab] = useState<"write" | "preview">(
@@ -214,25 +215,16 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 										},
 									}}
 									generateMarkdownPreview={async (markdown) => {
-										const thing = await unified()
-											.use(remarkParse)
-											.use(remarkGfm)
-											.use(remarkRehype)
-											.use(rehypeFormat)
-											.use(rehypeStringify)
-											.use(rehypeSanitize)
-											.process(markdown);
-
 										return Promise.resolve(
 											<div
-												className="max-w-3xl m-5 prose"
+												className="prose"
 												dangerouslySetInnerHTML={{
-													__html: thing.value.toString(),
+													__html: generateMarkdown(markdown),
 												}}
 											></div>
 										);
 									}}
-								/>{" "}
+								/>
 							</div>
 
 							<div className="flex flex-row justify-between mt-4">

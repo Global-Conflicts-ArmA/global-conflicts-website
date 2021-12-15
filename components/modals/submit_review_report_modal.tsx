@@ -258,7 +258,7 @@ export default function SubmitReviewReportModal({
 										generateMarkdownPreview={async (markdown) => {
 											return Promise.resolve(
 												<div
-													className="font-light leading-normal prose break-words"
+													className="prose"
 													dangerouslySetInnerHTML={{
 														__html: generateMarkdown(markdown),
 													}}

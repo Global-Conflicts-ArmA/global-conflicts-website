@@ -11,7 +11,10 @@ import EventDatePickerModal from "../../../components/modals/event_datepicker_mo
 import EventNavBarFactionItem from "../../../components/event_navbar_faction_item";
 import { ISideNavItem } from "../../../interfaces/navbar_item";
 import * as Showdown from "showdown";
-import "react-mde/lib/styles/css/react-mde-all.css";
+import "react-mde/lib/styles/css/react-mde-editor.css";
+import "react-mde/lib/styles/css/react-mde-suggestions.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde.css";
 import AddIcon from "../../../components/icons/add";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
@@ -22,7 +25,8 @@ import { getSession, useSession } from "next-auth/react";
 import EventEditingCard from "../../../components/event_editing_card";
 import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
 import { CREDENTIAL } from "../../../middleware/check_auth_perms";
- 
+import { generateMarkdown } from "../../../lib/markdownToHtml";
+
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
@@ -35,7 +39,6 @@ function EventsDashboardPage() {
 	useEffect(() => {
 		const doNotShowFactionsTip = localStorage.getItem("doNotShowFactionsTip");
 		setShowFactionsTip(!doNotShowFactionsTip);
-
 	}, [session]);
 
 	const [datePickerModalOpen, setDatePickerModalOpen] = useState(false);
@@ -89,7 +92,7 @@ function EventsDashboardPage() {
 		tasklists: true,
 	});
 
-	const [newSectionTitle, setNewSectionTitle] = useState(null);
+	const [newSectionTitle, setNewSectionTitle] = useState("");
 	const [newReservableSlottitle, setNewReservableSlottitle] = useState(null);
 
 	const validateSlotForm = (values) => {
@@ -123,9 +126,7 @@ function EventsDashboardPage() {
 			setIsLoading(true);
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
-				onUploadProgress: (event) => {
-			
-				},
+				onUploadProgress: (event) => {},
 			};
 
 			const formData = new FormData();
@@ -147,7 +148,6 @@ function EventsDashboardPage() {
 			axios
 				.post("/api/events", formData, config)
 				.then((response) => {
-
 					eventDataFormik.resetForm();
 					toast.success("Event submited, redirecting to it...");
 					setTimeout(() => {
@@ -155,7 +155,6 @@ function EventsDashboardPage() {
 					}, 2000);
 				})
 				.catch((error) => {
-	
 					toast.success("Error submiting event");
 					setIsLoading(false);
 				});
@@ -170,7 +169,6 @@ function EventsDashboardPage() {
 		},
 		validate: validateSlotForm,
 		onSubmit: (values) => {
-
 			const found = eventCurrentReservableSlotInfo.slots.findIndex(
 				(rs) => rs.name == values.reservedSlotName
 			);
@@ -189,7 +187,7 @@ function EventsDashboardPage() {
 			];
 			setEventCurrentReservableSlotInfo(eventCurrentReservableSlotInfo);
 			//setReserevableSlots();
-			eventDataFormik.resetForm();
+			newSlotFormik.resetForm();
 		},
 	});
 
@@ -214,7 +212,7 @@ function EventsDashboardPage() {
 
 		setEventCurrentReservableSlotInfo(eventCurrentReservableSlotInfo);
 	};
- 
+
 	function validateFields(values) {
 		let errors = {};
 		if (values.eventName.trim().length < 4) {
@@ -250,7 +248,7 @@ function EventsDashboardPage() {
 		if (!values.eventStartDate) {
 			errors["eventStartDate"] = "Time and date required.";
 		}
- 
+
 		return errors;
 	}
 
@@ -261,7 +259,7 @@ function EventsDashboardPage() {
 			</Head>
 
 			<div className="max-w-screen-xl px-5 mx-auto mt-24">
-				<form onSubmit={eventDataFormik.handleSubmit}>
+				<form onSubmit={eventDataFormik.handleSubmit} className="mb-10">
 					<div className="flex flex-row justify-between">
 						<div className="prose">
 							<h1>Creating new event</h1>
@@ -302,7 +300,7 @@ function EventsDashboardPage() {
 							</label>
 							<label className="btn btn-primary btn-lg">
 								<input type="file" onChange={displayImage} />
-								Select Image, GIF or video Clip(8mb max)
+								Select Image, GIF or video Clip(50mb max)
 							</label>
 							<span className="text-red-500 label-text-alt">
 								{eventDataFormik.errors.eventCoverMedia}
@@ -335,6 +333,7 @@ function EventsDashboardPage() {
 							</label>
 							<button
 								className="btn btn-lg btn-primary"
+								type={"button"}
 								onClick={() => {
 									setDatePickerModalOpen(true);
 								}}
@@ -386,6 +385,7 @@ function EventsDashboardPage() {
 						</div>
 					</div>
 				</form>
+
 				<EventEditingCard
 					createObjectURL={createObjectURL}
 					isVideo={
@@ -557,6 +557,7 @@ function EventsDashboardPage() {
 
 														setEventContentPages(eventContentPages);
 													}}
+													classes={{ preview: "" }}
 													selectedTab={selectedNoteTab}
 													onTabChange={setSelectedNoteTab}
 													childProps={{
@@ -569,11 +570,19 @@ function EventsDashboardPage() {
 														},
 														textArea: {
 															draggable: false,
+															 
 														},
 													}}
-													generateMarkdownPreview={(markdown) =>
-														Promise.resolve(converter.makeHtml(markdown))
-													}
+													generateMarkdownPreview={async (markdown) => {
+														return Promise.resolve(
+															<div
+																className="prose"
+																dangerouslySetInnerHTML={{
+																	__html: generateMarkdown(markdown),
+																}}
+															></div>
+														);
+													}}
 												/>
 											)}
 										</main>

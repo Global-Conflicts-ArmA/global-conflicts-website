@@ -25,7 +25,7 @@ export default NextAuth({
 				}
 
 				const botResponse = await axios.get(
-					`https://warm-dog-93.loca.lt/users/${profile["id"]}`
+					`http://localhost:3001/users/${profile["id"]}`
 				);
 
 				const member = botResponse.data;

@@ -49,6 +49,7 @@ import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import rehypePrism from "rehype-prism-plus";
 import { CREDENTIAL } from "../../../middleware/check_auth_perms";
+import { generateMarkdown } from "../../../lib/markdownToHtml";
 const editorHeight = 338;
 const toNumber = (value: string | number) => {
 	if (typeof value === "number") return value;
@@ -389,20 +390,11 @@ function EditMission({ mission }) {
 									},
 								}}
 								generateMarkdownPreview={async (markdown) => {
-									const thing = await unified()
-										.use(remarkParse)
-										.use(remarkGfm)
-										.use(remarkRehype)
-										.use(rehypeFormat)
-										.use(rehypeStringify)
-										.use(rehypeSanitize)
-										.process(markdown);
-
 									return Promise.resolve(
 										<div
-											className="max-w-3xl m-5 prose"
+											className="prose"
 											dangerouslySetInnerHTML={{
-												__html: thing.value.toString(),
+												__html: generateMarkdown(markdown),
 											}}
 										></div>
 									);

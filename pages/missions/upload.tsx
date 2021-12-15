@@ -29,6 +29,7 @@ import {
 import { remark } from "remark";
 import html from "remark-html";
 import { CREDENTIAL } from "../../middleware/check_auth_perms";
+import { generateMarkdown } from "../../lib/markdownToHtml";
 const converter = new Showdown.Converter({
 	tables: true,
 	simplifiedAutoLink: true,
@@ -421,14 +422,11 @@ function UploadMission() {
 									},
 								}}
 								generateMarkdownPreview={async (markdown) => {
-									const content = (
-										await remark().use(html).process(markdown)
-									).toString();
 									return Promise.resolve(
 										<div
-											className="max-w-3xl prose"
+											className="prose"
 											dangerouslySetInnerHTML={{
-												__html: content,
+												__html: generateMarkdown(markdown),
 											}}
 										></div>
 									);

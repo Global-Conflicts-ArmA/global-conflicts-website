@@ -2,10 +2,7 @@ import { Dialog, RadioGroup, Tab, Transition } from "@headlessui/react";
 import { CheckIcon, QuestionMarkCircleIcon } from "@heroicons/react/outline";
 import Link from "next/link";
 import React, { Fragment, useEffect, useRef, useState } from "react";
-
-function classNames(...classes) {
-	return classes.filter(Boolean).join(" ");
-}
+import classNames from "../../lib/classnames";
 
 export default function SlotSelectionModal({
 	isOpen,
@@ -20,15 +17,21 @@ export default function SlotSelectionModal({
 	const [selectedFactionTitle, setSelectedFactionTitle] = useState(null);
 
 	useEffect(() => {
-		for (const faction of event.eventReservableSlotsInfo) {
-			if (faction.title == reservedSlotFactionTitle) {
-				setSelectedFactionTitle(faction.title);
-				for (const slot of faction.slots) {
-					if (slot.name == reservedSlotName) {
-						setSelectedSlot(slot);
+		console.log("modal useffect");
+		if (reservedSlotName) {
+			for (const faction of event.eventReservableSlotsInfo) {
+				if (faction.title == reservedSlotFactionTitle) {
+					setSelectedFactionTitle(faction.title);
+					for (const slot of faction.slots) {
+						if (slot.name == reservedSlotName) {
+							setSelectedSlot(slot);
+						}
 					}
 				}
 			}
+		} else {
+			setSelectedFactionTitle(null);
+			setSelectedSlot(null);
 		}
 	}, [
 		event.eventReservableSlotsInfo,
@@ -42,7 +45,11 @@ export default function SlotSelectionModal({
 				as="div"
 				initialFocus={refDiv}
 				className="fixed inset-0 z-10 "
-				onClose={onClose}
+				onClose={() => {
+					setSelectedFactionTitle(null);
+					setSelectedSlot(null);
+					onClose();
+				}}
 			>
 				<div ref={refDiv} className="min-h-screen px-4 text-center">
 					<Transition.Child
@@ -81,14 +88,18 @@ export default function SlotSelectionModal({
 
 							{event.eventReservableSlotsInfo.length > 0 && (
 								<Tab.Group>
-									<Tab.List className="flex p-1 mt-5 space-x-1 bg-blue-900/5 rounded-xl">
+									<Tab.List
+										className={`flex p-1 mt-5 space-x-1 bg-blue-900/5 rounded-xl ${
+											event.eventReservableSlotsInfo.length == 1 ? "hidden" : "block"
+										}`}
+									>
 										{event.eventReservableSlotsInfo.map((faction) => {
 											return (
 												<Tab
 													key={faction.title}
 													className={({ selected }) =>
 														classNames(
-															"transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg",
+															`transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg `,
 															selected
 																? "bg-white text-blue-700 shadow"
 																: "  hover:bg-white/[0.12] text-gray-400 hover:text-blue-700"
@@ -184,7 +195,15 @@ export default function SlotSelectionModal({
 							)}
 
 							<div className="flex flex-row justify-between mt-4">
-								<button type="button" className="btn" onClick={onClose}>
+								<button
+									type="button"
+									className="btn"
+									onClick={() => {
+										setSelectedFactionTitle(null);
+										setSelectedSlot(null);
+										onClose();
+									}}
+								>
 									Close
 								</button>
 								<button

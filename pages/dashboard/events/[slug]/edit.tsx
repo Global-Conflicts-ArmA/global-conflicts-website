@@ -26,6 +26,7 @@ import { Params } from "next/dist/server/router";
 import CloseEventModal from "../../../../components/modals/close_event_modal";
 import { CredentialLockLayout } from "../../../../layouts/credential-lock-layout";
 import { CREDENTIAL } from "../../../../middleware/check_auth_perms";
+import { generateMarkdown } from "../../../../lib/markdownToHtml";
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -35,13 +36,11 @@ export default function EditEvent({ event }) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [showFactionsTip, setShowFactionsTip] = React.useState(true);
 	const { data: session } = useSession();
-	const [eventOrganizer, setEventOrganizer] = useState(null);
 
 	useEffect(() => {
 		const doNotShowFactionsTip = localStorage.getItem("doNotShowFactionsTip");
 		setShowFactionsTip(!doNotShowFactionsTip);
 		if (session?.user) {
-			setEventOrganizer(session.user["nickname"] ?? session.user["username"]);
 		}
 	}, [session]);
 
@@ -79,12 +78,14 @@ export default function EditEvent({ event }) {
 		},
 	]);
 
-	const [eventReservableSlotsInfo, setEventReservableSlotsInfo] = useState([
-		{
-			title: "Default Faction",
-			slots: [],
-		},
-	]);
+	const [eventReservableSlotsInfo, setEventReservableSlotsInfo] = useState(
+		event.eventReservableSlotsInfo ?? [
+			{
+				title: "Default Faction",
+				slots: [],
+			},
+		]
+	);
 	const [eventCurrentReservableSlotInfo, setEventCurrentReservableSlotInfo] =
 		useState(eventReservableSlotsInfo[0]);
 
@@ -126,7 +127,7 @@ export default function EditEvent({ event }) {
 			eventDescription: event.description,
 			eventSlotCount: event.slots,
 			eventCoverMedia: null,
-			eventOrganizer: event.organizer,
+			eventOrganizer: event.organizer ?? "",
 			eventStartDate: event.when,
 		},
 		validate: validateFields,
@@ -139,10 +140,7 @@ export default function EditEvent({ event }) {
 
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
-				onUploadProgress: (event) => {
-
-				
-				},
+				onUploadProgress: (event) => {},
 			};
 
 			const formData = new FormData();
@@ -298,7 +296,7 @@ export default function EditEvent({ event }) {
 			</Head>
 
 			<div className="max-w-screen-xl px-5 mx-auto mt-24">
-				<form onSubmit={eventDataFormik.handleSubmit}>
+				<form onSubmit={eventDataFormik.handleSubmit} className="mb-10">
 					<div className="flex flex-row justify-between">
 						<div className="prose">
 							<h1>Editing event {event.closeReason && "a closed event"}</h1>
@@ -620,9 +618,16 @@ export default function EditEvent({ event }) {
 															draggable: false,
 														},
 													}}
-													generateMarkdownPreview={(markdown) =>
-														Promise.resolve(converter.makeHtml(markdown))
-													}
+													generateMarkdownPreview={async (markdown) => {
+														return Promise.resolve(
+															<div
+																className="prose"
+																dangerouslySetInnerHTML={{
+																	__html: generateMarkdown(markdown),
+																}}
+															></div>
+														);
+													}}
 												/>
 											)}
 										</main>
