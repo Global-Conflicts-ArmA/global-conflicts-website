@@ -17,30 +17,7 @@ class MyDocument extends Document {
 						rel="stylesheet"
 					/>
 
-					<link
-						rel="preload"
-						href="https://unpkg.com/prismjs@0.0.1/themes/prism-tomorrow.css"
-						as="script"
-					/>
-					<link
-						rel="preload"
-						href="https://unpkg.com/prismjs@0.0.1/themes/prism-coy.css"
-						as="script"
-					/>
-					<link
-						rel="preload"
-						href="https://unpkg.com/prismjs@0.0.1/themes/prism-okaidia.css"
-						as="script"
-					/>
-					<link
-						rel="preload"
-						href="https://unpkg.com/prismjs@0.0.1/themes/prism-funky.css"
-						as="script"
-					/>
-					<link
-						href={`https://unpkg.com/prismjs@0.0.1/themes/prism-okaidia.css`}
-						rel="stylesheet"
-					/>
+ 
 					<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 					<link rel="alternate icon" href="/favicon.ico" />
 					<link rel="manifest" href="/manifest.json" />

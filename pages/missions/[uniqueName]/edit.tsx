@@ -38,16 +38,7 @@ const converter = new Showdown.Converter({
 	strikethrough: true,
 	tasklists: true,
 });
-import html from "remark-html";
-import { unified } from "unified";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
-import rehypeFormat from "rehype-format";
-import oembed from "remark-oembed";
-import rehypeSanitize from "rehype-sanitize";
-import remarkGfm from "remark-gfm";
-import rehypePrism from "rehype-prism-plus";
+ 
 import { CREDENTIAL } from "../../../middleware/check_auth_perms";
 import { generateMarkdown } from "../../../lib/markdownToHtml";
 const editorHeight = 338;

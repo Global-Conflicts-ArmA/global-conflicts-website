@@ -7,10 +7,7 @@ import Link from "next/link";
 
 import MyMongo from "../../../lib/mongodb";
 import { Params } from "next/dist/server/router";
-import moment from "moment";
 
-import { serialize } from "next-mdx-remote/serialize";
-import { MDXRemote } from "next-mdx-remote";
 import SlotSelectionModal from "../../../components/modals/slot_selection_modal";
 import axios from "axios";
 import { useSession } from "next-auth/react";
@@ -26,7 +23,13 @@ import {
 import EventRosterModal from "../../../components/modals/event_roster_modal";
 import useSWR from "swr";
 import fetcher from "../../../lib/fetcher";
-import { postFetcher } from "../../../lib/postFetcher";
+
+import { generateMarkdown } from "../../../lib/markdownToHtml";
+
+const prism = require("prismjs");
+require("prismjs/components/prism-sqf");
+
+import "prismjs/themes/prism-okaidia.css";
 
 const Completionist = () => (
 	<div className="my-10 prose">
@@ -154,6 +157,10 @@ export default function EventHome({ event }) {
 	} = useSWR(`/api/events/roster?eventId=${event._id}`, fetcher, {
 		revalidateOnFocus: false,
 	});
+
+	useEffect(() => {
+		prism.highlightAll();
+	}, [currentContentPage]);
 
 	useEffect(() => {
 		if (session != null) {
@@ -436,9 +443,13 @@ export default function EventHome({ event }) {
 						<div className="prose">
 							<h1>Event Details:</h1>
 						</div>
-						<article className="max-w-3xl prose">
+						<article className="max-w-full prose">
 							<kbd className="hidden kbd"></kbd>
-							<MDXRemote {...currentContentPage.parsedMarkdownContent} />
+							<div
+								dangerouslySetInnerHTML={{
+									__html: currentContentPage.parsedMarkdownContent,
+								}}
+							></div>
 						</article>
 					</main>
 				</div>
@@ -502,7 +513,9 @@ export async function getStaticProps({ params }: Params) {
 		await Promise.all(
 			contentPages.map(async (contentPage) => {
 				if (contentPage.markdownContent) {
-					contentPage.parsedMarkdownContent = await serialize(
+					console.log(contentPage.markdownContent);
+
+					contentPage.parsedMarkdownContent = generateMarkdown(
 						contentPage.markdownContent
 					);
 				}

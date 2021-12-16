@@ -1,20 +1,14 @@
 import { Dialog, Transition } from "@headlessui/react";
-import React, { Fragment, useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import ReactMde from "react-mde";
-import useSWR from "swr";
-import fetcher from "../../lib/fetcher";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
-import rehypeFormat from "rehype-format";
-import { unified } from "unified";
-import remarkGfm from "remark-gfm";
-import rehypeSanitize from "rehype-sanitize";
+
 import axios from "axios";
 import { toast } from "react-toastify";
-import { REVIEW_STATE_ACCEPTED, REVIEW_STATE_REPROVED } from "../../lib/reviewStates";
+import {
+	REVIEW_STATE_ACCEPTED,
+	REVIEW_STATE_REPROVED,
+} from "../../lib/reviewStates";
 import { generateMarkdown } from "../../lib/markdownToHtml";
-
 
 export default function MissionAuditModal({
 	isOpen,

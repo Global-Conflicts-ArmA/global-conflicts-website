@@ -1,21 +1,12 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
-import Autocomplete from "../autocomplete";
+ 
 import ReactMde, { getDefaultToolbarCommands } from "react-mde";
-import * as Showdown from "showdown";
+ 
 import "react-mde/lib/styles/css/react-mde-all.css";
 import Select, { ActionMeta, OnChangeValue } from "react-select";
 import { UserRemoveIcon } from "@heroicons/react/outline";
-import MenuList from "../react-select/menu-list";
-import Option from "../react-select/option";
-import ReactSelect from "../react-select/react-select";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
-import rehypeFormat from "rehype-format";
-import { unified } from "unified";
-import remarkGfm from "remark-gfm";
-import rehypeSanitize from "rehype-sanitize";
+ 
 import { gameplayHistoryOutcomeOptions } from "../../lib/missionSelectOptions";
 import CreatableSelect from "react-select/creatable";
 import NumberFormat from "react-number-format";

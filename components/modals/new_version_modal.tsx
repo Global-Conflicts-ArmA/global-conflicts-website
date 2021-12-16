@@ -1,17 +1,8 @@
 import { Dialog, Switch, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import ReactMde from "react-mde";
-import useSWR from "swr";
-import fetcher from "../../lib/fetcher";
-import remarkParse from "remark-parse";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
-import rehypeFormat from "rehype-format";
-import { unified } from "unified";
-import remarkGfm from "remark-gfm";
-import rehypeSanitize from "rehype-sanitize";
 import axios from "axios";
-import { toast, Slide, Zoom, Flip, Bounce } from "react-toastify";
+import { toast, Flip } from "react-toastify";
 
 import Link from "next/link";
 import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
@@ -61,7 +52,6 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 			axios
 				.post(`/api/missions/${mission.uniqueName}/update`, formData, config)
 				.then((response) => {
-		
 					toast.update(uploadProgressToast.current, {
 						type: toast.TYPE.SUCCESS,
 						autoClose: 2000,
@@ -76,7 +66,6 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 					onClose(response.data);
 				})
 				.catch((error) => {
-				
 					if (error.response.status == 500) {
 						toast.error("Error uploading a new version, let the admins know.");
 					} else {
