@@ -198,7 +198,14 @@ export default function EventHome({ event }) {
 				<title>{event.name}</title>
 
 				<meta property="og:title" content={event.name} key="title" />
-
+				<meta
+					property="og:url"
+					content={`https://gc-next-website.vercel.app/events/${event.name}`}
+				/>
+				<meta
+					property="twitter:url"
+					content={`https://gc-next-website.vercel.app/events/${event.name}`}
+				/>
 				<meta property="og:description" content={event.description} />
 				<meta property="description" content={event.description} />
 				<meta
