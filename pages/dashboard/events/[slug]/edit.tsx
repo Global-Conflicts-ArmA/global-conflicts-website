@@ -48,7 +48,7 @@ export default function EditEvent({ event }) {
 	const [closeModalOpen, setCloseModalOpen] = useState(false);
 	const [createSlotsModalOpen, setCreateSlotsModalOpen] = useState(false);
 
-	const [createObjectURL, setCreateObjectURL] = useState(event.imageLink);
+	const [objectUrl, setObjectUrl] = useState(event.imageLink);
 
 	const [isVideo, setIsVideo] = useState(
 		event.imageLink?.includes("mp4") || event.imageLink?.includes("webm")
@@ -59,7 +59,7 @@ export default function EditEvent({ event }) {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0];
 			eventDataFormik.setFieldValue("eventCoverMedia", file);
-			setCreateObjectURL(URL.createObjectURL(file));
+			setObjectUrl(URL.createObjectURL(file));
 			setIsVideo(file?.type.includes("mp4") || file?.type.includes("webm"));
 			setTimeout(() => {
 				if (videoRef.current) {
@@ -437,7 +437,7 @@ export default function EditEvent({ event }) {
 					</div>
 				</form>
 				<EventEditingCard
-					createObjectURL={createObjectURL}
+					objectURL={objectUrl}
 					isVideo={isVideo}
 					eventDescription={eventDataFormik.values.eventDescription}
 					eventName={eventDataFormik.values.eventName}
