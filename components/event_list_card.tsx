@@ -92,7 +92,7 @@ export default function EventCard({
 					)}
 				</figure>
 
-				<div className="absolute flex flex-col justify-between w-full h-full p-5 text-gray-200 lg:p-10 scrim">
+				<div className="absolute flex flex-col justify-between w-full h-full p-5 text-white lg:p-10 scrim">
 					<div className="flex flex-row justify-between">
 						<div className="flex justify-between flex-1">
 							<div className="prose textshadow">

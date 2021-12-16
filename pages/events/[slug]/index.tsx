@@ -26,11 +26,11 @@ import fetcher from "../../../lib/fetcher";
 
 import { generateMarkdown } from "../../../lib/markdownToHtml";
 
-const prism = require("prismjs");
+import prism from "prismjs";
 require("prismjs/components/prism-sqf");
 
 import "prismjs/themes/prism-okaidia.css";
-
+require("prismjs/plugins/line-numbers/prism-line-numbers.js");
 const Completionist = () => (
 	<div className="my-10 prose">
 		<h1>It has begun!</h1>
@@ -159,6 +159,7 @@ export default function EventHome({ event }) {
 	});
 
 	useEffect(() => {
+		prism.plugins;
 		prism.highlightAll();
 	}, [currentContentPage]);
 
@@ -196,13 +197,24 @@ export default function EventHome({ event }) {
 			<Head>
 				<title>{event.name}</title>
 
-				<meta property="og:url" content="https://globalconflicts.net/" />
-				<meta property="og:type" content="website" />
+				<meta property="og:title" content={event.name} key="title" />
 
-				<meta property="og:title" content={event.name} />
-				<meta property="og:image" content={event.image} />
-				<meta name="twitter:card" content={event.description} />
 				<meta property="og:description" content={event.description} />
+				<meta property="description" content={event.description} />
+				<meta
+					property="og:video"
+					content="https://www.youtube.com/watch?v=Xpobjm1eYUg"
+				/>
+
+				<meta
+					name="twitter:description"
+					content={event.description}
+					key="description"
+				/>
+				<meta property="og:site_name" content="Global Conflicts" />
+
+				<meta name="twitter:image" content="" key="image" />
+				<meta property="og:image" content="" key="image" />
 			</Head>
 
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl ">
@@ -443,7 +455,7 @@ export default function EventHome({ event }) {
 						<div className="prose">
 							<h1>Event Details:</h1>
 						</div>
-						<article className="max-w-full prose">
+						<article className="max-w-full prose line-numbers">
 							<kbd className="hidden kbd"></kbd>
 							<div
 								dangerouslySetInnerHTML={{

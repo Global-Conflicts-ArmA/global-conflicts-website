@@ -12,19 +12,6 @@ import { unified } from "unified";
 export function generateMarkdown(text) {
 	const markdownObj = unified()
 		.use(remarkParse)
-		.use(prism, {
-			plugins: [
-				"autolinker",
-				"command-line",
-				"data-uri-highlight",
-				"diff-highlight",
-				"inline-color",
-				"keep-markup",
-				"line-numbers",
-				"show-invisibles",
-				"treeview",
-			],
-		})
 		.use(html)
 		.use(remarkGfm)
 		.use(remarkRehype)

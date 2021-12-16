@@ -44,13 +44,15 @@ function EventsDashboardPage() {
 	const [datePickerModalOpen, setDatePickerModalOpen] = useState(false);
 	const [createSlotsModalOpen, setCreateSlotsModalOpen] = useState(false);
 
-	const [createObjectURL, setCreateObjectURL] = useState(null);
+	const [objectURL, setObjectUrl] = useState(null);
 	const videoRef = useRef(null);
-	const displayImage = (event) => {
+	const onFileChange = (event) => {
 		if (event.target.files && event.target.files[0]) {
 			const i = event.target.files[0];
 			eventDataFormik.setFieldValue("eventCoverMedia", i);
-			setCreateObjectURL(URL.createObjectURL(i));
+			const objurl = URL.createObjectURL(i)
+			setObjectUrl(objurl);
+			console.log(objectURL)
 			setTimeout(() => {
 				if (videoRef.current) {
 					videoRef.current.defaultMuted = true;
@@ -299,8 +301,8 @@ function EventsDashboardPage() {
 								<span className="label-text">Cover media</span>
 							</label>
 							<label className="btn btn-primary btn-lg">
-								<input type="file" onChange={displayImage} />
-								Select Image, GIF or video Clip(50mb max)
+								<input type="file" onChange={onFileChange} />
+								Select Image, GIF or video Clip
 							</label>
 							<span className="text-red-500 label-text-alt">
 								{eventDataFormik.errors.eventCoverMedia}
@@ -387,7 +389,7 @@ function EventsDashboardPage() {
 				</form>
 
 				<EventEditingCard
-					createObjectURL={createObjectURL}
+					objectURL={objectURL}
 					isVideo={
 						eventDataFormik.values.eventCoverMedia?.type.includes("mp4") ||
 						eventDataFormik.values.eventCoverMedia?.type.includes("webm")

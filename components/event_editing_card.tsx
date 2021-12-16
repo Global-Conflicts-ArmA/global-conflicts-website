@@ -7,7 +7,7 @@ import { VolumeOffIcon, VolumeUpIcon } from "@heroicons/react/outline";
 
 export default function EventEditingCard({
 	isVideo,
-	createObjectURL,
+	objectURL,
 	eventName,
 	eventDescription,
 	eventStartDate,
@@ -26,19 +26,19 @@ export default function EventEditingCard({
 				videoRef.current.play();
 			}
 		}, 20);
-	}, [createObjectURL]);
+	}, [objectURL]);
 
 	return (
 		<div className="relative flex justify-center card drop-shadow-xl shadow-strong " style={{ aspectRatio: "16/9" }}>
 			<figure  className="card-figure">
 				{isVideo ? (
-					<video autoPlay loop key={createObjectURL} ref={videoRef}>
-						<source src={createObjectURL} />
+					<video autoPlay loop key={objectURL} ref={videoRef}>
+						<source src={objectURL} />
 					</video>
 				) : (
 					<Image
 						quality={100}
-						src={createObjectURL ?? placeholder_event}
+						src={objectURL ?? placeholder_event}
 						layout={"fill"}
 						objectFit="cover"
 						alt={"Event cover image"}
