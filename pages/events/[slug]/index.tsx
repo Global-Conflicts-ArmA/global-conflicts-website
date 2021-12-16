@@ -192,36 +192,59 @@ export default function EventHome({ event }) {
 		return false;
 	}
 
+	function getPreviewImage(where: string) {
+		console.log(event);
+		if (event.imageLink.includes(".webm") || event.imageLink.includes(".mp4")) {
+			if (where == "twitter") {
+				return "https://gc-next-website.vercel.app/twitterimage.jpg";
+			}
+			return "https://gc-next-website.vercel.app/twitterimage.jpg";
+		} else {
+			return `https://gc-next-website.vercel.app${event.imageLink}`;
+		}
+	}
+
 	return (
 		<>
 			<Head>
 				<title>{event.name}</title>
 
-				<meta property="og:title" content={event.name} key="title" />
+				<meta name="description" content={event.description} key="description" />
+				<meta
+					property="og:description"
+					content={event.description}
+					key="og:description"
+				/>
+				<meta
+					name="twitter:description"
+					content={event.description}
+					key="twitter:description"
+				/>
 				<meta
 					property="og:url"
 					content={`https://gc-next-website.vercel.app/events/${event.name}`}
+					key="og:url"
 				/>
 				<meta
 					property="twitter:url"
 					content={`https://gc-next-website.vercel.app/events/${event.name}`}
-				/>
-				<meta property="og:description" content={event.description} />
-				<meta property="description" content={event.description} />
-				<meta
-					property="og:video"
-					content="https://www.youtube.com/watch?v=Xpobjm1eYUg"
+					key="twitter:url"
 				/>
 
-				<meta
-					name="twitter:description"
-					content={event.description}
-					key="description"
-				/>
-				<meta property="og:site_name" content="Global Conflicts" />
+				<meta property="og:title" content={event.name} key="og:title" />
 
-				<meta name="twitter:image" content="" key="image" />
-				<meta property="og:image" content="" key="image" />
+				<meta name="twitter:title" content={event.name} key="twitter:title" />
+
+				<meta
+					name="twitter:image"
+					content={getPreviewImage("twitter")}
+					key="twitter:image"
+				/>
+				<meta
+					property="og:image"
+					content={getPreviewImage("normal")}
+					key="og:image"
+				/>
 			</Head>
 
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl ">
@@ -271,7 +294,6 @@ export default function EventHome({ event }) {
 						)}
 					</div>
 				)}
-
 				<EventCard
 					event={event}
 					aspectRatio={"16/9"}

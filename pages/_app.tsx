@@ -29,46 +29,53 @@ export default function MyApp({
 					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
 					key="description"
 				/>
-
-				<meta property="og:url" content="https://gc-next-website.vercel.app/" />
-				<meta property="og:type" content="website" />
-				<meta
-					property="og:title"
-					content="Global Conflicts - Open Tactical Arma 3 Gameplay"
-					key="title"
-				/>
 				<meta
 					property="og:description"
 					content="Open Arma 3 community formed by people with more than 11 years' experience throughout the arma series. Teamwork, tactical play and good fun are our core values."
-					key="description"
+					key="og:description"
 				/>
 
-				<meta name="twitter:card" content="summary_large_image" />
-				<meta property="twitter:domain" content="gc-next-website.vercel.app" />
+				<meta
+					property="og:url"
+					content="https://gc-next-website.vercel.app/"
+					key="og:url"
+				/>
 				<meta
 					property="twitter:url"
 					content="https://gc-next-website.vercel.app/"
+					key="twitter:url"
 				/>
+
+				<meta
+					property="og:title"
+					content="Global Conflicts - Open Tactical Arma 3 Gameplay"
+					key="og:title"
+				/>
+
 				<meta
 					name="twitter:title"
 					content="Global Conflicts - Open Tactical Arma 3 Gameplay"
-					key="title"
+					key="twitter:title"
 				/>
 				<meta
 					name="twitter:description"
 					content="Open Arma 3 community with more than 10 year's experience. Teamwork, tactical play and good fun are our core values."
-					key="description"
+					key="twitter:description"
 				/>
+
 				<meta
 					name="twitter:image"
 					content="https://gc-next-website.vercel.app/twitterimage.jpg"
-					key="image"
+					key="twitter:image"
 				/>
 				<meta
 					property="og:image"
 					content="https://gc-next-website.vercel.app/ogimage.jpg"
-					key="image"
+					key="og:image"
 				/>
+				<meta property="twitter:domain" content="gc-next-website.vercel.app" />
+				<meta name="twitter:card" content="summary_large_image" />
+				<meta property="og:type" content="website" />
 			</Head>
 			<div className="flex flex-col min-h-screen">
 				<div className="flex-grow">

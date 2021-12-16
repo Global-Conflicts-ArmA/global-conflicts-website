@@ -50,15 +50,22 @@ function EventsDashboardPage() {
 		if (event.target.files && event.target.files[0]) {
 			const i = event.target.files[0];
 			eventDataFormik.setFieldValue("eventCoverMedia", i);
-			const objurl = URL.createObjectURL(i)
+			const objurl = URL.createObjectURL(i);
 			setObjectUrl(objurl);
-			console.log(objectURL)
+			console.log(objectURL);
 			setTimeout(() => {
 				if (videoRef.current) {
 					videoRef.current.defaultMuted = true;
 					videoRef.current.muted = true;
 				}
 			}, 20);
+		}
+	};
+
+	const onCoverImageChange = (event) => {
+		if (event.target.files && event.target.files[0]) {
+			const i = event.target.files[0];
+			eventDataFormik.setFieldValue("eventCoverImage", i);
 		}
 	};
 
@@ -115,6 +122,7 @@ function EventsDashboardPage() {
 			eventDescription: "",
 			eventSlotCount: 0,
 			eventCoverMedia: null,
+			eventCoverImage: null,
 			eventOrganizer: session?.user
 				? session.user["nickname"] ?? session.user["username"]
 				: "",
@@ -254,6 +262,13 @@ function EventsDashboardPage() {
 		return errors;
 	}
 
+	function isVideo() {
+		return (
+			eventDataFormik.values.eventCoverMedia?.type.includes("mp4") ||
+			eventDataFormik.values.eventCoverMedia?.type.includes("webm")
+		);
+	}
+
 	return (
 		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
@@ -387,13 +402,10 @@ function EventsDashboardPage() {
 						</div>
 					</div>
 				</form>
-
+				<div></div>
 				<EventEditingCard
 					objectURL={objectURL}
-					isVideo={
-						eventDataFormik.values.eventCoverMedia?.type.includes("mp4") ||
-						eventDataFormik.values.eventCoverMedia?.type.includes("webm")
-					}
+					isVideo={isVideo()}
 					eventDescription={eventDataFormik.values.eventDescription}
 					eventName={eventDataFormik.values.eventName}
 					eventSlotCount={eventDataFormik.values.eventSlotCount}
@@ -572,7 +584,6 @@ function EventsDashboardPage() {
 														},
 														textArea: {
 															draggable: false,
-															 
 														},
 													}}
 													generateMarkdownPreview={async (markdown) => {
