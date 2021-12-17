@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
 import Select, { ActionMeta, OnChangeValue, StylesConfig } from "react-select";
-export default function CloseEventModal({ isOpen, onClose }) {
+export default function CloseEventModal({ isOpen, onClose, onCloseEvent }) {
 	const [closeReason, setCloseReason] = useState(null);
 	const [numberOfPlayers, setNumberOfPlayer] = useState("");
 
@@ -54,7 +54,7 @@ export default function CloseEventModal({ isOpen, onClose }) {
 									<Select
 										className="flex-1 "
 										classNamePrefix="select-input"
-										onChange={(value,meta) => {
+										onChange={(value, meta) => {
 											setCloseReason(value);
 										}}
 										options={[
@@ -72,7 +72,7 @@ export default function CloseEventModal({ isOpen, onClose }) {
 										placeholder="Number of players who participated"
 										onChange={(e) => {
 											const re = /^[0-9\b]+$/;
-										
+
 											if (e.target.value === "" || re.test(e.target.value)) {
 												const val = parseInt(e.target.value);
 
@@ -99,7 +99,7 @@ export default function CloseEventModal({ isOpen, onClose }) {
 										type="button"
 										className="btn btn-primary"
 										onClick={() => {
-											onClose(closeReason, numberOfPlayers);
+											onCloseEvent(closeReason, numberOfPlayers);
 										}}
 									>
 										CLOSE EVENT

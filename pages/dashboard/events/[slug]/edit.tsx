@@ -11,7 +11,10 @@ import EventDatePickerModal from "../../../../components/modals/event_datepicker
 import EventNavBarFactionItem from "../../../../components/event_navbar_faction_item";
 import { ISideNavItem } from "../../../../interfaces/navbar_item";
 import * as Showdown from "showdown";
-import "react-mde/lib/styles/css/react-mde-all.css";
+import "react-mde/lib/styles/css/react-mde-editor.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde.css";
 import AddIcon from "../../../../components/icons/add";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
@@ -27,6 +30,10 @@ import CloseEventModal from "../../../../components/modals/close_event_modal";
 import { CredentialLockLayout } from "../../../../layouts/credential-lock-layout";
 import { CREDENTIAL } from "../../../../middleware/check_auth_perms";
 import { generateMarkdown } from "../../../../lib/markdownToHtml";
+import prism from "prismjs";
+require("prismjs/components/prism-sqf");
+
+import "prismjs/themes/prism-okaidia.css";
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -38,6 +45,8 @@ export default function EditEvent({ event }) {
 	const { data: session } = useSession();
 
 	useEffect(() => {
+ 
+		
 		const doNotShowFactionsTip = localStorage.getItem("doNotShowFactionsTip");
 		setShowFactionsTip(!doNotShowFactionsTip);
 		if (session?.user) {
@@ -70,13 +79,9 @@ export default function EditEvent({ event }) {
 		}
 	};
 
-	const [eventContentPages, setEventContentPages] = useState<ISideNavItem[]>([
-		{
-			title: "Summary",
-			type: null,
-			markdownContent: "Type the summary here",
-		},
-	]);
+	const [eventContentPages, setEventContentPages] = useState<ISideNavItem[]>(
+		event.contentPages
+	);
 
 	const [eventReservableSlotsInfo, setEventReservableSlotsInfo] = useState(
 		event.eventReservableSlotsInfo ?? [
@@ -97,17 +102,8 @@ export default function EditEvent({ event }) {
 		"write" | "preview"
 	>("write");
 
-	const converter = new Showdown.Converter({
-		tables: true,
-		simplifiedAutoLink: true,
-		strikethrough: true,
-		tasklists: true,
-	});
-
-	const [newSectionTitle, setNewSectionTitle] = useState(null);
-	const [newReservableSlottitle, setNewReservableSlottitle] = useState(null);
-
-	//const [eventReservableSlots, setReserevableSlots] = useState([]);
+	const [newSectionTitle, setNewSectionTitle] = useState("");
+	const [newReservableSlottitle, setNewReservableSlottitle] = useState("");
 
 	const validateSlotForm = (values) => {
 		const errors = {};
@@ -117,7 +113,6 @@ export default function EditEvent({ event }) {
 		if (!values.reservedSlotCount) {
 			errors["reservedSlotCount"] = "Required";
 		}
-
 		return errors;
 	};
 
@@ -128,7 +123,7 @@ export default function EditEvent({ event }) {
 			eventSlotCount: event.slots,
 			eventCoverMedia: null,
 			eventOrganizer: event.organizer ?? "",
-			eventStartDate: event.when,
+			eventStartDate: new Date(event.when),
 		},
 		validate: validateFields,
 		onSubmit: (values) => {
@@ -285,9 +280,13 @@ export default function EditEvent({ event }) {
 			})
 			.catch((error) => {
 				setIsLoading(false);
-				toast.error("Error closing event event");
+				toast.error("Error closing event");
 			});
 	}
+
+	useEffect(() => {
+		prism.highlightAll();
+	}, [currentContentPage]);
 
 	return (
 		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
@@ -385,6 +384,7 @@ export default function EditEvent({ event }) {
 							</label>
 							<button
 								className="btn btn-lg btn-primary"
+								type={"button"}
 								onClick={() => {
 									setDatePickerModalOpen(true);
 								}}
@@ -496,7 +496,7 @@ export default function EditEvent({ event }) {
 							<Tab.Panel>
 								<div>
 									<div className="flex flex-row">
-										<aside className={"px-4 py-6 relative h-full overflow-y-auto "}>
+										<aside className="relative flex-shrink-0 h-full px-4 py-6 overflow-y-auto">
 											<nav>
 												<div className="flex flex-row space-x-2">
 													<div className="form-control">
@@ -522,7 +522,7 @@ export default function EditEvent({ event }) {
 															const newOne = {
 																title: pageTitle,
 																type: null,
-																file: "Type something here",
+																markdownContent: "Type something here",
 															};
 															const index = eventContentPages.findIndex(
 																(item) => item.title == pageTitle
@@ -547,6 +547,9 @@ export default function EditEvent({ event }) {
 																isSelected={contentPage.title == currentContentPage.title}
 																onClick={(item) => {
 																	setCurrentContentPage(item);
+																	setTimeout(() => {
+																		prism.highlightAll();
+																	}, 20);
 																}}
 															></EventNavBarFactionItem>
 
@@ -559,6 +562,10 @@ export default function EditEvent({ event }) {
 																				(e) => e.title !== contentPage.title
 																			)
 																		);
+																		setCurrentContentPage(eventContentPages[0]);
+																		setTimeout(() => {
+																			prism.highlightAll();
+																		}, 20);
 																	}}
 																>
 																	<TrashIcon height={25}></TrashIcon>
@@ -572,6 +579,7 @@ export default function EditEvent({ event }) {
 										<main className="flex-grow">
 											{currentContentPage && (
 												<ReactMde
+													initialEditorHeight={1000}
 													value={currentContentPage.markdownContent}
 													toolbarCommands={[
 														[
@@ -593,19 +601,19 @@ export default function EditEvent({ event }) {
 															...currentContentPage,
 															markdownContent: val,
 														});
-
-														//Find index of specific object using findIndex method.
 														const objIndex = eventContentPages.findIndex(
 															(obj) => obj.title == currentContentPage.title
 														);
-
-														//Update object's name property.
 														eventContentPages[objIndex].markdownContent = val;
-
 														setEventContentPages(eventContentPages);
 													}}
 													selectedTab={selectedNoteTab}
-													onTabChange={setSelectedNoteTab}
+													onTabChange={(type) => {
+														setSelectedNoteTab(type);
+														setTimeout(() => {
+															prism.highlightAll();
+														}, 20);
+													}}
 													childProps={{
 														writeButton: {
 															tabIndex: -1,
@@ -621,7 +629,7 @@ export default function EditEvent({ event }) {
 													generateMarkdownPreview={async (markdown) => {
 														return Promise.resolve(
 															<div
-																className="prose"
+																className="prose max-w-none"
 																dangerouslySetInnerHTML={{
 																	__html: generateMarkdown(markdown),
 																}}
@@ -919,16 +927,18 @@ export default function EditEvent({ event }) {
 
 			<CloseEventModal
 				isOpen={closeModalOpen}
-				onClose={(closeReason, numberOfParticipants) => {
-					if (closeReason) {
-						setIsLoading(true);
-						setCloseModalOpen(false);
-						callCloseEvent(closeReason, numberOfParticipants);
-					}
+				onCloseEvent={(closeReason, numberOfParticipants) => {
+					setCloseModalOpen(false);
+					setIsLoading(true);
+					callCloseEvent(closeReason, numberOfParticipants);
+				}}
+				onClose={() => {
+					setCloseModalOpen(false);
 				}}
 			></CloseEventModal>
 
 			<EventDatePickerModal
+				initialDate={eventDataFormik.values.eventStartDate}
 				onDateSelect={(date) => {
 					eventDataFormik.setFieldValue("eventStartDate", date);
 				}}

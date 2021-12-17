@@ -1,7 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
 import ReactMde from "react-mde";
-import "react-mde/lib/styles/css/react-mde-all.css";
+import "react-mde/lib/styles/css/react-mde-editor.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde.css";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { generateMarkdown } from "../../lib/markdownToHtml";

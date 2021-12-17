@@ -10,7 +10,7 @@ export default function EventNavBarFactionItem({
 	isSelected = false,
 }) {
 	return (
-		<div className="w-full pt-4">
+		<div className="w-full">
 			<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
 				<div>
 					<div

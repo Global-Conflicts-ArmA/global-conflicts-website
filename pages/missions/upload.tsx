@@ -1,19 +1,22 @@
 import React, { useRef, useState } from "react";
 import ReactMde from "react-mde";
 import * as Showdown from "showdown";
-import "react-mde/lib/styles/css/react-mde-all.css";
-import ReactSelect from "../../components/react-select/react-select";
+import "react-mde/lib/styles/css/react-mde-editor.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde.css";
+
 import makeAnimated from "react-select/animated";
 import Select from "react-select";
 import { Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
 import { CredentialLockLayout } from "../../layouts/credential-lock-layout";
- 
+
 import { getSession, useSession } from "next-auth/react";
 import { useFormik } from "formik";
 import { parseInputInteger } from "../../lib/numberParser";
 import { toast } from "react-toastify";
-import Image from "next/image";
+
 import axios from "axios";
 import FormikErrortext from "../../components/formikErrorText";
 import MissionMediaCard from "../../components/mission_media_card";
@@ -226,7 +229,6 @@ function UploadMission() {
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
 				onUploadProgress: (p) => {
-
 					const progress = p.loaded / p.total;
 
 					// check if we already displayed a toast
@@ -249,8 +251,6 @@ function UploadMission() {
 			delete data.missionFile;
 			delete data.media;
 
-	 
-
 			formData.append("missionJsonData", JSON.stringify(data));
 			formData.append("missionFile", values.missionFile);
 			formData.append("media", values.media);
@@ -266,7 +266,6 @@ function UploadMission() {
 						}, 2000);
 					})
 					.catch((error) => {
-
 						if (error.response.status == 500) {
 							toast.error("Error uploading the mission, Let the admins know.");
 						} else {
@@ -458,7 +457,6 @@ function UploadMission() {
 								<div className="flex-1 overflow-hidden shadow-lg rounded-xl ">
 									<MissionMediaCard
 										createObjectURL={imageObjectUrl}
-								 
 										isVideo={missionFormik.values.media?.type.includes("video") ?? false}
 									></MissionMediaCard>
 								</div>
@@ -486,7 +484,6 @@ function UploadMission() {
 							<div className="flex-1 overflow-hidden shadow-xl rounded-xl">
 								<MissionMediaCard
 									createObjectURL={imageObjectUrl}
-							 
 									isVideo={missionFormik.values.media?.type.includes("video") ?? false}
 								></MissionMediaCard>
 							</div>
@@ -698,7 +695,6 @@ function UploadMission() {
 							type="submit"
 							onClick={async () => {
 								await missionFormik.validateForm();
-
 
 								if (!missionFormik.isValid) {
 									toast.error("Some fields are invalid!");

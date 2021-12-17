@@ -11,7 +11,7 @@ export default function NavBarItem({
 }) {
 	return (
 		<div className="w-full pt-4">
-			<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
+			<div className="w-full mx-auto bg-white max-w-none md:max-w-md rounded-2xl">
 				{item["children"] ? (
 					<Disclosure defaultOpen={true}>
 						{({ open }) => (
@@ -64,7 +64,7 @@ export default function NavBarItem({
 							<Link href={`/guides/${item["slug"]}`}>
 								<a>
 									<div className="p-4 mb-4 text-sm font-medium text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100">
-									{isSelected ? "•" : ""} {item["title"]}
+										{isSelected ? "•" : ""} {item["title"]}
 									</div>
 								</a>
 							</Link>

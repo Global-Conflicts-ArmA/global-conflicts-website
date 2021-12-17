@@ -30,7 +30,8 @@ import prism from "prismjs";
 require("prismjs/components/prism-sqf");
 
 import "prismjs/themes/prism-okaidia.css";
-require("prismjs/plugins/line-numbers/prism-line-numbers.js");
+import router from "next/router";
+
 const Completionist = () => (
 	<div className="my-10 prose">
 		<h1>It has begun!</h1>
@@ -159,7 +160,6 @@ export default function EventHome({ event }) {
 	});
 
 	useEffect(() => {
-		prism.plugins;
 		prism.highlightAll();
 	}, [currentContentPage]);
 
@@ -463,36 +463,36 @@ export default function EventHome({ event }) {
 						</div>
 					))}
 			</div>
-			<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
-				<div className="flex flex-row">
-					<aside className={"px-4 py-6  relative h-full overflow-y-auto "}>
-						<nav>
-							{event.contentPages.map((contentPage) => (
-								<ul key={contentPage["title"]} className="">
-									<NavBarItem
-										item={contentPage}
-										isSelected={contentPage.title == currentContentPage.title}
-										onClick={(child) => {
-											setCurrentContentPage(contentPage);
-										}}
-									></NavBarItem>
-								</ul>
-							))}
-						</nav>
-					</aside>
-					<main className="flex-grow">
-						<div className="prose">
-							<h1>Event Details:</h1>
-						</div>
-						<article className="max-w-full prose line-numbers">
+			<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl mb-44">
+				<div className="px-2">
+					<div className="prose">
+						<h1>Event Details:</h1>
+					</div>
+					<div className="flex flex-col md:flex-row">
+						<aside className="relative flex-shrink w-full h-full px-4 py-6 overflow-y-auto max-w-none md:max-w-xs">
+							<nav>
+								{event.contentPages.map((contentPage) => (
+									<ul key={contentPage["title"]} className="">
+										<NavBarItem
+											item={contentPage}
+											isSelected={contentPage.title == currentContentPage.title}
+											onClick={(child) => {
+												setCurrentContentPage(contentPage);
+											}}
+										></NavBarItem>
+									</ul>
+								))}
+							</nav>
+						</aside>
+						<main className="flex-1 flex-grow max-w-full prose min-w-300">
 							<kbd className="hidden kbd"></kbd>
 							<div
 								dangerouslySetInnerHTML={{
 									__html: currentContentPage.parsedMarkdownContent,
 								}}
 							></div>
-						</article>
-					</main>
+						</main>
+					</div>
 				</div>
 			</div>
 

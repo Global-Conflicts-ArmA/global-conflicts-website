@@ -3,7 +3,10 @@ import React, { Fragment, useEffect, useState } from "react";
  
 import ReactMde, { getDefaultToolbarCommands } from "react-mde";
  
-import "react-mde/lib/styles/css/react-mde-all.css";
+import "react-mde/lib/styles/css/react-mde-editor.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde.css";
 import Select, { ActionMeta, OnChangeValue } from "react-select";
 import { UserRemoveIcon } from "@heroicons/react/outline";
  

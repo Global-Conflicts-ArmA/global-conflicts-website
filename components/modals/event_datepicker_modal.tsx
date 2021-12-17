@@ -3,8 +3,13 @@ import moment from "moment";
 import React, { Fragment, useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-export default function EventDatePickerModal({ isOpen, onClose, onDateSelect }) {
-	const [startDate, setStartDate] = useState(new Date());
+export default function EventDatePickerModal({
+	isOpen,
+	onClose,
+	onDateSelect,
+	initialDate,
+}) {
+	const [startDate, setStartDate] = useState(initialDate);
 
 	const onChange = (date) => {
 		setStartDate(date);

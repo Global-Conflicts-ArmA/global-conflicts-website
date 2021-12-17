@@ -85,6 +85,7 @@ export default function EventCard({
 						<Image
 							quality={100}
 							src={event.imageLink}
+							priority={true}
 							layout={"fill"}
 							objectFit="cover"
 							alt={"Event cover image"}

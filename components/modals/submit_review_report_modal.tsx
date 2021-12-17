@@ -1,7 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
 import ReactMde from "react-mde";
-import "react-mde/lib/styles/css/react-mde-all.css";
+import "react-mde/lib/styles/css/react-mde-editor.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde-toolbar.css";
+import "react-mde/lib/styles/css/react-mde.css";
 
 import hasCreds from "../../lib/credsChecker";
 import { CREDENTIAL } from "../../middleware/check_auth_perms";
@@ -9,8 +12,7 @@ import { useSession } from "next-auth/react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Select, { ActionMeta, OnChangeValue } from "react-select";
-
-import { Version } from "../../pages/api/missions/[uniqueName]/update";
+ 
 import { generateMarkdown } from "../../lib/markdownToHtml";
 import { capitalize } from "../../lib/captlize";
 export default function SubmitReviewReportModal({

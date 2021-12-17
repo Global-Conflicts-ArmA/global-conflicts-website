@@ -79,7 +79,7 @@ export default function EventEditingCard({
 				</div>
 
 				<div className="flex flex-row textshadow">
-					<p className="flex-1 prose">
+					<p className="flex-1 prose break-words">
 						{eventDescription ??
 							"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
 					</p>
