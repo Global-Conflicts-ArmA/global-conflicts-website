@@ -1,8 +1,6 @@
-import placeholder_event from "../public/placeholder_event.jpg";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
-import moment from "moment";
 import { VolumeOffIcon, VolumeUpIcon } from "@heroicons/react/outline";
 
 export default function MissionMediaCard({

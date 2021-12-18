@@ -20,7 +20,8 @@
 }
 
 .login-card {
-	background-image: url("../public/login-card-bg.png");
+	background-image: url("../public/login-card-bg.webp");
+ 
 	background-repeat: no-repat;
 	background-size: cover;
 	background-blend-mode: multiply;

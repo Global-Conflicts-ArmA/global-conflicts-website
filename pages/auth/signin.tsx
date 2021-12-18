@@ -1,6 +1,7 @@
 import { getProviders, signIn } from "next-auth/react";
 import Image from "next/image";
 import background from "../../public/login-bg.jpg";
+import logo from "../../public/logo-patch.webp";
 export default function SignIn({ providers }) {
 	return (
 		<>
@@ -10,6 +11,7 @@ export default function SignIn({ providers }) {
 						src={background}
 						alt="Picture of the author"
 						layout="fill" // required
+						quality={100}
 						objectFit="cover" // change to suit your needs
 					/>
 				</div>
@@ -20,7 +22,8 @@ export default function SignIn({ providers }) {
 								alt="login modal background"
 								width={400}
 								height={400}
-								src="https://globalconflicts.net/assets/imgs/logo.png"
+								quality={100}
+								src={logo}
 							/>
 						</div>
 						<div className="flex flex-col content-between justify-between flex-1 p-8 sm:w-2/3">

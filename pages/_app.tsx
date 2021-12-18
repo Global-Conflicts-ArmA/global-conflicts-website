@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.min.css";
 import { ToastContainer } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";
 
-import gcBanner from "../public/new_website_banner.png";
+import gcBanner from "../public/banner.png";
 import Link from "next/link";
 import Head from "next/head";
 import topography from "../public/topography.svg";

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import background from "../public/login-bg.jpg";
 import soldier1 from "../public/solider-1.png";
-import soldier2 from "../public/solider-2.png";
+import soldier2 from "../public/solider-2.webp";
 import discordLogo from "../public/discord.png";
 import c2 from "../public/c2.jpg";
 import c1 from "../public/c1.jpg";
@@ -9,9 +9,9 @@ import c10 from "../public/c10.jpg";
 import c9 from "../public/c9.jpg";
 import c11 from "../public/c11.jpg";
 import c12 from "../public/c12.jpg";
-import card_3_bg from "../public/card_3_bg.jpg";
+ 
 
-import gcBanner from "../public/new_website_banner.png";
+import gcBanner from "../public/banner.png";
 import DecorativeCard from "../components/decorative_card/decorative_card";
 import useMatchMedia from "../lib/matchmedia";
 import { useWindowSize } from "../lib/windowsize";
@@ -71,6 +71,7 @@ function Home() {
 								className="relative"
 								alt="Solider image"
 								width={1142}
+								quality={100}
 								height={1392}
 								src={soldier1}
 							/>

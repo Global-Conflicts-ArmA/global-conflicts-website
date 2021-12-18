@@ -1,4 +1,4 @@
-import placeholder_event from "../public/placeholder_event.jpg";
+import card_placeholder from "../public/card_placeholder.png";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -38,7 +38,7 @@ export default function EventEditingCard({
 				) : (
 					<Image
 						quality={100}
-						src={objectURL ?? placeholder_event}
+						src={objectURL ?? card_placeholder}
 						layout={"fill"}
 						objectFit="cover"
 						alt={"Event cover image"}

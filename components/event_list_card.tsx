@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import moment from "moment";
 import { VolumeOffIcon, VolumeUpIcon } from "@heroicons/react/outline";
-
+import card_placeholder from "../public/card_placeholder.png";
 export default function EventCard({
 	event,
 	aspectRatio = "16/6",
@@ -78,18 +78,33 @@ export default function EventCard({
 			<div className="relative drop-shadow-xl shadow-strong card">
 				<figure className="card-figure" style={{ aspectRatio }}>
 					{event.imageLink?.includes("webm") || event.imageLink?.includes("mp4") ? (
-						<video loop key={event.imageLink} ref={videoRef}>
+						<video
+							poster={card_placeholder.src}
+							loop
+							key={event.imageLink}
+							ref={videoRef}
+						>
 							<source src={event.imageLink} />
 						</video>
 					) : (
-						<Image
-							quality={100}
-							src={event.imageLink}
-							priority={true}
-							layout={"fill"}
-							objectFit="cover"
-							alt={"Event cover image"}
-						/>
+						<>
+							<Image
+								quality={100}
+								src={card_placeholder}
+								loading={"eager"}
+								priority={true}
+								layout={"fill"}
+								objectFit="cover"
+								alt={"Event cover image"}
+							/>
+							<Image
+								quality={100}
+								src={event.imageLink}
+								layout={"fill"}
+								objectFit="cover"
+								alt={"Event cover image"}
+							/>
+						</>
 					)}
 				</figure>
 

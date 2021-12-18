@@ -8,8 +8,8 @@ import SignInBtn from "./sigin_btn";
 import SignOutBtn from "./signout_btn";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import gcWhiteBanner from "../public/new_website_banner_white2.png";
-import gcSmallLogo from "../public/new_website_small_logo.webp";
+import gcWhiteBanner from "../public/small-banner.png";
+import gcSmallLogo from "../public/logo-patch.webp";
 
 export default function NavBar() {
 	const { data: session } = useSession();
@@ -93,6 +93,7 @@ export default function NavBar() {
 													className="block w-auto h-8"
 													width="151"
 													height="50"
+													quality={100}
 													src={gcWhiteBanner}
 													alt="Global Conflicts Logo"
 												/>
@@ -106,6 +107,7 @@ export default function NavBar() {
 													className="block w-auto h-8"
 													width="50"
 													height="50"
+													quality={100}
 													src={gcSmallLogo}
 													alt="Global Conflicts Logo"
 												/>
@@ -119,6 +121,7 @@ export default function NavBar() {
 													className="block w-auto h-8"
 													width="151"
 													height="50"
+													quality={100}
 													src={gcWhiteBanner}
 													alt="Global Conflicts Logo"
 												/>
