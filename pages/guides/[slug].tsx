@@ -1,5 +1,6 @@
 import GuidesLayout from "../../layouts/guides-layout";
-import { getGuideBySlug, getGuidesPaths } from "../api/guides";
+import _guidesOrder from "../../guides-order.json";
+import { getGuideBySlug } from "../api/guides";
 import { useRouter } from "next/router";
 import { MDXLayoutRenderer } from "../../components/MDXComponents";
 import { bundleMDX } from "mdx-bundler";
@@ -8,6 +9,7 @@ import rehypeSlug from "rehype-slug";
 import rehypeCodeTitles from "rehype-code-titles";
 import rehypePrism from "rehype-prism-plus";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
+import { generateMarkdown } from "../../lib/markdownToHtml";
 
 function Guide({ guideContent }) {
 	const router = useRouter();
@@ -16,7 +18,12 @@ function Guide({ guideContent }) {
 	return (
 		<article className="max-w-3xl m-10 prose">
 			<kbd className="hidden kbd"></kbd>
-			<MDXLayoutRenderer mdxSource={guideContent} />
+			<div
+				 
+				dangerouslySetInnerHTML={{
+					__html: guideContent,
+				}}
+			></div>
 		</article>
 	);
 }
@@ -32,30 +39,9 @@ export async function getStaticProps({ params }: Params) {
 		{ slug: params.slug },
 		{ projection: { _id: 0 } }
 	);
+	const markdownContent = generateMarkdown(guide["content"]);
 
-	const { code, frontmatter } = await bundleMDX({
-		source: guide["content"],
-		xdmOptions(options) {
-			options.rehypePlugins = [
-				...(options?.rehypePlugins ?? []),
-				rehypeSlug,
-				rehypeCodeTitles,
-				rehypePrism,
-
-				[
-					rehypeAutolinkHeadings,
-					{
-						properties: {
-							className: ["anchor"],
-						},
-					},
-				],
-			];
-			return options;
-		},
-	});
-
-	return { props: { guideContent: code } };
+	return { props: { guideContent: markdownContent } };
 }
 
 export async function getStaticPaths() {
@@ -70,6 +56,20 @@ export async function getStaticPaths() {
 		}),
 		fallback: false,
 	};
+}
+
+export function getGuidesPaths() {
+	const paths = [];
+	_guidesOrder.forEach((guide) => {
+		if (guide["children"]) {
+			guide["children"].forEach((child) => {
+				paths.push(child["slug"]);
+			});
+		} else {
+			paths.push(guide["slug"]);
+		}
+	});
+	return paths;
 }
 
 Guide.PageLayout = GuidesLayout;

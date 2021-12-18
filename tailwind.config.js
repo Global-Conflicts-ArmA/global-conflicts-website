@@ -15,11 +15,15 @@ module.exports = {
 			187: "157px",
 			300: "300px",
 			370: "376px",
-	
+
 			70: "70px",
 		},
 
+
 		extend: {
+			maxWidth: {
+				"14rem": "14rem",
+			},
 			width: {
 				700: "700px",
 				606: "606px",

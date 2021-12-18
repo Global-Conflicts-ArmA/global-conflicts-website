@@ -382,12 +382,7 @@ pre[class*="language-"] {
 .mde-preview {
 	margin: 10px;
 }
-article {
-	overflow: auto !important; /* new */
-	flex-grow: 1 !important;
-	min-height: 100vh !important;
-	background-color: lightgray !important;
-}
+ 
 pre {
 	overflow: auto !important;
 	font-size: 87.5% !important;

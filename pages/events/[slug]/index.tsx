@@ -469,7 +469,7 @@ export default function EventHome({ event }) {
 						<h1>Event Details:</h1>
 					</div>
 					<div className="flex flex-col md:flex-row">
-						<aside className="relative flex-shrink w-full h-full px-4 py-6 overflow-y-auto max-w-none md:max-w-xs">
+						<aside className="relative flex-shrink w-full h-full px-4 py-6 overflow-y-auto max-w-none md:max-w-14rem">
 							<nav>
 								{event.contentPages.map((contentPage) => (
 									<ul key={contentPage["title"]} className="">
