@@ -19,7 +19,6 @@ function Guide({ guideContent }) {
 		<article className="max-w-3xl m-10 prose">
 			<kbd className="hidden kbd"></kbd>
 			<div
-				 
 				dangerouslySetInnerHTML={{
 					__html: guideContent,
 				}}

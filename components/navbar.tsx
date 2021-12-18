@@ -16,7 +16,11 @@ export default function NavBar() {
 	const router = useRouter();
 
 	const navigation = [
-		{ name: "Guides", href: "/guides", current: router.pathname == "/guides" },
+		{
+			name: "Guides",
+			href: "/guides",
+			current: router.pathname.includes("/guides"),
+		},
 		{
 			name: "Missions",
 			href: "#",
