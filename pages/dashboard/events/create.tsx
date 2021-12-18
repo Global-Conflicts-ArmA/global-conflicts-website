@@ -886,6 +886,7 @@ function EventsDashboardPage() {
 			</div>
 
 			<EventDatePickerModal
+				initialDate={eventDataFormik.values.eventStartDate}
 				onDateSelect={(date) => {
 					eventDataFormik.setFieldValue("eventStartDate", date);
 				}}
