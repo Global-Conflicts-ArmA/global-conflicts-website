@@ -1,14 +1,7 @@
 import GuidesLayout from "../../layouts/guides-layout";
 import _guidesOrder from "../../guides-order.json";
-import { getGuideBySlug } from "../api/guides";
 import { useRouter } from "next/router";
-import { MDXLayoutRenderer } from "../../components/MDXComponents";
-import { bundleMDX } from "mdx-bundler";
 import MyMongo from "../../lib/mongodb";
-import rehypeSlug from "rehype-slug";
-import rehypeCodeTitles from "rehype-code-titles";
-import rehypePrism from "rehype-prism-plus";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { generateMarkdown } from "../../lib/markdownToHtml";
 
 function Guide({ guideContent }) {
