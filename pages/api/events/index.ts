@@ -23,8 +23,8 @@ const upload = multer({
 				.replaceAll(/\W/g, "")
 				.trim()
 				.toLowerCase();
-			const fileName = slug + "." + fileExt;
-			return cb(null, fileName);
+			const filename = slug + "." + fileExt;
+			return cb(null, filename);
 		},
 	}),
 	fileFilter: (req, file, cb) => {
@@ -61,7 +61,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		.toLowerCase();
 
 	const fileExt = req["files"][0].originalname.split(".").pop();
-	const fileName = slug + "." + fileExt;
+	const filename = slug + "." + fileExt;
 
 	await MyMongo.collection("events").insertOne({
 		name: body["eventName"],
@@ -71,7 +71,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		organizer: body["eventOrganizer"],
 		eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
 		when: Date.parse(body["eventStartDate"]),
-		imageLink: eventCoverMediaPath + fileName,
+		imageLink: eventCoverMediaPath + filename,
 		slug: slug,
 	});
 
@@ -101,8 +101,8 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	if (req["files"][0]) {
 		const fileExt = req["files"][0].originalname.split(".").pop();
-		const fileName = slug + "." + fileExt;
-		setData["imageLink"] = eventCoverMediaPath + fileName;
+		const filename = slug + "." + fileExt;
+		setData["imageLink"] = eventCoverMediaPath + filename;
 	}
 
 	await MyMongo.collection("events").updateOne(

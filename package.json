@@ -30,6 +30,8 @@
     "babel-plugin-superjson-next": "^0.4.2",
     "clsx": "^1.1.1",
     "daisyui": "^1.16.0",
+    "file-saver": "^2.0.5",
+    "filesaver": "^0.0.13",
     "formidable": "^2.0.1",
     "formik": "^2.2.9",
     "fs": "^0.0.1-security",

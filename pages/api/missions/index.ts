@@ -146,7 +146,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 				},
 				authorID: session.user.discord_id,
 				date: new Date(),
-				fileName: missionFileName,
+				filename: missionFileName,
 				changeLog: "First Version",
 			},
 		],

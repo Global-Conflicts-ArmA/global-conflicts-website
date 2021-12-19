@@ -283,7 +283,7 @@ function UploadMission() {
 
 	const { data: session } = useSession();
 	return (
-		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
+		<CredentialLockLayout session={session} cred={CREDENTIAL.MISSION_MAKER} message={`You must have the <b>"Mission Maker"</b> role on our Discord server to upload missions.`}>
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl">
 				<form onSubmit={missionFormik.handleSubmit}>
 					<div className="my-10 prose">

@@ -42,7 +42,7 @@ export default function CommentBox({
 			</div>
 
 			<div className="mt-4 space-y-2 overflow-auto" style={{ maxHeight: "500px" }}>
-				{comments.length != 0 ? (
+				{(comments?.length ?? 0) != 0 ? (
 					comments.map((item, index) => {
 						return (
 							<>

@@ -16,7 +16,9 @@ function ProfileIndex() {
 
 			<div className="prose prose-xl max-w-none">
 				<span>Nickname: </span>
-				<span>W-Cephei</span>
+				<span>
+					{session?.user ? session.user["nickname"] ?? session.user["username"] : ""}
+				</span>
 				<hr></hr>
 				<span>Roles: </span>
 				{session?.user["roles"].map((role) => (
@@ -33,7 +35,7 @@ function ProfileIndex() {
 				<button
 					className="btn btn-lg btn-wide btn-warning"
 					onClick={() => {
-						signOut({ callbackUrl: '/' });
+						signOut({ callbackUrl: "/" });
 					}}
 				>
 					Sign out

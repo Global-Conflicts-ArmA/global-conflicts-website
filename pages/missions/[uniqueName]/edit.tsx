@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactMde from "react-mde";
-import * as Showdown from "showdown";
 import "react-mde/lib/styles/css/variables.css";
 import "react-mde/lib/styles/css/react-mde-editor.css";
 import "react-mde/lib/styles/css/react-mde-toolbar.css";
@@ -12,12 +11,10 @@ import Select from "react-select";
 import { Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
 import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
- 
 import { getSession, useSession } from "next-auth/react";
 import { useFormik } from "formik";
 import { parseInputInteger } from "../../../lib/numberParser";
 import { toast } from "react-toastify";
-import Image from "next/image";
 import axios from "axios";
 import FormikErrortext from "../../../components/formikErrorText";
 import MissionMediaCard from "../../../components/mission_media_card";
@@ -31,14 +28,7 @@ import {
 	timeOfDayOptions,
 	typeOptions,
 } from "../../../lib/missionSelectOptions";
-import { remark } from "remark";
-const converter = new Showdown.Converter({
-	tables: true,
-	simplifiedAutoLink: true,
-	strikethrough: true,
-	tasklists: true,
-});
- 
+
 import { CREDENTIAL } from "../../../middleware/check_auth_perms";
 import { generateMarkdown } from "../../../lib/markdownToHtml";
 const editorHeight = 338;
@@ -276,9 +266,9 @@ function EditMission({ mission }) {
 		},
 	});
 
-	const { data: session } = useSession();
+	const { data: session, status } = useSession()
 	return (
-		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
+		<CredentialLockLayout status={status} session={session} matchId={mission.authorID} cred={CREDENTIAL.MISSION_MAKER} >
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl">
 				<form onSubmit={missionFormik.handleSubmit}>
 					<div className="max-w-full my-10 prose ">
@@ -688,6 +678,7 @@ export async function getServerSideProps(context) {
 				history: 0,
 				updates: 0,
 				reports: 0,
+				reviews: 0,
 			},
 		}
 	);

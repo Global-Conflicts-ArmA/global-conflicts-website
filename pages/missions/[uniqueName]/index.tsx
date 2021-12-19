@@ -2,10 +2,6 @@ import DataTable, { Media } from "react-data-table-component";
 
 import MyMongo from "../../../lib/mongodb";
 import moment from "moment";
-import NotPresentIcon from "../../../components/icons/not_present";
-import PresentIcon from "../../../components/icons/present";
-import ValidatedIcon from "../../../components/icons/validated";
-import InvalidIcon from "../../../components/icons/invalid";
 import DownloadIcon from "../../../components/icons/download";
 import fs from "fs";
 import React, { useEffect, useState } from "react";
@@ -36,7 +32,7 @@ import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import rehypeFormat from "rehype-format";
 import remarkGfm from "remark-gfm";
-
+import { saveAs } from "file-saver";
 import { REVIEW_STATE_PENDING } from "../../../lib/reviewStates";
 import {
 	BanIcon,
@@ -161,6 +157,18 @@ export default function MissionDetails({
 		return leader.discordID == session?.user["discord_id"];
 	}
 
+	async function downloadMission(filename) {
+		console.log(filename);
+		axios
+			.get("/api/missions/download/", { params: { filename: filename } })
+			.then((result) => {
+				const blob: any = new Blob([result.data]);
+				const url = window.URL.createObjectURL(blob);
+				console.log(url);
+				saveAs(blob, filename);
+			});
+	}
+
 	const columns = [
 		{
 			name: "Date",
@@ -266,8 +274,8 @@ export default function MissionDetails({
 				return (
 					<button
 						onClick={() => {
-							setActionsModalIsOpen(true);
-							setActionsModalData(row);
+							console.log(row);
+							downloadMission(row.filename);
 						}}
 						className="btn btn-sm"
 					>
@@ -341,6 +349,19 @@ export default function MissionDetails({
 			});
 	}
 
+	function canEdit() {
+		const isAdmin = hasCreds(session, CREDENTIAL.ADMIN);
+		if (isAdmin) {
+			return true;
+		}
+		if (hasCreds(session, CREDENTIAL.MISSION_MAKER)) {
+			if (session.user["discord_id"] == mission.authorID) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	function getMissionMediaPath(absolute = false) {
 		if (mission.mediaFileName) {
 			return absolute
@@ -348,7 +369,7 @@ export default function MissionDetails({
 				: `/missionsCoverMedia/${mission.mediaFileName}`;
 		} else {
 			return absolute
-				? `https://gc-next-website.vercel.app/terrain_pics/${mission.terrain.toLowerCase()}`
+				? `https://gc-next-website.vercel.app/terrain_pics/${mission.terrain.toLowerCase()}.jpg`
 				: `/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
 		}
 	}
@@ -423,29 +444,46 @@ export default function MissionDetails({
 			<Head>
 				<title>{mission.name}</title>
 
-				<meta property="og:url" content="https://globalconflicts.net/" />
-				<meta property="og:type" content="website" />
-
-				<meta property="og:title" content={mission.name} key="title" />
-				<meta property="og:image" content={getMissionMediaPath(true)} key="image" />
 				<meta
-					property="twitter:image"
-					content={getMissionMediaPath(true)}
-					key="image"
+					name="description"
+					content={mission.descriptionNoMarkdown}
+					key="description"
 				/>
-
-				<meta name="twitter:card" content="summary_large_image" />
 				<meta
 					property="og:description"
 					content={mission.descriptionNoMarkdown}
-					key="description"
+					key="og:description"
 				/>
 				<meta
-					property="description"
+					name="twitter:description"
 					content={mission.descriptionNoMarkdown}
-					key="description"
+					key="twitter:description"
 				/>
-				<meta property="og:site_name" content="Global Conflicts" />
+				<meta
+					property="og:url"
+					content={`https://gc-next-website.vercel.app/missions/${mission.uniqueName}`}
+					key="og:url"
+				/>
+				<meta
+					property="twitter:url"
+					content={`https://gc-next-website.vercel.app/missions/${mission.uniqueName}`}
+					key="twitter:url"
+				/>
+
+				<meta property="og:title" content={mission.name} key="og:title" />
+
+				<meta name="twitter:title" content={mission.name} key="twitter:title" />
+
+				<meta
+					name="twitter:image"
+					content={getMissionMediaPath(true)}
+					key="twitter:image"
+				/>
+				<meta
+					property="og:image"
+					content={getMissionMediaPath(true)}
+					key="og:image"
+				/>
 			</Head>
 			<div className="flex flex-col max-w-screen-lg mx-auto mt-5 xl:max-w-screen-xl">
 				<div className="mx-2">
@@ -474,14 +512,16 @@ export default function MissionDetails({
 								</button>
 							</div>
 
-							<div
-								data-tip="Edit the details of your mission"
-								className="z-10 tooltip tooltip-bottom"
-							>
-								<Link href={`/missions/${mission.uniqueName}/edit`}>
-									<a className="ml-5 text-white btn btn-sm">Edit details</a>
-								</Link>
-							</div>
+							{canEdit() && (
+								<div
+									data-tip="Edit the details of your mission"
+									className="z-10 tooltip tooltip-bottom"
+								>
+									<Link href={`/missions/${mission.uniqueName}/edit`}>
+										<a className="ml-5 text-white btn btn-sm">Edit details</a>
+									</Link>
+								</div>
+							)}
 						</div>
 					</div>
 
@@ -498,21 +538,19 @@ export default function MissionDetails({
 						</div>
 
 						<div className="flex flex-col justify-between flex-1 ">
-						 
-								<div className="ml-2">
-									<div className="max-w-3xl prose">
-										{mission.descriptionMarkdown ? (
-											<div
-												className="max-w-3xl"
-												dangerouslySetInnerHTML={{
-													__html: mission.descriptionMarkdown,
-												}}
-											></div>
-										) : (
-											mission.description
-										)}
-									</div>
-								 
+							<div className="ml-2">
+								<div className="max-w-3xl prose">
+									{mission.descriptionMarkdown ? (
+										<div
+											className="max-w-3xl"
+											dangerouslySetInnerHTML={{
+												__html: mission.descriptionMarkdown,
+											}}
+										></div>
+									) : (
+										mission.description
+									)}
+								</div>
 							</div>
 
 							<div className="flex flex-row flex-wrap w-full stats">
@@ -1088,6 +1126,7 @@ export async function getServerSideProps(context) {
 				report["authorID"] = user?.discord_id;
 				report["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
 				report["authorAvatar"] = user?.image;
+				report["text"] = report["report"] ?? report["text"]; // backwards compat
 			})
 		);
 	}
@@ -1104,6 +1143,7 @@ export async function getServerSideProps(context) {
 				review["discord_id"] = user?.discord_id;
 				review["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
 				review["authorAvatar"] = user?.image;
+				review["text"] = review["review"] ?? review["text"]; // backwards compat
 			})
 		);
 	}
@@ -1115,6 +1155,8 @@ export async function getServerSideProps(context) {
 
 				await Promise.all(
 					history["leaders"]?.map(async (leader) => {
+						console.log(leader);
+						delete leader["_id"];
 						var user = await MyMongo.collection("users").findOne(
 							{ discord_id: leader["discordID"] },
 							{ projection: { username: 1, nickname: 1 } }
@@ -1163,7 +1205,6 @@ export async function getServerSideProps(context) {
 			.use(rehypeFormat)
 			.use(rehypeStringify)
 			.use(rehypeSanitize)
-
 			.process(mission["description"]);
 
 		mission["descriptionMarkdown"] = thing.value.toString();
@@ -1187,7 +1228,6 @@ export async function getServerSideProps(context) {
 	);
 	const terrainsMap = configs["allowed_terrains"];
 
-	console.log("mission");
 	if (!mission.terrainName) {
 		mission.terrainName = terrainsMap.find(
 			(item) => item.class.toLowerCase() == mission.terrain.toLowerCase()

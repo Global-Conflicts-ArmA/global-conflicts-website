@@ -14,6 +14,10 @@
          {
             "title": "Rules",
             "slug": "rules"
+         },
+         {
+            "title": "Staff",
+            "slug": "staff"
          }
       ],
       "type": "section"
@@ -28,6 +32,20 @@
          {
             "title": "Clearing Buildings",
             "slug": "clearing-buildings"
+         }
+      ],
+      "type": "section"
+   },
+   {
+      "title": "Radios and Communication",
+      "children": [
+         {
+            "title": "Basic",
+            "slug": "basic-radios-comms"
+         },
+         {
+            "title": "Advanced",
+            "slug": "advanced-radios-comms"
          }
       ],
       "type": "section"
