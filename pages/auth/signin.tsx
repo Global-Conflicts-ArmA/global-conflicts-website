@@ -1,4 +1,4 @@
-import { getProviders, signIn } from "next-auth/react";
+import { getProviders, getSession, signIn } from "next-auth/react";
 import Image from "next/image";
 import background from "../../public/login-bg.jpg";
 import logo from "../../public/logo-patch.webp";
@@ -46,6 +46,17 @@ export default function SignIn({ providers }) {
 
 // This is the recommended way for Next.js 9.3 or newer
 export async function getServerSideProps(context) {
+	const session = await getSession(context);
+	console.log(session);
+	if (session?.user) {
+		return {
+			redirect: {
+				destination: "/", // some destination '/dashboard' Ex,
+				permanent: false,
+			},
+		};
+	}
+
 	const providers = await getProviders();
 	return {
 		props: { providers },

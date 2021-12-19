@@ -37,7 +37,17 @@ module.exports = withMDX({
 				destination: "/guides/getting-started",
 				permanent: true,
 			},
+			{
+				source: "/",
+				has: [
+					{
+						type: "query",
+						key: "callbackUrl",
+					},
+				],
+				permanent: true,
+				destination: "/",
+			},
 		];
 	},
 });
- 

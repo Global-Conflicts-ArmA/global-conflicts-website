@@ -107,6 +107,7 @@ export async function getServerSideProps(context) {
 					history: 0,
 					updates: 0,
 					reports: 0,
+					reviews: 0,
 				},
 			}
 		)

@@ -21,7 +21,7 @@
 
 .login-card {
 	background-image: url("../public/login-card-bg.webp");
- 
+
 	background-repeat: no-repat;
 	background-size: cover;
 	background-blend-mode: multiply;
@@ -383,7 +383,7 @@ pre[class*="language-"] {
 .mde-preview {
 	margin: 10px;
 }
- 
+
 pre {
 	overflow: auto !important;
 	font-size: 87.5% !important;
@@ -399,4 +399,9 @@ pre::-webkit-scrollbar-thumb {
 }
 pre::-webkit-scrollbar {
 	width: 2px;
+}
+
+.grain-progress-bar > div > div {
+	filter: contrast(100%) brightness(100%);
+	background: linear-gradient(90deg, rgb(142 141 94), rgb(31 41 55));
 }

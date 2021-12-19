@@ -1,25 +1,35 @@
-import React, { createContext, useContext } from "react";
+import React from "react";
 
 import Link from "next/link";
 
 import _guidesOrder from "../guides-order.json";
 
-import { ChevronUpIcon } from "@heroicons/react/outline";
-import { Disclosure, Transition } from "@headlessui/react";
-
-const btns = [
-	{ title: "Profile Details", href: "/user" },
-	{ title: "My Missions", href: "/user/my-missions" },
-	{ title: "My Leadership History", href: "/user/leadership-history" },
-];
+import { useRouter } from "next/router";
 
 export default function ProfileLayout({ children }) {
+	const router = useRouter();
+	const btns = [
+		{
+			title: "Profile Details",
+			href: "/user",
+			current: router.pathname == "/user",
+		},
+		{
+			title: "My Missions",
+			href: "/user/my-missions",
+			current: router.pathname == "/user/my-missions",
+		},
+		{
+			title: "My Leadership History",
+			href: "/user/leadership-history",
+			current: router.pathname == "/user/leadership-history",
+		},
+	];
+
 	return (
 		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-row mt-10">
-				<aside
-					className={"px-4 py-6  relative h-full overflow-y-auto mt-10"}
-				>
+				<aside className={"px-4 py-6  relative h-full overflow-y-auto mt-10"}>
 					<nav>
 						{btns.map((btn) => (
 							<ul key={btn.title}>
@@ -28,7 +38,8 @@ export default function ProfileLayout({ children }) {
 										<div>
 											<Link href={`/${btn.href}`}>
 												<a>
-													<div className="p-4 mb-4 text-sm font-medium text-gray-800 rounded-lg cursor-pointer hover:bg-gray-100">
+													<div className={`p-4 mb-4 text-sm ${btn.current? "font-medium":"font-normal"} text-gray-800 rounded-lg cursor-pointer hover:bg-gray-100`}>
+														{btn.current && "• "}
 														{btn["title"]}
 													</div>
 												</a>

@@ -6,7 +6,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { Line, Circle } from "rc-progress";
 import ProgressBar from "@ramonak/react-progress-bar";
-
+import gcSmallLogo from "../../public/logo-patch.webp";
 function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 	const [goalsToUse, setGoalsToUse] = useState(goals);
 
@@ -29,77 +29,77 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 			</Head>
 
 			<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
-				<main className="m-10 mx-10 mx-auto mt-20">
-					<div className="max-w-2xl mb-10 prose">
-						<h1>Help maintain and grow our servers:</h1>
-					</div>
-					<div className="flex flex-row justify-evenly ">
-						<div>
+				<main className="m-10 mx-auto mt-20">
+					<div className="mx-5">
+						<div className="max-w-2xl mb-10 prose">
+							<h1>Help maintain and grow our servers:</h1>
+						</div>
+						<div className="flex flex-col lg:flex-row justify-evenly ">
 							<Image
-								className="flex-grow "
 								quality="100"
 								height={"340"}
 								width={"340"}
 								objectFit="contain"
 								alt={"Mission cover image"}
-								src="https://globalconflicts.net/assets/imgs/logo.png"
+								src={gcSmallLogo}
 							/>
-						</div>
 
-						<div className="flex-1 flex-grow ml-10">
-							{goalsToUse.map((goal) => {
-								return (
-									<div key={goal.id} className="mb-10">
-										<h2>{goal.description.replace("<br>", "")}</h2>
-										<div>
-											{currentAmountString} of {goal.amountDollarsString} per month
+							<div className="flex-1 flex-grow mt-5 space-y-5 lg:ml-10 lg:mt-0">
+								{goalsToUse.map((goal) => {
+									return (
+										<div key={goal.id} >
+											<h2>{goal.description.replace("<br>", "")}</h2>
+											<div>
+												{currentAmountString} of {goal.amountDollarsString} per month
+											</div>
+											<ProgressBar
+												transitionDuration={"2s"}
+												height={"50px"}
+												borderRadius={"10px"}
+												className="grain-progress-bar"
+												labelSize={".9em"}
+												bgColor={"hsla(var(--a)/var(--tw-bg-opacity,1))"}
+												completed={goal.percentToUse}
+											/>
 										</div>
-										<ProgressBar
-											transitionDuration={"2s"}
-											height={"50px"}
-											borderRadius={"10px"}
-											labelSize={".9em"}
-											bgColor={"hsla(var(--a)/var(--tw-bg-opacity,1))"}
-											completed={goal.percentToUse}
-										/>
-									</div>
-								);
-							})}
+									);
+								})}
+							</div>
 						</div>
-					</div>
-					<div className="flex items-center justify-end">
-						<div className="mr-5">By helping us you gain our sincere thank you.</div>
-						<Link href="https://www.patreon.com/globalconflicts">
-							<a className="btn btn-lg btn-accent">Become a patreon</a>
-						</Link>
-					</div>
-					<div>
-						<div className="prose">
-							<h2>Members who are contributing:</h2>
+						<div className="flex flex-col items-center mt-5 sm:flex-row sm:justify-end">
+							<div className="mr-5">By helping us you gain our sincere thank you.</div>
+							<Link href="https://www.patreon.com/globalconflicts">
+								<a className="btn btn-lg btn-block sm:btn-wide btn-primary">Become a patreon</a>
+							</Link>
 						</div>
+						<div>
+							<div className="prose">
+								<h2>Members who are contributing:</h2>
+							</div>
 
-						<div className="grid grid-cols-2 mt-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-5">
-							{donators.map((donator) => (
-								<div
-									key={donator.userId}
-									className="flex flex-col items-center content-center justify-center"
-								>
-									<div className="avatar">
-										<div className="w-24 h-24">
-											<Image
-												alt={"donator avatar"}
-												className="rounded-full "
-												src={donator.displayAvatarURL}
-												layout={"fill"}
-											></Image>
+							<div className="grid grid-cols-2 mt-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-5">
+								{donators.map((donator) => (
+									<div
+										key={donator.userId}
+										className="flex flex-col items-center content-center justify-center"
+									>
+										<div className="avatar">
+											<div className="w-24 h-24">
+												<Image
+													alt={"donator avatar"}
+													className="rounded-full "
+													src={donator.displayAvatarURL}
+													layout={"fill"}
+												></Image>
+											</div>
+										</div>
+
+										<div className="text-lg font-bold ">
+											{donator.nickname ?? donator.displayName}
 										</div>
 									</div>
-
-									<div className="text-lg font-bold ">
-										{donator.nickname ?? donator.displayName}
-									</div>
-								</div>
-							))}
+								))}
+							</div>
 						</div>
 					</div>
 				</main>

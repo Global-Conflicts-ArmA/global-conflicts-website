@@ -1,28 +1,25 @@
+import { signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import useSWR from "swr";
 
 import ProfileLayout from "../../layouts/profile-layout";
 import fetcher from "../../lib/fetcher";
 
- 
 function ProfileIndex() {
-	const { data, error }  = useSWR("/api/user/syncdiscord", fetcher);
+	const { data: session, status } = useSession();
 
-   if (error) return <div>failed to load</div>
-  if (!data) return <div>loading...</div>
 	return (
 		<>
 			<Head>
 				<title>Profile Details</title>
 			</Head>
 
-
-			<div className="prose prose-xl">
+			<div className="prose prose-xl max-w-none">
 				<span>Nickname: </span>
 				<span>W-Cephei</span>
 				<hr></hr>
 				<span>Roles: </span>
-				{data.roles.map((role) => (
+				{session?.user["roles"].map((role) => (
 					<span
 						style={{ color: role.color }}
 						className="box-content mx-3 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box"
@@ -31,6 +28,16 @@ function ProfileIndex() {
 						{role.name}{" "}
 					</span>
 				))}
+			</div>
+			<div className="mt-10">
+				<button
+					className="btn btn-lg btn-wide btn-warning"
+					onClick={() => {
+						signOut({ callbackUrl: '/' });
+					}}
+				>
+					Sign out
+				</button>
 			</div>
 		</>
 	);

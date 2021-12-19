@@ -46,7 +46,7 @@ export default function NavBar() {
 		{
 			name: "Events",
 			href: "/events",
-			current: router.pathname == "/events",
+			current: router.pathname.includes("/events"),
 		},
 		{
 			name: "Downloads",

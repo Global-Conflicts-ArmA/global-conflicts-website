@@ -12,7 +12,12 @@ function LeaderShipHistory() {
 
 			<div className="shadow-strong card image-full">
 				<figure>
-					<Image src={underConstrucitonImg} alt="under construction" />
+					<Image
+						layout="fill"
+						objectFit="cover"
+						src={underConstrucitonImg}
+						alt="under construction"
+					/>
 				</figure>
 				<div className="justify-end card-body">
 					<h2 className="card-title">Under Construction</h2>

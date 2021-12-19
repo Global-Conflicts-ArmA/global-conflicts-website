@@ -9,7 +9,7 @@ import validateUser, {
 } from "../../../../../middleware/check_auth_perms";
 
 import { ObjectId } from "bson";
-import { getSession } from "next-auth/react";
+ 
 import axios from "axios";
 
 const apiRoute = nextConnect({
