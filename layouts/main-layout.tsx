@@ -1,7 +1,3 @@
-import { createContext, useContext } from "react";
-
-import router, { useRouter } from "next/router";
-
 import Head from "next/head";
 import NavBar from "../components/navbar";
 
@@ -14,7 +10,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
 			</Head>
 
 			<div className="fixed top-0 z-20 w-full">
-				<NavBar   />
+				<NavBar />
 			</div>
 			<main className="flex-grow mt-10">{children}</main>
 		</div>

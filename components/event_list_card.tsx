@@ -78,12 +78,7 @@ export default function EventCard({
 			<div className="relative drop-shadow-xl shadow-strong card">
 				<figure className="card-figure" style={{ aspectRatio }}>
 					{event.imageLink?.includes("webm") || event.imageLink?.includes("mp4") ? (
-						<video
-							poster={card_placeholder.src}
-							loop
-							key={event.imageLink}
-							ref={videoRef}
-						>
+						<video loop key={event.imageLink} ref={videoRef}>
 							<source src={event.imageLink} />
 						</video>
 					) : (

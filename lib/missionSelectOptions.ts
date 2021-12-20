@@ -1,14 +1,14 @@
 export const respawnOptions = [
-	{ value: "Yes", label: "Yes" },
-	{ value: "No", label: "No" },
+	{ value: true, label: "Yes" },
+	{ value: false, label: "No" },
 	{
 		value: "Objective/gameplay based",
 		label: "Objective/gameplay based",
 	},
 ];
 export const jipOptions = [
-	{ value: "Yes", label: "Yes" },
-	{ value: "No", label: "No" },
+	{ value: true, label: "Yes" },
+	{ value: false, label: "No" },
 ];
 
 export const tagsOptions = [

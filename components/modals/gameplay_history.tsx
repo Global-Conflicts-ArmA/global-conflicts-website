@@ -309,8 +309,8 @@ export default function GameplayHistoryModal({
 											<div className="w-44">
 												<Select
 													options={[
-														{ value: "Leader", label: "Leader" },
-														{ value: "Took Command", label: "Took Command" },
+														{ value: "leader", label: "Leader" },
+														{ value: "took_command", label: "Took Command" },
 													]}
 													value={entry["role"]}
 													placeholder="Select"

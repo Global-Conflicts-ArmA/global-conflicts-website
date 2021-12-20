@@ -395,7 +395,7 @@ export default function MissionDetails({
 	}
 
 	function getLeaderString(leader) {
-		if (leader.role == "Took Command") {
+		if (leader.role == "took_command") {
 			return (
 				<>
 					{leader.name} - Took
@@ -581,11 +581,11 @@ export default function MissionDetails({
 								</div>
 								<div className="m-2">
 									<div className="stat-title">Respawn</div>
-									<div className="text-sm stat-value">{mission.respawn}</div>
+									<div className="text-sm stat-value">{mission.respawn?"Yes":"No"}</div>
 								</div>
 								<div className="m-2">
 									<div className="stat-title">JIP</div>
-									<div className="text-sm stat-value ">{mission.jip}</div>
+									<div className="text-sm stat-value ">{mission.jip?"Yes":"No"}</div>
 								</div>
 							</div>
 						</div>

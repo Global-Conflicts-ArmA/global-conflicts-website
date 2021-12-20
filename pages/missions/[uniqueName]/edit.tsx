@@ -127,8 +127,8 @@ function EditMission({ mission }) {
 		initialValues: {
 			description: mission.description,
 			era: { value: mission.era, label: mission.era },
-			jip: { value: mission.jip, label: mission.jip },
-			respawn: { value: mission.respawn, label: mission.respawn },
+			jip: { value: mission.jip, label: mission.jip?"Yes":"No" },
+			respawn: { value: mission.respawn, label: mission.respawn?"Yes":"No" },
 			minPlayers: mission.size.min,
 			maxPlayers: mission.size.max,
 			timeOfDay: { value: mission.timeOfDay, label: mission.timeOfDay },
@@ -266,9 +266,14 @@ function EditMission({ mission }) {
 		},
 	});
 
-	const { data: session, status } = useSession()
+	const { data: session, status } = useSession();
 	return (
-		<CredentialLockLayout status={status} session={session} matchId={mission.authorID} cred={CREDENTIAL.MISSION_MAKER} >
+		<CredentialLockLayout
+			status={status}
+			session={session}
+			matchId={mission.authorID}
+			cred={CREDENTIAL.MISSION_MAKER}
+		>
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl">
 				<form onSubmit={missionFormik.handleSubmit}>
 					<div className="max-w-full my-10 prose ">
@@ -682,7 +687,7 @@ export async function getServerSideProps(context) {
 			},
 		}
 	);
-
+	console.log(mission);
 	return {
 		props: { mission },
 	};
