@@ -1,7 +1,8 @@
 {
    "name": "Global Conflicts - Open Tactical Arma 3 gameplay",
    "short_name": "Global Conflicts",
-   "start_url": "/",
+   "start_url": "https://globalconflicts.net/",
+   "url": "https://globalconflicts.net/",
    "icons": [
       {
          "src": "favicon.svg",

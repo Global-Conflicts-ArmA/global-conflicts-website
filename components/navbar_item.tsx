@@ -22,7 +22,7 @@ export default function NavBarItem({
 		<div className="w-full pt-4">
 			<div className="w-full mx-auto bg-white rounded-none max-w-none md:max-w-md md:rounded-2xl">
 				{item["children"] ? (
-					<Disclosure defaultOpen={true}>
+					<Disclosure defaultOpen={true}  >
 						{({ open }) => (
 							<>
 								<Disclosure.Button
@@ -30,7 +30,7 @@ export default function NavBarItem({
 										checkCurrent(item["slug"]) ? "font-bold bg-gray-100" : "font-medium"
 									}`}
 								>
-									<span>{item["title"]} asd</span>
+									<span>{item["title"]}</span>
 									<ChevronUpIcon
  										className={`${
 											open ? "transform rotate-180" : ""
@@ -39,7 +39,7 @@ export default function NavBarItem({
 								</Disclosure.Button>
 								{item["children"].map((child) => (
 									<Transition
-										key={item["sectionName"]}
+										key={child["slug"]}
 										show={open}
 										enter="transition duration-400 ease-out"
 										enterFrom="transform scale-95 opacity-0"

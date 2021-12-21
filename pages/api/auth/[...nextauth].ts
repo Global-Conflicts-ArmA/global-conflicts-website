@@ -7,6 +7,7 @@ import axios from "axios";
 
 export default NextAuth({
 	// Configure one or more authentication providers A
+	secret:process.env.SECRET,
 	providers: [
 		DiscordProvider({
 			clientId: process.env.DISCORD_TEST_APP_ID,

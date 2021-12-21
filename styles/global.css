@@ -343,7 +343,7 @@ h3:hover .anchor-link {
 	height: 100%;
 	height: -moz-available;
 	height: -webkit-fill-available;
-	height: fill-available;
+	height: stretch;
 }
 
 .header-gradient {
