@@ -12,7 +12,6 @@ const columns = [
 		name: "Name",
 		selector: (row) => row.name,
 		sortable: true,
-		
 	},
 	{
 		name: "Author",
@@ -66,40 +65,29 @@ function MissionList({ missions }) {
 	const [denseMode, setEnabled] = useState(false);
 	const [filtredMissions, setMissions] = useState(missions);
 
+	const [anythingFilter, setAnythingFilter] = useState(() => (mission) => true);
+	const [authorFilter, setAuthorFilter] = useState(() => (mission) => true);
+
+	const [typeFilter, setTypeFilter] = useState(() => (mission) => true);
+	const [mapFilter, setMapFilter] = useState(() => (mission) => true);
+	const [statefilter, setStatefilter] = useState(() => (mission) => true);
+
+	function filterMissions() {
+		return missions
+			.filter(statefilter)
+			.filter(mapFilter)
+			.filter(typeFilter)
+			.filter(authorFilter)
+			.filter(anythingFilter);
+	}
+
 	return (
 		<>
-			<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
+			<div className="max-w-screen-xl mx-auto ">
 				<div className="flex flex-row">
-					<aside className={"px-4 py-6 relative h-full overflow-y-auto   "}>
+					<aside className={"px-4 py-6 relative h-full overflow-y-auto"}>
 						<nav>
 							<div className="fixed w-full max-w-xs pr-5 ">
-								<div className="form-control">
-									<label className="label">
-										<span className="label-text">Filter by anything</span>
-									</label>
-									<input
-										type="text"
-										placeholder="Type here"
-										onChange={(event) => {
-											setMissions((items: any[]) => {
-												const text = event.target.value;
-												return missions.filter((x) => {
-													let hasMatch = false;
-
-													hasMatch =
-														x["name"].toLowerCase().includes(text.toLowerCase()) ||
-														x["missionMaker"].toLowerCase().includes(text.toLowerCase()) ||
-														x["era"].toLowerCase().includes(text.toLowerCase()) ||
-														x["timeOfDay"].toLowerCase().includes(text.toLowerCase()) ||
-														x["type"].toLowerCase().includes(text.toLowerCase());
-
-													return hasMatch;
-												});
-											});
-										}}
-										className="input input-bordered"
-									/>
-								</div>
 								<div className="mt-3">
 									<Switch.Group>
 										<div className="flex items-center">
@@ -119,6 +107,88 @@ function MissionList({ missions }) {
 											</Switch>
 										</div>
 									</Switch.Group>
+								</div>
+								<div className="form-control">
+									<label className="label">
+										<span className="label-text">Filter by anything</span>
+									</label>
+									<input
+										type="text"
+										placeholder="Type here"
+										onChange={(event) => {
+											const text = event.target.value;
+											setAnythingFilter(() => (x) => {
+												let hasMatch = false;
+												hasMatch =
+													x["name"].toLowerCase().includes(text.toLowerCase()) ||
+													x["missionMaker"].toLowerCase().includes(text.toLowerCase()) ||
+													x["era"].toLowerCase().includes(text.toLowerCase()) ||
+													x["timeOfDay"].toLowerCase().includes(text.toLowerCase()) ||
+													x["type"].toLowerCase().includes(text.toLowerCase());
+												return hasMatch;
+											});
+										}}
+										className="input input-bordered"
+									/>
+								</div>
+								<div className="form-control">
+									<label className="label">
+										<span className="label-text">Author</span>
+									</label>
+									<input
+										type="text"
+										placeholder="Type here"
+										onChange={(event) => {
+											const text = event.target.value;
+											setAuthorFilter(() => (x) => {
+												let hasMatch = false;
+												hasMatch = x["missionMaker"]
+													.toLowerCase()
+													.includes(text.toLowerCase());
+
+												return hasMatch;
+											});
+										}}
+										className="input input-bordered"
+									/>
+								</div>
+								<div className="form-control">
+									<label className="label">
+										<span className="label-text">Type</span>
+									</label>
+									<input
+										type="text"
+										placeholder="Type here"
+										onChange={(event) => {
+											const text = event.target.value;
+											setTypeFilter(() => (x) => {
+												let hasMatch = false;
+												hasMatch = x["type"].toLowerCase().includes(text.toLowerCase());
+
+												return hasMatch;
+											});
+										}}
+										className="input input-bordered"
+									/>
+								</div>
+								<div className="form-control">
+									<label className="label">
+										<span className="label-text">Map</span>
+									</label>
+									<input
+										type="text"
+										placeholder="Type here"
+										onChange={(event) => {
+											const text = event.target.value;
+											setMapFilter(() => (x) => {
+												let hasMatch = false;
+												hasMatch = x["terrain"].toLowerCase().includes(text.toLowerCase());
+
+												return hasMatch;
+											});
+										}}
+										className="input input-bordered"
+									/>
 								</div>
 							</div>
 						</nav>
@@ -140,15 +210,14 @@ function MissionList({ missions }) {
 								dense={denseMode}
 								striped={true}
 								onRowClicked={(row, event) => {
-
 									if (event.ctrlKey) {
-										window.open(`/missions/${row.uniqueName}`, "_blank") //to open new page
-									}else{
-										window.open(`/missions/${row.uniqueName}`,"_self")
+										window.open(`/missions/${row.uniqueName}`, "_blank"); //to open new page
+									} else {
+										window.open(`/missions/${row.uniqueName}`, "_self");
 									}
 								}}
 								columns={columns}
-								data={filtredMissions}
+								data={filterMissions(missions)}
 							></DataTable>
 						</div>
 					</main>
@@ -192,7 +261,6 @@ export async function getServerSideProps() {
 			mission["missionMaker"][0]?.username ??
 			"Unknown";
 	});
-
 
 	return { props: { missions } };
 }

@@ -22,7 +22,7 @@ export default function NavBarItem({
 		<div className="w-full pt-4">
 			<div className="w-full mx-auto bg-white rounded-none max-w-none md:max-w-md md:rounded-2xl">
 				{item["children"] ? (
-					<Disclosure defaultOpen={true}  >
+					<Disclosure defaultOpen={false}  >
 						{({ open }) => (
 							<>
 								<Disclosure.Button

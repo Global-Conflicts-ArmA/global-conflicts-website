@@ -23,21 +23,25 @@ export default function NavBar() {
 		},
 		{
 			name: "Missions",
+			hideAsMobile: true,
 			href: "#",
 			current: router.pathname.includes("/missions"),
 			submenus: [
 				{
 					name: "Mission List",
+					mobileName: "Mission List",
 					href: "/missions",
 					current: router.pathname == "/missions",
 				},
 				{
 					name: "Upload",
+					mobileName: "Upload Mission",
 					href: "/missions/upload",
 					current: router.pathname == "/missions/upload",
 				},
 				{
 					name: "Top Voted",
+					mobileName: "Top Voted Missions",
 					href: "/missions/top-voted",
 					current: router.pathname == "/missions/top-voted",
 				},
@@ -214,19 +218,40 @@ export default function NavBar() {
 					<Disclosure.Panel className="sm:hidden">
 						<div className="px-2 pt-2 pb-3 space-y-1">
 							{navigation.map((item) => (
-								<a
-									key={item.name}
-									href={item.href}
-									className={classNames(
-										item.current
-											? "bg-gray-900 text-white"
-											: "text-gray-300 hover:bg-gray-700 hover:text-white",
-										"block px-3 py-2 rounded-md text-base font-medium"
+								<>
+									{!item.hideAsMobile && (
+										<a
+											key={item.name}
+											href={item.href}
+											className={classNames(
+												item.current
+													? "bg-gray-900 text-white"
+													: "text-gray-300 hover:bg-gray-700 hover:text-white",
+												"block px-3 py-2 rounded-md text-base font-medium"
+											)}
+											aria-current={item.current ? "page" : undefined}
+										>
+											{item.name}
+										</a>
 									)}
-									aria-current={item.current ? "page" : undefined}
-								>
-									{item.name}
-								</a>
+
+									{item.submenus?.map((submenu) => {
+										return (
+											<a
+												key={submenu.name}
+												href={submenu.href}
+												className={classNames(
+													submenu.current
+														? "bg-gray-900 text-white"
+														: "text-gray-300 hover:bg-gray-700 hover:text-white",
+													"block px-3 py-2 rounded-md text-base font-medium"
+												)}
+											>
+												{submenu.mobileName}
+											</a>
+										);
+									})}
+								</>
 							))}
 						</div>
 					</Disclosure.Panel>
