@@ -19,10 +19,10 @@ module.exports = {
 			70: "70px",
 		},
 
-
 		extend: {
 			maxWidth: {
 				"14rem": "14rem",
+		 
 			},
 			width: {
 				700: "700px",

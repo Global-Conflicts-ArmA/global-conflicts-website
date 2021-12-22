@@ -19,6 +19,7 @@ import {
 	oneMegabyteInBytes,
 	padZeros,
 } from "../../../lib/missionsHelpers";
+import { MapItem } from "../../../interfaces/MapItem";
 
 const missionUpload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 2 },
@@ -26,7 +27,10 @@ const missionUpload = multer({
 		destination: function (req, file, cb) {
 			switch (file.fieldname) {
 				case "missionFile":
-					return cb(null, `${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}`);
+					return cb(
+						null,
+						`${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}`
+					);
 				case "media":
 					return cb(null, `${process.env.ROOT_FOLDER}/${process.env.MEDIA_FOLDER}`);
 				default:
@@ -58,7 +62,6 @@ const missionUpload = multer({
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
-
 		res.status(501).json({ error: `${error.message}` });
 	},
 	onNoMatch(req, res: NextApiResponse) {
@@ -107,11 +110,6 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	maxPlayers = padZeros(maxPlayers);
 
 	const descriptionNoMarkdown = await remark().use(strip).process(description);
-
-	type MapItem = {
-		class;
-		display_name;
-	};
 
 	const configs = await MyMongo.collection("configs").findOne(
 		{},

@@ -405,3 +405,8 @@ pre::-webkit-scrollbar {
 	filter: contrast(100%) brightness(100%);
 	background: linear-gradient(90deg, rgb(142 141 94), rgb(31 41 55));
 }
+
+.missions-filters {
+ 
+	max-width: 200px;
+}

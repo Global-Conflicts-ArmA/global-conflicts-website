@@ -19,3 +19,22 @@ export default function hasCreds(session, cred: CREDENTIAL) {
 
 	return false;
 }
+export function hasCredsAny(session, credList: Array<CREDENTIAL>) {
+	if (!session) {
+		return false;
+	}
+
+	for (var i = 0; i < session.user["roles"].length; i++) {
+		if (session.user["roles"][i].name == "Admin") {
+			return true;
+		}
+	}
+
+	for (var i = 0; i < session.user["roles"].length; i++) {
+		if (credList.includes(session.user["roles"][i].name)) {
+			return true;
+		}
+	}
+
+	return false;
+}
