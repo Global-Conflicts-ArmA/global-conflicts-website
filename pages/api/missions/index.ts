@@ -14,13 +14,12 @@ import {
 	filterMediaFile,
 	filterMissionFile,
 	makeSafeName,
-	mediaFolder,
-	missionsFolder,
+
 	oneMegabyteInBytes,
 	padZeros,
 } from "../../../lib/missionsHelpers";
-import { MapItem } from "../../../interfaces/MapItem";
-
+import { MapItem } from "../../../interfaces/mapitem";
+ 
 const missionUpload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 2 },
 	storage: multer.diskStorage({

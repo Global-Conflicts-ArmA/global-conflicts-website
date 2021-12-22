@@ -6,7 +6,7 @@ import { VolumeOffIcon, VolumeUpIcon } from "@heroicons/react/outline";
 export default function MissionMediaCard({
 	isVideo,
 	createObjectURL,
-	mission=null,
+	mission = null,
 	isVotingCard = false,
 	aspectRatio = "16/10",
 }) {
@@ -34,12 +34,11 @@ export default function MissionMediaCard({
 					</video>
 				) : (
 					<Image
-						className="custom-img"
+						className="custom-img "
 						quality="100"
 						layout="fill"
 						objectFit="cover"
 						src={createObjectURL}
-					
 						alt={"Mission cover image"}
 					/>
 				)}

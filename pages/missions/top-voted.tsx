@@ -16,6 +16,7 @@ import rehypeFormat from "rehype-format";
 import rehypeStringify from "rehype-stringify";
 import rehypeSanitize from "rehype-sanitize";
 import { unified } from "unified";
+import { MapItem } from "../../interfaces/mapitem";
 function getMissionMediaPath(mission, absolute = false) {
 	if (mission.mediaFileName) {
 		return absolute
@@ -89,9 +90,42 @@ function TopVoted({ missions, maxVotes }) {
 		return voteCount;
 	}
 
+	function getVoteBtn(mission) {
+		return (
+			<div className="flex flex-row justify-start">
+				<div className="flex flex-row  mr-2">
+					<div className="opacity-75 stat-title mr-2">Votes:</div>
+					<div className=""> {mission.votes.length}</div>
+				</div>
+				<div
+					data-tip={
+						mission["hasVoted"]
+							? "Retract vote"
+							: getVoteCount() >= 4 && !mission["hasVoted"]
+							? `You can only vote for ${maxVotes} missions per week!`
+							: "Vote for this mission to be played"
+					}
+					className="z-10 tooltip tooltip-bottom tooltip-primary sm:tooltip-left"
+				>
+					<button
+						disabled={getVoteCount() >= 4 && !mission["hasVoted"]}
+						className={`btn-primary whitespace-nowrap btn-xs sm:btn-sm btn ${
+							isLoadingVote ? "loading" : ""
+						}`}
+						onClick={(event) => {
+							mission["hasVoted"] ? retractVote(mission) : doVote(mission);
+						}}
+					>
+						{mission["hasVoted"] ? "Retract vote" : "Vote"}
+					</button>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
-			<div className="flex flex-col max-w-screen-xl px-2 mx-auto mb-10">
+			<div className="flex flex-col max-w-screen-xl mx-auto mb-10">
 				<div className="mx-4 mt-10 prose lg:prose-xl" style={{ maxWidth: "none" }}>
 					<h1>Top voted missions</h1>
 					<p>
@@ -114,109 +148,89 @@ function TopVoted({ missions, maxVotes }) {
 				</div>
 			</div>
 
-			<div className="mx-1 my-10 space-y-10 md:mx-12">
+			<div className="mx-4 my-10 space-y-10 md:mx-4 ">
 				{missions.map((mission, index) => {
 					return (
-						<div key={mission.uniqueName} className="flex flex-row">
-							<div
-								className="flex-1 w-full overflow-hidden shadow-lg card"
-								style={{ height: "fit-content" }}
-							>
-								<MissionMediaCard
-									createObjectURL={getMissionMediaPath(mission)}
-									isVideo={false}
-									isVotingCard={false}
-									mission={mission}
-									aspectRatio="16/10"
-								></MissionMediaCard>
-							</div>
-							<div className="flex-1 ml-4 prose">
-								<div className="flex flex-row items-center justify-between">
-									<div>
-										<h2 style={{ margin: 0 }}>
-											<span className="text-accent">{index + 1})&nbsp;</span>
+						<>
+							<div key={mission.uniqueName} className="flex flex-row  ">
+								<div
+									className="flex-1 w-full overflow-hidden shadow-lg card hidden md:block"
+									style={{ height: "fit-content" }}
+								>
+									<MissionMediaCard
+										createObjectURL={getMissionMediaPath(mission)}
+										isVideo={false}
+										isVotingCard={false}
+										mission={mission}
+										aspectRatio="16/9"
+									></MissionMediaCard>
+								</div>
+								<div className="flex-1 md:ml-4 prose max-w-full">
+									<div className="flex flex-col items-start justify-between sm:flex-row">
+										<div>
+											<h2 style={{ margin: 0 }}>
+												<span>{index + 1})&nbsp;</span>
 
-											<Link href={`/missions/${mission.uniqueName}`}>
-												<a>{mission.name}</a>
-											</Link>
-										</h2>
-										<h4>
-											Author: <span className="font-bold">{mission.missionMaker}</span>
-										</h4>
-									</div>
-									<div>
-										<div className="flex flex-row justify-center">
-											<div className="opacity-75 stat-title">Votes: </div>
-											<div className="">{mission.votes.length}</div>
+												<Link href={`/missions/${mission.uniqueName}`}>
+													<a>{mission.name}</a>
+												</Link>
+											</h2>
+											<h4 className="mb-0">
+												Author: <span className="font-bold">{mission.missionMaker}</span>
+											</h4>
 										</div>
-										<div
-											data-tip={
-												mission["hasVoted"]
-													? "Retract vote"
-													: getVoteCount() >= 4 && !mission["hasVoted"]
-													? `You can only vote for ${maxVotes} missions per week!`
-													: "Vote for this mission to be played"
-											}
-											className="z-10 tooltip tooltip-bottom tooltip-primary"
-										>
-											<button
-												disabled={getVoteCount() >= 4 && !mission["hasVoted"]}
-												className={`btn btn-sm btn-primary whitespace-nowrap min-w-187 ${
-													isLoadingVote ? "loading" : ""
-												}`}
-												onClick={(event) => {
-													mission["hasVoted"] ? retractVote(mission) : doVote(mission);
+										<div className="hidden md:block">{getVoteBtn(mission)}</div>
+									</div>
+									<div className="block md:hidden">{getVoteBtn(mission)}</div>
+									<div>
+										{mission.descriptionMarkdown ? (
+											<div
+												className="max-w-3xl prose"
+												dangerouslySetInnerHTML={{
+													__html: mission.descriptionMarkdown,
 												}}
-											>
-												{mission["hasVoted"] ? "Retract vote" : "Vote"}
-											</button>
+											></div>
+										) : (
+											mission.description
+										)}
+									</div>
+
+									<div className="flex flex-row flex-wrap w-full stats">
+										<div className="m-2">
+											<div className="opacity-75 stat-title">Players</div>
+											<div className="text-sm stat-value ">
+												{mission.size.min} to {mission.size.max}
+											</div>
 										</div>
-									</div>
-								</div>
-
-								<div>
-									{mission.descriptionMarkdown ? (
-										<div
-											className="max-w-3xl prose"
-											dangerouslySetInnerHTML={{
-												__html: mission.descriptionMarkdown,
-											}}
-										></div>
-									) : (
-										mission.description
-									)}
-								</div>
-
-								<div className="flex flex-row flex-wrap w-full stats">
-									<div className="m-2">
-										<div className="opacity-75 stat-title">Players</div>
-										<div className="text-sm stat-value ">
-											{mission.size.min} to {mission.size.max}
+										<div className="m-2 ">
+											<div className="opacity-75 stat-title">Map</div>
+											<div className="text-sm stat-value">
+												{mission.terrainName ?? mission.terrain}
+											</div>
 										</div>
-									</div>
-									<div className="m-2 ">
-										<div className="opacity-75 stat-title">Map</div>
-										<div className="text-sm stat-value">
-											{mission.terrainName ?? mission.terrain}
+
+										<div className="m-2">
+											<div className="opacity-75 stat-title">Type</div>
+											<div className="text-sm stat-value ">{mission.type}</div>
 										</div>
-									</div>
 
-									<div className="m-2">
-										<div className="opacity-75 stat-title">Type</div>
-										<div className="text-sm stat-value ">{mission.type}</div>
-									</div>
-
-									<div className="m-2">
-										<div className="opacity-75 stat-title">Respawn</div>
-										<div className="text-sm stat-value">{mission.respawn || "No"}</div>
-									</div>
-									<div className="m-2">
-										<div className="opacity-75 stat-title">JIP</div>
-										<div className="text-sm stat-value ">{mission.jip || "No"}</div>
+										<div className="m-2">
+											<div className="opacity-75 stat-title">Respawn</div>
+											<div className="text-sm stat-value">
+												{mission.respawn ? "Yes" : "No"}
+											</div>
+										</div>
+										<div className="m-2">
+											<div className="opacity-75 stat-title">JIP</div>
+											<div className="text-sm stat-value ">
+												{mission.jip ? "Yes" : "No"}
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
-						</div>
+							{index + 1 < missions.length && <hr></hr>}
+						</>
 					);
 				})}
 			</div>
@@ -224,10 +238,13 @@ function TopVoted({ missions, maxVotes }) {
 	);
 }
 
-// This gets called on every request
 export async function getServerSideProps(context) {
-	//{ votes: { $exists: true, $type: "array", $ne: [] } },
-	// { sort: { votes: 1 }, projection: { _id: 0, updates: 0 } }
+	const configs = await MyMongo.collection("configs").findOne(
+		{},
+		{ projection: { allowed_terrains: 1 } }
+	);
+
+	const terrainsMap: MapItem[] = configs["allowed_terrains"];
 
 	const missions = await MyMongo.collection("missions")
 		.aggregate([
@@ -284,13 +301,17 @@ export async function getServerSideProps(context) {
 
 			mission["hasVoted"] = mission.votes?.includes(session?.user["discord_id"]);
 
-			mission["missionMaker"] =
-				mission["missionMaker"][0]?.nickname ??
-				mission["missionMaker"][0]?.username ??
-				"Unknown";
+			(mission["terrainName"] = terrainsMap.find(
+				(item) => item.class.toLowerCase() == mission["terrain"].toLowerCase()
+			).display_name),
+				(mission["missionMaker"] =
+					mission["missionMaker"][0]?.nickname ??
+					mission["missionMaker"][0]?.username ??
+					"Unknown");
 		})
 	);
 
+	console.log(missions);
 	return { props: { missions, maxVotes } };
 }
 

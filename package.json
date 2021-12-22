@@ -18,8 +18,10 @@
     "@next-auth/mongodb-adapter": "0.0.2-pr.193-1fc34f1e.284",
     "@next/mdx": "^12.0.2",
     "@ramonak/react-progress-bar": "^4.0.0",
-    "@tailwindcss/line-clamp": "^0.2.2",
-    "@tailwindcss/typography": "^0.4.1",
+    "@tailwindcss/aspect-ratio": "^0.4.0",
+    "@tailwindcss/forms": "^0.4.0",
+    "@tailwindcss/line-clamp": "^0.3.0",
+    "@tailwindcss/typography": "^0.5.0",
     "@types/adm-zip": "^0.4.34",
     "@types/multer": "^1.4.7",
     "@types/react": "^17.0.37",
@@ -101,6 +103,7 @@
     "styled-components": "^5.3.3",
     "superjson": "^1.8.0",
     "swr": "^1.0.1",
+    "tailwindcss": "^3.0.7",
     "tailwindcss-scrims": "^1.0.0",
     "unified": "^10.1.0"
   },
@@ -109,9 +112,8 @@
     "eslint": "7.32.0",
     "eslint-config-next": "12.0.2",
     "eslint-config-prettier": "^8.3.0",
-    "postcss": "^8.3.6",
+    "postcss": "^8.4.5",
     "postcss-preset-env": "^6.7.0",
-    "tailwindcss": "^2.2.19",
     "typescript": "^4.4.4"
   }
 }

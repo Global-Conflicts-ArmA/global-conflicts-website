@@ -1,9 +1,5 @@
-const defaultTheme = require("tailwindcss/defaultTheme");
-
 module.exports = {
-	mode: "jit",
-	purge: ["./components/**/*.tsx", "./pages/**/*.tsx", "./public/**/*.html"], //add this line
-	darkMode: false, // or 'media' or 'class'
+	content: ["./components/**/*.tsx", "./pages/**/*.tsx", "./public/**/*.html"], 
 	theme: {
 		minWidth: {
 			0: "0",
@@ -57,9 +53,6 @@ module.exports = {
 				},
 			},
 		},
-	},
-	variants: {
-		extend: {},
 	},
 	plugins: [
 		require("@tailwindcss/typography"),

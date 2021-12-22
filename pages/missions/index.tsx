@@ -4,7 +4,7 @@ import { MainLayout } from "../../layouts/main-layout";
 
 import "react-base-table/styles.css";
 import moment from "moment";
-import DataTable from "react-data-table-component";
+import DataTable, { Media } from "react-data-table-component";
 import { useEffect, useState } from "react";
 import { Disclosure, Switch } from "@headlessui/react";
 import hasCreds, { hasCredsAny } from "../../lib/credsChecker";
@@ -15,7 +15,7 @@ import {
 	ChevronDoubleDownIcon,
 	ChevronDownIcon,
 } from "@heroicons/react/outline";
-import { MapItem } from "../../interfaces/MapItem";
+import { MapItem } from "../../interfaces/mapitem";
 const columns = [
 	{
 		name: "Name",
@@ -25,28 +25,28 @@ const columns = [
 	{
 		name: "Map",
 		selector: (row) => row.terrainName ?? row.terrain,
+		hide: Media.MD,
 		sortable: true,
 	},
-	
 	{
 		name: "Min",
 		selector: (row) => row.size.min,
 		sortable: true,
-		width: "90px",
+		width: "50px",
 		compact: true,
 	},
 	{
 		name: "Max",
 		selector: (row) => row.size.max,
 		sortable: true,
-		width: "90px",
+		width: "50px",
 		compact: true,
 	},
 	{
 		name: "Type",
 		selector: (row) => row.type,
 		sortable: true,
-		width: "90px",
+		width: "50px",
 		compact: true,
 	},
 	{
@@ -60,6 +60,7 @@ const columns = [
 	{
 		name: "Date Added",
 		selector: (row) => row.uploadDate,
+	
 		sortable: true,
 		compact: true,
 		width: "100px",
@@ -70,6 +71,7 @@ const columns = [
 		selector: (row) => row.lastPlayed,
 		sortable: true,
 		compact: true,
+		hide: Media.MD,
 		width: "100px",
 		format: (row) => moment(row.lastPlayed).format("ll"),
 	},
@@ -272,10 +274,10 @@ function MissionList({ missions }) {
 						</nav>
 					</aside>
 					<main className="flex-grow mb-10 ml-10 mr-10 xl:m-10">
-						<div className="flex flex-col ">
-							<div className="xl:hidden ">
+						<div className="flex flex-col">
+							<div className="xl:hidden">
 								<Disclosure>
-									<Disclosure.Button className=" btn btn-block">
+									<Disclosure.Button className="btn btn-block">
 										<div className="flex flex-row items-center h-full">
 											<div>Filters</div>{" "}
 											<ChevronDownIcon width={20} hanging={20}></ChevronDownIcon>
@@ -295,16 +297,17 @@ function MissionList({ missions }) {
 									<kbd className="kbd kbd-xs">CLICK</kbd>{" "}
 								</div>
 							</div>
-							<div className="transition duration-500 ">
+							<div className="transition duration-500 grid">
 								<DataTable
 									className="ease-in-out"
 									highlightOnHover={true}
 									pointerOnHover={true}
+									responsive={true}
 									dense={denseMode}
 									striped={true}
 									onRowClicked={(row, event) => {
 										if (event.ctrlKey) {
-											window.open(`/missions/${row.uniqueName}`, "_blank"); //to open new page
+											window.open(`/missions/${row.uniqueName}`, "_blank");
 										} else {
 											window.open(`/missions/${row.uniqueName}`, "_self");
 										}

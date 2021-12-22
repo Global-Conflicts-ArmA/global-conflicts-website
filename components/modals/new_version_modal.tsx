@@ -155,7 +155,7 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 							<div className="pr-2 mt-2 overflow-y-auto" style={{ maxHeight: "75vh" }}>
 								<div className="flex flex-row items-baseline mb-5">
 									<div className="flex flex-col flex-auto flex-shrink">
-										<label className="flex-1 max-w-md mr-3 overflow-hidden text-xs leading-none overflow-ellipsis btn btn-md btn-primary lg:text-lg">
+										<label className="flex-1 max-w-md mr-3 overflow-hidden text-xs leading-none text-ellipsis btn btn-md btn-primary lg:text-lg">
 											<input type="file" onChange={selectMissionFile} accept=".pbo" />
 											{missionFile ? missionFile.name : "Select your mission file"}
 										</label>
