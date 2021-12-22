@@ -60,7 +60,7 @@ const columns = [
 	{
 		name: "Date Added",
 		selector: (row) => row.uploadDate,
-	
+
 		sortable: true,
 		compact: true,
 		width: "100px",
@@ -71,7 +71,7 @@ const columns = [
 		selector: (row) => row.lastPlayed,
 		sortable: true,
 		compact: true,
-		hide: Media.MD,
+
 		width: "100px",
 		format: (row) => moment(row.lastPlayed).format("ll"),
 	},
@@ -273,7 +273,7 @@ function MissionList({ missions }) {
 							</div>
 						</nav>
 					</aside>
-					<main className="flex-grow mb-10 ml-10 mr-10 xl:m-10">
+					<main className="flex-grow mb-10 mx-2 xl:m-10">
 						<div className="flex flex-col">
 							<div className="xl:hidden">
 								<Disclosure>

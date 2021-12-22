@@ -8,13 +8,15 @@ import remarkParse from "remark-parse";
 import prism from "remark-prism";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
+import rehypeRaw from "rehype-raw";
 
 export function generateMarkdown(text) {
 	const markdownObj = unified()
 		.use(remarkParse)
 		.use(html)
 		.use(remarkGfm)
-		.use(remarkRehype)
+		.use(remarkRehype, { allowDangerousHtml: true })
+		.use(rehypeRaw, { passThrough: ["kbd"] })
 		.use(rehypeFormat)
 		.use(rehypeStringify)
 
@@ -25,6 +27,8 @@ export function generateMarkdown(text) {
 					// List of all allowed languages:
 					[
 						"className",
+						"class",
+						"kbd",
 						"language-js",
 						"language-jsx",
 						"language-tsx",
@@ -39,6 +43,14 @@ export function generateMarkdown(text) {
 						"language-sqf",
 						"language-enforce",
 					],
+				],
+				span: [
+					// List of all allowed languages:
+					["className", "kbd"],
+				],
+				kbd: [
+					// List of all allowed languages:
+					["className", "kbd", "kbd-xs", "kbd-sm", "kbd-md", "kbd-lg"],
 				],
 			},
 		})
