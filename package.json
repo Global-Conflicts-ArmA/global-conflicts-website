@@ -4,6 +4,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "startCustom": "node server.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -32,6 +33,7 @@
     "babel-plugin-superjson-next": "^0.4.2",
     "clsx": "^1.1.1",
     "daisyui": "^1.16.0",
+    "express": "^4.17.2",
     "file-saver": "^2.0.5",
     "filesaver": "^0.0.13",
     "formidable": "^2.0.1",
