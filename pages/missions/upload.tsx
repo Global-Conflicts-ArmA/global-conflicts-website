@@ -33,6 +33,7 @@ import { remark } from "remark";
 import html from "remark-html";
 import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import { generateMarkdown } from "../../lib/markdownToHtml";
+import isFileImage from "../../lib/isImage";
 const converter = new Showdown.Converter({
 	tables: true,
 	simplifiedAutoLink: true,
@@ -58,13 +59,17 @@ function UploadMission() {
 	const displayMedia = async (event) => {
 		if (event.target.files && event.target.files[0]) {
 			const file = event.target.files[0];
-			setImageObjectUrl(URL.createObjectURL(file));
-			missionFormik.setFieldValue("media", file);
-			missionFormik.setFieldTouched("media", true, false);
-			if (file.size >= 1024 * 1024 * 1.5) {
-				missionFormik.setFieldError("media", "Invalid file. Max size: 1.5MB");
+			if (!isFileImage(file)) {
+				missionFormik.setFieldError("media", "Invalid file.");
 			} else {
-				missionFormik.setFieldError("media", null);
+				if (file.size >= 1024 * 1024 * 1.5) {
+					missionFormik.setFieldError("media", "Invalid file. Max size: 1.5MB");
+				} else {
+					setImageObjectUrl(URL.createObjectURL(file));
+					missionFormik.setFieldValue("media", file);
+					missionFormik.setFieldTouched("media", true, false);
+					missionFormik.setFieldError("media", null);
+				}
 			}
 		}
 	};
@@ -283,7 +288,11 @@ function UploadMission() {
 
 	const { data: session } = useSession();
 	return (
-		<CredentialLockLayout session={session} cred={CREDENTIAL.MISSION_MAKER} message={`You must have the <b>"Mission Maker"</b> role on our Discord server to upload missions.`}>
+		<CredentialLockLayout
+			session={session}
+			cred={CREDENTIAL.MISSION_MAKER}
+			message={`You must have the <b>"Mission Maker"</b> role on our Discord server to upload missions.`}
+		>
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl">
 				<form onSubmit={missionFormik.handleSubmit}>
 					<div className="my-10 prose">
@@ -475,7 +484,12 @@ function UploadMission() {
 								</span>
 							</label>
 							<label className="ml-4 btn btn-primary btn-sm">
-								<input type="file" onChange={displayMedia} name={"image"} />
+								<input
+									type="file"
+									onChange={displayMedia}
+									name={"image"}
+									accept="image/png, image/jpeg, image/gif"
+								/>
 								Select Image
 							</label>
 						</div>
@@ -488,7 +502,7 @@ function UploadMission() {
 								></MissionMediaCard>
 							</div>
 						)}
-						<FormikErrortext formik={missionFormik} name={"image"} />
+						<FormikErrortext formik={missionFormik} name={"media"} />
 					</div>
 
 					<div className="flex flex-row flex-wrap ">

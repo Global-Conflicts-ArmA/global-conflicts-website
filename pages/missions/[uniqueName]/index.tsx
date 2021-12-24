@@ -251,7 +251,7 @@ export default function MissionDetails({
 			name: "Validated",
 			// eslint-disable-next-line react/display-name
 			cell: (row) => {
-				return getAuditIcon(row.testingAudit?.reviewState);
+				return getAuditIcon(row.testingAudit?.reviewState ?? row.reviewState);
 			},
 			compact: true,
 			center: true,
@@ -581,11 +581,13 @@ export default function MissionDetails({
 								</div>
 								<div className="m-2">
 									<div className="stat-title">Respawn</div>
-									<div className="text-sm stat-value">{mission.respawn?"Yes":"No"}</div>
+									<div className="text-sm stat-value">
+										{mission.respawn ? "Yes" : "No"}
+									</div>
 								</div>
 								<div className="m-2">
 									<div className="stat-title">JIP</div>
-									<div className="text-sm stat-value ">{mission.jip?"Yes":"No"}</div>
+									<div className="text-sm stat-value ">{mission.jip ? "Yes" : "No"}</div>
 								</div>
 							</div>
 						</div>

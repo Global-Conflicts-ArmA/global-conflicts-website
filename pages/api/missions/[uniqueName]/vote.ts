@@ -2,10 +2,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import MyMongo from "../../../../lib/mongodb";
 import { getSession } from "next-auth/react";
+import { postFirstvoteForAMission } from "../../../../lib/discordPoster";
+import axios from "axios";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
-
 		res.status(500).json({ error: `${error.message}` });
 	},
 	onNoMatch(req, res: NextApiResponse) {
@@ -40,6 +41,26 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	);
 
 	if (result.modifiedCount > 0) {
+		const mission = await MyMongo.collection("missions").findOne({
+			uniqueName: uniqueName,
+		});
+		const botResponse = await axios.get(
+			`http://localhost:3001/users/${mission.authorID}`
+		);
+
+		if (mission.votes.length === 1) {
+			postFirstvoteForAMission({
+				name: mission.name,
+				description: mission.description,
+				type: mission.type,
+				terrain: mission.terrauName ?? mission.terrain,
+				uniqueName: uniqueName,
+				author: botResponse.data.nickname ?? botResponse.data.displayName,
+				authorId: botResponse.data.userId,
+				displayAvatarURL: botResponse.data.displayAvatarURL,
+			});
+		}
+
 		return res.status(200).json({ ok: true });
 	} else {
 		return res.status(500).json({ error: "Failed to submit vote" });
@@ -65,7 +86,6 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 	const session = await getSession({ req });
-
 
 	const result = await MyMongo.collection("missions").findOne({
 		uniqueName: uniqueName,

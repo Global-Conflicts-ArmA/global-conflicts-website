@@ -28,10 +28,6 @@
          {
             "title": "JTAC",
             "slug": "jtac"
-         },
-         {
-            "title": "Clearing Buildings",
-            "slug": "clearing-buildings"
          }
       ],
       "type": "section"
@@ -54,19 +50,5 @@
       "slug": "events",
       "title": "Events",
       "type": "single"
-   },
-   {
-      "title": "Tecnhical",
-      "children": [
-         {
-            "title": "Global Conflicts Launcher",
-            "slug": "gc-launcher"
-         },
-         {
-            "title": "Teamspeak",
-            "slug": "teamspeak"
-         }
-      ],
-      "type": "section"
    }
 ]

@@ -15,7 +15,7 @@ export default function GuidesLayout({ children }) {
 		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-col md:flex-row">
 				<aside
-					className={"px-4 py-6 relative h-full overflow-y-auto hidden md:block "}
+					className={"px-4 mt-10 py-6 relative h-full overflow-y-auto hidden md:block "}
 				>
 					<nav>
 						{guidesOrder.map((guide) => (

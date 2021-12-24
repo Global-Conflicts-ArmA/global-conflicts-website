@@ -14,12 +14,12 @@ import {
 	filterMediaFile,
 	filterMissionFile,
 	makeSafeName,
-
 	oneMegabyteInBytes,
 	padZeros,
 } from "../../../lib/missionsHelpers";
 import { MapItem } from "../../../interfaces/mapitem";
- 
+import { postDiscordNewMission } from "../../../lib/discordPoster";
+
 const missionUpload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 2 },
 	storage: multer.diskStorage({
@@ -52,7 +52,8 @@ const missionUpload = multer({
 			case "missionFile":
 				return filterMissionFile(req, file, cb);
 			case "media":
-				return filterMediaFile(req, file, cb, req.body["name"]);
+				const body = JSON.parse(req.body["missionJsonData"]);
+				return filterMediaFile(req, file, cb, body["name"]??req.body["name"]);
 			default:
 				cb(null, false);
 		}
@@ -116,9 +117,18 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	);
 
 	const terrainsMap: MapItem[] = configs["allowed_terrains"];
+	const size = {
+		min: parseInt(minPlayers),
+		max: parseInt(maxPlayers),
+	};
 
+	const terrainName = terrainsMap.find(
+		(item) => item.class.toLowerCase() == mapClass.toLowerCase()
+	).display_name;
+
+	const tagsArray = tags.map((item) => item.value);
 	await MyMongo.collection("missions").insertOne({
-		uniqueName: `${safeName}`,
+		uniqueName: safeName,
 		name: name,
 		authorID: session.user.discord_id,
 		description: description,
@@ -131,10 +141,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		},
 		mediaFileName: req["mediaName"],
 		respawn: respawn,
-		size: {
-			min: parseInt(minPlayers),
-			max: parseInt(maxPlayers),
-		},
+		size: size,
 		updates: [
 			{
 				_id: new ObjectId(),
@@ -148,14 +155,23 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			},
 		],
 		terrain: mapClass,
-		terrainName: terrainsMap.find(
-			(item) => item.class.toLowerCase() == mapClass.toLowerCase()
-		).display_name,
+		terrainName: terrainName,
 		timeOfDay: timeOfDay,
 		type: type,
-		tags: tags.map((item) => item.value),
+		tags: tagsArray,
 	});
 
+	postDiscordNewMission({
+		name: name,
+		uniqueName: safeName,
+		description: description,
+		author: session.user["nickname"] ?? session.user["username"],
+		displayAvatarURL: session.user.image,
+		size: size,
+		type: type,
+		terrainName: terrainName,
+		tags: tagsArray,
+	});
 	res.status(200).json({ slug: safeName });
 });
 

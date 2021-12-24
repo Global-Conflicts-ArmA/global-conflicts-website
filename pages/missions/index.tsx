@@ -59,6 +59,7 @@ const columns = [
 	},
 	{
 		name: "Date Added",
+		id: "dateAdded",
 		selector: (row) => row.uploadDate,
 
 		sortable: true,
@@ -68,12 +69,13 @@ const columns = [
 	},
 	{
 		name: "Last Played",
-		selector: (row) => row.lastPlayed,
+		selector: (row) => row.lastPlayed ?? null,
 		sortable: true,
 		compact: true,
 
 		width: "100px",
-		format: (row) => moment(row.lastPlayed).format("ll"),
+		format: (row) =>
+			row.lastPlayed ? moment(row.lastPlayed).format("ll") : "--",
 	},
 ];
 
@@ -273,7 +275,7 @@ function MissionList({ missions }) {
 							</div>
 						</nav>
 					</aside>
-					<main className="flex-grow mb-10 mx-2 xl:m-10">
+					<main className="flex-grow mx-2 mb-10 xl:m-10">
 						<div className="flex flex-col">
 							<div className="xl:hidden">
 								<Disclosure>
@@ -297,13 +299,18 @@ function MissionList({ missions }) {
 									<kbd className="kbd kbd-xs">CLICK</kbd>{" "}
 								</div>
 							</div>
-							<div className="transition duration-500 grid">
+							<div className="grid transition duration-500">
 								<DataTable
 									className="ease-in-out"
 									highlightOnHover={true}
 									pointerOnHover={true}
 									responsive={true}
 									dense={denseMode}
+									defaultSortAsc={false}
+									defaultSortFieldId={"dateAdded"}
+									onSort={(column, direction) => {
+										console.log(column);
+									}}
 									striped={true}
 									onRowClicked={(row, event) => {
 										if (event.ctrlKey) {

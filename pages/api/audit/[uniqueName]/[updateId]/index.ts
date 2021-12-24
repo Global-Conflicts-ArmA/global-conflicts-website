@@ -6,10 +6,12 @@ import validateUser, {
 } from "../../../../../middleware/check_auth_perms";
 
 import { ObjectId } from "bson";
+import { postDiscordAuditSubmit } from "../../../../../lib/discordPoster";
+import { buildVersionStr } from "../../../../../lib/missionsHelpers";
+import axios from "axios";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
-
 		res.status(501).json({ error: `${error.message}` });
 	},
 	onNoMatch(req, res: NextApiResponse) {
@@ -35,17 +37,41 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const reviewerNotes = body["reviewerNotes"];
 	const reviewChecklist = body["reviewChecklist"];
 
-	const updateResult = await MyMongo.collection("missions").updateOne(query, {
-		$set: {
-			"updates.$.testingAudit": {
-				reviewState: reviewState,
-				reviewChecklist: reviewChecklist,
-				reviewerNotes: reviewerNotes,
-				reviewerDiscordId: session.user.discord_id,
+	const updateResult = await MyMongo.collection("missions").findOneAndUpdate(
+		query,
+		{
+			$set: {
+				"updates.$.testingAudit": {
+					reviewState: reviewState,
+					reviewChecklist: reviewChecklist,
+					reviewerNotes: reviewerNotes,
+					reviewerDiscordId: session.user.discord_id,
+					displayAvatarURL: session.user.image,
+				},
 			},
-		},
-	});
-	if (updateResult.matchedCount > 0) {
+		}
+	);
+	if (updateResult.ok) {
+		const updateFound = updateResult.value.updates.find(
+			(element) => element._id == updateId
+		);
+		const versionStr = buildVersionStr(updateFound.version);
+
+		const botResponse = await axios.get(
+			`http://localhost:3001/users/${updateResult.value.authorID}`
+		);
+
+		postDiscordAuditSubmit({
+			reviewState,
+			name: updateResult.value.name,
+			uniqueName: updateResult.value.uniqueName,
+			author: botResponse.data.nickname ?? botResponse.data.displayName,
+			authorId: botResponse.data.userId,
+			reviewer: session.user["discord_id"],
+			version: versionStr,
+			notes: reviewerNotes,
+			checklist: reviewChecklist,
+		});
 		return res.status(204).send({});
 	} else {
 		return res

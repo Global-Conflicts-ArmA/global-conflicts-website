@@ -12,10 +12,11 @@ import {
 	REVIEW_STATE_PENDING,
 	REVIEW_STATE_REPROVED,
 } from "../../../../../lib/reviewStates";
+import { postDiscordAuditRequest } from "../../../../../lib/discordPoster";
+import { buildVersionStr } from "../../../../../lib/missionsHelpers";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
-
 		res.status(501).json({ error: `${error.message}` });
 	},
 	onNoMatch(req, res: NextApiResponse) {
@@ -33,29 +34,31 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 
 	let query = {};
 
+	const updateOid = new ObjectId(updateId.toString());
+
 	if (session.user.isAdmin) {
 		query = {
 			uniqueName: uniqueName,
-			"updates._id": new ObjectId(updateId.toString()),
+			"updates._id": updateOid,
 		};
 	} else {
 		query = {
 			uniqueName: uniqueName,
-			"updates._id": new ObjectId(updateId.toString()),
+			"updates._id": updateOid,
 			authorID: session.user.discord_id,
 			"updates.$.testingAudit.reviewState": {
 				$nin: [REVIEW_STATE_ACCEPTED, REVIEW_STATE_PENDING, REVIEW_STATE_REPROVED],
 			},
 		};
+	}
 
-		const result = await MyMongo.collection("missions").findOne(query, {
-			projection: { _id: 1 },
-		});
-		if (!result) {
-			return res
-				.status(400)
-				.json({ error: "You can't ask for an audit for this version." });
-		}
+	const result = await MyMongo.collection("missions").findOne(query, {
+		projection: { _id: 1, updates: 1, uniqueName: 1, name:1},
+	});
+	if (!result) {
+		return res
+			.status(400)
+			.json({ error: "You can't ask for an audit for this version." });
 	}
 
 	const updateResult = await MyMongo.collection("missions").updateOne(query, {
@@ -64,6 +67,17 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 		},
 	});
 	if (updateResult.matchedCount > 0) {
+		const updateFound = result.updates.find((element) => element._id == updateId);
+		 
+		const versionStr = buildVersionStr(updateFound.version);
+
+		postDiscordAuditRequest({
+			name: result.name,
+			uniqueName: result.uniqueName,
+			version: versionStr,
+			author: session.user["nickname"] ?? session.user["username"],
+			displayAvatarURL: session.user.image,
+		});
 		res.status(204).json(null);
 	} else {
 		return res
