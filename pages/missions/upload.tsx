@@ -286,10 +286,11 @@ function UploadMission() {
 		},
 	});
 
-	const { data: session } = useSession();
+	const { data: session, status } = useSession();
 	return (
 		<CredentialLockLayout
 			session={session}
+			status={status}
 			cred={CREDENTIAL.MISSION_MAKER}
 			message={`You must have the <b>"Mission Maker"</b> role on our Discord server to upload missions.`}
 		>

@@ -7,7 +7,7 @@ import axios from "axios";
 
 export default NextAuth({
 	// Configure one or more authentication providers A
-	secret:process.env.SECRET,
+	secret: process.env.SECRET,
 	providers: [
 		DiscordProvider({
 			clientId: process.env.DISCORD_APP_ID,
@@ -55,8 +55,24 @@ export default NextAuth({
 		},
 
 		async session({ session, user, token }) {
+			const botResponse = await axios.get(
+				`http://localhost:3001/users/${user["discord_id"]}`
+			);
+
+			const member = botResponse.data;
+
 			if (session.user && user) {
-				session.user = { ...session.user, ...user };
+				session.user = {
+					...session.user,
+					...{
+						id: user["id"],
+						discord_id: user["discord_id"],
+						roles: member.rolesMap,
+						username: member.displayName,
+						nickname: member.nickname,
+						image: user["image"],
+					},
+				};
 			}
 			return session;
 		},
