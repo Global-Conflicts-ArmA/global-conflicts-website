@@ -50,7 +50,14 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 										<div key={goal.id} >
 											<h2>{goal.description.replace("<br>", "")}</h2>
 											<div>
-												{currentAmountString} of {goal.amountDollarsString} per month
+												<span data-tip="🇨🇦" className="tooltip">
+													{currentAmountString}&nbsp;
+												</span>
+												of
+												<span data-tip="🇨🇦" className="tooltip">
+												&nbsp;{goal.amountDollarsString}&nbsp;
+												</span>
+												per month
 											</div>
 											<ProgressBar
 												transitionDuration={"2s"}
@@ -58,6 +65,7 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 												borderRadius={"10px"}
 												className="grain-progress-bar"
 												labelSize={".9em"}
+												
 												bgColor={"hsla(var(--a)/var(--tw-bg-opacity,1))"}
 												completed={goal.percentToUse}
 											/>
@@ -142,7 +150,8 @@ export async function getServerSideProps(context) {
 			});
 			goal["amountDollarsString"] = dollarsString;
 			goal["amountDollarsNum"] = dollarsNum;
-			goal["percent"] = goal.attributes.completed_percentage;
+
+			goal["percent"] = Math.round(((currentAmountNum / dollarsNum) * 100))
 			goal["percentToUse"] = 0;
 			goal["description"] = goal.attributes.description;
 			delete goal["attributes"];
