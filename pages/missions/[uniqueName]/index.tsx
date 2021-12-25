@@ -489,9 +489,9 @@ export default function MissionDetails({
 						</div>
 
 						<div className="flex flex-row items-center">
-							<h2 className="mr-5 text-1xl">
+							<div className="mr-5 text-2xl"  >
 								Author: <span className="font-bold">{mission.missionMaker}</span>
-							</h2>
+							</div>
 							<div
 								data-tip={
 									hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
