@@ -99,7 +99,6 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const history = req.body;
-	console.log(history);
 	history["_id"] = new ObjectId(history["_id"]);
 	history["date"] = new Date(history["date"]);
 

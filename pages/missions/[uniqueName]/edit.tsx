@@ -687,7 +687,7 @@ export async function getServerSideProps(context) {
 			},
 		}
 	);
-	console.log(mission);
+
 	return {
 		props: { mission },
 	};

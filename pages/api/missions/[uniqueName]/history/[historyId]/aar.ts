@@ -25,7 +25,6 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const session = req["session"];
 	const historyIdObjId = new ObjectId(historyId as string);
-	console.log("1111");
 
 	MyMongo.collection("missions")
 		.updateOne(
@@ -39,11 +38,9 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			}
 		)
 		.then((result) => {
-			console.log(result);
 			res.send({ ok: true });
 		})
 		.catch((error) => {
-			console.log(error);
 			res.status(200).send({ ok: false });
 		});
 });

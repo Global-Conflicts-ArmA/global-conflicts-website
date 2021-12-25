@@ -311,7 +311,6 @@ export async function getServerSideProps(context) {
 		})
 	);
 
-	console.log(missions);
 	return { props: { missions, maxVotes } };
 }
 

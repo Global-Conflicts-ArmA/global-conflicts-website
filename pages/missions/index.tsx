@@ -192,7 +192,7 @@ function MissionList({ missions }) {
 						onChange={(event) => {
 							const text = event.target.value;
 							setMapFilter(() => (x) => {
-								console.log(x);
+
 								let hasMatch = false;
 								hasMatch = x["terrain"].toLowerCase().includes(text.toLowerCase());
 
@@ -308,9 +308,6 @@ function MissionList({ missions }) {
 									dense={denseMode}
 									defaultSortAsc={false}
 									defaultSortFieldId={"dateAdded"}
-									onSort={(column, direction) => {
-										console.log(column);
-									}}
 									striped={true}
 									onRowClicked={(row, event) => {
 										if (event.ctrlKey) {

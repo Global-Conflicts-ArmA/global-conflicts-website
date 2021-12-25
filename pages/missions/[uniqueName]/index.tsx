@@ -158,13 +158,12 @@ export default function MissionDetails({
 	}
 
 	async function downloadMission(filename) {
-		console.log(filename);
 		axios
 			.get("/api/missions/download/", { params: { filename: filename } })
 			.then((result) => {
 				const blob: any = new Blob([result.data]);
 				const url = window.URL.createObjectURL(blob);
-				console.log(url);
+
 				saveAs(blob, filename);
 			});
 	}
@@ -274,7 +273,6 @@ export default function MissionDetails({
 				return (
 					<button
 						onClick={() => {
-							console.log(row);
 							downloadMission(row.filename);
 						}}
 						className="btn btn-sm"
@@ -383,11 +381,9 @@ export default function MissionDetails({
 	});
 	function getHistory() {
 		if (error) {
-			console.log("error");
 			return mission.history;
 		}
 		if (history?.error) {
-			console.log("history?.error");
 			return mission.history;
 		}
 
@@ -660,7 +656,6 @@ export default function MissionDetails({
 													<button
 														className="btn btn-xs"
 														onClick={() => {
-															console.log(historyItem);
 															setGameplayHistoryModalHistoryToLoad(historyItem);
 															setgameplayHistoryModalOpen(true);
 														}}
@@ -758,7 +753,6 @@ export default function MissionDetails({
 																				<button
 																					className="z-10 ml-2 btn btn-xs "
 																					onClick={() => {
-																						console.log(leader.aar);
 																						setAarTextToLoad(leader.aar);
 																						setHistoryIdToLoadForAAR(historyItem._id);
 
@@ -888,7 +882,7 @@ export default function MissionDetails({
 					mission={mission}
 					onRemove={(comment) => {
 						const list = mission[comment.type + "s"] ?? [];
-						console.log(commentModalData);
+
 						let itemIndex = list.findIndex(
 							(item) => item._id == commentModalData.comment._id
 						);
@@ -898,7 +892,7 @@ export default function MissionDetails({
 					}}
 					onEdit={(comment) => {
 						const list = mission[comment.type + "s"];
-						console.log(commentModalData);
+
 						let itemIndex = list.findIndex(
 							(item) => item._id == commentModalData.comment._id
 						);
@@ -906,7 +900,6 @@ export default function MissionDetails({
 						mission[comment.type + "s"] = [...list];
 					}}
 					onSubmit={(comment) => {
-						console.log("aoaooa");
 						const list = mission[comment.type + "s"] ?? [];
 						const newlist = [...list, comment];
 						mission[comment.type + "s"] = newlist;
@@ -1157,7 +1150,6 @@ export async function getServerSideProps(context) {
 
 				await Promise.all(
 					history["leaders"]?.map(async (leader) => {
-						console.log(leader);
 						delete leader["_id"];
 						var user = await MyMongo.collection("users").findOne(
 							{ discord_id: leader["discordID"] },
@@ -1178,17 +1170,16 @@ export async function getServerSideProps(context) {
 	}
 
 	mission["updates"]?.map((update) => {
-		console.log(`File Path ${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.filename}`)
 		update.main = fs.existsSync(
-			`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.filename}`
+			`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.fileName}`
 		);
 
 		update.test = fs.existsSync(
-			`${process.env.ROOT_FOLDER}/${process.env.TEST_SERVER_MPMissions}/${update.filename}`
+			`${process.env.ROOT_FOLDER}/${process.env.TEST_SERVER_MPMissions}/${update.fileName}`
 		);
 
 		update.archive = fs.existsSync(
-			`${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}/${update.filename}`
+			`${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}/${update.fileName}`
 		);
 		update["_id"] = update["_id"].toString();
 		update["date"] = moment(update["date"]).format("ll");

@@ -47,7 +47,6 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 
 		return res.send(data);
 	} catch (error) {
-		console.log(error);
 		return res.send(error);
 	}
 });

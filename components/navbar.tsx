@@ -68,7 +68,6 @@ export default function NavBar() {
 		return classes.filter(Boolean).join(" ");
 	}
 	useEffect(() => {
-		console.log(router.pathname);
 	}, [router.pathname]);
 
 	return (

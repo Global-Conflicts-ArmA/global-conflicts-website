@@ -161,7 +161,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		authorID: session.user.discord_id,
 		date: new Date(),
 		changeLog: body.changelog,
-		filename: missionFileName,
+		fileName: missionFileName,
 	};
 
 	const updateResult = await MyMongo.collection("missions").updateOne(query, {

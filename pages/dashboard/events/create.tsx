@@ -52,7 +52,6 @@ function EventsDashboardPage() {
 			eventDataFormik.setFieldValue("eventCoverMedia", i);
 			const objurl = URL.createObjectURL(i);
 			setObjectUrl(objurl);
-			console.log(objectURL);
 			setTimeout(() => {
 				if (videoRef.current) {
 					videoRef.current.defaultMuted = true;

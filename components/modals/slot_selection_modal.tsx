@@ -17,7 +17,6 @@ export default function SlotSelectionModal({
 	const [selectedFactionTitle, setSelectedFactionTitle] = useState(null);
 
 	useEffect(() => {
-		console.log("modal useffect");
 		if (reservedSlotName) {
 			for (const faction of event.eventReservableSlotsInfo) {
 				if (faction.title == reservedSlotFactionTitle) {

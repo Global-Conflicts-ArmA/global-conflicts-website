@@ -62,7 +62,6 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		date: new Date(),
 		text: text,
 	};
-	console.log(review)
 	const updateResult = await MyMongo.collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
@@ -72,7 +71,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 			$set: { "reports.$": review },
 		}
 	);
-	console.log(updateResult);
+
 	return res.status(200).json({ ok: true });
 });
 

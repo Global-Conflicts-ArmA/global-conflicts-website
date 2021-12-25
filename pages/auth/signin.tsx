@@ -47,7 +47,6 @@ export default function SignIn({ providers }) {
 // This is the recommended way for Next.js 9.3 or newer
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-	console.log(session);
 	if (session?.user) {
 		return {
 			redirect: {

@@ -21,7 +21,6 @@ export function padZeros(count: number, size = 2) {
 }
 
 export function makeSafeName(name: string) {
-	console.log(name);
 	return name
 		.normalize("NFD")
 		.replaceAll(/[\u0300-\u036f]/g, "")
@@ -81,7 +80,6 @@ export function filterMediaFile(
 	missionName,
 	checkForPresence = false
 ) {
-	console.log(missionName);
 	const safeName = makeSafeName(missionName);
 
 	var format = file.originalname.split(".").pop();

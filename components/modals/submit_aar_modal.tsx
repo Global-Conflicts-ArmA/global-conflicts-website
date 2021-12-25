@@ -39,7 +39,6 @@ export default function SubmitAARModal({
 				})
 
 				.then((response) => {
-					console.log("asmodmas")
 					onClose(_aarText);
 				})
 				.catch((error) => {

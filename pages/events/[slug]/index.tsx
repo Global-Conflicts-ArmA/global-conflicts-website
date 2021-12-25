@@ -193,7 +193,6 @@ export default function EventHome({ event }) {
 	}
 
 	function getPreviewImage(where: string) {
-		console.log(event);
 		if (event.imageLink.includes(".webm") || event.imageLink.includes(".mp4")) {
 			if (where == "twitter") {
 				return "https://gc-next-website.vercel.app/twitterimage.jpg";
@@ -554,7 +553,6 @@ export async function getStaticProps({ params }: Params) {
 		await Promise.all(
 			contentPages.map(async (contentPage) => {
 				if (contentPage.markdownContent) {
-					console.log(contentPage.markdownContent);
 
 					contentPage.parsedMarkdownContent = generateMarkdown(
 						contentPage.markdownContent

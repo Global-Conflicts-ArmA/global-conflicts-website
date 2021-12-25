@@ -97,7 +97,6 @@ export default function SubmitReviewReportModal({
 	function submit() {
 		setIsLoading(true);
 		try {
-			console.log(mission);
 			const payload = {
 				...data?.comment,
 				version: selectedVersion.value,
@@ -113,7 +112,6 @@ export default function SubmitReviewReportModal({
 					data: payload,
 				})
 				.then((response) => {
-					console.log("asmodmas");
 					if (data?.comment?.text) {
 						toast.info(`${capitalize(data.type)} Edited`);
 						onEdit(payload);
@@ -156,7 +154,6 @@ export default function SubmitReviewReportModal({
 	}
 
 	useEffect(() => {
-		console.log(mission);
 		let versions = [{ value: { major: -1 }, label: "General" }];
 		mission.updates.forEach((element) => {
 			versions.push(buildVersionOption(element.version));

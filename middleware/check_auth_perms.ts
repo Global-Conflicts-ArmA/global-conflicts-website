@@ -18,7 +18,6 @@ export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 			return reject(401);
 		}
 		if (creds == CREDENTIAL.ANY) {
-			console.log(creds)
 			if (next) {
 				req.session = session;
 				return next();

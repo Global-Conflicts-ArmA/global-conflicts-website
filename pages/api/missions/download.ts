@@ -21,7 +21,6 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	fs.readFile(
 		`${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}/${filename}`,
 		(err, data) => {
-			console.log(err);
 			if (err) {
 				res.writeHead(404);
 				res.end(JSON.stringify(err));
