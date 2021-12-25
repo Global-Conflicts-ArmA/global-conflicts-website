@@ -10,8 +10,8 @@ export default NextAuth({
 	secret:process.env.SECRET,
 	providers: [
 		DiscordProvider({
-			clientId: process.env.DISCORD_TEST_APP_ID,
-			clientSecret: process.env.DISCORD_TEST_APP_SECRET,
+			clientId: process.env.DISCORD_APP_ID,
+			clientSecret: process.env.DISCORD_APP_SECRET,
 			profile: async (profile) => {
 				if (profile["avatar"] === null) {
 					const defaultAvatarNumber = parseInt(profile["discriminator"]) % 5;
