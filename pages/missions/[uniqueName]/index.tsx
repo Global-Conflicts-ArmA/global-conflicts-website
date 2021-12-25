@@ -273,7 +273,7 @@ export default function MissionDetails({
 				return (
 					<button
 						onClick={() => {
-							downloadMission(row.filename);
+							downloadMission(row.fileName);
 						}}
 						className="btn btn-sm"
 					>

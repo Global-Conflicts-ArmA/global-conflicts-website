@@ -13,7 +13,6 @@ import { getSession } from "next-auth/react";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
-
 		res.status(501).json({ error: `${error.message}` });
 	},
 	onNoMatch(req, res: NextApiResponse) {
@@ -69,7 +68,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: `Not allowed` });
 	}
 
-	const updateFileName = missionFound.updates[0].filename;
+	const updateFileName = missionFound.updates[0].fileName;
 
 	const archivePath = `${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}/${updateFileName}`;
 
@@ -87,6 +86,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			fs.unlinkSync(destinationFolder);
 		}
 	} catch (error) {
+		console.error(error);
 
 		if (error.message.includes("no such file or directory")) {
 			return res.status(400).json({ error: "Could not find related file." });
