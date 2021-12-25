@@ -456,9 +456,9 @@ export default function EventHome({ event }) {
 						)
 					) : (
 						<div className="m-auto my-10 bg-gray-600 cursor-pointer btn btn-lg btn-block no-animation hover:bg-gray-600">
-							<h2 className="w-full text-center">
+							<span className="w-full text-center">
 								You must join our Discord to register for events.
-							</h2>
+							</span>
 						</div>
 					))}
 			</div>
