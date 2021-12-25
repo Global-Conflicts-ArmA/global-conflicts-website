@@ -26,7 +26,7 @@ function Downloads({}) {
 							<h2>Global Conflicts Laucher</h2>
 						</div>
 						<a
-							href="api/downloads/torrents"
+							href="https://launcher.globalconflicts.net/download"
 							download
 							className="my-5 text-white btn btn-xl btn-wide"
 						>
@@ -63,7 +63,7 @@ function Downloads({}) {
 												If you are having issues with our launcher or just don&apos;t trust
 												it, you can download our mods using your torrent downloader client.{" "}
 												<a
-													href="api/downloads/torrents"
+													href="http://launcher.globalconflicts.net/torrents/all_torrents.rar"
 													download
 													className="p-1 btn btn-ghost btn-xs"
 												>
@@ -74,7 +74,7 @@ function Downloads({}) {
 												properly. If you don&apos;t even trust the .zip archive, you can
 												download one by one{" "}
 												<a
-													href="https://globalconflicts.net/launcher/torrents/"
+													href="http://launcher.globalconflicts.net/torrents/"
 													download
 													className="p-1 btn btn-ghost btn-xs"
 												>
