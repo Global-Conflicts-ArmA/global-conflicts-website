@@ -130,7 +130,7 @@ export async function getServerSideProps(context) {
 		const currentAmountNum = currentAmount / 100;
 		const currentAmountString = currentAmountNum.toLocaleString("en-US", {
 			style: "currency",
-			currency: "USD",
+			currency: "CAD",
 		});
 
 		const goals = json.campaign.included.filter((thing) => thing.type === "goal");
@@ -138,7 +138,7 @@ export async function getServerSideProps(context) {
 			const dollarsNum = goal.attributes.amount_cents / 100;
 			const dollarsString = dollarsNum.toLocaleString("en-US", {
 				style: "currency",
-				currency: "USD",
+				currency: "CAD",
 			});
 			goal["amountDollarsString"] = dollarsString;
 			goal["amountDollarsNum"] = dollarsNum;
