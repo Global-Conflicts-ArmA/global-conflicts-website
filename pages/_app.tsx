@@ -111,7 +111,7 @@ export default function MyApp({
 							<div className="italic">
 								Tactical Arma 3 gameplay with no strings attached.
 							</div>
-							<div className="italic">est. 2021</div>
+							<div className="italic">est. 2020</div>
 						</div>
 						<div>
 							<div className="grid grid-flow-col gap-4">
