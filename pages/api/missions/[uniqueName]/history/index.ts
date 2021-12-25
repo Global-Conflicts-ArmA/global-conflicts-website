@@ -24,7 +24,6 @@ const apiRoute = nextConnect({
 
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
-	console.log(require("os").userInfo().username);
 	const result = await MyMongo.collection("missions").findOne(
 		{
 			uniqueName: uniqueName,
