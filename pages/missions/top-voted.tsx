@@ -93,8 +93,8 @@ function TopVoted({ missions, maxVotes }) {
 	function getVoteBtn(mission) {
 		return (
 			<div className="flex flex-row justify-start">
-				<div className="flex flex-row  mr-2">
-					<div className="opacity-75 stat-title mr-2">Votes:</div>
+				<div className="flex flex-row mr-2">
+					<div className="mr-2 opacity-75 stat-title">Votes:</div>
 					<div className=""> {mission.votes.length}</div>
 				</div>
 				<div
@@ -152,9 +152,9 @@ function TopVoted({ missions, maxVotes }) {
 				{missions.map((mission, index) => {
 					return (
 						<>
-							<div key={mission.uniqueName} className="flex flex-row  ">
+							<div key={mission.uniqueName} className="flex flex-row ">
 								<div
-									className="flex-1 w-full overflow-hidden shadow-lg card hidden md:block"
+									className="flex-1 hidden w-full overflow-hidden shadow-lg card md:block"
 									style={{ height: "fit-content" }}
 								>
 									<MissionMediaCard
@@ -165,7 +165,7 @@ function TopVoted({ missions, maxVotes }) {
 										aspectRatio="16/9"
 									></MissionMediaCard>
 								</div>
-								<div className="flex-1 md:ml-4 prose max-w-full">
+								<div className="flex-1 max-w-full prose md:ml-4">
 									<div className="flex flex-col items-start justify-between sm:flex-row">
 										<div>
 											<h2 style={{ margin: 0 }}>
@@ -251,7 +251,10 @@ export async function getServerSideProps(context) {
 			{
 				$match: { votes: { $exists: true, $type: "array", $ne: [] } },
 			},
-			{ $sort: { votes: -1 } },
+			{
+				$addFields: { votes_count: { $size: { $ifNull: ["$votes", []] } } },
+			},
+			{ $sort: { votes_count: -1 } },
 
 			{
 				$lookup: {
