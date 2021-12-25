@@ -1178,6 +1178,7 @@ export async function getServerSideProps(context) {
 	}
 
 	mission["updates"]?.map((update) => {
+		console.log(`File Path ${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.filename}`)
 		update.main = fs.existsSync(
 			`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.filename}`
 		);
