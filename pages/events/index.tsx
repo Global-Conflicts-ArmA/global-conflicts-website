@@ -99,7 +99,7 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
 	);
 }
 
-export async function getStaticProps({ params }: Params) {
+export async function getServerSideProps({ params }: Params) {
 	const pastEvents = await MyMongo.collection("events")
 		.find(
 			{

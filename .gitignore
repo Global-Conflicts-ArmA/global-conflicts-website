@@ -35,3 +35,7 @@ yarn-error.log*
 # vercel
 .vercel
 node_modules
+
+/public/eventCoverMedia
+/public/missions
+/public/missionsCoverMedia
