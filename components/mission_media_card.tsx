@@ -38,6 +38,7 @@ export default function MissionMediaCard({
 						quality="100"
 						layout="fill"
 						objectFit="cover"
+						unoptimized={true}
 						src={createObjectURL}
 						alt={"Mission cover image"}
 					/>
