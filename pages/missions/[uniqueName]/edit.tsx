@@ -127,8 +127,16 @@ function EditMission({ mission }) {
 		initialValues: {
 			description: mission.description,
 			era: { value: mission.era, label: mission.era },
-			jip: { value: mission.jip, label: mission.jip?"Yes":"No" },
-			respawn: { value: mission.respawn, label: mission.respawn?"Yes":"No" },
+			jip: { value: mission.jip, label: mission.jip ? "Yes" : "No" },
+			respawn: {
+				value: mission.respawn,
+				label:
+					mission.respawn == true
+						? "Yes"
+						: mission.respawn == false
+						? "No"
+						: mission.respawn,
+			},
 			minPlayers: mission.size.min,
 			maxPlayers: mission.size.max,
 			timeOfDay: { value: mission.timeOfDay, label: mission.timeOfDay },

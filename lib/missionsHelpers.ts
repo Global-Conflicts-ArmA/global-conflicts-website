@@ -84,7 +84,7 @@ export function filterMediaFile(
 
 	var format = file.originalname.split(".").pop();
 	const mediaName = `${safeName}.${format}`;
-	const filExists = fs.existsSync(`${mediaFolder}/${mediaName}`);
+	const filExists = fs.existsSync(`${process.env.MEDIA_FOLDER}/${mediaName}`);
 
 	if (filExists && checkForPresence) {
 		cb(new Error("A media file with this name already exists."));

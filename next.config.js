@@ -18,6 +18,7 @@ module.exports = withMDX({
 			"images.unsplash.com",
 			"cdn.pixabay.com",
 			"globalconflicts.net",
+			"launcher.globalconflicts.net",
 			"imgur.com",
 			"imgur.com",
 			"cdn.discordapp.com",

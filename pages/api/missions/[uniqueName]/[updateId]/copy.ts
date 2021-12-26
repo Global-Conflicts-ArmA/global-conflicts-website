@@ -81,9 +81,6 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	try {
 		if (isCopying) {
-			console.log("COPYING FILE")
-			console.log(archivePath)
-			console.log(destinationFolder)
 			fs.copyFileSync(archivePath, destinationFolder, fs.constants.COPYFILE_EXCL);
 		} else {
 			fs.unlinkSync(destinationFolder);

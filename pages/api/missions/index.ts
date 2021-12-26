@@ -31,7 +31,7 @@ const missionUpload = multer({
 						`${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}`
 					);
 				case "media":
-					return cb(null, `${process.env.ROOT_FOLDER}/${process.env.MEDIA_FOLDER}`);
+					return cb(null, process.env.MEDIA_FOLDER);
 				default:
 					cb(new Error("Invalid file"), null);
 			}
@@ -53,7 +53,7 @@ const missionUpload = multer({
 				return filterMissionFile(req, file, cb);
 			case "media":
 				const body = JSON.parse(req.body["missionJsonData"]);
-				return filterMediaFile(req, file, cb, body["name"]??req.body["name"]);
+				return filterMediaFile(req, file, cb, body["name"] ?? req.body["name"]);
 			default:
 				cb(null, false);
 		}

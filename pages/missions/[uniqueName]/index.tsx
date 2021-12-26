@@ -362,13 +362,9 @@ export default function MissionDetails({
 
 	function getMissionMediaPath(absolute = false) {
 		if (mission.mediaFileName) {
-			return absolute
-				? `https://gc-next-website.vercel.app/missionsCoverMedia/${mission.mediaFileName}`
-				: `/missionsCoverMedia/${mission.mediaFileName}`;
+			return `https://launcher.globalconflicts.net/media/missions/${mission.mediaFileName}`;
 		} else {
-			return absolute
-				? `https://gc-next-website.vercel.app/terrain_pics/${mission.terrain.toLowerCase()}.jpg`
-				: `/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
+			return `https://launcher.globalconflicts.net/media/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
 		}
 	}
 
@@ -489,7 +485,7 @@ export default function MissionDetails({
 						</div>
 
 						<div className="flex flex-row items-center">
-							<div className="mr-5 text-2xl"  >
+							<div className="mr-5 text-2xl">
 								Author: <span className="font-bold">{mission.missionMaker}</span>
 							</div>
 							<div
@@ -578,7 +574,11 @@ export default function MissionDetails({
 								<div className="m-2">
 									<div className="stat-title">Respawn</div>
 									<div className="text-sm stat-value">
-										{mission.respawn ? "Yes" : "No"}
+										{mission.respawn == true
+											? "Yes"
+											: mission.respawn == false
+											? "No"
+											: mission.respawn}
 									</div>
 								</div>
 								<div className="m-2">

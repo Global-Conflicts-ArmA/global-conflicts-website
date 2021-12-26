@@ -13,7 +13,7 @@ export default NextAuth({
 			clientId: process.env.DISCORD_APP_ID,
 			clientSecret: process.env.DISCORD_APP_SECRET,
 			profile: async (profile) => {
-				console.log(profile);
+ 
 				if (profile["avatar"] === null) {
 					const defaultAvatarNumber = parseInt(profile["discriminator"]) % 5;
 					profile[
@@ -54,7 +54,7 @@ export default NextAuth({
 			);
 
 			const member = botResponse.data;
-			console.log(member);
+ 
 			if (session.user && user) {
 				session.user = {
 					...session.user,

@@ -2,7 +2,6 @@ import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
 import hasCreds from "../lib/credsChecker";
 export function CredentialLockLayout(props) {
-	console.log(props);
 	if (props.status == "loading") {
 		return (
 			<div className="flex justify-center mt-20">
