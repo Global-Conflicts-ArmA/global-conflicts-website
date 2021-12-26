@@ -438,17 +438,17 @@ export default function MissionDetails({
 
 				<meta
 					name="description"
-					content={mission.descriptionNoMarkdown}
+					content={mission.descriptionNoMarkdown??mission.description}
 					key="description"
 				/>
 				<meta
 					property="og:description"
-					content={mission.descriptionNoMarkdown}
+					content={mission.descriptionNoMarkdown??mission.description}
 					key="og:description"
 				/>
 				<meta
 					name="twitter:description"
-					content={mission.descriptionNoMarkdown}
+					content={mission.descriptionNoMarkdown??mission.description}
 					key="twitter:description"
 				/>
 				<meta
