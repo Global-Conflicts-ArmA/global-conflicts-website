@@ -20,6 +20,8 @@ app
 		});
 
 		server.put("*", (req, res) => {
+			console.log("RECIEVING PUT");
+			console.log(req);
 			return handle(req, res);
 		});
 
