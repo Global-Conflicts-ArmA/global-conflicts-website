@@ -11,7 +11,7 @@ module.exports = withMDX({
 	pageExtensions: ["js", "jsx", "ts", "tsx"],
 
 	images: {
-		formats: ["image/avif", "image/webp"],
+		formats: ["image/avif", "image/webp", "image/jpg", "image/gif", "image/png"],
 		domains: [
 			"source.unsplash.com",
 			"tailwindui.com",
