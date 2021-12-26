@@ -13,6 +13,7 @@ export default NextAuth({
 			clientId: process.env.DISCORD_APP_ID,
 			clientSecret: process.env.DISCORD_APP_SECRET,
 			profile: async (profile) => {
+				console.log(profile);
 				if (profile["avatar"] === null) {
 					const defaultAvatarNumber = parseInt(profile["discriminator"]) % 5;
 					profile[
@@ -47,20 +48,13 @@ export default NextAuth({
 		db: MyMongo,
 	}),
 	callbacks: {
-		async jwt({ token, user, account, profile, isNewUser }) {
-			if (profile) {
-				token = { ...token, ...profile };
-			}
-			return token;
-		},
-
 		async session({ session, user, token }) {
 			const botResponse = await axios.get(
 				`http://localhost:3001/users/${user["discord_id"]}`
 			);
 
 			const member = botResponse.data;
-
+			console.log(member);
 			if (session.user && user) {
 				session.user = {
 					...session.user,
