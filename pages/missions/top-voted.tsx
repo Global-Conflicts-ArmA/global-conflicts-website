@@ -19,13 +19,9 @@ import { unified } from "unified";
 import { MapItem } from "../../interfaces/mapitem";
 function getMissionMediaPath(mission, absolute = false) {
 	if (mission.mediaFileName) {
-		return absolute
-			? `https://gc-next-website.vercel.app/missionsCoverMedia/${mission.mediaFileName}`
-			: `/missionsCoverMedia/${mission.mediaFileName}`;
+		return `https://launcher.globalconflicts.net/media/missions/${mission.mediaFileName}`;
 	} else {
-		return absolute
-			? `https://gc-next-website.vercel.app/terrain_pics/${mission.terrain.toLowerCase()}`
-			: `/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
+		return `https://launcher.globalconflicts.net/media/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
 	}
 }
 

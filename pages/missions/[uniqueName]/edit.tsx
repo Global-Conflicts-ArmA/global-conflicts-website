@@ -43,7 +43,7 @@ function EditMission({ mission }) {
 	const [imageObjectUrl, setImageObjectUrl] = useState(null);
 	const uploadProgressToast = React.useRef(null);
 	function getTerrainPic(mapClass: string) {
-		return `/terrain_pics/${mapClass.toLowerCase()}.jpg`;
+		return `https://launcher.globalconflicts.net/media/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
 	}
 
 	const displayMedia = async (event) => {
@@ -115,7 +115,9 @@ function EditMission({ mission }) {
 
 	useEffect(() => {
 		if (mission.mediaFileName) {
-			setImageObjectUrl(`/missionsCoverMedia/${mission.mediaFileName}`);
+			setImageObjectUrl(
+				`https://launcher.globalconflicts.net/media/missions/${mission.mediaFileName}`
+			);
 		} else {
 			setImageObjectUrl(getTerrainPic(mission.terrain));
 		}
