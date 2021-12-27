@@ -6,7 +6,7 @@ export enum CREDENTIAL {
 	NEW_GUY = "New Guy",
 	MEMBER = "Member",
 	MISSION_MAKER = "Mission Maker",
-	MISSION_REVIEWER = "Mission Reviewer Team",
+	MISSION_REVIEWER = "Mission Review Team",
 	GM = "GM",
 	ADMIN = "Admin",
 }
@@ -51,6 +51,6 @@ export default function validateUser(req, res, creds: CREDENTIAL, next = null) {
 			}
 		}
 
-		return reject(401);
+		return reject({ message: "Not Authorized" });
 	});
 }
