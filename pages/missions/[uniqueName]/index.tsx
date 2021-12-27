@@ -40,6 +40,7 @@ import {
 	ChevronRightIcon,
 	ClockIcon,
 	ExclamationCircleIcon,
+	PencilAltIcon,
 	QuestionMarkCircleIcon,
 } from "@heroicons/react/outline";
 import { CREDENTIAL } from "../../../middleware/check_auth_perms";
@@ -50,6 +51,7 @@ import fetcher from "../../../lib/fetcher";
 import { Disclosure, Transition } from "@headlessui/react";
 import SubmitAARModal from "../../../components/modals/submit_aar_modal";
 import { generateMarkdown } from "../../../lib/markdownToHtml";
+import SimpleTextViewModal from "../../../components/modals/simple_text_view_modal";
 
 export default function MissionDetails({
 	_mission,
@@ -59,6 +61,7 @@ export default function MissionDetails({
 }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
 	let [newVersionModalOpen, setNewVersionModalOpen] = useState(false);
+	let [simpleTextModalOPen, setSimpleTextModalOpen] = useState(false);
 	let [actionsModalData, setActionsModalData] = useState(null);
 	let [isLoadingVote, setIsLoadingVote] = useState(false);
 	let [hasVotedLocal, setHasVoted] = useState(hasVoted);
@@ -68,6 +71,8 @@ export default function MissionDetails({
 	let [submitAARModalOpen, setSubmitAARModalOpen] = useState(false);
 	let [aarTextToLoad, setAarTextToLoad] = useState("");
 	let [historyIdToLoadForAAR, setHistoryIdToLoadForAAR] = useState("");
+	let [simpleTextViewing, setSimpleTextViewing] = useState("");
+	let [simpleTextHeaderViewing, setSimpleTextHeaderViewing] = useState("");
 	let [commentModalData, setCommentModalData] = useState(null);
 
 	let [gameplayHistoryModalOpen, setgameplayHistoryModalOpen] = useState(false);
@@ -267,6 +272,30 @@ export default function MissionDetails({
 			},
 		},
 		{
+			name: "Changelog",
+			// eslint-disable-next-line react/display-name
+			cell: (row) => {
+				return (
+					<button
+						onClick={() => {
+							setSimpleTextViewing(row.changeLog);
+							setSimpleTextHeaderViewing(
+								`Changelog for V${row.version.major + (row.version.minor ?? "")}:`
+							);
+							setSimpleTextModalOpen(true);
+						}}
+						className="btn btn-sm"
+					>
+						<PencilAltIcon height={24}></PencilAltIcon>
+					</button>
+				);
+			},
+			omit: session == null,
+			center: true,
+			grow: 1,
+			width: "95px",
+		},
+		{
 			name: "Download",
 			// eslint-disable-next-line react/display-name
 			cell: (row) => {
@@ -438,17 +467,17 @@ export default function MissionDetails({
 
 				<meta
 					name="description"
-					content={mission.descriptionNoMarkdown??mission.description}
+					content={mission.descriptionNoMarkdown ?? mission.description}
 					key="description"
 				/>
 				<meta
 					property="og:description"
-					content={mission.descriptionNoMarkdown??mission.description}
+					content={mission.descriptionNoMarkdown ?? mission.description}
 					key="og:description"
 				/>
 				<meta
 					name="twitter:description"
-					content={mission.descriptionNoMarkdown??mission.description}
+					content={mission.descriptionNoMarkdown ?? mission.description}
 					key="twitter:description"
 				/>
 				<meta
@@ -664,12 +693,26 @@ export default function MissionDetails({
 													</button>
 												)}
 
-												<button className="btn btn-xs" onClick={() => {}}>
+												<a
+													className="btn btn-xs"
+													href={historyItem.aarReplayLink}
+													target="_blank"
+													rel="noreferrer"
+												>
 													AAR Replay
-												</button>
-												<button className="btn btn-xs" onClick={() => {}}>
-													GM Notes
-												</button>
+												</a>
+												{historyItem.gmNote && (
+													<button
+														className="btn btn-xs"
+														onClick={() => {
+															setSimpleTextViewing(historyItem.gmNote);
+															setSimpleTextHeaderViewing(`GM Notes:`);
+															setSimpleTextModalOpen(true);
+														}}
+													>
+														GM Notes
+													</button>
+												)}
 											</div>
 										</div>
 
@@ -1007,6 +1050,15 @@ export default function MissionDetails({
 						setgameplayHistoryModalOpen(false);
 					}}
 				></GameplayHistoryModal>
+
+				<SimpleTextViewModal
+					text={simpleTextViewing}
+					header={simpleTextHeaderViewing}
+					isOpen={simpleTextModalOPen}
+					onClose={() => {
+						setSimpleTextModalOpen(false);
+					}}
+				></SimpleTextViewModal>
 			</div>
 		</>
 	);
