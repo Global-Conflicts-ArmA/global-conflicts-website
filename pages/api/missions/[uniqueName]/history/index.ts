@@ -69,9 +69,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		{
 			uniqueName: uniqueName,
 		},
-		{
-			$addToSet: { history: history },
-		}
+		{ $set: { lastPlayed: history["date"] }, $addToSet: { history: history } }
 	);
 	const mission = await MyMongo.collection("missions").findOne({
 		uniqueName: uniqueName,
@@ -108,7 +106,10 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 			"history._id": history["_id"],
 		},
 		{
-			$set: { "history.$": history },
+			$set: {
+				lastPlayed: history["date"],
+				"history.$": history,
+			},
 		}
 	);
 	const mission = await MyMongo.collection("missions").findOne({
