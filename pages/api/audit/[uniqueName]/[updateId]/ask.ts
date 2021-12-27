@@ -25,7 +25,7 @@ const apiRoute = nextConnect({
 });
 
 apiRoute.use((req, res, next) =>
-	validateUser(req, res, CREDENTIAL.MISSION_REVIEWER, next)
+	validateUser(req, res, CREDENTIAL.MISSION_MAKER, next)
 );
 
 apiRoute.post(async (req: NextApiRequest, res) => {
