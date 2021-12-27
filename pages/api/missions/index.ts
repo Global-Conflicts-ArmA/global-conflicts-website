@@ -41,7 +41,8 @@ const missionUpload = multer({
 				case "missionFile":
 					return fileNameParse(req, file, cb);
 				case "media":
-					return fileNameMediaParse(req, file, cb, req.body["name"]);
+					const body = JSON.parse(req.body["missionJsonData"]);
+					return fileNameMediaParse(req, file, cb, body["name"] ?? req.body["name"]);
 				default:
 					cb(new Error("Invalid file"), null);
 			}
