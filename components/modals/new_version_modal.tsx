@@ -14,7 +14,7 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 	);
 	const uploadProgressToast = React.useRef(null);
 	const [isLoading, setIsLoading] = useState(false);
-	const [changelog, setChangelog] = useState(null);
+	const [changelog, setChangelog] = useState("");
 	const [errorText, setErrorText] = useState(null);
 	const [missionFile, setMissionFile] = useState<File | undefined>(null);
 	const [isMajorVersion, setMajorVersion] = useState(false);
@@ -141,15 +141,7 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 									Uploading new version
 								</Dialog.Title>
 
-								<Link href="/guides/events#signup-and-slotting-procedure" passHref>
-									<a className="btn btn-ghost btn-md" target="_blank">
-										How it works{" "}
-										<QuestionMarkCircleIcon
-											height={25}
-											className="ml-2"
-										></QuestionMarkCircleIcon>
-									</a>
-								</Link>
+								
 							</div>
 
 							<div className="pr-2 mt-2 overflow-y-auto" style={{ maxHeight: "75vh" }}>
