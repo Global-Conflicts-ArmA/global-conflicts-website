@@ -38,8 +38,9 @@ export const typeOptions = [
 
 export const timeOfDayOptions = [
 	{ value: "Morning", label: "Morning" },
-	{ value: "Night", label: "Night" },
+	{ value: "Noon", label: "Noon" },
 	{ value: "Evening", label: "Evening" },
+	{ value: "Night", label: "Night" },
 	{ value: "Other", label: "Other" },
 ];
 
