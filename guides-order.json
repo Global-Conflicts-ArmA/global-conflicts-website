@@ -50,5 +50,19 @@
       "slug": "events",
       "title": "Events",
       "type": "single"
+   },
+   {
+      "title": "Mission Making",
+      "children": [
+         {
+            "title": "Intro",
+            "slug": "mission-making-intro"
+         },
+         {
+            "title": "Useful links",
+            "slug": "mission-making-useful-links"
+         }
+      ],
+      "type": "section"
    }
 ]
