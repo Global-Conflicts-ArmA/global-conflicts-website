@@ -11,6 +11,8 @@ import validateUser, {
 import { ObjectId } from "bson";
 import { getSession } from "next-auth/react";
 import axios from "axios";
+import { postNewBugReport } from "../../../../lib/discordPoster";
+import { buildVersionStr } from "../../../../lib/missionsHelpers";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -36,7 +38,6 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		text: text,
 	};
 
-
 	const updateResult = await MyMongo.collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
@@ -46,6 +47,25 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		}
 	);
 
+	const mission = await MyMongo.collection("missions").findOne({
+		uniqueName: uniqueName,
+	});
+	const missionAuthor = await axios.get(
+		`http://localhost:3001/users/${mission.authorID}`
+	);
+	const reportAuthor = await axios.get(
+		`http://localhost:3001/users/${session.user["discord_id"]}`
+	);
+
+	postNewBugReport({
+		name: mission.name,
+		uniqueName: uniqueName,
+		report: text,
+		version: buildVersionStr(version),
+		reportAuthor: reportAuthor.data.nickname ?? reportAuthor.data.displayName,
+		reviewDisplayAvatarURL: reportAuthor.data.displayAvatarURL,
+		authorId: mission.authorID,
+	});
 	return res.status(200).json({ ok: true });
 });
 
