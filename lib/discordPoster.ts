@@ -39,3 +39,16 @@ export async function postFirstvoteForAMission(body) {
 		body
 	);
 }
+
+export async function postNewReview(body) {
+	const botResponse = await axios.post(
+		`http://localhost:3001/missions/review`,
+		body
+	);
+}
+export async function postNewBugReport(body) {
+	const botResponse = await axios.post(
+		`http://localhost:3001/missions/bugreport`,
+		body
+	);
+}
