@@ -127,7 +127,6 @@ function TopVoted({ missions, maxVotes }) {
 			axios
 				.post(`/api/missions/reset_all_votes`)
 				.then((response) => {
-			
 					for (const mission of missions) {
 						mission["hasVoted"] = false;
 						mission["votes"] = [];
@@ -235,7 +234,9 @@ function TopVoted({ missions, maxVotes }) {
 												<span>{index + 1})&nbsp;</span>
 
 												<Link href={`/missions/${mission.uniqueName}`}>
-													<a>{mission.name}</a>
+													<a className="overflow-hidden" style={{ wordBreak: "break-word" }}>
+														{mission.name}
+													</a>
 												</Link>
 											</h2>
 											<h4 className="mb-0">
