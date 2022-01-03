@@ -121,7 +121,7 @@ function TopVoted({ missions, maxVotes }) {
 		);
 	}
 
-	function resetVotes() {
+	function resetAllVotes() {
 		if (confirm("Are you sure you want to reset ALL votes?")) {
 			setIsLoadingVote(true);
 			axios
@@ -201,7 +201,13 @@ function TopVoted({ missions, maxVotes }) {
 								</button>
 							)}
 							{hasCreds(session, CREDENTIAL.ADMIN) && (
-								<button type="button" className="ml-10 btn btn-sm btn-warning">
+								<button
+									type="button"
+									className="ml-10 btn btn-sm btn-warning"
+									onClick={() => {
+										resetAllVotes();
+									}}
+								>
 									Reset all votes
 								</button>
 							)}
