@@ -52,6 +52,11 @@
       "type": "single"
    },
    {
+      "slug": "swifty",
+      "title": "Global Conflicts Swifty Repository",
+      "type": "single"
+   },
+   {
       "title": "Mission Making",
       "children": [
          {

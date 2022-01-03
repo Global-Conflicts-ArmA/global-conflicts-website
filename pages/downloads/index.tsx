@@ -61,26 +61,10 @@ function Downloads({}) {
 											</Disclosure.Button>
 											<Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
 												If you are having issues with our launcher or just don&apos;t trust
-												it, you can download our mods using your torrent downloader client.{" "}
-												<a
-													href="http://launcher.globalconflicts.net/torrents/all_torrents.rar"
-													download
-													className="p-1 btn btn-ghost btn-xs"
-												>
-													Click here
-												</a>{" "}
-												to download a .zip archive containg all the .torrent files necessary
-												to obtain our modset. Reference this guide on how to set it up
-												properly. If you don&apos;t even trust the .zip archive, you can
-												download one by one{" "}
-												<a
-													href="http://launcher.globalconflicts.net/torrents/"
-													download
-													className="p-1 btn btn-ghost btn-xs"
-												>
-													here
-												</a>
-												.
+												it, you can use Swifty instead{" "}
+												<Link href="/guides/swifty">
+													<a className="p-1 btn btn-ghost btn-xs">Click here</a>
+												</Link>{" "}to know more.
 											</Disclosure.Panel>
 										</>
 									)}
