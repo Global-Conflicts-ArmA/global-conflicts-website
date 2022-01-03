@@ -17,6 +17,8 @@ import rehypeStringify from "rehype-stringify";
 import rehypeSanitize from "rehype-sanitize";
 import { unified } from "unified";
 import { MapItem } from "../../interfaces/mapitem";
+import hasCreds from "../../lib/credsChecker";
+import { CREDENTIAL } from "../../middleware/check_auth_perms";
 function getMissionMediaPath(mission, absolute = false) {
 	if (mission.mediaFileName) {
 		return `https://launcher.globalconflicts.net/media/missions/${mission.mediaFileName}`;
@@ -119,6 +121,55 @@ function TopVoted({ missions, maxVotes }) {
 		);
 	}
 
+	function resetVotes() {
+		if (confirm("Are you sure you want to reset ALL votes?")) {
+			setIsLoadingVote(true);
+			axios
+				.post(`/api/missions/reset_all_votes`)
+				.then((response) => {
+			
+					for (const mission of missions) {
+						mission["hasVoted"] = false;
+						mission["votes"] = [];
+					}
+					toast.info("All votes were reset.");
+				})
+				.catch((error) => {
+					if (error.response.data && error.response.data.error) {
+						toast.error(error.response.data.error);
+					}
+				})
+				.finally(() => {
+					setIsLoadingVote(false);
+				});
+		}
+	}
+	function resetMyVotes(missions) {
+		if (confirm("Are you sure you want to reset your votes?")) {
+			setIsLoadingVote(true);
+			axios
+				.post(`/api/missions/reset_my_votes`)
+				.then((response) => {
+					for (const mission of missions) {
+						mission["hasVoted"] = false;
+						const index = mission["votes"].indexOf(session.user["discord_id"], 0);
+						if (index > -1) {
+							mission["votes"].splice(index, 1);
+						}
+					}
+					toast.info("Your votes were reset.");
+				})
+				.catch((error) => {
+					if (error.response.data && error.response.data.error) {
+						toast.error(error.response.data.error);
+					}
+				})
+				.finally(() => {
+					setIsLoadingVote(false);
+				});
+		}
+	}
+
 	return (
 		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-col max-w-screen-xl mx-auto mb-10">
@@ -135,10 +186,26 @@ function TopVoted({ missions, maxVotes }) {
 						<br />
 					</p>
 					{session && (
-						<div className="flex flex-row">
+						<div className="flex flex-row items-baseline">
 							You have used
 							<span className="font-bold">&nbsp;{getVoteCount()}&nbsp;</span>out of{" "}
 							<span className="font-bold">&nbsp;{maxVotes}&nbsp;</span> votes.
+							{getVoteCount() > 0 && (
+								<button
+									type="button"
+									className="ml-10 btn btn-sm btn-warning"
+									onClick={() => {
+										resetMyVotes(missions);
+									}}
+								>
+									Reset my votes
+								</button>
+							)}
+							{hasCreds(session, CREDENTIAL.ADMIN) && (
+								<button type="button" className="ml-10 btn btn-sm btn-warning">
+									Reset all votes
+								</button>
+							)}
 						</div>
 					)}
 				</div>
