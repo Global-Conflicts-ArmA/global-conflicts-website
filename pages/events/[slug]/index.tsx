@@ -564,7 +564,7 @@ export async function getStaticProps({ params }: Params) {
 
 	await iterateContentPages(event.contentPages);
 
-	return { props: { event: { ...event, _id: event["_id"].toString() } } };
+	return { props: { event: { ...event, _id: event["_id"].toString() } }, revalidate: 10, };
 }
 
 // This function gets called at build time on server-side.
@@ -592,5 +592,5 @@ export async function getStaticPaths() {
 	// We'll pre-render only these paths at build time.
 	// { fallback: blocking } will server-render pages
 	// on-demand if the path doesn't exist.
-	return { paths, fallback: "blocking" };
+	return { paths, fallback: "blocking", };
 }
