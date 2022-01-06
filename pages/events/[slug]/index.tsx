@@ -30,7 +30,7 @@ import prism from "prismjs";
 require("prismjs/components/prism-sqf");
 
 import "prismjs/themes/prism-okaidia.css";
-import router from "next/router";
+ 
 
 const Completionist = () => (
 	<div className="my-10 prose">
@@ -221,12 +221,12 @@ export default function EventHome({ event }) {
 				/>
 				<meta
 					property="og:url"
-					content={`https://gc-next-website.vercel.app/events/${event.name}`}
+					content={`https://globalconflicts.net/events/${event.name}`}
 					key="og:url"
 				/>
 				<meta
 					property="twitter:url"
-					content={`https://gc-next-website.vercel.app/events/${event.name}`}
+					content={`https:///globalconflicts.net/events/${event.name}`}
 					key="twitter:url"
 				/>
 
@@ -236,12 +236,12 @@ export default function EventHome({ event }) {
 
 				<meta
 					name="twitter:image"
-					content={getPreviewImage("twitter")}
+					content={event.imageSocialLink}
 					key="twitter:image"
 				/>
 				<meta
 					property="og:image"
-					content={getPreviewImage("normal")}
+					content={event.imageSocialLink}
 					key="og:image"
 				/>
 			</Head>

@@ -44,14 +44,17 @@ function EventsDashboardPage() {
 	const [datePickerModalOpen, setDatePickerModalOpen] = useState(false);
 	const [createSlotsModalOpen, setCreateSlotsModalOpen] = useState(false);
 
-	const [objectURL, setObjectUrl] = useState(null);
+	const [eventcoverMediaObjectUrl, setEventcoverMediaObjectUrl] = useState(null);
+	const [eventcoverMediaSocialObjectUrl, setEventcoverMediaSocialObjectUrl] =
+		useState(null);
 	const videoRef = useRef(null);
-	const onFileChange = (event) => {
+
+	const onEventCoverMediaChange = (event) => {
 		if (event.target.files && event.target.files[0]) {
 			const i = event.target.files[0];
 			eventDataFormik.setFieldValue("eventCoverMedia", i);
 			const objurl = URL.createObjectURL(i);
-			setObjectUrl(objurl);
+			setEventcoverMediaObjectUrl(objurl);
 			setTimeout(() => {
 				if (videoRef.current) {
 					videoRef.current.defaultMuted = true;
@@ -61,10 +64,12 @@ function EventsDashboardPage() {
 		}
 	};
 
-	const onCoverImageChange = (event) => {
+	const onEventCoverMediaSocialChange = (event) => {
 		if (event.target.files && event.target.files[0]) {
 			const i = event.target.files[0];
-			eventDataFormik.setFieldValue("eventCoverImage", i);
+			eventDataFormik.setFieldValue("eventCoverMediaSocial", i);
+			const objurl = URL.createObjectURL(i);
+			setEventcoverMediaSocialObjectUrl(objurl);
 		}
 	};
 
@@ -119,9 +124,10 @@ function EventsDashboardPage() {
 		initialValues: {
 			eventName: "",
 			eventDescription: "",
+			youtubeLink: "",
 			eventSlotCount: 0,
 			eventCoverMedia: null,
-			eventCoverImage: null,
+			eventCoverMediaSocial: null,
 			eventOrganizer: session?.user
 				? session.user["nickname"] ?? session.user["username"]
 				: "",
@@ -144,6 +150,7 @@ function EventsDashboardPage() {
 				"eventJsonData",
 				JSON.stringify({
 					eventName: values.eventName,
+					youtubeLink: values.youtubeLink,
 					eventDescription: values.eventDescription,
 					eventSlotCount: values.eventSlotCount,
 					eventOrganizer: values.eventOrganizer,
@@ -153,6 +160,7 @@ function EventsDashboardPage() {
 				})
 			);
 			formData.append("eventCoverMedia", values.eventCoverMedia);
+			formData.append("eventCoverMediaSocial", values.eventCoverMediaSocial);
 
 			axios
 				.post("/api/events", formData, config)
@@ -254,6 +262,9 @@ function EventsDashboardPage() {
 		if (!values.eventCoverMedia) {
 			errors["eventCoverMedia"] = "Event cover media required.";
 		}
+		if (!values.eventCoverMediaSocial) {
+			errors["eventCoverMediaSocial"] = "Event social image required.";
+		}
 		if (!values.eventStartDate) {
 			errors["eventStartDate"] = "Time and date required.";
 		}
@@ -315,7 +326,7 @@ function EventsDashboardPage() {
 								<span className="label-text">Cover media</span>
 							</label>
 							<label className="btn btn-primary btn-lg">
-								<input type="file" onChange={onFileChange} />
+								<input type="file" onChange={onEventCoverMediaChange} />
 								Select Image, GIF or video Clip
 							</label>
 							<span className="text-red-500 label-text-alt">
@@ -400,10 +411,41 @@ function EventsDashboardPage() {
 							</span>
 						</div>
 					</div>
+					<div className="flex-1 form-control">
+						<label className="label">
+							<span className="label-text">
+								Youtube video (This will be shown in the event details page, if
+								provided)
+							</span>
+						</label>
+						<input
+							type="text"
+							placeholder="Youtube link"
+							onChange={eventDataFormik.handleChange}
+							onBlur={eventDataFormik.handleBlur}
+							value={eventDataFormik.values.youtubeLink}
+							name={"youtubeLink"}
+							className="input input-lg input-bordered"
+						/>
+					</div>
+					<div className="flex flex-col">
+						<label className="label">
+							<span className="label-text">
+								Image that will appear on social media places (ie. Discord)
+							</span>
+						</label>
+						<label className="btn btn-primary btn-lg">
+							<input type="file" onChange={onEventCoverMediaSocialChange} />
+							Select Image
+						</label>
+						<span className="text-red-500 label-text-alt">
+							{eventDataFormik.errors.eventCoverMediaSocial}
+						</span>
+					</div>
 				</form>
 				<div></div>
 				<EventEditingCard
-					objectURL={objectURL}
+					objectURL={eventcoverMediaObjectUrl}
 					isVideo={isVideo()}
 					eventDescription={eventDataFormik.values.eventDescription}
 					eventName={eventDataFormik.values.eventName}

@@ -6,13 +6,21 @@ import MyMongo from "../../../lib/mongodb";
 import { ObjectId } from "bson";
 
 const oneMegabyteInBytes = 10000000000000;
-const eventCoverMediaFolder = "./public/eventCoverMedia";
-const eventCoverMediaPath = "/eventCoverMedia/";
+ 
 
 const upload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 2 },
 	storage: multer.diskStorage({
-		destination: eventCoverMediaFolder,
+		destination: function (req, file, cb) {
+			switch (file.fieldname) {
+				case "eventCoverMedia":
+					return cb(null, process.env.EVENT_MEDIA_FOLDER);
+				case "eventCoverMediaSocial":
+					return cb(null, process.env.EVENT_MEDIA_SOCIAL_FOLDER);
+				default:
+					cb(new Error("Invalid file"), null);
+			}
+		},
 		filename: (req, file, cb) => {
 			const body = JSON.parse(req.body.eventJsonData);
 			const fileExt = file.originalname.split(".").pop();
@@ -39,16 +47,14 @@ const upload = multer({
 	},
 });
 
-const apiRoute = nextConnect({
-	onError(error, req: NextApiRequest, res: NextApiResponse) {
-		res.status(501).json({ error: `Sorry something Happened! ${error.message}` });
-	},
-	onNoMatch(req, res: NextApiResponse) {
-		res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
-	},
-});
+const apiRoute = nextConnect({});
 
-apiRoute.use(upload.any());
+apiRoute.use(
+	upload.fields([
+		{ name: "eventCoverMedia", maxCount: 1 },
+		{ name: "eventCoverMediaSocial", maxCount: 1 },
+	])
+);
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = JSON.parse(req.body.eventJsonData);
@@ -60,7 +66,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		.trim()
 		.toLowerCase();
 
-	const fileExt = req["files"][0].originalname.split(".").pop();
+	const fileExt = req["files"]["eventCoverMedia"][0].originalname.split(".").pop();
 	const filename = slug + "." + fileExt;
 
 	await MyMongo.collection("events").insertOne({
@@ -68,10 +74,11 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		slots: body["eventSlotCount"],
 		description: body["eventDescription"],
 		contentPages: body["eventContentPages"],
+		youtubeLink: body["youtubeLink"],
 		organizer: body["eventOrganizer"],
 		eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
 		when: Date.parse(body["eventStartDate"]),
-		imageLink: eventCoverMediaPath + filename,
+		imageLink: process.env.EVENT_MEDIA_FOLDER + filename,
 		slug: slug,
 	});
 
@@ -102,7 +109,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	if (req["files"][0]) {
 		const fileExt = req["files"][0].originalname.split(".").pop();
 		const filename = slug + "." + fileExt;
-		setData["imageLink"] = eventCoverMediaPath + filename;
+		setData["imageLink"] = process.env.EVENT_MEDIA_FOLDER + filename;
 	}
 
 	await MyMongo.collection("events").updateOne(
