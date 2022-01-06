@@ -9,7 +9,6 @@ import c10 from "../public/c10.jpg";
 import c9 from "../public/c9.jpg";
 import c11 from "../public/c11.jpg";
 import c12 from "../public/c12.jpg";
- 
 
 import gcBanner from "../public/banner.png";
 import DecorativeCard from "../components/decorative_card/decorative_card";
@@ -236,7 +235,7 @@ function Home() {
 										}}
 									>
 										<iframe
-											src="https://www.youtube.com/embed/RM-USwtA7Ss"
+											src="https://www.youtube.com/embed/KCVqelfpXoM"
 											frameBorder="0"
 											allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
 											allowFullScreen
