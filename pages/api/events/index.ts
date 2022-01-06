@@ -78,7 +78,8 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		organizer: body["eventOrganizer"],
 		eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
 		when: Date.parse(body["eventStartDate"]),
-		imageLink: process.env.EVENT_MEDIA_FOLDER + filename,
+		imageLink: process.env.EVENT_MEDIA_URL_PATH + filename,
+		imageSocialLink: process.env.EVENT_MEDIA_SOCIAL_URL_PATH + filename,
 		slug: slug,
 	});
 
