@@ -67,6 +67,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		.toLowerCase();
 
 	const fileExt = req["files"]["eventCoverMedia"][0].originalname.split(".").pop();
+	const fileSocialExt = req["files"]["eventCoverMediaSocial"][0].originalname.split(".").pop();
 	const filename = slug + "." + fileExt;
 
 	await MyMongo.collection("events").insertOne({
@@ -79,7 +80,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
 		when: Date.parse(body["eventStartDate"]),
 		imageLink: process.env.EVENT_MEDIA_URL_PATH + filename,
-		imageSocialLink: process.env.EVENT_MEDIA_SOCIAL_URL_PATH + filename,
+		imageSocialLink: process.env.EVENT_MEDIA_SOCIAL_URL_PATH + fileSocialExt,
 		slug: slug,
 	});
 
