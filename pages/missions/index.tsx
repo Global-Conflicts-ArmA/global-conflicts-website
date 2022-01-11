@@ -83,6 +83,8 @@ function MissionList({ missions }) {
 	const [denseMode, setDenseMode] = useState(false);
 	const [onlyPending, setOnlyPending] = useState(false);
 
+	const [missionsFiltred, setMissionsFiltred] = useState([]);
+
 	const [anythingFilter, setAnythingFilter] = useState(() => (mission) => true);
 	const [authorFilter, setAuthorFilter] = useState(() => (mission) => true);
 
@@ -95,28 +97,40 @@ function MissionList({ missions }) {
 	useEffect(() => {
 		const denseMode = localStorage.getItem("denseMode");
 		setDenseMode(denseMode == "true");
-	}, []);
 
-	function filterMissions() {
-		return missions
-			.filter((mission) => {
-				if (onlyPending) {
-					for (const update of mission.updates) {
-						if (update?.testingAudit?.reviewState == "review_pending") {
-							return true;
+		function filterMissions() {
+			const missionsFound = missions
+				.filter((mission) => {
+					if (onlyPending) {
+						for (const update of mission.updates) {
+							if (update?.testingAudit?.reviewState == "review_pending") {
+								return true;
+							}
 						}
+						return false;
+					} else {
+						return true;
 					}
-					return false;
-				} else {
-					return true;
-				}
-			})
-			.filter(statefilter)
-			.filter(mapFilter)
-			.filter(typeFilter)
-			.filter(authorFilter)
-			.filter(anythingFilter);
-	}
+				})
+				.filter(statefilter)
+				.filter(mapFilter)
+				.filter(typeFilter)
+				.filter(authorFilter)
+				.filter(anythingFilter);
+
+			return missionsFound;
+		}
+
+		setMissionsFiltred(filterMissions());
+	}, [
+		anythingFilter,
+		authorFilter,
+		mapFilter,
+		missions,
+		onlyPending,
+		statefilter,
+		typeFilter,
+	]);
 
 	function getFilterInputs() {
 		return (
@@ -192,9 +206,14 @@ function MissionList({ missions }) {
 						onChange={(event) => {
 							const text = event.target.value;
 							setMapFilter(() => (x) => {
-
 								let hasMatch = false;
-								hasMatch = x["terrain"].toLowerCase().includes(text.toLowerCase());
+								if (x["terrainName"]) {
+									hasMatch =
+										x["terrainName"].toLowerCase().includes(text.toLowerCase()) ||
+										x["terrain"].toLowerCase().includes(text.toLowerCase());
+								} else {
+									hasMatch = x["terrain"].toLowerCase().includes(text.toLowerCase());
+								}
 
 								return hasMatch;
 							});
@@ -292,7 +311,7 @@ function MissionList({ missions }) {
 							</div>
 
 							<div className="flex flex-row justify-between">
-								<div>Found {missions.length} missions.</div>
+								<div>Found {missionsFiltred.length} missions.</div>
 								<div>
 									You can open missions in a new tab by using{" "}
 									<kbd className="kbd kbd-xs">CTRL</kbd>+
@@ -317,7 +336,7 @@ function MissionList({ missions }) {
 										}
 									}}
 									columns={columns}
-									data={filterMissions()}
+									data={missionsFiltred}
 								></DataTable>
 							</div>
 						</div>
