@@ -517,21 +517,23 @@ export default function MissionDetails({
 							<div className="mr-5 text-2xl">
 								Author: <span className="font-bold">{mission.missionMaker}</span>
 							</div>
-							<div
-								data-tip={
-									hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
-								}
-								className="z-10 tooltip tooltip-bottom tooltip-primary"
-							>
-								<button
-									className={`btn btn-sm btn-primary min-w-187 ${
-										isLoadingVote ? "loading" : ""
-									}`}
-									onClick={hasVotedLocal ? retractVote : doVote}
+							{session?.user && (
+								<div
+									data-tip={
+										hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
+									}
+									className="z-10 tooltip tooltip-bottom tooltip-primary"
 								>
-									{hasVotedLocal ? "Retract vote" : "Vote"}
-								</button>
-							</div>
+									<button
+										className={`btn btn-sm btn-primary min-w-187 ${
+											isLoadingVote ? "loading" : ""
+										}`}
+										onClick={hasVotedLocal ? retractVote : doVote}
+									>
+										{hasVotedLocal ? "Retract vote" : "Vote"}
+									</button>
+								</div>
+							)}
 
 							{canEdit() && (
 								<div

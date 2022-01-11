@@ -89,36 +89,40 @@ function TopVoted({ missions, maxVotes }) {
 	}
 
 	function getVoteBtn(mission) {
-		return (
-			<div className="flex flex-row justify-start">
-				<div className="flex flex-row mr-2">
-					<div className="mr-2 opacity-75 stat-title">Votes:</div>
-					<div className=""> {mission.votes.length}</div>
-				</div>
-				<div
-					data-tip={
-						mission["hasVoted"]
-							? "Retract vote"
-							: getVoteCount() >= 4 && !mission["hasVoted"]
-							? `You can only vote for ${maxVotes} missions per week!`
-							: "Vote for this mission to be played"
-					}
-					className="z-10 tooltip tooltip-bottom tooltip-primary sm:tooltip-left"
-				>
-					<button
-						disabled={getVoteCount() >= 4 && !mission["hasVoted"]}
-						className={`btn-primary whitespace-nowrap btn-xs sm:btn-sm btn ${
-							isLoadingVote ? "loading" : ""
-						}`}
-						onClick={(event) => {
-							mission["hasVoted"] ? retractVote(mission) : doVote(mission);
-						}}
+		if (session) {
+			return (
+				<div className="flex flex-row justify-start">
+					<div className="flex flex-row mr-2">
+						<div className="mr-2 opacity-75 stat-title">Votes:</div>
+						<div className=""> {mission.votes.length}</div>
+					</div>
+					<div
+						data-tip={
+							mission["hasVoted"]
+								? "Retract vote"
+								: getVoteCount() >= 4 && !mission["hasVoted"]
+								? `You can only vote for ${maxVotes} missions per week!`
+								: "Vote for this mission to be played"
+						}
+						className="z-10 tooltip tooltip-bottom tooltip-primary sm:tooltip-left"
 					>
-						{mission["hasVoted"] ? "Retract vote" : "Vote"}
-					</button>
+						<button
+							disabled={getVoteCount() >= 4 && !mission["hasVoted"]}
+							className={`btn-primary whitespace-nowrap btn-xs sm:btn-sm btn ${
+								isLoadingVote ? "loading" : ""
+							}`}
+							onClick={(event) => {
+								mission["hasVoted"] ? retractVote(mission) : doVote(mission);
+							}}
+						>
+							{mission["hasVoted"] ? "Retract vote" : "Vote"}
+						</button>
+					</div>
 				</div>
-			</div>
-		);
+			);
+		} else {
+			<div></div>;
+		}
 	}
 
 	function resetAllVotes() {
