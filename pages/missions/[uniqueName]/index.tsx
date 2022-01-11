@@ -299,16 +299,20 @@ export default function MissionDetails({
 			name: "Download",
 			// eslint-disable-next-line react/display-name
 			cell: (row) => {
-				return (
-					<button
-						onClick={() => {
-							downloadMission(row.fileName);
-						}}
-						className="btn btn-sm"
-					>
-						<DownloadIcon></DownloadIcon>
-					</button>
-				);
+				const link = getMissionDownloadLink(row);
+				if (link) {
+					return (
+						<a href={link} download className="btn btn-sm">
+							<DownloadIcon></DownloadIcon>
+						</a>
+					);
+				} else {
+					return (
+						<button disabled className="btn btn-sm">
+							<DownloadIcon></DownloadIcon>
+						</button>
+					);
+				}
 			},
 			omit: session == null,
 			center: true,
@@ -1298,4 +1302,16 @@ export async function getServerSideProps(context) {
 			missionTestingQuestions,
 		},
 	};
+}
+function getMissionDownloadLink(row: any): string {
+	if (row.archive) {
+		return `https://arma.globalconflicts.net/archive/${row.fileName}`;
+	}
+	if (row.main) {
+		return `https://arma.globalconflicts.net/Main%20Server/MPMissions/${row.fileName}`;
+	}
+	if (row.test) {
+		return `https://arma.globalconflicts.net/Test%20Server/MPMissions/${row.fileName}`;
+	}
+	return null;
 }
