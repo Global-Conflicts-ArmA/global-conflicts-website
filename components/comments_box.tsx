@@ -45,8 +45,8 @@ export default function CommentBox({
 				{(comments?.length ?? 0) != 0 ? (
 					comments.map((item, index) => {
 						return (
-							<>
-								<div className="pr-2 " key={item._id}>
+							<div className="pr-2 " key={item._id}>
+								<div>
 									<div className="flex flex-row justify-between">
 										<div>
 											<div className="font-bold">{item.authorName}</div>
@@ -71,7 +71,7 @@ export default function CommentBox({
 											)}
 										</div>
 									</div>
-									<p className="font-light leading-normal prose ease-in-out line-clamp-3 hover:line-clamp-none ">
+									<div className="font-light leading-normal prose ease-in-out line-clamp-3 hover:line-clamp-none ">
 										{item.text && (
 											<div
 												className="max-w-3xl break-all prose-less-margin"
@@ -80,10 +80,10 @@ export default function CommentBox({
 												}}
 											></div>
 										)}
-									</p>
+									</div>
 								</div>
 								{index + 1 != comments.length && <hr className="mt-5 mb-3"></hr>}
-							</>
+							</div>
 						);
 					})
 				) : (
