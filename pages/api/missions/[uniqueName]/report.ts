@@ -50,9 +50,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const mission = await MyMongo.collection("missions").findOne({
 		uniqueName: uniqueName,
 	});
-	const missionAuthor = await axios.get(
-		`http://localhost:3001/users/${mission.authorID}`
-	);
+ 
 	const reportAuthor = await axios.get(
 		`http://localhost:3001/users/${session.user["discord_id"]}`
 	);
