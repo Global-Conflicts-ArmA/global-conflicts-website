@@ -785,13 +785,13 @@ export default function MissionDetails({
 																leaveFrom="transform scale-100 opacity-100"
 																leaveTo="transform scale-95 opacity-0"
 															>
-																<Disclosure.Panel static className="mb-3 prose">
+																<Disclosure.Panel static className="mb-3 prose max-w-none">
 																	{leader.aar ? (
 																		<>
-																			<div className="max-w-3xl prose">
+																			<div className="max-w-none">
 																				{leader.aar && (
 																					<div
-																						className="max-w-3xl"
+																					className="max-w-none"
 																						dangerouslySetInnerHTML={{
 																							__html: generateMarkdown(leader.aar),
 																						}}
