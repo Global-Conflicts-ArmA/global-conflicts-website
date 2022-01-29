@@ -1,7 +1,7 @@
 import MyMongo from "../../lib/mongodb";
 
 import { MainLayout } from "../../layouts/main-layout";
-
+import makeAnimated from "react-select/animated";
 import "react-base-table/styles.css";
 import moment from "moment";
 import DataTable, { Media } from "react-data-table-component";
@@ -16,6 +16,8 @@ import {
 	ChevronDownIcon,
 } from "@heroicons/react/outline";
 import { MapItem } from "../../interfaces/mapitem";
+import Select from "react-select";
+import { tagsOptions } from "../../lib/missionSelectOptions";
 const columns = [
 	{
 		name: "Name",
@@ -84,12 +86,14 @@ function MissionList({ missions }) {
 	const [onlyPending, setOnlyPending] = useState(false);
 
 	const [missionsFiltred, setMissionsFiltred] = useState([]);
+	const [filterTags, setFilterTags] = useState([]);
 
 	const [anythingFilter, setAnythingFilter] = useState(() => (mission) => true);
 	const [authorFilter, setAuthorFilter] = useState(() => (mission) => true);
 
 	const [typeFilter, setTypeFilter] = useState(() => (mission) => true);
 	const [mapFilter, setMapFilter] = useState(() => (mission) => true);
+	const [tagFilter, setTagFilter] = useState(() => (mission) => true);
 	const [statefilter, setStatefilter] = useState(() => (mission) => true);
 
 	const { data: session } = useSession();
@@ -112,6 +116,7 @@ function MissionList({ missions }) {
 						return true;
 					}
 				})
+				.filter(tagFilter)
 				.filter(statefilter)
 				.filter(mapFilter)
 				.filter(typeFilter)
@@ -124,6 +129,7 @@ function MissionList({ missions }) {
 		setMissionsFiltred(filterMissions());
 	}, [
 		anythingFilter,
+		tagFilter,
 		authorFilter,
 		mapFilter,
 		missions,
@@ -221,6 +227,35 @@ function MissionList({ missions }) {
 						className="input input-bordered input-sm"
 					/>
 				</div>
+
+				<div className="form-control">
+					<label className="label">
+						<span className="label-text">Tags</span>
+					</label>
+					<Select
+						isMulti
+						classNamePrefix="select-input"
+						name=""
+						value={filterTags}
+						onChange={(e) => {
+							setFilterTags(e);
+						
+
+							setTagFilter(() => (x) => {
+								let hasMatch = true;
+								if (e.length > 0) {
+									if (x["tags"]) {
+										hasMatch = e.some((r) => x["tags"].includes(r.value));
+									}
+								}
+								return hasMatch;
+							});
+						}}
+						options={tagsOptions}
+						components={makeAnimated()}
+					/>
+				</div>
+
 				<div className="mt-3">
 					<Switch.Group>
 						<div className="flex items-center">
@@ -286,7 +321,6 @@ function MissionList({ missions }) {
 				<div className="flex flex-row">
 					<aside
 						className={"px-4 py-6 relative h-full overflow-y-auto hidden xl:block"}
-						style={{ width: 200 }}
 					>
 						<nav>
 							<div className="fixed w-full pr-5 space-y-5 missions-filters">
