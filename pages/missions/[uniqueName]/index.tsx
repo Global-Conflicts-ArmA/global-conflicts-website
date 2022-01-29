@@ -1227,12 +1227,12 @@ export default function MissionDetails({
 					onClose={(links) => {
 						console.log(links);
 						if (links) {
-							// if (!mission.media) {
-							// 	mission.media = links;
-							// } else {
-							// 	mission.media = [...mission.media, ...links];
-							// }
-							mediaMutate(null, true);
+							if (!mission.media) {
+								mission.media = links;
+							} else {
+								mission.media = [...mission.media, ...links];
+							}
+							mediaMutate([...mission.media], true);
 						}
 
 						setMediaUploadModalOpen(false);
