@@ -20,6 +20,7 @@ module.exports = withMDX({
 			"globalconflicts.net",
 			"launcher.globalconflicts.net",
 			"imgur.com",
+			"i.imgur.com",
 			"cdn.discordapp.com",
 		],
 	},

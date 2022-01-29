@@ -42,16 +42,20 @@ import {
 	ExclamationCircleIcon,
 	PencilAltIcon,
 	QuestionMarkCircleIcon,
+	TrashIcon,
+	UploadIcon,
 } from "@heroicons/react/outline";
 import { CREDENTIAL } from "../../../middleware/check_auth_perms";
-import hasCreds from "../../../lib/credsChecker";
+import hasCreds, { hasCredsAny } from "../../../lib/credsChecker";
 import NewVersionModal from "../../../components/modals/new_version_modal";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import fetcher from "../../../lib/fetcher";
 import { Disclosure, Transition } from "@headlessui/react";
 import SubmitAARModal from "../../../components/modals/submit_aar_modal";
 import { generateMarkdown } from "../../../lib/markdownToHtml";
 import SimpleTextViewModal from "../../../components/modals/simple_text_view_modal";
+import MediaUploadModal from "../../../components/modals/media_upload_modal";
+import ReactPlayer from "react-player";
 
 export default function MissionDetails({
 	_mission,
@@ -76,6 +80,7 @@ export default function MissionDetails({
 	let [commentModalData, setCommentModalData] = useState(null);
 
 	let [gameplayHistoryModalOpen, setgameplayHistoryModalOpen] = useState(false);
+	let [mediaUploadModalOpen, setMediaUploadModalOpen] = useState(false);
 	let [gameplayHistoryModalHistoryToLoad, setGameplayHistoryModalHistoryToLoad] =
 		useState(null);
 
@@ -403,13 +408,13 @@ export default function MissionDetails({
 
 	const {
 		data: history,
-		mutate,
-		error,
+		mutate: historyMutate,
+		error: historyError,
 	} = useSWR(`/api/missions/${mission.uniqueName}/history`, fetcher, {
 		revalidateOnFocus: false,
 	});
 	function getHistory() {
-		if (error) {
+		if (historyError) {
 			return mission.history;
 		}
 		if (history?.error) {
@@ -417,6 +422,28 @@ export default function MissionDetails({
 		}
 
 		return history || mission.history;
+	}
+
+	const {
+		data: media,
+		mutate: mediaMutate,
+		error: mediaError,
+	} = useSWR(`/api/missions/${mission.uniqueName}/media`, fetcher, {
+		revalidateOnFocus: false,
+	});
+	function getMedia() {
+		if (mediaError) {
+			return mission.media;
+		}
+		if (media?.error) {
+			return mission.media;
+		}
+
+		if (media) {
+			mission.media = media;
+		}
+
+		return media || mission.media;
 	}
 
 	function getLeaderString(leader) {
@@ -464,6 +491,118 @@ export default function MissionDetails({
 			return "text-civ";
 		}
 	}
+
+	function deleteImage(linkObj) {
+		try {
+			axios
+				.delete(`/api/missions/${mission.uniqueName}/media/`, {
+					data: { mediaToDelete: linkObj },
+				})
+				.then((response) => {
+					toast.info("Media content deleted.");
+					const filtredMediaList = _mission.media.filter(
+						(item) => item.link !== linkObj.link
+					);
+
+					console.log(_mission.media);
+					mediaMutate([...filtredMediaList], false);
+				})
+				.catch((error) => {
+					if (error.response.status == 500) {
+						toast.error("Fatal error deleting media content");
+					} else {
+						if (error.response.data && error.response.data.error) {
+							toast.error(error.response.data.error);
+						}
+					}
+				})
+				.finally(() => {});
+		} catch (error) {}
+	}
+
+	function getMediaGallery() {
+		if (!_mission.media || _mission.media.length == 0) {
+			return <div>Nothing submited yet.</div>;
+		}
+
+		function canShowDeleteButton(linkObj) {
+			return (
+				hasCredsAny(session, [CREDENTIAL.GM, CREDENTIAL.ADMIN]) ||
+				linkObj.discord_id == session?.user["discord_id"]
+			);
+		}
+
+		return (
+			<div className="grid max-h-screen grid-cols-2 gap-0 overflow-auto">
+				{getMedia().map((linkObj) => {
+					return (
+						<div key={linkObj.link} className="relative aspect-video">
+							{canShowDeleteButton(linkObj) && (
+								<button
+									className="absolute right-0 z-10 p-0 m-3 btn btn-info btn-xs btn-outline btn-square"
+									onClick={() => {
+										deleteImage(linkObj);
+									}}
+								>
+									<TrashIcon width={15}></TrashIcon>
+								</button>
+							)}
+
+							<div className="absolute left-0 z-10 flex flex-row items-center p-1 m-3 text-white rounded-full backdrop-blur-lg">
+								{!linkObj.displayAvatarURL && (
+									<Shimmer>
+										<div
+											className="avatar mask mask-circle"
+											style={{ width: 25, height: 25 }}
+										/>
+									</Shimmer>
+								)}
+								{linkObj.displayAvatarURL && (
+									<Image
+										className="avatar mask mask-circle"
+										src={linkObj.displayAvatarURL}
+										width={25}
+										height={25}
+										alt="user avatar"
+									/>
+								)}
+								<div className="flex flex-row items-end ml-2 text-sm">
+									{!linkObj.name && (
+										<Shimmer>
+											<div className="rounded-lg " style={{ width: 60, height: 26 }} />
+										</Shimmer>
+									)}
+									<div style={{ textShadow: "0px 0px 5px #000" }}>{linkObj.name}</div>
+								</div>
+							</div>
+							{linkObj.type == "video" ? (
+								<ReactPlayer
+									playing={true}
+									muted={true}
+									controls={true}
+									loop={true}
+									width={"100%"}
+									height={"100%"}
+									url={linkObj.link}
+								/>
+							) : (
+								<Image
+									className="custom-img "
+									quality="100"
+									layout="fill"
+									objectFit="cover"
+									unoptimized={true}
+									src={linkObj.link}
+									alt={"User uploaded image from this mission"}
+								/>
+							)}
+						</div>
+					);
+				})}
+			</div>
+		);
+	}
+
 	return (
 		<>
 			<Head>
@@ -791,7 +930,7 @@ export default function MissionDetails({
 																			<div className="max-w-none">
 																				{leader.aar && (
 																					<div
-																					className="max-w-none"
+																						className="max-w-none"
 																						dangerouslySetInnerHTML={{
 																							__html: generateMarkdown(leader.aar),
 																						}}
@@ -845,6 +984,22 @@ export default function MissionDetails({
 							<div>No History yet</div>
 						)}
 					</div>
+
+					<h2 className="flex flex-row justify-between py-2 font-bold">
+						Media Gallery{" "}
+						{hasCreds(session, CREDENTIAL.ANY) && (
+							<button
+								onClick={() => {
+									setMediaUploadModalOpen(true);
+								}}
+								className="btn btn-sm"
+							>
+								<UploadIcon height={24} width={24}></UploadIcon>
+							</button>
+						)}
+					</h2>
+					{getMediaGallery()}
+
 					<hr className="my-5"></hr>
 					<div className="flex flex-wrap w-full mb-16">
 						<div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
@@ -921,7 +1076,7 @@ export default function MissionDetails({
 						);
 						currentHistory[historyIndex].leaders[leaderIndex].aar = aar;
 						newHistory = [...currentHistory];
-						mutate(newHistory, false);
+						historyMutate(newHistory, false);
 					}}
 				></SubmitAARModal>
 
@@ -1051,7 +1206,7 @@ export default function MissionDetails({
 						newHistory.sort((a, b) => {
 							return b.date.getTime() - a.date.getTime();
 						});
-						mutate(newHistory, false);
+						historyMutate(newHistory, false);
 
 						setgameplayHistoryModalOpen(false);
 					}}
@@ -1065,6 +1220,24 @@ export default function MissionDetails({
 						setSimpleTextModalOpen(false);
 					}}
 				></SimpleTextViewModal>
+
+				<MediaUploadModal
+					isOpen={mediaUploadModalOpen}
+					mission={mission}
+					onClose={(links) => {
+						console.log(links);
+						if (links) {
+							// if (!mission.media) {
+							// 	mission.media = links;
+							// } else {
+							// 	mission.media = [...mission.media, ...links];
+							// }
+							mediaMutate(null, true);
+						}
+
+						setMediaUploadModalOpen(false);
+					}}
+				></MediaUploadModal>
 			</div>
 		</>
 	);
