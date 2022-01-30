@@ -34,7 +34,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	let linksToInsert = [];
 	for (const userSubmitedLink of links) {
-		if (userSubmitedLink.includes("imgur.com")) {
+		if (userSubmitedLink.link.includes("imgur.com")) {
 			const imgurId = userSubmitedLink.link.substr(
 				userSubmitedLink.link.lastIndexOf("/") + 1
 			);
