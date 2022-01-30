@@ -34,6 +34,12 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	let linksToInsert = [];
 	for (const userSubmitedLink of links) {
+		if (userSubmitedLink.includes("imgur.com")) {
+			const imgurId = userSubmitedLink.link.substr(
+				userSubmitedLink.link.lastIndexOf("/") + 1
+			);
+			userSubmitedLink.link = `https://content.globalconflicts.net/imgur/${imgurId}`;
+		}
 		linksToInsert.push({
 			link: userSubmitedLink.link,
 			type: userSubmitedLink.type,
