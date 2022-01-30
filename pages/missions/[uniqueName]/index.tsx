@@ -987,7 +987,13 @@ export default function MissionDetails({
 
 					<h2 className="flex flex-row justify-between py-2 font-bold">
 						Media Gallery{" "}
-						{hasCreds(session, CREDENTIAL.ANY) && (
+						{hasCredsAny(session, [
+							CREDENTIAL.ADMIN,
+							CREDENTIAL.GM,
+							CREDENTIAL.MEMBER,
+							CREDENTIAL.MISSION_MAKER,
+							CREDENTIAL.MISSION_REVIEWER,
+						]) && (
 							<button
 								onClick={() => {
 									setMediaUploadModalOpen(true);
