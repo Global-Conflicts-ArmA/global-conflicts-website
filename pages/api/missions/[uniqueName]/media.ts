@@ -38,7 +38,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 			const imgurId = userSubmitedLink.link.substr(
 				userSubmitedLink.link.lastIndexOf("/") + 1
 			);
-			userSubmitedLink.link = `content.globalconflicts.net/imgur/${imgurId}`;
+			userSubmitedLink.link = `https://content.globalconflicts.net/imgur/${imgurId}`;
 		}
 		linksToInsert.push({
 			link: userSubmitedLink.link,
