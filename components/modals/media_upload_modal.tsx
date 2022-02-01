@@ -9,110 +9,83 @@ import noframe from "reframe.js/dist/noframe";
 import { toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react";
+import { testImage } from "../../lib/testImage";
 export default function MediaUploadModal({ isOpen, onClose, mission }) {
-	let [imgurLinks, setImgurLink] = useState([]);
+	let [displayingFiles, setDisplayingLinks] = useState([]);
 	const { data: session } = useSession();
 	const [directLink, setDirectLink] = useState("");
-	const [isUploadingToImgur, setIsUploadingToImgur] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
-	const [uploadArrSize, setUploadArrSize] = useState(0);
 
-	function initUploadQueue(initialCount) {
-		return { count: initialCount };
-	}
-
-	function reducer(uploadQueue, action) {
-		switch (action.type) {
-			case "increment":
-				return { count: uploadQueue.count + 1 };
-			case "decrement":
-				const count = uploadQueue.count - 1;
-				if (count == 0) {
-					setIsUploadingToImgur(false);
-				}
-				return { count: count };
-			case "reset":
-				return initUploadQueue(action.payload);
-			default:
-				throw new Error();
+	function displayFiles(files) {
+		for (const file of files) {
+			setTimeout(() => {
+				setDisplayingLinks((displayingFiles) => [
+					...displayingFiles,
+					{
+						link: URL.createObjectURL(file),
+						file: file,
+						discord_id: session.user["discord_id"],
+						date: new Date(),
+						type: file.type,
+					},
+				]);
+			}, 200);
 		}
 	}
-	const [uploadQueue, dispatch] = useReducer(reducer, 0, initUploadQueue);
 
-	function uploadToImgur(file) {
-		var data = new FormData();
-		let type = "image";
-		setIsUploadingToImgur(true);
-		if (file.type.includes("video")) {
-			data.append("video", file);
+	async function insertLink() {
+		const isImage = await testImage(directLink);
+
+		let type = "";
+		if (isImage) {
+			type = "image";
+		} else if (
+			directLink.endsWith(".mp4") ||
+			directLink.endsWith(".webm") ||
+			directLink.includes("youtube.com") ||
+			directLink.includes("streamable.com") ||
+			directLink.includes("twitch.tv") ||
+			directLink.includes("twitch.com")
+		) {
 			type = "video";
+		}
+
+		if (type == "") {
+			toast.error("Invalid link type!");
+			return;
 		} else {
-			data.append("image", file);
+			setDisplayingLinks((imgurLinks) => [
+				...imgurLinks,
+				{
+					link: directLink,
+					type: type,
+					discord_id: session.user["discord_id"],
+					date: new Date(),
+				},
+			]);
+			setDirectLink("");
+		}
+	}
+	function uploadFiles() {
+		var data = new FormData();
+		for (const displayingFile of displayingFiles) {
+			if (displayingFile.file) {
+				data.append("files", displayingFile.file, displayingFile.file.name);
+			} else {
+				data.append("directLinks", displayingFile.link);
+			}
 		}
 
 		axios({
 			method: "POST",
-			url: "https://api.imgur.com/3/upload",
-			headers: {
-				Authorization: "Client-ID 6749dd201c46192",
-			},
+			url: `/api/missions/${mission.uniqueName}}/upload_media_imgur`,
+			headers: { "content-type": "multipart/form-data" },
 			data: data,
 		})
-			.then(function (response) {
-				setTimeout(
-					() => {
-						dispatch({ type: "decrement" });
-
-						let linkToUse = response.data.data.link;
-						if (type == "video") {
-							if (response.data.data.link.endsWith(".")) {
-								linkToUse = response.data.data.link + "mp4";
-							}
-						}
-
-						setImgurLink((imgurLinks) => [
-							...imgurLinks,
-							{
-								link: linkToUse,
-								discord_id: session.user["discord_id"],
-								date: new Date(),
-								type: type,
-							},
-						]);
-					},
-					type == "video" ? 10000 : 0
-				);
-			})
+			.then(function (response) {})
 			.catch(function (error) {
 				console.log(error);
 			});
-	}
-
-	function insertLinkOnDatabase() {
-		try {
-			setIsLoading(true);
-			axios
-				.put(`/api/missions/${mission.uniqueName}/media`, { links: imgurLinks })
-				.then((response) => {
-					toast.success("Media content added!");
-					onClose(imgurLinks);
-					setTimeout(() => {
-						setImgurLink([]);
-					}, 300);
-				})
-				.catch((error) => {
-					if (error.response.status == 500) {
-						toast.error("Fatal error adding media content");
-					} else {
-						if (error.response.data && error.response.data.error) {
-							toast.error(error.response.data.error);
-						}
-					}
-				})
-				.finally(() => {
-					setIsLoading(false);
-				});
-		} catch (error) {}
 	}
 
 	return (
@@ -158,22 +131,13 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 							<div className="mt-2">
 								<FileDrop
 									className={`mt-5 text-center border-2 mb-7 border-primary file-drop rounded-xl  ${
-										isUploadingToImgur ? "loading" : ""
+										isLoading ? "loading" : ""
 									}`}
 									onDrop={(files, event) => {
-										const arr = Array.from(files);
-										setUploadArrSize(arr.length);
-										for (const file of arr) {
-											dispatch({ type: "increment" });
-											uploadToImgur(file);
-										}
+										displayFiles(files);
 									}}
 								>
-									{isUploadingToImgur
-										? `Uploading files... ${
-												uploadArrSize + 1 - uploadQueue.count
-										  }/${uploadArrSize}`
-										: "Drop some images or videos(200mb max, 1 minute max) here!"}
+									Drop some images or videos(200mb max, 1 minute max) here!
 								</FileDrop>
 								<div className="divider">OR</div>
 
@@ -194,40 +158,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 										<button
 											className="absolute top-0 right-0 rounded-l-none btn btn-primary"
 											onClick={() => {
-												let type = "";
-												if (
-													directLink.endsWith(".mp4") ||
-													directLink.endsWith(".webm") ||
-													directLink.includes("youtube.com") ||
-													directLink.includes("streamable.com") ||
-													directLink.includes("twitch.tv") ||
-													directLink.includes("twitch.com")
-												) {
-													type = "video";
-												} else if (
-													directLink.endsWith(".jpg") ||
-													directLink.endsWith(".jpeg") ||
-													directLink.endsWith(".gif") ||
-													directLink.endsWith(".png") ||
-													directLink.endsWith(".webp")
-												) {
-													type = "image";
-												}
-												if (type == "") {
-													toast.error("Invalid link type!");
-													return;
-												}
-
-												setImgurLink((imgurLinks) => [
-													...imgurLinks,
-													{
-														link: directLink,
-														type: type,
-														discord_id: session.user["discord_id"],
-														date: new Date(),
-													},
-												]);
-												setDirectLink("");
+												insertLink();
 											}}
 										>
 											ADD
@@ -239,17 +170,14 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 							<div className="divider my-7"></div>
 
 							<div className="grid grid-cols-2 gap-0">
-								{imgurLinks.map((linkObj) => {
+								{displayingFiles.map((linkObj) => {
 									return (
-										<div
-											key={linkObj.date.getMilliseconds()}
-											className="relative aspect-video"
-										>
+										<div key={linkObj.date.getTime()} className="relative aspect-video">
 											<button
 												className="absolute z-30 p-0 m-3 btn btn-info btn-xs btn-outline btn-square"
 												onClick={() => {
-													setImgurLink(
-														imgurLinks.filter(
+													setDisplayingLinks(
+														displayingFiles.filter(
 															(item) =>
 																item.date.getMilliseconds() !== linkObj.date.getMilliseconds()
 														)
@@ -258,7 +186,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 											>
 												<TrashIcon width={15}></TrashIcon>
 											</button>
-											{linkObj.type == "video" ? (
+											{linkObj.type.includes("video") ? (
 												<ReactPlayer
 													playing={true}
 													muted={true}
@@ -298,7 +226,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 								<button
 									className={`btn btn-sm btn-primary ${isLoading ? "loading" : ""}`}
 									onClick={() => {
-										isLoading ? null : insertLinkOnDatabase();
+										isLoading ? null : uploadFiles();
 									}}
 								>
 									SUBMIT
