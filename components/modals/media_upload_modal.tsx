@@ -84,9 +84,6 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 			headers: { "content-type": "multipart/form-data" },
 			onUploadProgress: (p) => {
 				const progress = p.loaded / p.total;
-				// check if we already displayed a toast
-				console.log(p);
-				console.log(progress);
 				if (progress != 1) {
 					if (uploadProgressToast.current === null) {
 						uploadProgressToast.current = toast("Upload in Progress", {
@@ -98,6 +95,11 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 							progress: progress,
 						});
 					}
+				} else {
+					toast.update(uploadProgressToast.current, {
+						progress: 1,
+						render: "Processing...",
+					});
 				}
 			},
 			data: data,
@@ -116,6 +118,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 				});
 				setTimeout(() => {
 					setIsLoading(false);
+					setDisplayingLinks([]);
 				}, 400);
 			})
 			.catch(function (error) {
