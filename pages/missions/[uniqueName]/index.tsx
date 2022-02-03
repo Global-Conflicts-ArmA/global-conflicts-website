@@ -440,10 +440,10 @@ export default function MissionDetails({
 		}
 
 		if (media) {
-			mission.media = media;
+			_mission.media = media;
 		}
 
-		return media || mission.media;
+		return _mission.media;
 	}
 
 	function getLeaderString(leader) {
@@ -500,12 +500,11 @@ export default function MissionDetails({
 				})
 				.then((response) => {
 					toast.info("Media content deleted.");
-					const filtredMediaList = _mission.media.filter(
-						(item) => item.link !== linkObj.link
-					);
 
-					console.log(_mission.media);
-					mediaMutate([...filtredMediaList], false);
+					mediaMutate(
+						_mission.media.filter((mediaObj) => mediaObj._id != linkObj._id),
+						false
+					);
 				})
 				.catch((error) => {
 					if (error.response.status == 500) {
@@ -1423,6 +1422,10 @@ export async function getServerSideProps(context) {
 		update["authorName"] =
 			update["author"]?.nickname ?? update["author"]?.username ?? "Unknown";
 		delete update["author"];
+	});
+
+	mission["media"]?.map((media) => {
+		media["_id"] = media["_id"].toString();
 	});
 
 	mission["_id"] = mission["_id"].toString();

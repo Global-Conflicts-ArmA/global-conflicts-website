@@ -6,7 +6,7 @@ import { generateMarkdown } from "../../lib/markdownToHtml";
 import Image from "next/image";
 import ReactPlayer from "react-player";
 import noframe from "reframe.js/dist/noframe";
-import { toast } from "react-toastify";
+import { Flip, toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react";
 import { testImage } from "../../lib/testImage";
@@ -15,6 +15,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 	const { data: session } = useSession();
 	const [directLink, setDirectLink] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const uploadProgressToast = React.useRef(null);
 
 	function displayFiles(files) {
 		for (const file of files) {
@@ -67,6 +68,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 		}
 	}
 	function uploadFiles() {
+		setIsLoading(true);
 		var data = new FormData();
 		for (const displayingFile of displayingFiles) {
 			if (displayingFile.file) {
@@ -78,13 +80,48 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 
 		axios({
 			method: "POST",
-			url: `/api/missions/${mission.uniqueName}}/upload_media_imgur`,
+			url: `/api/missions/${mission.uniqueName}/media_upload`,
 			headers: { "content-type": "multipart/form-data" },
+			onUploadProgress: (p) => {
+				const progress = p.loaded / p.total;
+				// check if we already displayed a toast
+				console.log(p)
+				console.log(progress)
+				if(progress!=1){
+					if (uploadProgressToast.current === null) {
+						uploadProgressToast.current = toast("Upload in Progress", {
+							progress: progress,
+							progressStyle: { background: "blue" },
+						});
+					} else {
+						toast.update(uploadProgressToast.current, {
+							progress: progress,
+						});
+					}
+				}
+		
+			},
 			data: data,
 		})
-			.then(function (response) {})
+			.then(function (response) {
+				onClose(response.data["insertedMedia"]);
+				toast.update(uploadProgressToast.current, {
+					type: toast.TYPE.SUCCESS,
+					autoClose: 2000,
+					hideProgressBar: false,
+					progress: null,
+					progressStyle: null,
+
+					render: "Media uploaded!",
+					transition: Flip,
+				});
+				setTimeout(() => {
+					setIsLoading(false);
+				}, 400);
+			})
 			.catch(function (error) {
-				console.log(error);
+				toast.error("An error occurred.");
+				setIsLoading(false);
 			});
 	}
 

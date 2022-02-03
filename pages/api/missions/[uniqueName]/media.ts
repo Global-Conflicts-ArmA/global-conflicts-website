@@ -14,6 +14,12 @@ import FormData from "form-data";
 import multer from "multer";
 import { ImgurClient } from "imgur";
 import { createReadStream } from "fs";
+import parseMultipartForm from "../../../../lib/multipartfromparser";
+import { testImage } from "../../../../lib/testImage";
+import { postNewMedia } from "../../../../lib/discordPoster";
+import isImageURL from "image-url-validator";
+import hasCreds from "../../../../lib/credsChecker";
+import { ObjectId, ReturnDocument } from "mongodb";
 const imgurClient = new ImgurClient({ clientId: process.env.IMGUR_CLIENT_ID });
 
 const apiRoute = nextConnect({});
@@ -24,77 +30,7 @@ const mediaUpload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 200 },
 });
 
-apiRoute.use(mediaUpload.array("files"));
 apiRoute.use((req, res, next) => validateUser(req, res, CREDENTIAL.ANY, next));
-
-apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
-	try {
-		for (const file of req["files"]) {
-			let body = {};
-			if (file["mimetype"].includes("image")) {
-				body = {
-					image: file["buffer"],
-					type: "stream",
-				};
-			} else {
-				body = {
-					video: file["buffer"],
-					type: "stream",
-				};
-			}
-			const imgurResponse = await imgurClient.upload(body);
-
-			console.log(imgurResponse.data);
-		}
-
-		return res.status(200).json({ ok: true });
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ ok: true });
-	}
-
-	// for (const userSubmitedLink of links) {
-	// 	if (userSubmitedLink.link.includes("imgur.com")) {
-	// 		const imgurId = userSubmitedLink.link.substr(
-	// 			userSubmitedLink.link.lastIndexOf("/") + 1
-	// 		);
-	// 		userSubmitedLink.link = `https://content.globalconflicts.net/imgur/${imgurId}`;
-	// 	}
-	// 	linksToInsert.push({
-	// 		link: userSubmitedLink.link,
-	// 		type: userSubmitedLink.type,
-	// 		date: new Date(),
-	// 		discord_id: session.user["discord_id"],
-	// 	});
-	// }
-
-	// const updateResult = await MyMongo.collection<{}>("missions").findOneAndUpdate(
-	// 	{
-	// 		uniqueName: uniqueName,
-	// 	},
-	// 	{
-	// 		$addToSet: { media: { $each: linksToInsert } },
-	// 	},
-	// 	{ projection: { name: 1 } }
-	// );
-
-	// if (updateResult.ok) {
-	// 	const botResponse = await axios.get(
-	// 		`http://localhost:3001/users/${session.user["discord_id"]}`
-	// 	);
-
-	// 	postNewMedia({
-	// 		name: updateResult.value["name"],
-	// 		uniqueName: uniqueName,
-	// 		mediaLinkList: linksToInsert,
-	// 		mediaAuthor: botResponse.data.nickname ?? botResponse.data.displayName,
-	// 		mediaDisplayAvatarURL: botResponse.data.displayAvatarURL,
-	// 	});
-
-	// } else {
-	// 	return res.status(400).json({ error: `An error occurred.` });
-	// }
-});
 
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
@@ -108,7 +44,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 		}
 	);
 
-	if (mission) {
+	if (mission && mission.media) {
 		for (let mediaObj of mission.media) {
 			try {
 				const botResponse = await axios.get(
@@ -121,11 +57,8 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 				console.error(error);
 			}
 		}
-
-		return res.status(200).json(mission.media ?? []);
-	} else {
-		return res.status(400).json({ error: `An error occurred.` });
 	}
+	return res.status(200).json(mission?.media ?? []);
 });
 
 apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
@@ -134,30 +67,33 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { mediaToDelete } = req.body;
 	const session = req["session"];
 
-	const updateResult = await MyMongo.collection<{}>("missions").updateOne(
+	const canDelete =
+		hasCreds(session, CREDENTIAL.GM) ||
+		session.user["discord_id"] == mediaToDelete.discord_id;
+	if (!canDelete) {
+		return res.status(401).json({ error: `Not authorized` });
+	}
+
+	const updateResult = await MyMongo.collection<{}>("missions").findOneAndUpdate(
 		{
 			uniqueName: uniqueName,
 		},
 		{
 			$pull: {
 				media: {
-					link: mediaToDelete.link,
+					_id: new ObjectId(mediaToDelete._id),
 					discord_id: mediaToDelete.discord_id,
 				},
 			},
-		}
+		},
+		{ returnDocument: ReturnDocument.AFTER }
 	);
 
-	if (updateResult.modifiedCount > 0) {
-		return res.status(200).json({ ok: true });
+	if (updateResult.ok) {
+		return res.status(200).json({ mediaInserted: updateResult.value["media"] });
 	} else {
 		return res.status(400).json({ error: `An error occurred.` });
 	}
 });
 
-export const config = {
-	api: {
-		bodyParser: false, //  Disallow body parsing, consume as stream
-	},
-};
 export default apiRoute;

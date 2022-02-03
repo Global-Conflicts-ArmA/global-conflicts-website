@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export function testImage(url, timeoutT?) {
 	return new Promise(function (resolve, reject) {
 		var timeout = timeoutT || 5000;
@@ -20,6 +22,19 @@ export function testImage(url, timeoutT?) {
 		}, timeout);
 		img.src = url;
 	});
+}
+
+export async function testImageNode(url) {
+	try {
+		const response = await axios.get(url);
+		if (response.headers["content-type"].match(/(image)+\//g).length != 0) {
+			return true;
+		} else {
+			return false;
+		}
+	} catch (error) {
+		return false;
+	}
 }
 
 export function testVideo(url, timeoutT?) {
