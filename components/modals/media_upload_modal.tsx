@@ -85,9 +85,9 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 			onUploadProgress: (p) => {
 				const progress = p.loaded / p.total;
 				// check if we already displayed a toast
-				console.log(p)
-				console.log(progress)
-				if(progress!=1){
+				console.log(p);
+				console.log(progress);
+				if (progress != 1) {
 					if (uploadProgressToast.current === null) {
 						uploadProgressToast.current = toast("Upload in Progress", {
 							progress: progress,
@@ -99,7 +99,6 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 						});
 					}
 				}
-		
 			},
 			data: data,
 		})
@@ -174,7 +173,8 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 										displayFiles(files);
 									}}
 								>
-									Drop some images or videos(200mb max, 1 minute max) here!
+									Drop some images or videos(200mb max, 1 minute max) here!<br></br>
+									Combined file limit(220mb)
 								</FileDrop>
 								<div className="divider">OR</div>
 

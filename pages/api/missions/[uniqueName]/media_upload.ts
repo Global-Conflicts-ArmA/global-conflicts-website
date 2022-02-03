@@ -30,7 +30,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		const session = req["session"];
 		const { uniqueName } = req.query;
 		let imgurLinks = [];
-		const files = [].concat(req["files"]["files"])
+		const files = [].concat(req["files"]["files"]);
 		for (const file of files) {
 			let body = {};
 			body = {
@@ -133,6 +133,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 });
 
 export const config = {
+	limit: "210mb",
 	api: {
 		bodyParser: false, //  Disallow body parsing, consume as stream
 	},
