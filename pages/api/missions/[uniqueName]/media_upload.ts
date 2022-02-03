@@ -133,9 +133,9 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 });
 
 export const config = {
-	limit: "210mb",
 	api: {
-		bodyParser: false, //  Disallow body parsing, consume as stream
+		bodyParser: false
+		//  Disallow body parsing, consume as stream
 	},
 };
 export default apiRoute;

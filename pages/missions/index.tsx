@@ -406,6 +406,7 @@ export async function getServerSideProps() {
 					"reviews._id": 0,
 					"missionMaker._id": 0,
 					image: 0,
+					media: 0,
 					reviewChecklist: 0,
 					ratios: 0,
 					history: 0,
