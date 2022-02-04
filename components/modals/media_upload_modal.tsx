@@ -97,7 +97,6 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 					}
 				} else {
 					toast.update(uploadProgressToast.current, {
-						progress: 1,
 						render: "Processing...",
 					});
 				}

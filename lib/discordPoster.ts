@@ -52,6 +52,14 @@ export async function postNewBugReport(body) {
 		body
 	);
 }
+export async function postNewAAR(body) {
+	const botResponse = await axios.post(
+		`http://localhost:3001/missions/aar`,
+		body
+	);
+}
+
+
 export async function postNewMedia(body) {
 	const botResponse = await axios.post(
 		`http://localhost:3001/missions/media_posted`,
