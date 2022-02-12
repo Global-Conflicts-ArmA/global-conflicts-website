@@ -13,7 +13,6 @@ export default NextAuth({
 			clientId: process.env.DISCORD_APP_ID,
 			clientSecret: process.env.DISCORD_APP_SECRET,
 			profile: async (profile) => {
- 
 				if (profile["avatar"] === null) {
 					const defaultAvatarNumber = parseInt(profile["discriminator"]) % 5;
 					profile[
@@ -52,7 +51,7 @@ export default NextAuth({
 			const botResponse = await axios.get(
 				`http://localhost:3001/users/${user["discord_id"]}`
 			);
-
+				console.log(session);
 			const member = botResponse.data;
  
 			if (session.user && user) {
@@ -60,6 +59,7 @@ export default NextAuth({
 					...session.user,
 					...{
 						id: user["id"],
+						eventsSignedUp: user["eventsSignedUp"],
 						discord_id: user["discord_id"],
 						roles: member.rolesMap,
 						username: member.displayName,
