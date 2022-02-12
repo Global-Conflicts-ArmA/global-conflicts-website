@@ -48,7 +48,7 @@ export default async function handler(
 							signedUpEvent.reservedSlotName
 						) {
 							if (roster[signedUpEvent.reservedSlotFactionTitle][i]["players"]) {
-								roster[signedUpEvent.reservedSlotFactionTitle][i]["players"].push(user);
+								roster[signedUpEvent.reservedSlotFactionTitle][i]["players"].push(user.username ?? user.nickname);
 							} else {
 								roster[signedUpEvent.reservedSlotFactionTitle][i]["players"] = [
 									user.username ?? user.nickname,
