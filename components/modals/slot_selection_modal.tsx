@@ -112,6 +112,7 @@ export default function SlotSelectionModal({
 									</Tab.List>
 									<Tab.Panels className="mt-2 ">
 										{event.eventReservableSlotsInfo.map((faction) => {
+											console.log(faction)
 											return (
 												<Tab.Panel key={faction.title + "_panel"}>
 													<div
@@ -128,15 +129,15 @@ export default function SlotSelectionModal({
 															<RadioGroup.Label className="sr-only">
 																Server size
 															</RadioGroup.Label>
-															<div className="space-y-2">
+															<div  >
 																{faction.slots.map((slot) => (
 																	<RadioGroup.Option
 																		key={slot.name}
-																		disabled={slot.amountTaken >= slot.amount}
+																		disabled={slot.amountReserved >= parseInt(slot.count)}
 																		value={slot}
 																		className={({ active, checked }) =>
-																			` m-5  transition-all outline-none ${
-																				slot.amountTaken >= slot.amount
+																			`m-5 transition-all outline-none ${
+																				slot.amountReserved >= parseInt(slot.count)
 																					? "bg-gray-50 text-gray-300 cursor-not-allowed"
 																					: ""
 																			}
@@ -172,8 +173,8 @@ export default function SlotSelectionModal({
 																							<div className="flex flex-1">{slot.description}</div>
 																							<div>
 																								{checked
-																									? (slot.amountTaken ?? 0) + 1
-																									: slot.amountTaken ?? 0}
+																									? (slot.amountReserved ?? 0) + 1
+																									: slot.amountReserved ?? 0}
 																								/{slot.count}
 																							</div>
 																						</RadioGroup.Description>
