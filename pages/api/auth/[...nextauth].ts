@@ -51,9 +51,7 @@ export default NextAuth({
 			const botResponse = await axios.get(
 				`http://localhost:3001/users/${user["discord_id"]}`
 			);
-				console.log(session);
 			const member = botResponse.data;
- 
 			if (session.user && user) {
 				session.user = {
 					...session.user,
@@ -69,6 +67,14 @@ export default NextAuth({
 				};
 			}
 			return session;
+		},
+		signIn({ user, account, profile, email, credentials }) {
+			if(user.roles){
+				return true;
+			}else{
+				return "/auth/not-on-discord";
+			}
+ 
 		},
 	},
 
