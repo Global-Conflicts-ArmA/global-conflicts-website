@@ -289,7 +289,7 @@ export default function EventHome({ event }) {
 							</div>
 						)}
 						{!event.closeReason && (
-							<Countdown date={event.when} renderer={renderer}></Countdown>
+							<Countdown date={new Date(event.when)}  renderer={renderer}></Countdown>
 						)}
 					</div>
 				)}
