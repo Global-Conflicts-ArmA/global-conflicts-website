@@ -3,7 +3,7 @@ import { getSession } from "next-auth/react";
 
 export enum CREDENTIAL {
 	ANY = "ANY",
-	NEW_GUY = "New Guy",
+	NEW_GUY = "New guy",
 	MEMBER = "Member",
 	MISSION_MAKER = "Mission Maker",
 	MISSION_REVIEWER = "Mission Review Team",

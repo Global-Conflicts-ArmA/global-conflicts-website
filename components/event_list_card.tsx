@@ -41,6 +41,7 @@ export default function EventCard({
 				return 0;
 			}
 		} else {
+			 
 			if (didSignUp == false) {
 				return signups - 1;
 			}

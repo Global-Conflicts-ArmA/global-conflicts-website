@@ -2,6 +2,8 @@ import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
 import MyMongo from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ObjectId, UpdateResult } from "mongodb";
+import { hasCredsAny } from "../../../lib/credsChecker";
+import { getSession, useSession } from "next-auth/react";
 
 export default async function handler(
 	req: NextApiRequest,
@@ -10,20 +12,26 @@ export default async function handler(
 	if (req.method != "POST") {
 		res.status(404).send("");
 	}
-	const user = await validateUser(req, res, CREDENTIAL.MEMBER).catch((error) => {
+	const session = await getSession({ req });
+ 
+	const hasCreds = hasCredsAny(session, [
+		CREDENTIAL.NEW_GUY,
+		CREDENTIAL.MEMBER,
+	]);
+	if (!hasCreds) {
 		return res.status(401).send("");
-	});
+	}
 
 	const doSignup = req.body.doSignup;
 	const eventId = req.body.eventId;
 	const eventObjectId = new ObjectId(eventId);
 	let addResult: UpdateResult;
 	let pullResult: UpdateResult;
- 
+
 	if (doSignup) {
 		addResult = await MyMongo.collection("users").updateOne(
 			{
-				discord_id: user["discord_id"],
+				discord_id: session.user["discord_id"],
 			},
 			{
 				$addToSet: {
@@ -44,7 +52,7 @@ export default async function handler(
 				{ _id: eventObjectId },
 				{
 					$addToSet: {
-						signups: user["discord_id"],
+						signups: session.user["discord_id"],
 					},
 				}
 			);
@@ -53,7 +61,7 @@ export default async function handler(
 	} else {
 		pullResult = await MyMongo.collection("users").updateOne(
 			{
-				discord_id: user["discord_id"],
+				discord_id: session.user["discord_id"],
 			},
 			{
 				$pull: {
@@ -68,7 +76,7 @@ export default async function handler(
 				{ _id: eventObjectId },
 				{
 					$pull: {
-						signups: user["discord_id"],
+						signups: session.user["discord_id"],
 					},
 				}
 			);

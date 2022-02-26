@@ -28,13 +28,13 @@ export default function SignIn({ providers }) {
 						</div>
 						<div className="flex flex-col content-between justify-between flex-1 p-8 sm:w-2/3">
 							<h1 className="py-10 text-center text-white font-heading">
-								Sigin with Discord to proceed
+								Sign In with Discord to proceed
 							</h1>
 							<button
 								className="text-white transition duration-150 ease-in-out discord-btn"
 								onClick={() => signIn("discord")}
 							>
-								Sigin with Discord
+								Sign In with Discord
 							</button>
 						</div>
 					</div>

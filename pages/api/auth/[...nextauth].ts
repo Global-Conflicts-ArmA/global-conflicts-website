@@ -68,8 +68,14 @@ export default NextAuth({
 			}
 			return session;
 		},
-		signIn({ user, account, profile, email, credentials }) {
-			if(user.roles){
+		async signIn({ user, account, profile, email, credentials }) {
+			 
+			const botResponse = await axios.get(
+				`http://localhost:3001/users/${user["discord_id"]}`
+			);
+			const member = botResponse.data;
+
+			if(member.rolesMap){
 				return true;
 			}else{
 				return "/auth/not-on-discord";

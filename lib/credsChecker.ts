@@ -31,6 +31,8 @@ export function hasCredsAny(session, credList: Array<CREDENTIAL>) {
 	}
 
 	for (var i = 0; i < session.user["roles"].length; i++) {
+		console.log(session.user["roles"][i].name)
+		console.log(credList[0])
 		if (credList.includes(session.user["roles"][i].name)) {
 			return true;
 		}
