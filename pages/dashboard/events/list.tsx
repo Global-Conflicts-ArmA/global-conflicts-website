@@ -18,11 +18,13 @@ export default function DashboardEventList({ events }) {
 			name: "Name",
 			selector: (row) => row.name,
 			sortable: true,
+			width: "180px",
 		},
 		{
 			name: "Organizer",
 			selector: (row) => row.organizer,
 			sortable: true,
+			width: "180px",
 			compact: true,
 		},
 		{
@@ -32,6 +34,19 @@ export default function DashboardEventList({ events }) {
 			width: "90px",
 			compact: true,
 			format: (row) => moment(row.when).format("ll"),
+		},
+		{
+			name: "Status",
+			selector: (row) => {
+				return row.closeReason
+					? row.closeReason.label
+					: moment(row.when) <= moment()
+					? "Happening now"
+					: "Upcoming";
+			},
+			sortable: true,
+			compact: true,
+			width: "180px",
 		},
 		{
 			name: "Slots",
@@ -47,22 +62,17 @@ export default function DashboardEventList({ events }) {
 			width: "90px",
 			compact: true,
 		},
-		{
-			name: "Status",
-			selector: (row) => {
-				return row.closeReason
-					? row.closeReason
-					: moment(row.when) <= moment()
-					? "Happening now"
-					: "Upcoming";
-			},
-			sortable: true,
-			compact: true,
-			width: "100px",
-		},
+		 
 		{
 			name: "# of participants",
 			selector: (row) => row.numberOfParticipants,
+			sortable: true,
+			compact: true,
+			width: "130px",
+		},
+		{
+			name: `# of "Can't Make it"`,
+			selector: (row) => row.cantMakeItCount,
 			sortable: true,
 			compact: true,
 			width: "130px",
@@ -106,7 +116,17 @@ export default function DashboardEventList({ events }) {
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
 	const events = await MyMongo.collection("events")
-		.find({}, { projection: { _id: 0, contentPages: 0 } })
+		.find({}, { projection: { contentPages: 0 } })
 		.toArray();
+
+	for (const event of events) {
+		const cantMakeItCount = await MyMongo.collection("users").find({
+			cantMakeIt: { $in: [{ eventId: event._id.toString() }] },
+		}).toArray();
+
+		event["cantMakeItCount"] = cantMakeItCount.length;
+		delete event["_id"];
+	}
+
 	return { props: { events, session } };
 }

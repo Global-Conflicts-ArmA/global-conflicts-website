@@ -103,7 +103,7 @@ export async function getServerSideProps({ params }: Params) {
 	const pastEvents = await MyMongo.collection("events")
 		.find(
 			{
-				closeReason: "COMPLETED",
+				"closeReason.value": "COMPLETED",
 			},
 			{ projection: { _id: 0, tabs: 0 } }
 		)
@@ -112,7 +112,7 @@ export async function getServerSideProps({ params }: Params) {
 	const upcomingEvents = await MyMongo.collection("events")
 		.find(
 			{
-				closeReason: {
+				"closeReason.value": {
 					$nin: ["CANCELED", "COMPLETED"],
 				},
 			},
