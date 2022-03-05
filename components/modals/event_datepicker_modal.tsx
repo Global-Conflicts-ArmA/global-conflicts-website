@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import moment from "moment";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 export default function EventDatePickerModal({

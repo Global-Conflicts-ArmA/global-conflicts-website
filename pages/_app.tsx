@@ -80,7 +80,7 @@ export default function MyApp({
 				<meta name="twitter:card" content="summary_large_image" />
 				<meta property="og:type" content="website" />
 			</Head>
-			<div className="flex flex-col min-h-screen">
+			<div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
 				<div className="flex-grow">
 					<MainLayout>
 						{Component.PageLayout ? (
@@ -93,7 +93,7 @@ export default function MyApp({
 					</MainLayout>
 				</div>
 				{router.pathname != "/auth/signin" && (
-					<footer className="bottom-0 p-10 bg-gray-800 footer text-neutral-content footer-center">
+					<footer className="bottom-0 p-10 bg-gray-800 footer text-neutral-content footer-center dark:bg-gray-900 ">
 						<div>
 							<Link href={"/"} passHref={true}>
 								<a className="flex ">

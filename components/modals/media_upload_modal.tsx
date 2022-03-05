@@ -1,11 +1,11 @@
 import { Dialog, Transition } from "@headlessui/react";
 import axios from "axios";
-import React, { Fragment, useEffect, useReducer, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { FileDrop } from "react-file-drop";
-import { generateMarkdown } from "../../lib/markdownToHtml";
+
 import Image from "next/image";
 import ReactPlayer from "react-player";
-import noframe from "reframe.js/dist/noframe";
+
 import { Flip, toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react";
@@ -159,7 +159,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-110"
 					>
-						<div className="inline-block w-full max-w-screen-xl p-6 my-8 overflow-visible text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+						<div className="max-w-screen-xl modal-standard">
 							<Dialog.Title
 								as="div"
 								className="text-lg font-medium leading-6 prose text-gray-900"
@@ -168,7 +168,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 							</Dialog.Title>
 							<div className="mt-2">
 								<FileDrop
-									className={`mt-5 text-center border-2 mb-7 border-primary file-drop rounded-xl  ${
+									className={`mt-5 text-center border-2 mb-7 border-blue-600 dark:border-blue-800 file-drop rounded-xl  ${
 										isLoading ? "loading" : ""
 									}`}
 									onDrop={(files, event) => {
@@ -192,10 +192,10 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 											onChange={(e) => {
 												setDirectLink(e.target.value);
 											}}
-											className="w-full pr-16 input input-primary input-bordered"
+											className="w-full pr-16 input input-bordered"
 										/>
 										<button
-											className="absolute top-0 right-0 rounded-l-none btn btn-primary"
+											className="absolute top-0 right-0 rounded-l-none btn bg-primary dark:bg-blue-800"
 											onClick={() => {
 												insertLink();
 											}}
@@ -263,7 +263,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 								</button>
 
 								<button
-									className={`btn btn-sm btn-primary ${isLoading ? "loading" : ""}`}
+									className={`primary-btn-sm  ${isLoading ? "loading" : ""}`}
 									onClick={() => {
 										isLoading ? null : uploadFiles();
 									}}

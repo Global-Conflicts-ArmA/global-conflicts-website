@@ -20,19 +20,19 @@ export default function NavBarItem({
 
 	return (
 		<div className="w-full pt-4">
-			<div className="w-full mx-auto bg-white rounded-none max-w-none md:max-w-md md:rounded-2xl">
+			<div className="w-full mx-auto bg-white rounded-none max-w-none md:max-w-md md:rounded-lg dark:bg-gray-800 dark:text-white">
 				{item["children"] ? (
-					<Disclosure defaultOpen={false}  >
+					<Disclosure defaultOpen={false}>
 						{({ open }) => (
 							<>
 								<Disclosure.Button
-									className={`flex justify-between w-full  px-4 py-2 mb-3 text-sm  text-left rounded-lg hover:bg-gray-100 focus:outline-none focus-visible:ring focus-visible:ring-gray-200 focus-visible:ring-opacity-75 ${
+									className={`transition-all duration-300 flex justify-between w-full  px-4 py-2 mb-3 text-sm  text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring focus-visible:ring-gray-200 focus-visible:ring-opacity-75 ${
 										checkCurrent(item["slug"]) ? "font-bold bg-gray-100" : "font-medium"
 									}`}
 								>
 									<span>{item["title"]}</span>
 									<ChevronUpIcon
- 										className={`${
+										className={`${
 											open ? "transform rotate-180" : ""
 										} w-5 h-5 text-gray-500`}
 									/>
@@ -49,11 +49,11 @@ export default function NavBarItem({
 										leaveTo="transform scale-95 opacity-0"
 									>
 										{child["slug"] ? (
-											<Link href={`/guides/${child["slug"]}`}>
+											<Link replace={true} href={`/guides/${child["slug"]}`}>
 												<a>
 													<Disclosure.Panel
-														className={`flex flex-row px-4 py-2 mb-4 ml-4 mr-4 md:mr-0 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 ${
-															checkCurrent(child["slug"]) ? "font-bold bg-gray-100" : ""
+														className={`flex flex-row px-4 py-2 h-9 md:mr-0 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
+															checkCurrent(child["slug"]) ? "font-bold bg-gray-100 dark:bg-gray-600 dark:text-gray-100" : ""
 														}`}
 													>
 														{child["title"]}
@@ -82,7 +82,7 @@ export default function NavBarItem({
 							<Link href={`/guides/${item["slug"]}`}>
 								<a>
 									<div
-										className={`flex flex-row px-4 py-2 mb-4 text-sm  rounded-lg cursor-pointer hover:bg-gray-100 ${
+										className={`transition-all duration-300 flex flex-row px-4 py-2 mb-4 text-sm  rounded-lg cursor-pointer hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 ${
 											checkCurrent(item["slug"]) ? "font-bold bg-gray-100" : "font-medium"
 										} `}
 									>
@@ -95,8 +95,8 @@ export default function NavBarItem({
 								onClick={() => {
 									onClick(item);
 								}}
-								className={`p-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 break-all ${
-									checkCurrent(item["slug"]) ? "font-bold" : ""
+								className={`p-4 text-sm text-gray-500 dark:text-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 break-all ${
+									checkCurrent(item["slug"]) ? "font-bold dark:text-white" : ""
 								}`}
 							>
 								{item["title"]}

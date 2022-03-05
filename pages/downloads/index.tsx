@@ -1,11 +1,8 @@
-import axios, { Axios } from "axios";
-import { getSession, useSession } from "next-auth/react";
 import Head from "next/head";
-import Image from "next/image";
+
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { Line, Circle } from "rc-progress";
-import ProgressBar from "@ramonak/react-progress-bar";
+
 import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/outline";
 
@@ -47,24 +44,25 @@ function Downloads({}) {
 									Source code
 								</a>{" "}
 							</p>
-							<div className="bg-white rounded-2xl">
+							<div className="bg-white dark:bg-gray-500 rounded-2xl">
 								<Disclosure>
 									{({ open }) => (
 										<>
-											<Disclosure.Button className="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-blue-900 bg-blue-100 rounded-lg hover:bg-blue-200 focus:outline-none focus-visible:ring focus-visible:ring-blue-500 focus-visible:ring-opacity-75">
+											<Disclosure.Button className="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-blue-900 bg-blue-100 rounded-lg dark:text-gray-200 dark:bg-gray-600 hover:bg-blue-200 dark:hover:bg-gray-400 ">
 												<span>Can&apos;t use our launcher?</span>
 												<ChevronUpIcon
 													className={`${
 														open ? "transform rotate-180" : ""
-													} w-5 h-5 text-blue-500`}
+													} duration-100 w-5 h-5 text-blue-500 dark:text-white`}
 												/>
 											</Disclosure.Button>
-											<Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-500">
+											<Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-200">
 												If you are having issues with our launcher or just don&apos;t trust
 												it, you can use Swifty instead{" "}
 												<Link href="/guides/swifty">
 													<a className="p-1 btn btn-ghost btn-xs">Click here</a>
-												</Link>{" "}to know more.
+												</Link>{" "}
+												to know more.
 											</Disclosure.Panel>
 										</>
 									)}

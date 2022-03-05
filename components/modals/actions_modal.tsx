@@ -36,7 +36,6 @@ export default function ActionsModal({
 				toast.success("Audit requested.");
 			})
 			.catch((error) => {
-		
 				if (error.response?.data && error.response?.data?.error) {
 					toast.error(error.response.data.error);
 				} else {
@@ -61,7 +60,6 @@ export default function ActionsModal({
 				toast.success(`Mission ${isCopying ? "Copied" : "Removed"}.`);
 			})
 			.catch((error) => {
-	
 				if (error.response?.data && error.response?.data?.error) {
 					toast.error(error.response.data.error);
 				} else {
@@ -121,11 +119,8 @@ export default function ActionsModal({
 							leaveFrom="opacity-100 scale-100"
 							leaveTo="opacity-0 scale-110"
 						>
-							<div className="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-								<Dialog.Title
-									as="h3"
-									className="text-lg font-medium leading-6 text-gray-900"
-								>
+							<div className="max-w-lg modal-standard">
+								<Dialog.Title as="h3" className="text-lg font-medium leading-6 ">
 									Actions for version:{" "}
 									<b>{update?.version.major + (update?.version.minor ?? "")}</b>
 								</Dialog.Title>
@@ -163,8 +158,8 @@ export default function ActionsModal({
 												<button
 													className={
 														isLoadingCopy
-															? "flex-1 m-2 btn whitespace-nowrap flex flex-nowrap flex-row loading"
-															: "flex-1 m-2 btn whitespace-nowrap flex flex-nowrap flex-row "
+															? "flex-1 m-2 btn whitespace-nowrap flex flex-nowrap flex-row loading "
+															: "flex-1 m-2 btn whitespace-nowrap flex flex-nowrap flex-row  "
 													}
 													onClick={() => {
 														if (isLoadingAudit || isLoadingCopy) {
@@ -215,7 +210,7 @@ export default function ActionsModal({
 										<>
 											<hr></hr>
 											<div>
-												<p className="mb-0">
+												<p className="mt-1 mb-0">
 													Click the button to submit your examination of this mission.
 												</p>
 
@@ -240,7 +235,7 @@ export default function ActionsModal({
 									<hr></hr>
 									{hasCreds(session, CREDENTIAL.ADMIN) && (
 										<div>
-											<p className="mb-0">
+											<p className="mt-1 mb-0">
 												Removing the archive will delete the mission file from the archive
 												folder AND remove this update entry on the database.
 											</p>
@@ -257,7 +252,7 @@ export default function ActionsModal({
 								<div className="mt-4">
 									<button
 										type="button"
-										className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+										className="btn btn-sm"
 										onClick={() => {
 											if (isLoadingAudit || isLoadingCopy) {
 												return;

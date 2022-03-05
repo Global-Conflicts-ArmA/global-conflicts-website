@@ -1,6 +1,5 @@
 import Head from "next/head";
-import Image from "next/image";
-import ReactDOM from "react-dom";
+ 
 import Countdown from "react-countdown";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -307,7 +306,7 @@ export default function EventHome({ event }) {
 				>
 					{hasReservableSlots() && (
 						<button
-							className="btn btn-info btn-md"
+							className="primary-btn"
 							onClick={() => {
 								setRosterModalOpen(true);
 							}}
@@ -317,7 +316,7 @@ export default function EventHome({ event }) {
 					)}
 
 					<Link href="/guides/events#signup-and-slotting-procedure" passHref>
-						<a className="btn btn-ghost btn-md" target="_blank">
+						<a className="btn btn-md btn-outline-standard " target="_blank">
 							How it works{" "}
 							<QuestionMarkCircleIcon height={25}></QuestionMarkCircleIcon>
 						</a>

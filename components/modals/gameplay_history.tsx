@@ -1,15 +1,15 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment, useEffect, useState } from "react";
- 
-import ReactMde, { getDefaultToolbarCommands } from "react-mde";
- 
+
+import ReactMde from "react-mde";
+
 import "react-mde/lib/styles/css/react-mde-editor.css";
 import "react-mde/lib/styles/css/react-mde-toolbar.css";
 import "react-mde/lib/styles/css/react-mde-toolbar.css";
 import "react-mde/lib/styles/css/react-mde.css";
-import Select, { ActionMeta, OnChangeValue } from "react-select";
+import Select from "react-select";
 import { UserRemoveIcon } from "@heroicons/react/outline";
- 
+
 import { gameplayHistoryOutcomeOptions } from "../../lib/missionSelectOptions";
 import CreatableSelect from "react-select/creatable";
 import NumberFormat from "react-number-format";
@@ -130,6 +130,13 @@ export default function GameplayHistoryModal({
 		setDateError("");
 		setAARReplayLink("");
 	}
+
+	const [_document, set_document] = React.useState(null);
+
+	React.useEffect(() => {
+		set_document(document.querySelector("#missionPage"));
+	}, []);
+
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog
@@ -163,15 +170,15 @@ export default function GameplayHistoryModal({
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-110"
 					>
-						<div className="inline-block w-full max-w-3xl p-6 my-8 overflow-visible text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
-							<Dialog.Title
-								as="h3"
-								className="text-lg font-medium leading-6 text-gray-900"
-							>
+						<div className="max-w-3xl modal-standard">
+							<Dialog.Title as="h3" className="text-lg font-medium leading-6 ">
 								New Gameplay History
 							</Dialog.Title>
 							<div className="mt-2 space-y-5 ">
 								<CreatableSelect
+									classNamePrefix="select-input"
+									menuPortalTarget={_document}
+									styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
 									options={gameplayHistoryOutcomeOptions}
 									placeholder="Outcome... (Open ended)"
 									blurInputOnSelect={true}
@@ -264,8 +271,11 @@ export default function GameplayHistoryModal({
 
 								<Select
 									options={discordUsers}
+									classNamePrefix="select-input"
 									placeholder="Selected a leader..."
 									blurInputOnSelect={true}
+									menuPortalTarget={_document}
+									styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
 									onChange={(val) => {
 										if (listOfLeaders.includes(val)) {
 											return;
@@ -289,6 +299,7 @@ export default function GameplayHistoryModal({
 											<div className="flex-1"></div>
 											<div className="w-32">
 												<Select
+													classNamePrefix="select-input"
 													options={[
 														{ value: "BLUFOR", label: "BLUFOR" },
 														{ value: "OPFOR", label: "OPFOR" },
@@ -308,6 +319,7 @@ export default function GameplayHistoryModal({
 											</div>
 											<div className="w-44">
 												<Select
+													classNamePrefix="select-input"
 													options={[
 														{ value: "leader", label: "Leader" },
 														{ value: "took_command", label: "Took Command" },
@@ -352,8 +364,8 @@ export default function GameplayHistoryModal({
 										type="button"
 										className={
 											isLoading
-												? "btn btn-primary btn-sm loading"
-												: "btn btn-primary btn-sm"
+												? "primary-btn-sm  loading"
+												: "primary-btn-sm "
 										}
 										onClick={() => {
 											addHistory();

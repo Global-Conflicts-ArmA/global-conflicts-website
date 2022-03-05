@@ -289,7 +289,7 @@ export default function MissionDetails({
 							);
 							setSimpleTextModalOpen(true);
 						}}
-						className="btn btn-sm"
+						className="btn btn-sm dark:btn-ghost"
 					>
 						<PencilAltIcon height={24}></PencilAltIcon>
 					</button>
@@ -307,13 +307,13 @@ export default function MissionDetails({
 				const link = getMissionDownloadLink(row);
 				if (link) {
 					return (
-						<a href={link} download className="btn btn-sm">
+						<a href={link} download className="btn btn-sm dark:btn-ghost">
 							<DownloadIcon></DownloadIcon>
 						</a>
 					);
 				} else {
 					return (
-						<button disabled className="btn btn-sm">
+						<button disabled className="btn btn-sm dark:btn-ghost">
 							<DownloadIcon></DownloadIcon>
 						</button>
 					);
@@ -334,7 +334,7 @@ export default function MissionDetails({
 							setActionsModalIsOpen(true);
 							setActionsModalData(row);
 						}}
-						className="btn btn-sm"
+						className="btn btn-sm dark:btn-ghost"
 					>
 						<ActionsIcon></ActionsIcon>
 					</button>
@@ -521,7 +521,7 @@ export default function MissionDetails({
 
 	function getMediaGallery() {
 		if (!_mission.media || _mission.media.length == 0) {
-			return <div>Nothing submited yet.</div>;
+			return <div className="dark:text-gray-200">Nothing submited yet.</div>;
 		}
 
 		function canShowDeleteButton(linkObj) {
@@ -648,7 +648,10 @@ export default function MissionDetails({
 					key="og:image"
 				/>
 			</Head>
-			<div className="flex flex-col max-w-screen-lg mx-auto mt-5 xl:max-w-screen-xl">
+			<div
+				className="flex flex-col max-w-screen-lg mx-auto mt-5 xl:max-w-screen-xl"
+				id="missionPage"
+			>
 				<div className="mx-2">
 					<div className="mt-10 mb-5">
 						<div className="mb-1 font-bold prose">
@@ -656,7 +659,7 @@ export default function MissionDetails({
 						</div>
 
 						<div className="flex flex-row items-center">
-							<div className="mr-5 text-2xl">
+							<div className="mr-5 text-2xl dark:text-gray-100">
 								Author: <span className="font-bold">{mission.missionMaker}</span>
 							</div>
 							{session?.user && (
@@ -667,7 +670,7 @@ export default function MissionDetails({
 									className="z-10 tooltip tooltip-bottom tooltip-primary"
 								>
 									<button
-										className={`btn btn-sm btn-primary min-w-187 ${
+										className={`btn  primary-btn-sm min-w-187 ${
 											isLoadingVote ? "loading" : ""
 										}`}
 										onClick={hasVotedLocal ? retractVote : doVote}
@@ -718,33 +721,33 @@ export default function MissionDetails({
 								</div>
 							</div>
 
-							<div className="flex flex-row flex-wrap w-full stats">
-								<div className="m-2">
+							<div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white ">
+								<div className="m-2 ">
 									<div className=" stat-title">Players</div>
 									<div className="text-sm stat-value ">
 										{mission.size.min} to {mission.size.max}
 									</div>
 								</div>
-								<div className="m-2 ">
+								<div className="m-2 border-none">
 									<div className="stat-title">Map</div>
 									<div className="text-sm stat-value">
 										{mission.terrainName ?? mission.terrain}
 									</div>
 								</div>
 
-								<div className="m-2">
+								<div className="m-2 border-none">
 									<div className="stat-title">Type</div>
 									<div className="text-sm stat-value ">{mission.type}</div>
 								</div>
-								<div className="m-2">
+								<div className="m-2 border-none">
 									<div className="stat-title">Time of day</div>
 									<div className="text-sm stat-value ">{mission.timeOfDay}</div>
 								</div>
-								<div className="m-2">
+								<div className="m-2 border-none">
 									<div className="stat-title">Era</div>
 									<div className="text-sm stat-value ">{mission.era}</div>
 								</div>
-								<div className="m-2">
+								<div className="m-2 border-none">
 									<div className="stat-title">Respawn</div>
 									<div className="text-sm stat-value">
 										{mission.respawn == true
@@ -754,7 +757,7 @@ export default function MissionDetails({
 											: mission.respawn}
 									</div>
 								</div>
-								<div className="m-2">
+								<div className="m-2 border-none">
 									<div className="stat-title">JIP</div>
 									<div className="text-sm stat-value ">{mission.jip ? "Yes" : "No"}</div>
 								</div>
@@ -765,7 +768,7 @@ export default function MissionDetails({
 						{mission.tags.map((role) => (
 							<span
 								style={{ color: role.color }}
-								className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box"
+								className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box dark:text-gray-300"
 								key={role}
 							>
 								{role}
@@ -773,7 +776,7 @@ export default function MissionDetails({
 						))}
 					</div>
 					<hr className="my-5"></hr>
-					<h2 className="flex flex-row justify-between py-2 font-bold">
+					<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
 						Versions{" "}
 						{(mission.authorID == session?.user["discord_id"] ||
 							hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
@@ -781,7 +784,7 @@ export default function MissionDetails({
 								onClick={() => {
 									setNewVersionModalOpen(true);
 								}}
-								className="btn btn-sm"
+								className="btn btn-sm btn-outline-standard"
 							>
 								<AddIcon></AddIcon> Upload new version
 							</button>
@@ -796,14 +799,14 @@ export default function MissionDetails({
 						data={mission.updates}
 					></DataTable>
 					<hr className="my-5"></hr>
-					<h2 className="flex flex-row justify-between py-2 font-bold">
+					<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
 						Gameplay History{" "}
 						{hasCreds(session, CREDENTIAL.ADMIN) && (
 							<button
 								onClick={() => {
 									setgameplayHistoryModalOpen(true);
 								}}
-								className="btn btn-sm"
+								className="btn btn-sm btn-outline-standard"
 							>
 								<AddIcon></AddIcon>
 							</button>
@@ -816,8 +819,10 @@ export default function MissionDetails({
 									<div key={historyItem._id}>
 										<div className="flex flex-row justify-between mb-2 align-baseline">
 											<div className="font-bold align-text-bottom">
-												<div>{moment(historyItem.date).format("LL")}</div>
-												<div>
+												<div className="dark:text-gray-100">
+													{moment(historyItem.date).format("LL")}
+												</div>
+												<div className="dark:text-gray-100">
 													Outcome:{" "}
 													<span className={getOutcomeClass(historyItem.outcome)}>
 														{historyItem.outcome}
@@ -827,7 +832,7 @@ export default function MissionDetails({
 											<div className="flex flex-row items-center space-x-1">
 												{hasCreds(session, CREDENTIAL.ADMIN) && (
 													<button
-														className="btn btn-xs"
+														className="btn btn-xs dark:text-white dark:btn-ghost"
 														onClick={() => {
 															setGameplayHistoryModalHistoryToLoad(historyItem);
 															setgameplayHistoryModalOpen(true);
@@ -838,7 +843,7 @@ export default function MissionDetails({
 												)}
 
 												<a
-													className="btn btn-xs"
+													className="btn btn-xs dark:text-white dark:btn-ghost"
 													href={historyItem.aarReplayLink}
 													target="_blank"
 													rel="noreferrer"
@@ -847,7 +852,7 @@ export default function MissionDetails({
 												</a>
 												{historyItem.gmNote && (
 													<button
-														className="btn btn-xs"
+														className="btn btn-xs dark:text-white dark:btn-ghost"
 														onClick={() => {
 															setSimpleTextViewing(historyItem.gmNote);
 															setSimpleTextHeaderViewing(`GM Notes:`);
@@ -938,7 +943,7 @@ export default function MissionDetails({
 																			</div>
 																			{canSubmitAAR(leader) && (
 																				<button
-																					className="z-10 ml-2 btn btn-xs "
+																					className="z-10 ml-2 btn btn-xs dark:btn-ghost "
 																					onClick={() => {
 																						setAarTextToLoad(leader.aar);
 																						setHistoryIdToLoadForAAR(historyItem._id);
@@ -955,7 +960,7 @@ export default function MissionDetails({
 																			<div>No AAR Submited yet.</div>
 																			{canSubmitAAR(leader) && (
 																				<button
-																					className="z-10 ml-2 btn btn-xs "
+																					className="z-10 ml-2 btn btn-xs dark:btn-ghost"
 																					onClick={() => {
 																						setAarTextToLoad(leader.aar);
 																						setHistoryIdToLoadForAAR(historyItem._id);
@@ -980,11 +985,11 @@ export default function MissionDetails({
 								);
 							})
 						) : (
-							<div>No History yet</div>
+							<div className="dark:text-gray-200">No History yet</div>
 						)}
 					</div>
 
-					<h2 className="flex flex-row justify-between py-2 font-bold">
+					<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
 						Media Gallery{" "}
 						{hasCredsAny(session, [
 							CREDENTIAL.ADMIN,
@@ -997,7 +1002,7 @@ export default function MissionDetails({
 								onClick={() => {
 									setMediaUploadModalOpen(true);
 								}}
-								className="btn btn-sm"
+								className="btn btn-sm btn-outline-standard"
 							>
 								<UploadIcon height={24} width={24}></UploadIcon>
 							</button>
@@ -1253,6 +1258,12 @@ export default function MissionDetails({
 // revalidation is enabled and a new request comes in
 
 export async function getServerSideProps(context) {
+	console.log(context.params);
+
+	if (context.params.uniqueName == "<no source>") {
+		return { prop: {} };
+	}
+
 	const mission = (
 		await MyMongo.collection("missions")
 			.aggregate([
@@ -1337,7 +1348,12 @@ export async function getServerSideProps(context) {
 			.toArray()
 	)[0];
 
-	mission["uploadDate"] = mission["uploadDate"]?.getTime();
+	try {
+		mission["uploadDate"] = mission["uploadDate"]?.getTime();
+	} catch (e) {
+		console.log(e);
+	}
+
 	mission["lastPlayed"] = mission["lastPlayed"]?.getTime();
 
 	mission["missionMaker"] =

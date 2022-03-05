@@ -104,11 +104,11 @@ function TopVoted({ missions, maxVotes }) {
 								? `You can only vote for ${maxVotes} missions per week!`
 								: "Vote for this mission to be played"
 						}
-						className="z-10 tooltip tooltip-bottom tooltip-primary sm:tooltip-left"
+						className="z-10 tooltip tooltip-bottom tooltip-info sm:tooltip-left"
 					>
 						<button
 							disabled={getVoteCount() >= 4 && !mission["hasVoted"]}
-							className={`btn-primary whitespace-nowrap btn-xs sm:btn-sm btn ${
+							className={`primary-btn  whitespace-nowrap btn-xs sm:btn-sm btn ${
 								isLoadingVote ? "loading" : ""
 							}`}
 							onClick={(event) => {
@@ -269,32 +269,32 @@ function TopVoted({ missions, maxVotes }) {
 										)}
 									</div>
 
-									<div className="flex flex-row flex-wrap w-full stats">
+									<div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white ">
 										<div className="m-2">
 											<div className="opacity-75 stat-title">Players</div>
 											<div className="text-sm stat-value ">
 												{mission.size.min} to {mission.size.max}
 											</div>
 										</div>
-										<div className="m-2 ">
+										<div className="m-2 border-none">
 											<div className="opacity-75 stat-title">Map</div>
 											<div className="text-sm stat-value">
 												{mission.terrainName ?? mission.terrain}
 											</div>
 										</div>
 
-										<div className="m-2">
+										<div className="m-2 border-none">
 											<div className="opacity-75 stat-title">Type</div>
 											<div className="text-sm stat-value ">{mission.type}</div>
 										</div>
 
-										<div className="m-2">
+										<div className="m-2 border-none">
 											<div className="opacity-75 stat-title">Respawn</div>
 											<div className="text-sm stat-value">
 												{mission.respawn ? "Yes" : "No"}
 											</div>
 										</div>
-										<div className="m-2">
+										<div className="m-2 border-none">
 											<div className="opacity-75 stat-title">JIP</div>
 											<div className="text-sm stat-value ">
 												{mission.jip ? "Yes" : "No"}
@@ -342,6 +342,7 @@ export async function getServerSideProps(context) {
 				$project: {
 					_id: 0,
 					image: 0,
+					media: 0,
 					lastVersion: 0,
 					era: 0,
 					reports: 0,

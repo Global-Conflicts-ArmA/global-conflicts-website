@@ -106,11 +106,8 @@ export default function MissionAuditModal({
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-110"
 					>
-						<div className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl ">
-							<Dialog.Title
-								as="h3"
-								className="text-lg font-medium leading-6 text-gray-900"
-							>
+						<div className="max-w-2xl modal-standard">
+							<Dialog.Title as="h3" className="text-lg font-medium leading-6">
 								Audit parameters for version:{" "}
 								<b>{update?.version.major + (update?.version.minor ?? "")}</b>
 							</Dialog.Title>

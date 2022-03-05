@@ -9,7 +9,7 @@ function Guide({ guideContent }) {
 	const slug = router.query.slug || [];
 
 	return (
-		<article className="max-w-3xl m-5 mt-20 prose">
+		<article className="max-w-3xl m-5 mt-20 prose dark:prose-invert">
 			<kbd className="hidden kbd"></kbd>
 			<div
 				dangerouslySetInnerHTML={{

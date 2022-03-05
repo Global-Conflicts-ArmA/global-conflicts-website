@@ -1,5 +1,5 @@
 import EditIcon from "./icons/edit";
-import DeleteIcon from "./icons/delete";
+
 import { useSession } from "next-auth/react";
 import { generateMarkdown } from "../lib/markdownToHtml";
 import moment from "moment";
@@ -32,10 +32,12 @@ export default function CommentBox({
 	return (
 		<>
 			<div className="flex flex-row items-center justify-between">
-				<h2 className="flex flex-row justify-between py-2 font-bold">{title}</h2>
+				<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
+					{title}
+				</h2>
 
 				{session && (
-					<button onClick={onSubmitClick} className="btn btn-xs">
+					<button onClick={onSubmitClick} className="btn btn-xs btn-outline-standard">
 						{btnText}
 					</button>
 				)}
@@ -87,7 +89,7 @@ export default function CommentBox({
 						);
 					})
 				) : (
-					<div>Nothing to display</div>
+					<div className="dark:text-gray-200">Nothing to display</div>
 				)}
 			</div>
 		</>

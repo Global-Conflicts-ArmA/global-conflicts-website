@@ -7,14 +7,11 @@ import moment from "moment";
 import DataTable, { Media } from "react-data-table-component";
 import { useEffect, useState } from "react";
 import { Disclosure, Switch } from "@headlessui/react";
-import hasCreds, { hasCredsAny } from "../../lib/credsChecker";
+import { hasCredsAny } from "../../lib/credsChecker";
 
 import { useSession } from "next-auth/react";
 import { CREDENTIAL } from "../../middleware/check_auth_perms";
-import {
-	ChevronDoubleDownIcon,
-	ChevronDownIcon,
-} from "@heroicons/react/outline";
+import { ChevronDownIcon } from "@heroicons/react/outline";
 import { MapItem } from "../../interfaces/mapitem";
 import Select from "react-select";
 import { tagsOptions } from "../../lib/missionSelectOptions";
@@ -236,10 +233,10 @@ function MissionList({ missions }) {
 						isMulti
 						classNamePrefix="select-input"
 						name=""
+						styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
 						value={filterTags}
 						onChange={(e) => {
 							setFilterTags(e);
-						
 
 							setTagFilter(() => (x) => {
 								let hasMatch = true;
@@ -268,13 +265,13 @@ function MissionList({ missions }) {
 										setDenseMode(val);
 									}}
 									className={`${
-										denseMode ? "bg-blue-600" : "bg-gray-200"
-									} relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+										denseMode ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+									}  switch-standard`}
 								>
 									<span
 										className={`${
 											denseMode ? "translate-x-6" : "translate-x-1"
-										} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+										} inline-block w-4 h-4 transform bg-white  rounded-full transition-transform`}
 									/>
 								</Switch>
 							</div>
@@ -297,8 +294,8 @@ function MissionList({ missions }) {
 										checked={onlyPending}
 										onChange={setOnlyPending}
 										className={`${
-											onlyPending ? "bg-blue-600" : "bg-gray-200"
-										} relative inline-flex items-center toggle-sm h-6 rounded-full w-11 flex-grow transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
+											onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+										}  switch-standard`}
 									>
 										<span
 											className={`${
@@ -344,17 +341,18 @@ function MissionList({ missions }) {
 								</Disclosure>
 							</div>
 
-							<div className="flex flex-row justify-between">
+							<div className="flex flex-row justify-between mb-3 dark:text-gray-200">
 								<div>Found {missionsFiltred.length} missions.</div>
 								<div>
 									You can open missions in a new tab by using{" "}
-									<kbd className="kbd kbd-xs">CTRL</kbd>+
-									<kbd className="kbd kbd-xs">CLICK</kbd>{" "}
+									<kbd className="text-black kbd kbd-xs">CTRL</kbd>+
+									<kbd className="text-black kbd kbd-xs">CLICK</kbd>{" "}
 								</div>
 							</div>
 							<div className="grid transition duration-500">
 								<DataTable
 									className="ease-in-out"
+									noDataComponent={null}
 									highlightOnHover={true}
 									pointerOnHover={true}
 									responsive={true}
@@ -427,7 +425,12 @@ export async function getServerSideProps() {
 		])
 		.toArray();
 	missions.map((mission) => {
-		mission["uploadDate"] = mission["uploadDate"]?.getTime();
+		try{
+			mission["uploadDate"] = mission["uploadDate"]?.getTime();
+		}catch(e){
+			console.log(e)
+		}
+
 		mission["lastPlayed"] = mission["lastPlayed"]?.getTime();
 		if (!mission["terrainName"]) {
 			mission["terrainName"] = terrainsMap.find(

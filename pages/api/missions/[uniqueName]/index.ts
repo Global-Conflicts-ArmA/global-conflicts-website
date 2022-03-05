@@ -3,10 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import { remark } from "remark";
 import {
-	buildVersionStr,
 	fileNameMediaParse,
 	filterMediaFile,
-	missionsFolder,
 	oneMegabyteInBytes,
 	padZeros,
 } from "../../../../lib/missionsHelpers";

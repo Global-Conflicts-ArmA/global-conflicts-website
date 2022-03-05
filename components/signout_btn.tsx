@@ -4,7 +4,7 @@ export default function SignOutBtn() {
 	const { data: session } = useSession();
 
 	return (
-		<a href={`/user/`} className="btn btn-primary">
+		<a href={`/user/`} className="primary-btn">
 			View Profile
 		</a>
 	);

@@ -63,12 +63,12 @@ function MyMissions({ missions }) {
 			</Head>
 
 		 
-			<div className="flex flex-row justify-between">
+			<div className="flex flex-row justify-between mb-3 dark:text-gray-200">
 				<div>You have {missions.length} missions.</div>
 				<div>
 					You can open missions in a new tab by using{" "}
-					<kbd className="kbd kbd-xs">CTRL</kbd>+
-					<kbd className="kbd kbd-xs">CLICK</kbd>{" "}
+					<kbd className="text-black kbd kbd-xs">CTRL</kbd>+
+					<kbd className="text-black kbd kbd-xs">CLICK</kbd>{" "}
 				</div>
 			</div>
 			<DataTable
@@ -108,6 +108,7 @@ export async function getServerSideProps(context) {
 					updates: 0,
 					reports: 0,
 					reviews: 0,
+					media:0,
 				},
 			}
 		)

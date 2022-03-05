@@ -1,12 +1,11 @@
 import Head from "next/head";
-import Image from "next/image";
-import React, { useState } from "react";
-import Link from "next/link";
+
+import React from "react";
+
 import MyMongo from "../../../lib/mongodb";
-import { Params } from "next/dist/server/router";
+
 import moment from "moment";
-import { Tab } from "@headlessui/react";
-import EventCard from "../../../components/event_list_card";
+
 import DataTable from "react-data-table-component";
 import { CredentialLockLayout } from "../../../layouts/credential-lock-layout";
 import { getSession, useSession } from "next-auth/react";
@@ -62,7 +61,7 @@ export default function DashboardEventList({ events }) {
 			width: "90px",
 			compact: true,
 		},
-		 
+
 		{
 			name: "# of participants",
 			selector: (row) => row.numberOfParticipants,
@@ -120,9 +119,11 @@ export async function getServerSideProps(context) {
 		.toArray();
 
 	for (const event of events) {
-		const cantMakeItCount = await MyMongo.collection("users").find({
-			cantMakeIt: { $in: [{ eventId: event._id.toString() }] },
-		}).toArray();
+		const cantMakeItCount = await MyMongo.collection("users")
+			.find({
+				cantMakeIt: { $in: [{ eventId: event._id.toString() }] },
+			})
+			.toArray();
 
 		event["cantMakeItCount"] = cantMakeItCount.length;
 		delete event["_id"];

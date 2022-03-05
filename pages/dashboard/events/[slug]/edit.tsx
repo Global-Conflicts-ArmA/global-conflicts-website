@@ -10,7 +10,7 @@ import CreateSlotsModal from "../../../../components/modals/create_slots_modal";
 import EventDatePickerModal from "../../../../components/modals/event_datepicker_modal";
 import EventNavBarFactionItem from "../../../../components/event_navbar_faction_item";
 import { ISideNavItem } from "../../../../interfaces/navbar_item";
-import * as Showdown from "showdown";
+
 import "react-mde/lib/styles/css/react-mde-editor.css";
 import "react-mde/lib/styles/css/react-mde-toolbar.css";
 import "react-mde/lib/styles/css/react-mde-toolbar.css";
@@ -25,7 +25,7 @@ import { getSession, useSession } from "next-auth/react";
 import EventEditingCard from "../../../../components/event_editing_card";
 
 import MyMongo from "../../../../lib/mongodb";
-import { Params } from "next/dist/server/router";
+
 import CloseEventModal from "../../../../components/modals/close_event_modal";
 import { CredentialLockLayout } from "../../../../layouts/credential-lock-layout";
 import { CREDENTIAL } from "../../../../middleware/check_auth_perms";
@@ -45,8 +45,6 @@ export default function EditEvent({ event }) {
 	const { data: session } = useSession();
 
 	useEffect(() => {
- 
-		
 		const doNotShowFactionsTip = localStorage.getItem("doNotShowFactionsTip");
 		setShowFactionsTip(!doNotShowFactionsTip);
 		if (session?.user) {

@@ -11,7 +11,7 @@ import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import Select, { ActionMeta, OnChangeValue } from "react-select";
+import Select  from "react-select";
  
 import { generateMarkdown } from "../../lib/markdownToHtml";
 import { capitalize } from "../../lib/captlize";
@@ -181,7 +181,7 @@ export default function SubmitReviewReportModal({
 						<Dialog.Overlay className="fixed inset-0" />
 					</Transition.Child>
 
-					{/* This element is to trick the browser into centering the modal contents. */}
+			 
 					<span className="inline-block h-screen align-middle" aria-hidden="true">
 						&#8203;
 					</span>
@@ -194,10 +194,10 @@ export default function SubmitReviewReportModal({
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-110"
 					>
-						<div className="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+						<div className="max-w-lg modal-standard">
 							<Dialog.Title
 								as="h3"
-								className="mb-4 text-lg font-medium leading-6 text-gray-900"
+								className="mb-4 text-lg font-medium leading-6 "
 							>
 								{data?.title}
 							</Dialog.Title>
@@ -206,6 +206,7 @@ export default function SubmitReviewReportModal({
 								<Select
 									options={versions}
 									defaultValue={versions[0]}
+									classNamePrefix="select-input"
 									className="mb-5"
 									placeholder="Selected a version..."
 									blurInputOnSelect={true}
@@ -275,7 +276,7 @@ export default function SubmitReviewReportModal({
 							<div className="flex flex-row justify-between mt-6">
 								<button
 									type="button"
-									className="btn"
+									className="btn btn-sm"
 									onClick={() => {
 										onClose();
 									}}
@@ -296,7 +297,7 @@ export default function SubmitReviewReportModal({
 									)}
 									<button
 										type="button"
-										className="btn btn-primary"
+										className="primary-btn-sm "
 										disabled={!text}
 										onClick={() => {
 											submit();

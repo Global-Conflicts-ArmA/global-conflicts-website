@@ -1,16 +1,15 @@
 import Head from "next/head";
-import Image from "next/image";
-import React, { useState } from "react";
+
+import React from "react";
 import Link from "next/link";
 import MyMongo from "../../lib/mongodb";
 import { Params } from "next/dist/server/router";
-import moment from "moment";
+
 import { Tab } from "@headlessui/react";
 import EventCard from "../../components/event_list_card";
 
 const Completionist = () => <span>It has started!</span>;
 
- 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
@@ -39,15 +38,15 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
 
 				<div className="w-full px-2 py-16 sm:px-0">
 					<Tab.Group>
-						<Tab.List className="flex p-1 space-x-1 bg-blue-900/5 rounded-xl">
+						<Tab.List className="flex p-1 space-x-1 bg-blue-900/5 dark:bg-gray-800 rounded-xl">
 							<Tab
 								className={({ selected }) =>
 									classNames(
 										"transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg",
 
 										selected
-											? "bg-white text-blue-700 shadow"
-											: "  hover:bg-white/[0.12] text-gray-400 hover:text-blue-700"
+											? "bg-white dark:bg-gray-700 dark:text-white text-blue-700 shadow"
+											: "  hover:bg-white/[0.12] text-gray-400 hover:text-blue-700 dark:hover:text-white"
 									)
 								}
 							>
@@ -59,8 +58,8 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
 										"transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg",
 
 										selected
-											? "bg-white text-blue-700 shadow"
-											: "  hover:bg-white/[0.12] text-gray-400 hover:text-blue-700"
+											? "bg-white dark:bg-gray-700 dark:text-white text-blue-700 shadow"
+											: "  hover:bg-white/[0.12] text-gray-400 hover:text-blue-700 dark:hover:text-white"
 									)
 								}
 							>

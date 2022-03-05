@@ -166,9 +166,18 @@ aside {
 	border-top-right-radius: var(--rounded-btn, 0.5rem) !important;
 	border-bottom-left-radius: none !important;
 	border-bottom-right-radius: none !important;
+	@apply dark:bg-gray-700 !important;
+	margin-bottom: 1px;
 }
-.mde-text {
+
+.mde-header * {
 	border-radius: var(--rounded-btn, 0.5rem) !important;
+
+	@apply dark:text-gray-300 !important;
+}
+
+.mde-text {
+	border-radius: 0 0 var(--rounded-btn, 0.5rem) var(--rounded-btn, 0.5rem) !important;
 	outline: none !important;
 }
 
@@ -358,6 +367,9 @@ footer {
 .comma-list span:last-child::after {
 	content: "";
 }
+textarea {
+	@apply dark:bg-gray-700 dark:text-white !important;
+}
 textarea:focus {
 	box-shadow: 0 0 0 0px hsl(var(--b1)), 0 0 0 2px hsla(var(--bc) / 0.2) !important;
 }
@@ -391,8 +403,10 @@ pre::-webkit-scrollbar {
 }
 
 .grain-progress-bar > div > div {
-	filter: contrast(100%) brightness(100%);
-	background: linear-gradient(90deg, rgb(142 141 94), rgb(31 41 55));
+	@apply bg-blue-600    !important;
+}
+.grain-progress-bar > div {
+	@apply bg-gray-700 !important;
 }
 
 .missions-filters {
@@ -414,7 +428,7 @@ h2 {
 	width: 100%;
 }
 .file-drop.loading:hover {
-	cursor:not-allowed
+	cursor: not-allowed;
 }
 
 .file-drop > .file-drop-target {
@@ -459,7 +473,7 @@ h2 {
 	box-shadow: none;
 	z-index: 50;
 	opacity: 1;
- 
+
 	/* typography */
 	color: white;
 }
@@ -468,4 +482,110 @@ h2 {
 	/* turn stuff orange when we are dragging over the target */
 	color: #ff6e40;
 	box-shadow: 0 0 13px 3px #ff6e40;
+}
+
+.prose {
+	@apply dark:prose-headings:text-white dark:text-gray-200;
+}
+.prose strong {
+	@apply dark:text-white;
+}
+
+.prose a {
+	@apply dark:text-white;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not(.select-input__input) {
+	@apply dark:bg-gray-700 dark:text-white !important;
+}
+
+.select-input__input {
+	@apply dark:text-white !important;
+}
+
+input[type="radio"] {
+	@apply dark:bg-gray-600   !important;
+}
+
+.label-text {
+	@apply dark:text-gray-300 !important;
+}
+
+.select-input__control {
+	@apply dark:bg-gray-700 dark:border-none !important;
+}
+.select-input__input {
+	@apply dark:bg-transparent !important;
+}
+.select-input__placeholder {
+	@apply dark:text-gray-400 !important;
+}
+.select-input__indicator-separator {
+	@apply dark:bg-gray-700   !important;
+}
+.select-input__menu-list {
+	@apply dark:bg-gray-800   !important;
+}
+.select-input__option {
+	@apply dark:text-gray-300  !important;
+}
+.select-input__option--is-focused {
+	@apply dark:bg-gray-700 dark:text-gray-200  !important;
+}
+.select-input__option--is-selected {
+	@apply dark:bg-gray-900  dark:text-white   !important;
+}
+.select-input__single-value {
+	@apply dark:text-white  !important;
+}
+label {
+	@apply dark:text-gray-400;
+}
+.rdt_TableRow {
+	@apply dark:hover:border-gray-500 dark:hover:outline-gray-500 !important;
+}
+
+.rdt_TableRow:nth-child(even) {
+	@apply dark:bg-gray-800 dark:text-gray-400   !important;
+}
+.rdt_TableRow:nth-child(odd) {
+	@apply dark:bg-gray-700 dark:text-gray-300 !important;
+}
+.rdt_TableHeadRow {
+	@apply dark:bg-gray-800 dark:text-gray-400   !important;
+}
+.btn[disabled] {
+	@apply dark:text-gray-500 !important;
+}
+
+.dark\:btn-ghost[disabled] {
+	background-color: transparent !important;
+}
+
+.primary-btn {
+	@apply btn bg-primary hover:bg-primary-focus dark:bg-blue-700 dark:hover:bg-blue-900 border-none;
+}
+
+.primary-btn-sm {
+	@apply primary-btn btn-sm !important;
+}
+
+.modal-standard {
+	@apply inline-block w-full p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl dark:bg-gray-800 rounded-2xl dark:text-gray-200 !important;
+}
+
+hr {
+	@apply dark:border-gray-400;
+}
+
+.btn-outline-standard {
+	@apply dark:text-gray-200 btn-outline dark:hover:text-white hover:text-gray-700 dark:hover:bg-slate-800 hover:bg-gray-100 dark:hover:border-gray-300 hover:border-gray-800;
+}
+
+.switch-standard {
+	@apply inline-flex items-center h-6 rounded-full w-11 transition-colors;
+}
+
+.prose :where(ol > li):not(:where([class~="not-prose"] *))::marker {
+	@apply dark:text-white dark:font-bold;
 }

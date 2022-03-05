@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import React, {   useState } from "react";
 import ReactMde from "react-mde";
-import * as Showdown from "showdown";
+ 
 import "react-mde/lib/styles/css/react-mde-editor.css";
 import "react-mde/lib/styles/css/react-mde-toolbar.css";
 import "react-mde/lib/styles/css/react-mde-toolbar.css";
@@ -29,23 +29,14 @@ import {
 	timeOfDayOptions,
 	typeOptions,
 } from "../../lib/missionSelectOptions";
-import { remark } from "remark";
-import html from "remark-html";
+ 
 import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import { generateMarkdown } from "../../lib/markdownToHtml";
 import isFileImage from "../../lib/isImage";
-const converter = new Showdown.Converter({
-	tables: true,
-	simplifiedAutoLink: true,
-	strikethrough: true,
-	tasklists: true,
-});
+ 
 
 const editorHeight = 338;
-const toNumber = (value: string | number) => {
-	if (typeof value === "number") return value;
-	return parseInt(value.replace(/[^\d]+/g, ""));
-};
+ 
 
 function UploadMission() {
 	const isDesktopResolution = useMatchMedia("(min-width:1280px)", true);
@@ -333,22 +324,22 @@ function UploadMission() {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<div className="flex flex-col items-start justify-start my-5 alert">
+						<div className="flex flex-col items-start justify-start my-5 alert dark:bg-gray-800 dark:text-white">
 							<div className="mb-5">
 								<ExclamationIcon height={100} className="mr-10"></ExclamationIcon>
 								<label className="prose" style={{ maxWidth: "40rem" }}>
 									<h4>Insert only the actual name of the mission!</h4>
-									<p className="text-sm text-base-content text-opacity-60">
+									<p className="text-sm text-base-content dark:text-white text-opacity-60">
 										Insert the name of the mission as you would mention it, example:{" "}
 										<b>Operation Enduring Freedom</b>.<br /> No CO/TVT, no player number,
 										no version. Just the name. <br />
 										This is how the mission name will appear on the list on the website.
 									</p>
-									<p className="text-sm text-base-content text-opacity-60">
+									<p className="text-sm text-base-content dark:text-white text-opacity-60">
 										The version will be automatically incremented based on your future
 										updates of this mission. It starts at V1.
 									</p>
-									<p className="text-sm text-base-content text-opacity-60">
+									<p className="text-sm text-base-content dark:text-white text-opacity-60">
 										The .pbo file you must select must contian at least the map name:{" "}
 										<b>
 											op_enduring_freedom.<i>altis</i>.pbo
@@ -363,7 +354,7 @@ function UploadMission() {
 
 							<label>
 								<button
-									className="btn btn-outline"
+									className="text-white btn btn-outline-standard"
 									onClick={() => {
 										setShowMissionNameTip(false);
 										localStorage.setItem("doNotShowMissionNameTip", "true");
@@ -380,7 +371,7 @@ function UploadMission() {
 							<span className="label-text">Mission file</span>
 						</label>
 						<div className="flex space-x-2">
-							<label className="flex-1 text-xs leading-none break-all btn btn-lg btn-primary lg:text-lg">
+							<label className="flex-1 text-xs leading-none break-all btn btn-lg primary-btn lg:text-lg">
 								<input type="file" onChange={selectMissionFile} accept=".pbo" />
 								{missionFile ? missionFile.name : "Select your mission file"}
 							</label>
@@ -484,7 +475,7 @@ function UploadMission() {
 									(Optional)
 								</span>
 							</label>
-							<label className="ml-4 btn btn-primary btn-sm">
+							<label className="ml-4 btn primary-btn-sm">
 								<input
 									type="file"
 									onChange={displayMedia}
@@ -704,8 +695,8 @@ function UploadMission() {
 						<button
 							className={
 								isLoading
-									? "btn btn-lg btn-block btn-primary loading"
-									: "btn btn-primary btn-lg btn-block"
+									? "btn btn-lg btn-block primary-btn loading"
+									: "btn primary-btn btn-lg btn-block"
 							}
 							type="submit"
 							onClick={async () => {

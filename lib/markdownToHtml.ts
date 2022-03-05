@@ -1,11 +1,11 @@
 import rehypeFormat from "rehype-format";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
-import remark from "remark";
+ 
 import remarkGfm from "remark-gfm";
 import html from "remark-html";
 import remarkParse from "remark-parse";
-import prism from "remark-prism";
+ 
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import rehypeRaw from "rehype-raw";

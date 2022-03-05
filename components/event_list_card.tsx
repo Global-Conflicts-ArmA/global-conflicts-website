@@ -1,4 +1,4 @@
-import Head from "next/head";
+
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -108,7 +108,7 @@ export default function EventCard({
 					<div className="flex flex-row justify-between">
 						<div className="flex justify-between flex-1">
 							<div className="prose textshadow">
-								<h1>{event.name}</h1>
+								<h1 className="text-white">{event.name}</h1>
 							</div>
 
 							{(event.imageLink?.includes("webm") ||
@@ -137,17 +137,17 @@ export default function EventCard({
 					</div>
 
 					<div className="flex flex-row flex-wrap">
-						<p className="flex-1 flex-grow hidden prose md:text-sm md:block textshadow ">
+						<p className="flex-1 flex-grow hidden prose text-white md:text-sm md:block textshadow ">
 							{event.description}
 						</p>
 
 						<div className="flex flex-row flex-wrap items-end justify-start ml-auto ">
 							<div className="mr-10 text-white bg-transparent ">
-								<div className="font-bold text-gray-200">When (your timezone)</div>
+								<div className="font-bold text-white">When (your timezone)</div>
 								<div className="">{moment(event.when).format("lll")}</div>
 							</div>
 							<div className="hidden text-left text-white bg-transparent drop-shadow xs:block">
-								<div className="font-bold text-gray-200">Avaliable slots</div>
+								<div className="font-bold text-white">Avaliable slots</div>
 								<div className="">
 									{getCurrentSignUps()}/{event.slots}
 								</div>

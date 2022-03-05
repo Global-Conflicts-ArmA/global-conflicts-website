@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import multer from "multer";
-import fs from "fs";
+ 
 import MyMongo from "../../../lib/mongodb";
 import { ObjectId } from "bson";
 

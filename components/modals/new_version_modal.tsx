@@ -132,7 +132,7 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-110"
 					>
-						<div className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl ">
+						<div className="max-w-2xl modal-standard">
 							<div className="flex flex-row items-center justify-between">
 								<Dialog.Title
 									as="div"
@@ -140,14 +140,12 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 								>
 									Uploading new version
 								</Dialog.Title>
-
-								
 							</div>
 
 							<div className="pr-2 mt-2 overflow-y-auto" style={{ maxHeight: "75vh" }}>
 								<div className="flex flex-row items-baseline mb-5">
 									<div className="flex flex-col flex-auto flex-shrink">
-										<label className="flex-1 max-w-md mr-3 overflow-hidden text-xs leading-none text-ellipsis btn btn-md btn-primary lg:text-lg">
+										<label className="flex-1 max-w-md mr-3 overflow-hidden text-xs leading-none text-ellipsis btn btn-md primary-btn lg:text-lg dark:text-white">
 											<input type="file" onChange={selectMissionFile} accept=".pbo" />
 											{missionFile ? missionFile.name : "Select your mission file"}
 										</label>
@@ -225,8 +223,8 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 										disabled={!changelog || !missionFile || errorText}
 										className={
 											isLoading
-												? "btn btn-primary btn-sm loading"
-												: "btn btn-primary btn-sm"
+												? "primary-btn-sm  loading"
+												: "primary-btn-sm "
 										}
 										onClick={() => {
 											sendNewVersion();

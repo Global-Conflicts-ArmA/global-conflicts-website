@@ -1,6 +1,6 @@
 import Image from "next/image";
 import background from "../public/login-bg.jpg";
-import soldier1 from "../public/solider-1.png";
+import soldier1 from "../public/solider-1v6.png";
 import soldier2 from "../public/solider-2.webp";
 import discordLogo from "../public/discord.png";
 import c2 from "../public/c2.jpg";
@@ -82,8 +82,8 @@ function Home() {
 						<Image
 							src={background}
 							alt="Header Background"
-							layout="fill" // required
-							objectFit="cover" // change to suit your needs
+							layout="fill"
+							objectFit="cover"
 						/>
 					</div>
 
@@ -101,11 +101,14 @@ function Home() {
 
 					<div
 						className="flex home-bg2"
-						style={{ backgroundImage: `url("${weavy}")` }}
+						style={{
+							backgroundImage: `url("${weavy}")`,
+							backgroundColor: "transparent",
+						}}
 					>
 						<div className="z-10 w-full max-w-screen-lg mx-auto mt-24 xl:max-w-screen-xl">
 							<h1
-								className={`max-h-full mb-8 ${getMottoSizeMargin()} font-bold leading-none tracking-tight text-transparent whitespace-pre-wrap header-gradient h-fill-avaliable bg-clip-text bg-gradient-to-br from-gray-800 to-gray-900 font-heading  sm:mb-10`}
+								className={`max-h-full mb-8 ${getMottoSizeMargin()} font-bold leading-none tracking-tight text-transparent whitespace-pre-wrap header-gradient h-fill-avaliable bg-clip-text bg-gradient-to-br from-gray-800 to-gray-900 font-heading sm:mb-10 dark:text-white`}
 							>
 								{`Tactical Arma 3 gameplay\nwith no strings attached.`}
 							</h1>
@@ -116,7 +119,7 @@ function Home() {
 							<div style={{ marginTop: -60 }} className="hidden md:block">
 								<DecorativeCard width={300} height={450} image={c2}></DecorativeCard>
 							</div>
-							<div className="p-5 prose prose-xl md:prose-lg lg:prose-xl max-w-none md:max-w-3xl">
+							<div className="p-5 prose prose-xl md:prose-lg lg:prose-xl max-w-none md:max-w-3xl prose-colors">
 								<h1>Who we are</h1>
 								<p>
 									Global Conflicts is an Arma community formed by people from different
@@ -377,7 +380,7 @@ function WideCard(image, marginTop) {
 				height: "285px",
 				position: "relative",
 			}}
-			className="flex justify-self-center card shadow-strong"
+			className="flex justify-self-center card shadow-strong dark:shadow-lg"
 		>
 			<Image
 				alt="Mountains"

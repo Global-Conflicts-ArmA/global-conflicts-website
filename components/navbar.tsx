@@ -165,7 +165,7 @@ export default function NavBar() {
 															leaveFrom="transform opacity-100 scale-100"
 															leaveTo="transform opacity-0 scale-95"
 														>
-															<Menu.Items className="absolute right-0 z-20 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg w-28 ring-1 ring-black ring-opacity-5 focus:outline-none">
+															<Menu.Items className="absolute right-0 z-20 py-1 mt-2 origin-top-right bg-white rounded-md shadow-lg dark:bg-gray-700 w-28 ring-1 ring-black ring-opacity-5 focus:outline-none">
 																{item.submenus.map((submenu) => {
 																	return (
 																		<Menu.Item key={submenu.name}>
@@ -173,8 +173,8 @@ export default function NavBar() {
 																				<a
 																					href={submenu.href}
 																					className={classNames(
-																						submenu.current ? "bg-gray-100" : "",
-																						"block px-4 py-2 text-sm text-gray-700"
+																						submenu.current ? "bg-gray-100 dark:bg-gray-500" : "",
+																						"block px-4 py-2 text-sm text-gray-700 dark:text-white"
 																					)}
 																				>
 																					{submenu.name}

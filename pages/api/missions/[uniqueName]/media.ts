@@ -9,26 +9,10 @@ import validateUser, {
 
 import axios from "axios";
 
-import { oneMegabyteInBytes } from "../../../../lib/missionsHelpers";
-import FormData from "form-data";
-import multer from "multer";
-import { ImgurClient } from "imgur";
-import { createReadStream } from "fs";
-import parseMultipartForm from "../../../../lib/multipartfromparser";
-import { testImage } from "../../../../lib/testImage";
-import { postNewMedia } from "../../../../lib/discordPoster";
-import isImageURL from "image-url-validator";
 import hasCreds from "../../../../lib/credsChecker";
 import { ObjectId, ReturnDocument } from "mongodb";
-const imgurClient = new ImgurClient({ clientId: process.env.IMGUR_CLIENT_ID });
 
 const apiRoute = nextConnect({});
-
-const storage = multer.memoryStorage();
-const mediaUpload = multer({
-	storage: storage,
-	limits: { fileSize: oneMegabyteInBytes * 200 },
-});
 
 apiRoute.use((req, res, next) => validateUser(req, res, CREDENTIAL.ANY, next));
 

@@ -301,7 +301,7 @@ function EditMission({ mission }) {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<div className="flex flex-col items-start justify-start my-5 alert">
+						<div className="flex flex-col items-start justify-start my-5 alert dark:bg-gray-800 dark:text-white">
 							<div className="mb-5">
 								<ExclamationIcon height={100} className="mr-10"></ExclamationIcon>
 								<label className="prose" style={{ maxWidth: "40rem" }}>
@@ -440,7 +440,7 @@ function EditMission({ mission }) {
 									(Optional)
 								</span>
 							</label>
-							<label className="ml-4 btn btn-primary btn-sm">
+							<label className="ml-4 btn primary-btn-sm">
 								<input type="file" onChange={displayMedia} name={"image"} />
 								Select Image
 							</label>
@@ -656,8 +656,8 @@ function EditMission({ mission }) {
 						<button
 							className={
 								isLoading
-									? "btn btn-lg btn-block btn-primary loading"
-									: "btn btn-primary btn-lg btn-block"
+									? "btn btn-lg btn-block primary-btn loading"
+									: "btn primary-btn btn-lg btn-block"
 							}
 							type="submit"
 							onClick={async () => {

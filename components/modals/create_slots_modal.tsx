@@ -1,10 +1,6 @@
-import { Dialog, RadioGroup, Transition } from "@headlessui/react";
-import { CheckIcon, QuestionMarkCircleIcon } from "@heroicons/react/outline";
-import Link from "next/link";
-import React, { Fragment, useEffect, useRef, useState } from "react";
-import ReactMde from "react-mde";
-import useSWR from "swr";
-import fetcher from "../../lib/fetcher";
+import { Dialog, Transition } from "@headlessui/react";
+
+import React, { Fragment, useRef, useState } from "react";
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -90,7 +86,7 @@ export default function CreateSlotsModal({ isOpen, onClose }) {
 						leaveFrom="opacity-100 scale-100"
 						leaveTo="opacity-0 scale-110"
 					>
-						<div className="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl ">
+						<div className="max-w-2xl modal-standard">
 							<div className="flex flex-row items-center justify-between text-lg font-medium leading-6 text-gray-900">
 								<div>Slots</div>
 							</div>

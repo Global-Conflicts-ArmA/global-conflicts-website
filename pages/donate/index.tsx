@@ -1,10 +1,10 @@
-import axios, { Axios } from "axios";
-import { getSession, useSession } from "next-auth/react";
+import axios from "axios";
+
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { Line, Circle } from "rc-progress";
+
 import ProgressBar from "@ramonak/react-progress-bar";
 import gcSmallLogo from "../../public/logo-patch.webp";
 function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
@@ -47,15 +47,15 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 							<div className="flex-1 flex-grow mt-5 space-y-5 lg:ml-10 lg:mt-0">
 								{goalsToUse.map((goal) => {
 									return (
-										<div key={goal.id} >
-											<h2>{goal.description.replace("<br>", "")}</h2>
-											<div>
-												<span data-tip="🇨🇦" className="tooltip">
+										<div key={goal.id}>
+											<h2 className="dark:text-white">{goal.description.replace("<br>", "")}</h2>
+											<div className="dark:text-gray-200">
+												<span data-tip="🇨🇦" className="tooltip ">
 													{currentAmountString}&nbsp;
 												</span>
 												of
-												<span data-tip="🇨🇦" className="tooltip">
-												&nbsp;{goal.amountDollarsString}&nbsp;
+												<span data-tip="🇨🇦" className="tooltip ">
+													&nbsp;{goal.amountDollarsString}&nbsp;
 												</span>
 												per month
 											</div>
@@ -65,8 +65,7 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 												borderRadius={"10px"}
 												className="grain-progress-bar"
 												labelSize={".9em"}
-												
-												bgColor={"hsla(var(--a)/var(--tw-bg-opacity,1))"}
+												 
 												completed={goal.percentToUse}
 											/>
 										</div>
@@ -75,9 +74,11 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 							</div>
 						</div>
 						<div className="flex flex-col items-center mt-5 sm:flex-row sm:justify-end">
-							<div className="mr-5">By helping us you gain our sincere thank you.</div>
+							<div className="mr-5 dark:text-gray-200">By helping us you gain our sincere thank you.</div>
 							<Link href="https://www.patreon.com/globalconflicts">
-								<a className="btn btn-lg btn-block sm:btn-wide btn-primary">Become a patreon</a>
+								<a className="primary-btn">
+									Become a patreon
+								</a>
 							</Link>
 						</div>
 						<div>
@@ -102,7 +103,7 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 											</div>
 										</div>
 
-										<div className="text-lg font-bold ">
+										<div className="text-lg font-bold dark:text-gray-200 ">
 											{donator.nickname ?? donator.displayName}
 										</div>
 									</div>
@@ -151,7 +152,7 @@ export async function getServerSideProps(context) {
 			goal["amountDollarsString"] = dollarsString;
 			goal["amountDollarsNum"] = dollarsNum;
 
-			goal["percent"] = Math.round(((currentAmountNum / dollarsNum) * 100))
+			goal["percent"] = Math.round((currentAmountNum / dollarsNum) * 100);
 			goal["percentToUse"] = 0;
 			goal["description"] = goal.attributes.description;
 			delete goal["attributes"];

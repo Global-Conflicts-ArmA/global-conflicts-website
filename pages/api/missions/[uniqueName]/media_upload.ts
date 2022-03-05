@@ -16,7 +16,7 @@ import { createReadStream } from "fs";
 import parseMultipartForm from "../../../../lib/multipartfromparser";
 
 import { postNewMedia } from "../../../../lib/discordPoster";
-import isImageURL from "image-url-validator";
+ 
 import { ObjectId } from "mongodb";
 import { testImageNode } from "../../../../lib/testImage";
 const apiRoute = nextConnect({});

@@ -10,7 +10,7 @@ import CreateSlotsModal from "../../../components/modals/create_slots_modal";
 import EventDatePickerModal from "../../../components/modals/event_datepicker_modal";
 import EventNavBarFactionItem from "../../../components/event_navbar_faction_item";
 import { ISideNavItem } from "../../../interfaces/navbar_item";
-import * as Showdown from "showdown";
+
 import "react-mde/lib/styles/css/react-mde-editor.css";
 import "react-mde/lib/styles/css/react-mde-suggestions.css";
 import "react-mde/lib/styles/css/react-mde-toolbar.css";
@@ -97,13 +97,6 @@ function EventsDashboardPage() {
 	const [selectedNoteTab, setSelectedNoteTab] = React.useState<
 		"write" | "preview"
 	>("write");
-
-	const converter = new Showdown.Converter({
-		tables: true,
-		simplifiedAutoLink: true,
-		strikethrough: true,
-		tasklists: true,
-	});
 
 	const [newSectionTitle, setNewSectionTitle] = useState("");
 	const [newReservableSlottitle, setNewReservableSlottitle] = useState(null);

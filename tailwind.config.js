@@ -1,5 +1,6 @@
+const plugin = require("tailwindcss/plugin");
 module.exports = {
-	content: ["./components/**/*.tsx", "./pages/**/*.tsx", "./public/**/*.html"], 
+	content: ["./components/**/*.tsx", "./pages/**/*.tsx", "./public/**/*.html"],
 	theme: {
 		minWidth: {
 			0: "0",
@@ -18,7 +19,6 @@ module.exports = {
 		extend: {
 			maxWidth: {
 				"14rem": "14rem",
-		 
 			},
 			width: {
 				700: "700px",
@@ -58,6 +58,18 @@ module.exports = {
 		require("@tailwindcss/typography"),
 		require("daisyui"),
 		require("@tailwindcss/line-clamp"),
+		plugin(function ({ addComponents }) {
+			addComponents({
+				".btn-dark": {
+					backgroundColor: "#32579d",
+					color: "white",
+				},
+				".btn-dark:hover": {
+					backgroundColor: "#32579d",
+					color: "white",
+				},
+			});
+		}),
 	],
 	daisyui: {
 		styled: true,
