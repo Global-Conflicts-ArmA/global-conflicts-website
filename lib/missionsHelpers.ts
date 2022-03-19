@@ -100,7 +100,7 @@ export function fileNameParse(req, file, cb) {
 		file.originalname.lastIndexOf(".")
 	);
 	const safeName = makeSafeName(name);
-	const missionFileName = `${type}${maxPlayers}_${name}_V1.${mapClass}.pbo`;
+	const missionFileName = `${type}${maxPlayers}_${safeName}_V1.${mapClass}.pbo`;
 	req.missionFileName = missionFileName;
 	return cb(null, missionFileName);
 }

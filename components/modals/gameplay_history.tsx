@@ -272,7 +272,7 @@ export default function GameplayHistoryModal({
 								<Select
 									options={discordUsers}
 									classNamePrefix="select-input"
-									placeholder="Selected a leader..."
+									placeholder="Select a leader..."
 									blurInputOnSelect={true}
 									menuPortalTarget={_document}
 									styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
@@ -306,6 +306,8 @@ export default function GameplayHistoryModal({
 														{ value: "INDFOR", label: "INDFOR" },
 														{ value: "CIV", label: "CIV" },
 													]}
+													menuPortalTarget={_document}
+													styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
 													getOptionValue={(option) => option.value}
 													value={entry["side"]}
 													onChange={(val) => {
@@ -324,6 +326,8 @@ export default function GameplayHistoryModal({
 														{ value: "leader", label: "Leader" },
 														{ value: "took_command", label: "Took Command" },
 													]}
+													menuPortalTarget={_document}
+													styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
 													value={entry["role"]}
 													placeholder="Select"
 													getOptionLabel={(option) => option.label}

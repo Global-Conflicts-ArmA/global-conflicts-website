@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import nextConnect from "next-connect";
 import MyMongo from "../../../../lib/mongodb";
-
+import concat from "concat-stream";
 import validateUser, {
 	CREDENTIAL,
 } from "../../../../middleware/check_auth_perms";
@@ -16,13 +16,28 @@ import { createReadStream } from "fs";
 import parseMultipartForm from "../../../../lib/multipartfromparser";
 
 import { postNewMedia } from "../../../../lib/discordPoster";
- 
+
 import { ObjectId } from "mongodb";
 import { testImageNode } from "../../../../lib/testImage";
+import multer from "multer";
+import UploadcareStorage from "../../../../lib/multer-storage-uploadcare";
+ 
 const apiRoute = nextConnect({});
 
-//apiRoute.use(mediaUpload.array("files"));
-apiRoute.use(parseMultipartForm);
+// const storage = multer.memoryStorage();
+// apiRoute.use(multer({ storage: storage }).any());
+// //apiRoute.use(parseMultipartForm);
+
+apiRoute.use(
+	multer({
+		storage: UploadcareStorage({
+			public_key: process.env.NEXT_PUBLIC_UPLOADCARE_PUBLIC_KEY,
+			private_key: process.env.NEXT_PUBLIC_UPLOADCARE_SECRET_KEY,
+			store: 1, // 'auto' || 0 || 1
+		}),
+	}).any()
+);
+
 apiRoute.use((req, res, next) => validateUser(req, res, CREDENTIAL.ANY, next));
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
@@ -31,58 +46,16 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		const { uniqueName } = req.query;
 		let imgurLinks = [];
 		let files = [];
-		if (req["files"]["files"]) {
-			files = [].concat(req["files"]["files"]);
-		}
 
-		for (const file of files) {
-			let body = {};
-			body = {
-				image: file["buffer"],
-				type: "stream",
-			};
-			var data = new FormData();
-			data.append("image", createReadStream(file.filepath));
-
-			try {
-				const imgurResponse = await axios({
-					method: "POST",
-					url: `https://api.imgur.com/3/upload`,
-					maxContentLength: Infinity,
-					maxBodyLength: Infinity,
-					headers: {
-						Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`,
-						"content-type": "multipart/form-data",
-						...data.getHeaders(),
-					},
-					data: data,
-				});
-
-				const imgurType: string = imgurResponse.data["data"]["type"];
-				let linkToUse = "";
-				let type = "";
-				if (imgurType.includes("video")) {
-					linkToUse = `https://content.globalconflicts.net/imgur/${
-						imgurResponse.data["data"]["id"] + ".mp4"
-					}`;
-					type = "video";
-				} else {
-					const imgurId = imgurResponse.data["data"]["link"].substr(
-						imgurResponse.data["data"]["link"].lastIndexOf("/") + 1
-					);
-					linkToUse = `https://content.globalconflicts.net/imgur/${imgurId}`;
-					type = "image";
-				}
-				imgurLinks.push({
-					_id: new ObjectId(),
-					link: linkToUse,
-					type: type,
-					date: new Date(),
-					discord_id: session.user["discord_id"],
-				});
-			} catch (error) {
-				console.log(error);
-			}
+		for (const file of req["files"]) {
+			imgurLinks.push({
+				_id: new ObjectId(),
+				link: file.imgur_link,
+				cdnLink: `https://ucarecdn.com/${file.uploadcare_file_id}/${file.originalname}`,
+				type: file.mimetype,
+				date: new Date(),
+				discord_id: session.user["discord_id"],
+			});
 		}
 		let allLinks = [...imgurLinks];
 		if (req.body["directLinks"]) {

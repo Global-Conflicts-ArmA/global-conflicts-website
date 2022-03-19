@@ -1,5 +1,4 @@
 import DataTable, { Media } from "react-data-table-component";
-
 import MyMongo from "../../../lib/mongodb";
 import moment from "moment";
 import DownloadIcon from "../../../components/icons/download";
@@ -56,6 +55,7 @@ import { generateMarkdown } from "../../../lib/markdownToHtml";
 import SimpleTextViewModal from "../../../components/modals/simple_text_view_modal";
 import MediaUploadModal from "../../../components/modals/media_upload_modal";
 import ReactPlayer from "react-player";
+import { imageKitLoader } from "../../../lib/imagekitloader";
 
 export default function MissionDetails({
 	_mission,
@@ -530,6 +530,18 @@ export default function MissionDetails({
 				linkObj.discord_id == session?.user["discord_id"]
 			);
 		}
+		const imageKitLoaderd = ({ src, width, quality }) => {
+			if (src[0] === "/") src = src.slice(1);
+			const params = [`w-${width}`];
+			if (quality) {
+				params.push(`q-${quality}`);
+			}
+			const paramsString = params.join(",");
+			var urlEndpoint = "https://ik.imagekit.io/your_imagekit_id";
+			if (urlEndpoint[urlEndpoint.length - 1] === "/")
+				urlEndpoint = urlEndpoint.substring(0, urlEndpoint.length - 1);
+			return `${urlEndpoint}/${src}?tr=${paramsString}`;
+		};
 
 		return (
 			<div className="grid max-h-screen grid-cols-2 gap-0 overflow-auto">
@@ -574,7 +586,7 @@ export default function MissionDetails({
 									<div style={{ textShadow: "0px 0px 5px #000" }}>{linkObj.name}</div>
 								</div>
 							</div>
-							{linkObj.type == "video" ? (
+							{linkObj.type.includes("video") ? (
 								<ReactPlayer
 									playing={true}
 									muted={true}
@@ -591,7 +603,7 @@ export default function MissionDetails({
 									layout="fill"
 									objectFit="cover"
 									unoptimized={true}
-									src={linkObj.link}
+									src={linkObj.cdnLink ?? linkObj.link}
 									alt={"User uploaded image from this mission"}
 								/>
 							)}

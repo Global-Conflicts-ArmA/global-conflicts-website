@@ -14,6 +14,7 @@ module.exports = async (phase, { defaultConfig }) => {
 		pageExtensions: ["js", "jsx", "ts", "tsx"],
 		topLevelAwait: true,
 		images: {
+			 
 			formats: ["image/avif", "image/webp"],
 			domains: [
 				"source.unsplash.com",

@@ -29,7 +29,7 @@ export const tagsOptions = [
 ];
 
 export const typeOptions = [
-	{ value: "COOP", label: "COOP" },
+	{ value: "CO", label: "COOP" },
 	{ value: "TVT", label: "TVT" },
 	{ value: "COTVT", label: "COTVT" },
 	{ value: "LOL", label: "LOL" },

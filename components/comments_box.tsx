@@ -51,12 +51,12 @@ export default function CommentBox({
 								<div>
 									<div className="flex flex-row justify-between">
 										<div>
-											<div className="font-bold">{item.authorName}</div>
-											<div className="text-xs font-light">
+											<div className="font-bold dark:text-gray-50">{item.authorName}</div>
+											<div className="text-xs font-light dark:text-gray-100">
 												{moment(item.date).format("ll")}
 											</div>
 										</div>
-										<div className="flex flex-row">
+										<div className="flex flex-row dark:text-white">
 											{buildVersionString(item.version)}
 											{(hasCreds(session, CREDENTIAL.ADMIN) ||
 												session?.user["discord_id"] == item.authorID) && (
@@ -65,7 +65,7 @@ export default function CommentBox({
 														onClick={() => {
 															onEditClick(item);
 														}}
-														className="btn btn-outline btn-square btn-xs"
+														className="btn btn-outline btn-square btn-xs dark:text-white "
 													>
 														<EditIcon className={"w-4 h-4"}></EditIcon>
 													</button>
