@@ -51,7 +51,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			imgurLinks.push({
 				_id: new ObjectId(),
 				link: file.imgur_link,
-				cdnLink: `https://ucarecdn.com/${file.uploadcare_file_id}/${file.originalname}`,
+				cdnLink: `https://ucarecdn.com/${file.uploadcare_file_id}/${file.originalname.replaceAll(" ","_")}`,
 				type: file.mimetype,
 				date: new Date(),
 				discord_id: session.user["discord_id"],
