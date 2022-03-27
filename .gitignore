@@ -39,3 +39,9 @@ node_modules
 /public/eventCoverMedia
 /public/missions
 /public/missionsCoverMedia
+
+ 
+/client_oauth_token.json
+/global-conflicts-yt-key.json
+/global-conflicts-yt-oath2.json
+/global-conflicts-yt-oauth-token.json

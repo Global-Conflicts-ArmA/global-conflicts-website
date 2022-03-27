@@ -59,10 +59,16 @@ export async function postNewAAR(body) {
 	);
 }
 
-
 export async function postNewMedia(body) {
 	const botResponse = await axios.post(
 		`http://localhost:3001/missions/media_posted`,
+		body
+	);
+}
+
+export async function postNewYoutubeVideoToVerify(body) {
+	const botResponse = await axios.post(
+		`http://localhost:3001/missions/youtube_video_uploaded`,
 		body
 	);
 }

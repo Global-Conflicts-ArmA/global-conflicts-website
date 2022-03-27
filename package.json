@@ -11,6 +11,8 @@
     "@dnd-kit/core": "^4.0.1",
     "@dnd-kit/sortable": "^5.0.0",
     "@emotion/styled": "^11.8.1",
+    "@google-cloud/local-auth": "^1.0.1",
+    "@googleapis/youtube": "^4.2.0",
     "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.5",
     "@mapbox/rehype-prism": "^0.8.0",
@@ -35,6 +37,7 @@
     "formidable": "^2.0.1",
     "formik": "^2.2.9",
     "fs": "^0.0.1-security",
+    "googleapis": "^99.0.0",
     "imgur": "^2.1.4",
     "moment": "^2.29.1",
     "mongodb": "4.4.0",
@@ -86,7 +89,8 @@
     "swr": "^1.2.2",
     "tailwindcss": "^3.0.23",
     "tailwindcss-scrims": "^1.0.0",
-    "unified": "^10.1.0"
+    "unified": "^10.1.0",
+    "youtube-api": "^3.0.1"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.2",
