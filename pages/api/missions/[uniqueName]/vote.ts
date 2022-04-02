@@ -35,6 +35,24 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		});
 	}
 
+	const mission = await MyMongo.collection("missions").findOne({
+		uniqueName: uniqueName,
+	});
+	let hasLiveVersion = false;
+	// checks if it has a live version
+	for (const update of mission.updates) {
+		if (update.main) {
+			hasLiveVersion = true;
+			break;
+		}
+	}
+	if (!hasLiveVersion) {
+		return res.status(400).json({
+			error:
+				"Why are you trying to vote for a mission that is not on the main server?",
+		});
+	}
+
 	const result = await MyMongo.collection("missions").updateOne(
 		{ uniqueName: uniqueName },
 		{ $addToSet: { votes: session.user["discord_id"] } }

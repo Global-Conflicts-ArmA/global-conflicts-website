@@ -62,6 +62,7 @@ export default function MissionDetails({
 	discordUsers,
 	hasVoted,
 	missionTestingQuestions,
+	hasLiveVersion
 }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
 	let [newVersionModalOpen, setNewVersionModalOpen] = useState(false);
@@ -351,6 +352,12 @@ export default function MissionDetails({
 			toast.error("You must be logged in to vote!");
 			return;
 		}
+		if(!hasLiveVersion){
+			toast.error("Why are you trying to vote for a mission that is not on the main server?");
+			return;
+		}
+
+
 		setIsLoadingVote(true);
 		axios
 			.put(`/api/missions/${mission.uniqueName}/vote`)
@@ -1007,6 +1014,7 @@ export default function MissionDetails({
 							CREDENTIAL.ADMIN,
 							CREDENTIAL.GM,
 							CREDENTIAL.MEMBER,
+							CREDENTIAL.NEW_GUY,
 							CREDENTIAL.MISSION_MAKER,
 							CREDENTIAL.MISSION_REVIEWER,
 						]) && (
@@ -1502,6 +1510,15 @@ export async function getServerSideProps(context) {
 		discordUsers = botResponse.data;
 	}
 
+	let hasLiveVersion = false;
+	// checks if it has a live version
+	for (const update of mission.updates) {
+		if (update.main) {
+			hasLiveVersion = true;
+			break;
+		}
+	}
+
 	return {
 		props: {
 			_mission: mission,
@@ -1510,6 +1527,7 @@ export async function getServerSideProps(context) {
 				? mission.votes?.includes(session?.user["discord_id"])
 				: false,
 			missionTestingQuestions,
+			hasLiveVersion: hasLiveVersion,
 		},
 	};
 }
