@@ -4,6 +4,7 @@ import MyMongo from "../../../../lib/mongodb";
 import { getSession } from "next-auth/react";
 import { postFirstvoteForAMission } from "../../../../lib/discordPoster";
 import axios from "axios";
+import fs from "fs";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -38,10 +39,15 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const mission = await MyMongo.collection("missions").findOne({
 		uniqueName: uniqueName,
 	});
+
 	let hasLiveVersion = false;
 	// checks if it has a live version
 	for (const update of mission.updates) {
-		if (update.main) {
+		if (
+			fs.existsSync(
+				`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.fileName}`
+			)
+		) {
 			hasLiveVersion = true;
 			break;
 		}
