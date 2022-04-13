@@ -62,7 +62,7 @@ export default function MissionDetails({
 	discordUsers,
 	hasVoted,
 	missionTestingQuestions,
-	hasLiveVersion
+	hasLiveVersion,
 }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
 	let [newVersionModalOpen, setNewVersionModalOpen] = useState(false);
@@ -352,11 +352,12 @@ export default function MissionDetails({
 			toast.error("You must be logged in to vote!");
 			return;
 		}
-		if(!hasLiveVersion){
-			toast.error("Why are you trying to vote for a mission that is not on the main server?");
+		if (!hasLiveVersion) {
+			toast.error(
+				"Why are you trying to vote for a mission that is not on the main server?"
+			);
 			return;
 		}
-
 
 		setIsLoadingVote(true);
 		axios
@@ -537,18 +538,18 @@ export default function MissionDetails({
 				linkObj.discord_id == session?.user["discord_id"]
 			);
 		}
-		const imageKitLoaderd = ({ src, width, quality }) => {
-			if (src[0] === "/") src = src.slice(1);
-			const params = [`w-${width}`];
-			if (quality) {
-				params.push(`q-${quality}`);
+
+		function generateThumbnailLink(link: String): String | any {
+			if (link.includes("ucarecdn")) {
+				return (
+					link.substring(0, link.lastIndexOf("/")) +
+					"/-/resize/700x/-/format/webp" +
+					link.substring(link.lastIndexOf("/"))
+				);
+			} else {
+				return link;
 			}
-			const paramsString = params.join(",");
-			var urlEndpoint = "https://ik.imagekit.io/your_imagekit_id";
-			if (urlEndpoint[urlEndpoint.length - 1] === "/")
-				urlEndpoint = urlEndpoint.substring(0, urlEndpoint.length - 1);
-			return `${urlEndpoint}/${src}?tr=${paramsString}`;
-		};
+		}
 
 		return (
 			<div className="grid max-h-screen grid-cols-2 gap-0 overflow-auto">
@@ -604,15 +605,21 @@ export default function MissionDetails({
 									url={linkObj.link}
 								/>
 							) : (
-								<Image
-									className="custom-img "
-									quality="100"
-									layout="fill"
-									objectFit="cover"
-									unoptimized={true}
-									src={linkObj.cdnLink ?? linkObj.link}
-									alt={"User uploaded image from this mission"}
-								/>
+								<a
+									rel="noreferrer"
+									target="_blank"
+									href={linkObj.cdnLink ?? linkObj.link}
+								>
+									<Image
+										className="custom-img "
+										quality="100"
+										layout="fill"
+										objectFit="cover"
+										unoptimized={true}
+										src={generateThumbnailLink(linkObj.cdnLink ?? linkObj.link)}
+										alt={"User uploaded image from this mission"}
+									/>
+								</a>
 							)}
 						</div>
 					);

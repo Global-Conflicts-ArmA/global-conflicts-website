@@ -386,10 +386,19 @@ export async function getServerSideProps() {
 	);
 
 	const terrainsMap: MapItem[] = configs["allowed_terrains"];
-	
+	const terrains = terrainsMap.map(function (item) {
+		return RegExp(item.class.toLowerCase(), "i");
+	});
+
 	const missions = await MyMongo.collection("missions")
 		.aggregate([
-			{ $match: { terrain: { $in: terrainsMap.map((item)=>item.class) } } },
+			{
+				$match: {
+					terrain: {
+						$in: terrains,
+					},
+				},
+			},
 			{
 				$lookup: {
 					from: "users",
@@ -434,9 +443,10 @@ export async function getServerSideProps() {
 
 		mission["lastPlayed"] = mission["lastPlayed"]?.getTime();
 		if (!mission["terrainName"]) {
-			mission["terrainName"] = terrainsMap.find(
-				(item) => item.class.toLowerCase() == mission["terrain"].toLowerCase()
-			)?.display_name ?? "DELETED MAP";
+			mission["terrainName"] =
+				terrainsMap.find(
+					(item) => item.class.toLowerCase() == mission["terrain"].toLowerCase()
+				)?.display_name ?? "DELETED MAP";
 		}
 
 		mission["missionMaker"] =
