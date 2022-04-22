@@ -184,7 +184,7 @@ function TopVoted({ missions, maxVotes }) {
 						<br />
 						We will pick missions considering amount of votes and the player count.
 						<br />
-						New missions always take precedence, so you don&apos;t to vote for new
+						New missions always take precedence, so you don&apos;t need to vote for new
 						missions.
 						<br />
 					</p>

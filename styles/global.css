@@ -589,3 +589,9 @@ hr {
 .prose :where(ol > li):not(:where([class~="not-prose"] *))::marker {
 	@apply dark:text-white dark:font-bold;
 }
+.prose :where(ul>li):not(:where([class~=not-prose] *))::marker{
+	@apply dark:text-white dark:font-bold;
+}
+.kbd{
+	@apply dark:text-black dark:font-bold dark:bg-gray-200;
+}
