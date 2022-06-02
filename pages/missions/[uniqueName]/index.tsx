@@ -69,7 +69,9 @@ export default function MissionDetails({
 	let [simpleTextModalOPen, setSimpleTextModalOpen] = useState(false);
 	let [actionsModalData, setActionsModalData] = useState(null);
 	let [isLoadingVote, setIsLoadingVote] = useState(false);
+	let [isLoadingListing, setIsLoadingListing] = useState(false);
 	let [hasVotedLocal, setHasVoted] = useState(hasVoted);
+	let [isMissionUnlisted, setIsMissionUnlisted] = useState(_mission.isUnlisted);
 	let [mission, setMission] = useState(_mission);
 
 	let [commentModalOpen, setCommentModalIsOpen] = useState(false);
@@ -375,6 +377,53 @@ export default function MissionDetails({
 				setIsLoadingVote(false);
 			});
 	}
+
+	function unlistMission() {
+		setIsLoadingListing(true);
+		if (!session) {
+			toast.error("You must be logged!");
+			return;
+		}
+
+		axios
+			.post(`/api/missions/${mission.uniqueName}/unlist_mission`)
+			.then((response) => {
+				setIsMissionUnlisted(true);
+				toast.success("Mission unlisted");
+			})
+			.catch((error) => {
+				if (error.response.data && error.response.data.error) {
+					toast.error(error.response.data.error);
+				}
+			})
+			.finally(() => {
+				setIsLoadingListing(false);
+			});
+	}
+
+	function listMission() {
+		setIsLoadingListing(true);
+		if (!session) {
+			toast.error("You must be logged!");
+			return;
+		}
+
+		axios
+			.post(`/api/missions/${mission.uniqueName}/list_mission`)
+			.then((response) => {
+				setIsMissionUnlisted(false);
+				toast.success("Mission added to the list");
+			})
+			.catch((error) => {
+				if (error.response.data && error.response.data.error) {
+					toast.error(error.response.data.error);
+				}
+			})
+			.finally(() => {
+				setIsLoadingListing(false);
+			});
+	}
+
 	function retractVote(event) {
 		setIsLoadingVote(true);
 		axios
@@ -403,6 +452,20 @@ export default function MissionDetails({
 				return true;
 			}
 		}
+		return false;
+	}
+
+	function canUnlist() {
+		if (hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_REVIEWER])) {
+			return true;
+		}
+		if (
+			hasCreds(session, CREDENTIAL.MISSION_MAKER) &&
+			session.user["discord_id"] == mission.authorID
+		) {
+			return true;
+		}
+
 		return false;
 	}
 
@@ -716,7 +779,40 @@ export default function MissionDetails({
 									</Link>
 								</div>
 							)}
+
+							{canUnlist() && (
+								<div
+									data-tip={
+										isMissionUnlisted
+											? "Add your mission to the list"
+											: "Remove your mission from the list"
+									}
+									className={`z-10 tooltip tooltip-bottom
+									${isMissionUnlisted ? "tooltip-success" : "tooltip-error"}
+									`}
+								>
+									<button
+										className={`ml-5 text-white 555:
+										${isLoadingListing ? "loading" : ""}
+										${
+											isMissionUnlisted
+												? "bg-green-600 border-green-600 btn btn-sm hover:bg-green-900 hover:border-green-900"
+												: "bg-red-700 border-red-700 btn btn-sm hover:bg-red-900 hover:border-red-900"
+										}
+										`}
+										onClick={isMissionUnlisted ? listMission : unlistMission}
+									>
+										{isMissionUnlisted ? "LIST MISSION" : "UNLIST MISSION"}
+									</button>
+								</div>
+							)}
 						</div>
+
+						{isMissionUnlisted && (
+							<div className="mr-5 text-sm dark:text-gray-100">
+								This mission is unlisted
+							</div>
+						)}
 					</div>
 
 					<div className="flex flex-row md:space-x-10">

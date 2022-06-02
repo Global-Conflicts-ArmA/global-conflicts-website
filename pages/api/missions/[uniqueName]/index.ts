@@ -111,6 +111,58 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	res.status(200).json({ slug: uniqueName });
 });
 
+ 
+
+apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
+	const body = JSON.parse(req.body["missionJsonData"]);
+
+	const { uniqueName } = req.query;
+
+	const session = req["session"];
+
+	const description = body["description"];
+	const type = body["type"].value;
+	const era = body["era"].value;
+	const jip = body["jip"].value;
+	const tags = body["tags"];
+	const respawn = body["respawn"].value;
+	let maxPlayers = body["maxPlayers"];
+	let minPlayers = body["minPlayers"];
+	let timeOfDay = body["timeOfDay"].value;
+	maxPlayers = padZeros(maxPlayers);
+
+	const size = {
+		min: parseInt(minPlayers),
+		max: parseInt(maxPlayers),
+	};
+	const tagsArray = tags.map((item) => item.value);
+	const descriptionNoMarkdown = await remark().use(strip).process(description);
+
+	let updateBody = {
+		description: description,
+		descriptionNoMarkdown: descriptionNoMarkdown.value,
+		era: era,
+		jip: jip,
+		respawn: respawn,
+		size: size,
+		timeOfDay: timeOfDay,
+		type: type,
+		tags: tagsArray,
+	};
+	if (req["mediaName"]) {
+		updateBody["mediaFileName"] = req["mediaName"];
+	}
+
+	await MyMongo.collection("missions").updateOne(
+		{ uniqueName: uniqueName },
+		{
+			$set: updateBody,
+		}
+	);
+
+	res.status(200).json({ slug: uniqueName });
+});
+
 export const config = {
 	api: {
 		bodyParser: false, //  Disallow body parsing, consume as stream

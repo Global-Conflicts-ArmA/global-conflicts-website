@@ -11,8 +11,7 @@ import { useHotkeys } from "react-hotkeys-hook";
 import gcBanner from "../public/banner.png";
 import Link from "next/link";
 import Head from "next/head";
-import topography from "../public/topography.svg";
-import router, { useRouter } from "next/router";
+import  { useRouter } from "next/router";
 
 export default function MyApp({
 	Component,
@@ -40,12 +39,12 @@ export default function MyApp({
 
 				<meta
 					property="og:url"
-					content="https://gc-next-website.vercel.app/"
+					content="https://globalconflicts.net/"
 					key="og:url"
 				/>
 				<meta
 					property="twitter:url"
-					content="https://gc-next-website.vercel.app/"
+					content="https://globalconflicts.net/"
 					key="twitter:url"
 				/>
 

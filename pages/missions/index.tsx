@@ -81,6 +81,7 @@ const columns = [
 function MissionList({ missions }) {
 	const [denseMode, setDenseMode] = useState(false);
 	const [onlyPending, setOnlyPending] = useState(false);
+	const [showUnlistedMissions, setShowUnlistedMissions] = useState(false);
 
 	const [missionsFiltred, setMissionsFiltred] = useState([]);
 	const [filterTags, setFilterTags] = useState([]);
@@ -100,17 +101,22 @@ function MissionList({ missions }) {
 		setDenseMode(denseMode == "true");
 
 		function filterMissions() {
+			console.log("aaa");
 			const missionsFound = missions
 				.filter((mission) => {
-					if (onlyPending) {
-						for (const update of mission.updates) {
-							if (update?.testingAudit?.reviewState == "review_pending") {
-								return true;
-							}
-						}
+					if (!showUnlistedMissions && mission.isUnlisted) {
 						return false;
 					} else {
-						return true;
+						if (onlyPending) {
+							for (const update of mission.updates) {
+								if (update?.testingAudit?.reviewState == "review_pending") {
+									return true;
+								}
+							}
+							return false;
+						} else {
+							return true;
+						}
 					}
 				})
 				.filter(tagFilter)
@@ -131,6 +137,7 @@ function MissionList({ missions }) {
 		mapFilter,
 		missions,
 		onlyPending,
+		showUnlistedMissions,
 		statefilter,
 		typeFilter,
 	]);
@@ -232,7 +239,7 @@ function MissionList({ missions }) {
 					<Select
 						isMulti
 						classNamePrefix="select-input"
-						name=""
+						name="Tags"
 						styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
 						value={filterTags}
 						onChange={(e) => {
@@ -283,30 +290,59 @@ function MissionList({ missions }) {
 					CREDENTIAL.ADMIN,
 					CREDENTIAL.MISSION_REVIEWER,
 				]) && (
-					<div className="mt-3">
-						<Switch.Group>
-							<div className="flex items-center">
-								<Switch.Label className="w-full mr-4 text-sm">
-									Only missions pending audit
-								</Switch.Label>
-								<div>
-									<Switch
-										checked={onlyPending}
-										onChange={setOnlyPending}
-										className={`${
-											onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
-										}  switch-standard`}
-									>
-										<span
+					<>
+						<div className="mt-3">
+							<Switch.Group>
+								<div className="flex items-center">
+									<Switch.Label className="w-full mr-4 text-sm">
+										Only missions pending audit
+									</Switch.Label>
+									<div>
+										<Switch
+											checked={onlyPending}
+											onChange={setOnlyPending}
 											className={`${
-												onlyPending ? "translate-x-6" : "translate-x-1"
-											} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
-										/>
-									</Switch>
+												onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+											}  switch-standard`}
+										>
+											<span
+												className={`${
+													onlyPending ? "translate-x-6" : "translate-x-1"
+												} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+											/>
+										</Switch>
+									</div>
 								</div>
-							</div>
-						</Switch.Group>
-					</div>
+							</Switch.Group>
+						</div>
+
+						<div className="mt-3">
+							<Switch.Group>
+								<div className="flex items-center">
+									<Switch.Label className="w-full mr-4 text-sm">
+										Show unlisted missions
+									</Switch.Label>
+									<div>
+										<Switch
+											checked={showUnlistedMissions}
+											onChange={setShowUnlistedMissions}
+											className={`${
+												showUnlistedMissions
+													? "bg-blue-600"
+													: "bg-gray-200 dark:bg-gray-500"
+											}  switch-standard`}
+										>
+											<span
+												className={`${
+													showUnlistedMissions ? "translate-x-6" : "translate-x-1"
+												} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+											/>
+										</Switch>
+									</div>
+								</div>
+							</Switch.Group>
+						</div>
+					</>
 				)}
 			</>
 		);

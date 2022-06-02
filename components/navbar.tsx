@@ -53,10 +53,16 @@ export default function NavBar() {
 			current: router.pathname.includes("/events"),
 		},
 		{
+			name: "Media",
+			href: "/media",
+			current: router.pathname.includes("/media"),
+		},
+		{
 			name: "Downloads",
 			href: "/downloads",
 			current: router.pathname.includes("/downloads"),
 		},
+
 		{
 			name: "Donate",
 			href: "/donate",
@@ -67,16 +73,15 @@ export default function NavBar() {
 	function classNames(...classes) {
 		return classes.filter(Boolean).join(" ");
 	}
-	useEffect(() => {
-	}, [router.pathname]);
+	useEffect(() => {}, [router.pathname]);
 
 	return (
 		<Disclosure as="nav" className="bg-gray-800">
 			{({ open }) => (
 				<>
-					<div className="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8">
+					<div className="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8 ">
 						<div className="relative flex items-center justify-between h-16">
-							<div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
+							<div className="absolute inset-y-0 left-0 items-center hidden nav-bar-mobile-menu ">
 								{/* Mobile menu button*/}
 								<Disclosure.Button className="inline-flex items-center justify-center p-2 text-gray-400 rounded-md hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
 									<span className="sr-only">Open main menu</span>
@@ -87,13 +92,13 @@ export default function NavBar() {
 									)}
 								</Disclosure.Button>
 							</div>
-							<div className="flex items-center justify-start flex-1 pl-10 sm:pl-0 sm:justify-start">
+							<div className="flex items-center justify-start flex-1 sm:justify-start">
 								<div className="flex items-center flex-shrink-0">
-									<div className="hidden p-1 rounded-md lg:flex ">
+									<div className="hidden p-1 pl-10 rounded-md nav-bar-big-logo-alone ">
 										<Link href={"/"} passHref={true}>
 											<a className="flex ">
 												<Image
-													className="block w-auto h-8"
+													className="w-auto h-8 "
 													width="151"
 													height="50"
 													quality={100}
@@ -103,11 +108,11 @@ export default function NavBar() {
 											</a>
 										</Link>
 									</div>
-									<div className="hidden rounded-md sm:flex lg:hidden ">
+									<div className="hidden pl-0 rounded-md nav-bar-small-logo ">
 										<Link href={"/"} passHref={true}>
 											<a className="flex ">
 												<Image
-													className="block w-auto h-8"
+													className="w-auto h-8 "
 													width="50"
 													height="50"
 													quality={100}
@@ -117,11 +122,11 @@ export default function NavBar() {
 											</a>
 										</Link>
 									</div>
-									<div className="hidden rounded-md max-sm:flex ">
+									<div className="hidden pl-0 rounded-md nav-bar-big-logo ">
 										<Link href={"/"} passHref={true}>
 											<a className="flex ">
 												<Image
-													className="block w-auto h-8"
+													className="w-auto h-8 "
 													width="151"
 													height="50"
 													quality={100}
@@ -132,7 +137,7 @@ export default function NavBar() {
 										</Link>
 									</div>
 								</div>
-								<div className="hidden sm:block md:ml-6">
+								<div className="hidden nav-bar-normal-buttons md:ml-6">
 									<div className="flex space-x-0 md:space-x-2">
 										{navigation.map((item) => {
 											if (item.submenus != undefined) {
@@ -189,7 +194,10 @@ export default function NavBar() {
 												);
 											} else {
 												return (
-													<div key={item.name} className="px-0 py-2 md:px-3 min-w-70">
+													<div
+														key={item.name}
+														className="px-0 py-2 lg:px-3 md:px-0 min-w-70"
+													>
 														<a
 															href={item.href}
 															className={classNames(
@@ -214,10 +222,10 @@ export default function NavBar() {
 						</div>
 					</div>
 
-					<Disclosure.Panel className="sm:hidden">
+					<Disclosure.Panel className="navBarCollapse:hidden">
 						<div className="px-2 pt-2 pb-3 space-y-1">
 							{navigation.map((item) => (
-								<div key={item.name} >
+								<div key={item.name}>
 									{!item.hideAsMobile && (
 										<a
 											key={item.name}

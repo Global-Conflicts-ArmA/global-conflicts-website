@@ -586,12 +586,48 @@ hr {
 	@apply inline-flex items-center h-6 rounded-full w-11 transition-colors;
 }
 
-.prose :where(ol > li):not(:where([class~="not-prose"] *))::marker {
-	@apply dark:text-white dark:font-bold;
+.prose {
+	@apply dark:marker:text-white;
 }
-.prose :where(ul>li):not(:where([class~=not-prose] *))::marker{
-	@apply dark:text-white dark:font-bold;
-}
-.kbd{
+.kbd {
 	@apply dark:text-black dark:font-bold dark:bg-gray-200;
+}
+.media-home-item .discord-user {
+	opacity: 0;
+	transition: 0.2s;
+}
+
+.media-home-item:hover .discord-user {
+	opacity: 1;
+}
+
+@media (min-width: 679px) and (max-width: 859px) {
+	.nav-bar-small-logo {
+		display: flex;
+	}
+}
+
+@media (min-width: 0px) and (max-width: 678px) {
+	.nav-bar-big-logo-alone {
+		display: flex;
+	}
+}
+
+@media (max-width: 678px) {
+	.nav-bar-mobile-menu {
+		display: flex;
+	}
+}
+
+@media (min-width: 860px) {
+	.nav-bar-big-logo {
+		display: flex;
+	}
+}
+
+
+@media (min-width: 679px) {
+	.nav-bar-normal-buttons {
+		display: block;
+	}
 }

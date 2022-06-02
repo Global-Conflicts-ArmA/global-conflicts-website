@@ -94,7 +94,8 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 						file.name.indexOf(".") + 1,
 						file.name.lastIndexOf(".")
 					);
-					if (mapClass != mission.terrain) {
+
+					if (mapClass.toLowerCase() != mission.terrain.toLowerCase()) {
 						setErrorText("New versions must be on the same map!");
 					} else {
 						setErrorText(null);
@@ -221,11 +222,7 @@ export default function NewVersionModal({ isOpen, onClose, mission }) {
 									<button
 										type="button"
 										disabled={!changelog || !missionFile || errorText}
-										className={
-											isLoading
-												? "primary-btn-sm  loading"
-												: "primary-btn-sm "
-										}
+										className={isLoading ? "primary-btn-sm  loading" : "primary-btn-sm "}
 										onClick={() => {
 											sendNewVersion();
 										}}
