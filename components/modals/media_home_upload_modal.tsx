@@ -413,7 +413,9 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 												);
 											})}
 										</div>
-
+										<div>
+											Note: The content that you upload can take up to 30 seconds to appear in the gallery after upload.
+										</div>
 										<div className="flex flex-row justify-between mt-4">
 											<button
 												type="button"

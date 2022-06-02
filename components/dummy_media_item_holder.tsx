@@ -54,7 +54,7 @@ export default function DummyMediaItemHolder(item) {
 				</div>
 			</div>
 			{item.uniqueName && (
-				<div className="absolute bottom-0 left-0 z-10 flex flex-row items-center p-1 m-3 text-white rounded-full backdrop-blur-lg discord-user">
+				<div className="absolute left-0 z-10 flex flex-row items-center p-1 m-3 text-white rounded-full top-10 backdrop-blur-lg discord-user">
 					<a
 						rel="noreferrer"
 						target="_blank"
