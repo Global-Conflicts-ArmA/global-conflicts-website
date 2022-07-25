@@ -40,24 +40,24 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		uniqueName: uniqueName,
 	});
 
-	let hasLiveVersion = false;
-	// checks if it has a live version
-	for (const update of mission.updates) {
-		if (
-			fs.existsSync(
-				`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.fileName}`
-			)
-		) {
-			hasLiveVersion = true;
-			break;
-		}
-	}
-	if (!hasLiveVersion) {
-		return res.status(400).json({
-			error:
-				"Why are you trying to vote for a mission that is not on the main server?",
-		});
-	}
+	// let hasLiveVersion = false;
+	//  checks if it has a live version
+	// for (const update of mission.updates) {
+	// 	if (
+	// 		fs.existsSync(
+	// 			`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.fileName}`
+	// 		)
+	// 	) {
+	// 		hasLiveVersion = true;
+	// 		break;
+	// 	}
+	// }
+	// if (!hasLiveVersion) {
+	// 	return res.status(400).json({
+	// 		error:
+	// 			"Why are you trying to vote for a mission that is not on the main server?",
+	// 	});
+	// }
 
 	const result = await MyMongo.collection("missions").updateOne(
 		{ uniqueName: uniqueName },
