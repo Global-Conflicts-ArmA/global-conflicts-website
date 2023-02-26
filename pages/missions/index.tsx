@@ -249,7 +249,8 @@ function MissionList({ missions }) {
 								let hasMatch = true;
 								if (e.length > 0) {
 									if (x["tags"]) {
-										hasMatch = e.some((r) => x["tags"].includes(r.value));
+										
+										hasMatch = e.every((r) => x["tags"].includes(r.value));
 									}
 								}
 								return hasMatch;
