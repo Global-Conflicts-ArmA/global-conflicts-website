@@ -45,3 +45,4 @@ node_modules
 /global-conflicts-yt-key.json
 /global-conflicts-yt-oath2.json
 /global-conflicts-yt-oauth-token.json
+.yarn/*
