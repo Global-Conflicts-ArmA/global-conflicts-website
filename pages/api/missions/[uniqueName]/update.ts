@@ -12,10 +12,11 @@ import MyMongo from "../../../../lib/mongodb";
 
 import fs from "fs";
 import validateUser, {
-	CREDENTIAL,
+	CREDENTIAL, validateUserList,
 } from "../../../../middleware/check_auth_perms";
 import multer from "multer";
 import { ObjectId } from "bson";
+import { postDiscordMissionUpdate, postDiscordNewMission } from "../../../../lib/discordPoster";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -28,7 +29,12 @@ const apiRoute = nextConnect({
 });
 
 apiRoute.use((req, res, next) =>
-	validateUser(req, res, CREDENTIAL.MISSION_MAKER, next)
+	validateUserList(
+		req,
+		res,
+		[CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_MAKER, CREDENTIAL.ADMIN],
+		next
+	)
 );
 
 function getNextVersionName(isMajorVersion, version) {
@@ -138,7 +144,10 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const session = req["session"];
 	let query = {};
-	if (session.user.isAdmin) {
+
+
+
+	if (session.user.isAdmin || session.user["roles"].includes(CREDENTIAL.MISSION_REVIEWER)) {
 		query = {
 			uniqueName: uniqueName,
 		};
@@ -164,14 +173,31 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		fileName: missionFileName,
 	};
 
-	const updateResult = await MyMongo.collection("missions").updateOne(query, {
-		$set: {
-			lastVersion: nextVersion,
+	const updateResult = await MyMongo.collection<{}>("missions").findOneAndUpdate(
+		query,
+		{
+			$set: {
+				lastVersion: nextVersion,
+			},
+			$addToSet: { updates: update },
 		},
-		$addToSet: { updates: update },
-	});
+	);
 
-	if (updateResult.modifiedCount > 0) {
+
+	if (updateResult.ok) {
+
+		postDiscordMissionUpdate({
+			name: updateResult.value["name"],
+			uniqueName: updateResult.value["uniqueName"],
+			description: updateResult.value["description"],
+			updateAuthor: session.user["nickname"] ?? session.user["username"],
+			displayAvatarURL: session.user.image,
+			size: updateResult.value["size"],
+			type: updateResult.value["type"],
+			terrainName: updateResult.value["terrainName"],
+			tags: updateResult.value["tags"],
+		});
+
 		res.status(200).json(update);
 	} else {
 		res.status(500).json({
