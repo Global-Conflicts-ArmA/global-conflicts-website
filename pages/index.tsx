@@ -123,7 +123,7 @@ function Home() {
 								<h1>Who we are</h1>
 								<p>
 									Global Conflicts is an Arma community formed by people from different
-									countries with more than 11 years&apos; experience throughout the arma
+									countries with more than 11 years of experience throughout the arma
 									series. Teamwork, tactical play and good fun are our core values. We
 									achieve this by encouraging a culture of mutual improvement and
 									enthusiasm for authentic scenarios in our missions. While our missions
@@ -144,21 +144,21 @@ function Home() {
 									<h1>Gameplay</h1>
 									<p>
 										During each gaming session we play a number of missions, or as other
-										communities like to say, “operations”. These missions are made by
+										communities like to say, “operations”. These missions are all made by
 										members of our community.
 									</p>
 									<p>
 										Each mission is a handcrafted experience, with beginning and an end,
-										defined objectives, that are any length but usually last up to one
-										hour on average each. When a mission is selected, we ask for
-										volunteers to lead the mission — anyone can step up.
+										defined objectives, with varying lengths usually 45 minutes to an hour.
+										When a mission is selected, we ask for volunteers to lead the mission
+										— anyone can step up.
 									</p>
 									<p>
-										In-game we try to do things with using realistic procedures without
+										In-game we try to do things using realistic procedures without
 										sacrificing our sanity and fun. For example, we don&apos;t place
 										markers on the map to indicate enemy positions, we rely on
-										communication. We don&apos;t have 3D markers on friendlies, we rely on
-										situation awerenes and PID. But we do use the “mini-radar” that shows
+										communication. We don&apos;t have 3D markers over friendlies, we rely on
+										situational awareness and PID. But we do use the “mini-radar” that shows
 										your squad mates positions, if they are in your field of view.
 									</p>
 								</div>
@@ -256,7 +256,7 @@ function Home() {
 										a mature attitude. All we ask is that you follow our SOPs and make
 										friends, not enemies!
 									</p>
-									<p>No attendence requirments or mandatory trainings.</p>
+									<p>No attendence requirements or mandatory training.</p>
 								</div>
 								<div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300">
 									<h2>Sessions times</h2>
@@ -292,7 +292,7 @@ function Home() {
 										<br />
 										<small>
 											Note: Because we can&apos;t afford a digital signature, Windows will
-											warn you when you first run the program. You can ignore it.
+											warn you when you first run our launcher. You can ignore it.
 										</small>
 									</p>
 									<Link
@@ -304,9 +304,9 @@ function Home() {
 										</a>
 									</Link>
 									<p>
-										We have a robust in-house made customizable framework for making
-										missions. With it you can quickly produce high quality scenarios, in
-										quick time, without re-inventing the wheel.
+										We have a robust in-house customizable framework for making
+										missions. With it you can quickly produce high quality scenarios
+										without re-inventing common scripts (e.g. gear or a capture zone).
 									</p>
 									<Link href="/missions/top-voted" passHref={true}>
 										<a className="no-underline-important underline-important-hover">
@@ -317,7 +317,7 @@ function Home() {
 										An in-house solution to keep tabs on the hundreds of missions we have.
 										We can track mission testing status and how many times it has been
 										played. Besides that, it allows for members to vote for missions they
-										want to play on the sessions and also leave review notes for the
+										want to play during sessions and also leave reviews or bug reports for the
 										mission makers.
 									</p>
 									<Link href="https://aar.globalconflicts.net/" passHref={true}>
@@ -328,7 +328,7 @@ function Home() {
 									<p>
 										The AAR system allows us to see a replay of our missions and thus give
 										an opportunity to see what worked and what didn&apos;t. With this tool
-										we can quickly improve our tactics for future missions.
+										we can analyze and improve our tactics for future missions.
 									</p>
 								</div>
 							</div>
