@@ -23,7 +23,7 @@ function Downloads({}) {
 							<h2>Global Conflicts Laucher</h2>
 						</div>
 						<a
-							href="https://launcher.globalconflicts.net/download"
+							href="http://launcher.globalconflicts.net/download/GC_Launcher.zip"
 							download
 							className="my-5 text-white btn btn-xl btn-wide"
 						>
