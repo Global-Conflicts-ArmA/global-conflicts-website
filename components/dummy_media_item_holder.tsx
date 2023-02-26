@@ -18,6 +18,26 @@ function generateThumbnailLink(link: String): String | any {
 	}
 }
 
+const InViewComp = (item) => (
+	<InView>
+		{({ inView, ref, entry }) => (
+			<div ref={ref} className="w-full h-full" >
+				<ReactPlayer
+					playing={inView}
+					stopOnUnmount={true}
+					muted={true}
+					controls={true}
+					loop={true}
+					width={"100%"}
+					height={"100%"}
+					url={item.media.link}
+				/>
+			</div>
+		)}
+	</InView>
+
+);
+
 export default function DummyMediaItemHolder(item) {
 	let [isIntersecting, setIsIntersecting] = useState(false);
 
@@ -74,23 +94,7 @@ export default function DummyMediaItemHolder(item) {
 
 			{item.media.type.includes("video") ? (
 
-				<InView>
-					{({ inView, ref, entry }) => (
-						<div ref={ref} className="w-full h-full" >
-							<ReactPlayer
-								playing={inView}
-								stopOnUnmount={true}
-								muted={true}
-								controls={true}
-								loop={true}
-								width={"100%"}
-								height={"100%"}
-								url={item.media.link}
-							/>
-						</div>
-					)}
-				</InView>
-
+				InViewComp(item)
 
 			) : (
 				<a
