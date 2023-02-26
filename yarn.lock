@@ -825,16 +825,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@researchgate/react-intersection-observer@npm:^1.3.5":
-  version: 1.3.5
-  resolution: "@researchgate/react-intersection-observer@npm:1.3.5"
-  peerDependencies:
-    react: ^16.3.2
-    react-dom: ^16.3.2
-  checksum: b773ad4de12c58ffcb25ae2e5487dd0e2f5e0d944148695b9f90726cf9f847b757a1c7624586470ddb8eca2a9580fe9fd63edc2a9ee2cf0e4d6dad0c04eb81cd
-  languageName: node
-  linkType: hard
-
 "@rushstack/eslint-patch@npm:^1.0.8":
   version: 1.1.0
   resolution: "@rushstack/eslint-patch@npm:1.1.0"
@@ -7813,13 +7803,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "object-hash@npm:3.0.0"
-  checksum: 80b4904bb3857c52cc1bfd0b52c0352532ca12ed3b8a6ff06a90cd209dfda1b95cee059a7625eb9da29537027f68ac4619363491eedb2f5d3dddbba97494fd6c
-  languageName: node
-  linkType: hard
-
 "object-inspect@npm:^1.11.0, object-inspect@npm:^1.9.0":
   version: 1.11.0
   resolution: "object-inspect@npm:1.11.0"
@@ -9389,12 +9372,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-intersection-observer@npm:^9.2.0":
-  version: 9.2.0
-  resolution: "react-intersection-observer@npm:9.2.0"
+"react-intersection-observer@npm:^9.4.3":
+  version: 9.4.3
+  resolution: "react-intersection-observer@npm:9.4.3"
   peerDependencies:
-    react: ^15.0.0 || ^16.0.0 || ^17.0.0|| ^18.0.0
-  checksum: cab57ea88217d9697c9c3763fa9db3ac4cb31b8061f13990fedb8e732eac41f5ed196c6e31ba78181f1f60eaaa861aedcdb037d038338171703dea3e84c36868
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: ac31c6c76ce72019a1fb50fe6b53ef6429d98b9e9b937f92d16635ef8586392c7058bb61526a8fe6bea6ce36c006015fe2d8893bac43eda6157b9e6b17ad9b68
   languageName: node
   linkType: hard
 
@@ -11022,7 +11005,6 @@ __metadata:
     "@mapbox/rehype-prism": ^0.8.0
     "@next-auth/mongodb-adapter": 0.0.2-pr.193-1fc34f1e.284
     "@ramonak/react-progress-bar": ^4.4.0
-    "@researchgate/react-intersection-observer": ^1.3.5
     "@tailwindcss/aspect-ratio": ^0.4.0
     "@tailwindcss/forms": ^0.4.0
     "@tailwindcss/line-clamp": ^0.3.1
@@ -11054,7 +11036,6 @@ __metadata:
     next: ^12.1.0
     next-auth: 4.2.1
     next-connect: ^0.12.0
-    object-hash: ^3.0.0
     postcss: ^8.4.5
     postcss-preset-env: ^7.4.1
     prism: ^4.1.2
@@ -11068,7 +11049,7 @@ __metadata:
     react-dom: ^17.0.2
     react-file-drop: ^3.1.3
     react-hotkeys-hook: ^3.4.4
-    react-intersection-observer: ^9.2.0
+    react-intersection-observer: ^9.4.3
     react-loader-spinner: ^4.0.0
     react-mde: ^11.5.0
     react-number-format: ^4.9.1

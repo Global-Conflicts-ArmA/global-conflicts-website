@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
 import Image from "next/image";
 import Shimmer from "react-shimmer-effect";
-import Observer from "@researchgate/react-intersection-observer";
+import { InView } from 'react-intersection-observer';
+
 import { LinkIcon } from "@heroicons/react/outline";
 
 function generateThumbnailLink(link: String): String | any {
@@ -72,18 +73,25 @@ export default function DummyMediaItemHolder(item) {
 			)}
 
 			{item.media.type.includes("video") ? (
-				<Observer onChange={handleChange}>
-					<ReactPlayer
-						playing={isIntersecting}
-						stopOnUnmount={true}
-						muted={true}
-						controls={true}
-						loop={true}
-						width={"100%"}
-						height={"100%"}
-						url={item.media.link}
-					/>
-				</Observer>
+
+				<InView>
+					{({ inView, ref, entry }) => (
+						<div ref={ref} className="w-full h-full" >
+							<ReactPlayer
+								playing={inView}
+								stopOnUnmount={true}
+								muted={true}
+								controls={true}
+								loop={true}
+								width={"100%"}
+								height={"100%"}
+								url={item.media.link}
+							/>
+						</div>
+					)}
+				</InView>
+
+
 			) : (
 				<a
 					rel="noreferrer"
