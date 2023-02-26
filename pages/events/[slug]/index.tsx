@@ -1,5 +1,5 @@
 import Head from "next/head";
- 
+
 import Countdown from "react-countdown";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import MyMongo from "../../../lib/mongodb";
 import { Params } from "next/dist/server/router";
 
 import SlotSelectionModal from "../../../components/modals/slot_selection_modal";
-import axios from "axios";
+import axios, { Axios } from "axios";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import QuestionMarkCircleIcon from "@heroicons/react/outline/QuestionMarkCircleIcon";
@@ -29,7 +29,7 @@ import prism from "prismjs";
 require("prismjs/components/prism-sqf");
 
 import "prismjs/themes/prism-okaidia.css";
- 
+
 
 const Completionist = () => (
 	<div className="my-10 prose">
@@ -53,7 +53,7 @@ const renderer = ({ days, hours, minutes, seconds, completed }) => {
 				<div className="my-10 prose">
 					<h1>Starts in:</h1>
 				</div>
-				<div className="flex items-center grid-flow-col gap-5 mx-10 text-sm text-center auto-cols-max">
+				<div className="flex items-center prose grid-flow-col gap-5 mx-10 text-sm text-center auto-cols-max">
 					<div className="flex flex-col">
 						<span className="font-mono text-2xl countdown">
 							<span style={daysStyle}></span>
@@ -88,14 +88,12 @@ async function callReserveSlot(
 	event,
 	onSuccess,
 	onError,
-	slot?,
-	factionTitle?
+	eventMissionList
 ) {
 	axios
 		.post("/api/events/reserve", {
 			eventId: event._id,
-			slot: slot,
-			factionTitle: factionTitle,
+			eventMissionList
 		})
 		.then((response) => {
 			onSuccess();
@@ -135,6 +133,10 @@ async function callSignUp(event, onSuccess, onError, doSignup) {
 }
 
 export default function EventHome({ event }) {
+
+
+
+
 	const [currentContentPage, setCurrentContentPage] = useState(
 		event.contentPages[0]
 	);
@@ -146,9 +148,14 @@ export default function EventHome({ event }) {
 
 	let [isSignedUp, setIsSignedUp] = useState(false);
 	let [didSignUp, setDidSignUp] = useState(null);
-	let [reservedSlotName, setReservedSlotName] = useState(null);
-	let [reservedSlotFactionTitle, setReservedSlotFactionTitle] = useState(null);
+	let [hasReservedSlot, setHasReservedSlot] = useState(false);
+
 	let [cantMakeIt, setCantMakeIt] = useState(false);
+
+	const reloadSession = () => {
+		const event = new Event("visibilitychange");
+		document.dispatchEvent(event);
+	  };
 
 	const {
 		data: roster,
@@ -162,14 +169,18 @@ export default function EventHome({ event }) {
 		prism.highlightAll();
 	}, [currentContentPage]);
 
+
+
+
 	useEffect(() => {
 		if (session != null) {
 			if (session.user["eventsSignedUp"]) {
 				for (const eventSingedUp of session.user["eventsSignedUp"]) {
 					if (eventSingedUp["eventId"] == event._id) {
 						setIsSignedUp(true);
-						setReservedSlotName(eventSingedUp["reservedSlotName"]);
-						setReservedSlotFactionTitle(eventSingedUp["reservedSlotFactionTitle"]);
+
+						//user has reserved one or more slots
+						setHasReservedSlot(eventSingedUp.reservedSlots && eventSingedUp.reservedSlots.length > 0)
 						break;
 					}
 				}
@@ -184,11 +195,23 @@ export default function EventHome({ event }) {
 		}
 	}, [event, session]);
 
+
+
 	function hasReservableSlots() {
-		for (const faction of event.eventReservableSlotsInfo) {
-			return faction.slots?.length > 0;
+		var has = false;
+		if(!event.eventMissionList){
+			return false;
 		}
-		return false;
+		for (let index = 0; index < event.eventMissionList.length; index++) {
+			const mission = event.eventMissionList[index];
+			for (let index = 0; index < mission.factions.length; index++) {
+				const faction = mission.factions[index];
+				if (faction.slots.length >= 1) {
+					has = true;
+				}
+			}
+		}
+		return has;
 	}
 
 	function getPreviewImage(where: string) {
@@ -288,7 +311,7 @@ export default function EventHome({ event }) {
 							</div>
 						)}
 						{!event.closeReason && (
-							<Countdown date={new Date(event.when)}  renderer={renderer}></Countdown>
+							<Countdown date={new Date(event.when)} renderer={renderer}></Countdown>
 						)}
 					</div>
 				)}
@@ -300,9 +323,8 @@ export default function EventHome({ event }) {
 				></EventCard>
 
 				<div
-					className={`flex  my-5 ${
-						hasReservableSlots() ? "justify-between" : "justify-end"
-					}`}
+					className={`flex  my-5 ${hasReservableSlots() ? "justify-between" : "justify-end"
+						}`}
 				>
 					{hasReservableSlots() && (
 						<button
@@ -325,7 +347,7 @@ export default function EventHome({ event }) {
 				{!event.closeReason &&
 					(session?.user["roles"] ? (
 						isSignedUp ? (
-							reservedSlotName ? (
+							hasReservedSlot ? (
 								<div className="flex flex-1 space-x-2">
 									<button
 										className="flex-1 flex-grow btn btn-lg btn-primary"
@@ -334,21 +356,31 @@ export default function EventHome({ event }) {
 										}}
 									>
 										<div>
-											<div className="text-sm">Slot reserved: {reservedSlotName}</div>
-											<div className="text-xs">Click here to change</div>
+
+											<div className="text-xs">Click here to change your slots</div>
 										</div>
 									</button>
 									<button
 										onClick={async () => {
+
+
 											await callReserveSlot(
 												event,
+
 												() => {
 													mutadeRoster();
-													setReservedSlotName(null);
-													toast.success(`Retract from reserved slot`);
+													toast.success(`Retracted from reserved slots`);
+													reloadSession();
 												},
-												() => {}
+												() => {
+													mutadeRoster();
+													toast.error(`Failed to retract from reserved slots`);
+													reloadSession();
+												},
+
+												[]
 											);
+
 										}}
 										className="flex-1 btn btn-lg btn-warning"
 									>
@@ -358,9 +390,8 @@ export default function EventHome({ event }) {
 							) : (
 								<div className="flex flex-1 space-x-2">
 									<button
-										className={`flex-1 flex-grow btn btn-lg  ${
-											hasReservableSlots() ? "btn-primary" : "btn-disabled"
-										}`}
+										className={`flex-1 flex-grow btn btn-lg  ${hasReservableSlots() ? "btn-primary" : "btn-disabled"
+											}`}
 										onClick={() => {
 											if (hasReservableSlots()) {
 												setSlotsModalOpen(true);
@@ -380,8 +411,9 @@ export default function EventHome({ event }) {
 													setIsSignedUp(false);
 													toast.success(`You have retracted your sign up`);
 													setDidSignUp(false);
+													reloadSession();
 												},
-												() => {},
+												() => { },
 												false
 											);
 										}}
@@ -398,11 +430,11 @@ export default function EventHome({ event }) {
 										await callCantMakeIt(
 											event,
 											() => {
-												setReservedSlotName(null);
+												setHasReservedSlot(false);
 												setCantMakeIt(false);
 												toast.success(`Good! You can make it now!`);
 											},
-											() => {},
+											() => { },
 											false
 										);
 									}}
@@ -426,7 +458,7 @@ export default function EventHome({ event }) {
 												setIsSignedUp(true);
 												setDidSignUp(true);
 											},
-											() => {},
+											() => { },
 											true
 										);
 									}}
@@ -439,11 +471,11 @@ export default function EventHome({ event }) {
 										await callCantMakeIt(
 											event,
 											() => {
-												setReservedSlotName(null);
+												setHasReservedSlot(false);
 												setCantMakeIt(true);
 												toast.success(`Roger, you can't make it.`);
 											},
-											() => {},
+											() => { },
 											true
 										);
 									}}
@@ -505,24 +537,20 @@ export default function EventHome({ event }) {
 			<SlotSelectionModal
 				isOpen={slotsModalOpen}
 				event={event}
-				reservedSlotFactionTitle={reservedSlotFactionTitle}
-				reservedSlotName={reservedSlotName}
-				onReserve={async (slot, factionTitle) => {
+				onReserve={async (eventMissionList) => {
 					await callReserveSlot(
 						event,
 						() => {
 							mutadeRoster();
-							setReservedSlotName(slot.name);
-							setReservedSlotFactionTitle(factionTitle);
 							setSlotsModalOpen(false);
-							toast.success(`Slot "${slot.name}" Reserved`);
+							reloadSession();
 						},
 						() => {
-							setReservedSlotName(null);
-							setReservedSlotFactionTitle(null);
+							setHasReservedSlot(false);
+							reloadSession();
+
 						},
-						slot,
-						factionTitle
+						eventMissionList
 					);
 				}}
 				onClose={() => {
@@ -561,7 +589,21 @@ export async function getStaticProps({ params }: Params) {
 		);
 	}
 
-	await iterateContentPages(event.contentPages);
+	await iterateContentPages(event?.contentPages??[]);
+ 
+	if(event.eventMissionList){
+		event.eventMissionList.forEach(mission => {
+			mission._id = mission._id.toString();
+			mission.factions.forEach(faction => {
+				faction._id = faction._id.toString();
+				faction.slots.forEach(slot => {
+					slot._id = slot._id?.toString();
+				});
+			});
+		});
+	
+	}
+
 
 	return { props: { event: { ...event, _id: event["_id"].toString() } }, revalidate: 10, };
 }

@@ -147,7 +147,7 @@ export default function EventCard({
 								<div className="">{moment(event.when).format("lll")}</div>
 							</div>
 							<div className="hidden text-left text-white bg-transparent drop-shadow xs:block">
-								<div className="font-bold text-white">Avaliable slots</div>
+								<div className="font-bold text-white">Sign ups</div>
 								<div className="">
 									{getCurrentSignUps()}/{event.slots}
 								</div>

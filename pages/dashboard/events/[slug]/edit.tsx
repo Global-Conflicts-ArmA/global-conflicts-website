@@ -1,9 +1,9 @@
-import { Tab, Transition } from "@headlessui/react";
-import { ExclamationIcon, TrashIcon } from "@heroicons/react/outline";
+import { Listbox, Tab, Transition } from "@headlessui/react";
+import { CheckIcon, ChevronDoubleDownIcon, ExclamationIcon, TrashIcon } from "@heroicons/react/outline";
 
 import Head from "next/head";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import ReactMde from "react-mde";
 
 import CreateSlotsModal from "../../../../components/modals/create_slots_modal";
@@ -34,6 +34,8 @@ import prism from "prismjs";
 require("prismjs/components/prism-sqf");
 
 import "prismjs/themes/prism-okaidia.css";
+import DeleteIcon from "../../../../components/icons/delete";
+import EventsSlotsCreation from "../../../../components/event_slots_creation";
 
 function classNames(...classes) {
 	return classes.filter(Boolean).join(" ");
@@ -54,9 +56,7 @@ export default function EditEvent({ event }) {
 	const [datePickerModalOpen, setDatePickerModalOpen] = useState(false);
 	const [closeModalOpen, setCloseModalOpen] = useState(false);
 	const [createSlotsModalOpen, setCreateSlotsModalOpen] = useState(false);
-
 	const [objectUrl, setObjectUrl] = useState(event.imageLink);
-
 	const [isVideo, setIsVideo] = useState(
 		event.imageLink?.includes("mp4") || event.imageLink?.includes("webm")
 	);
@@ -81,16 +81,7 @@ export default function EditEvent({ event }) {
 		event.contentPages
 	);
 
-	const [eventReservableSlotsInfo, setEventReservableSlotsInfo] = useState(
-		event.eventReservableSlotsInfo ?? [
-			{
-				title: "Default Faction",
-				slots: [],
-			},
-		]
-	);
-	const [eventCurrentReservableSlotInfo, setEventCurrentReservableSlotInfo] =
-		useState(eventReservableSlotsInfo[0]);
+
 
 	const [currentContentPage, setCurrentContentPage] = useState(
 		eventContentPages[0]
@@ -101,18 +92,6 @@ export default function EditEvent({ event }) {
 	>("write");
 
 	const [newSectionTitle, setNewSectionTitle] = useState("");
-	const [newReservableSlottitle, setNewReservableSlottitle] = useState("");
-
-	const validateSlotForm = (values) => {
-		const errors = {};
-		if (!values.reservedSlotName) {
-			errors["reservedSlotName"] = "Required";
-		}
-		if (!values.reservedSlotCount) {
-			errors["reservedSlotCount"] = "Required";
-		}
-		return errors;
-	};
 
 	const eventDataFormik = useFormik({
 		initialValues: {
@@ -133,7 +112,7 @@ export default function EditEvent({ event }) {
 
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
-				onUploadProgress: (event) => {},
+				onUploadProgress: (event) => { },
 			};
 
 			const formData = new FormData();
@@ -148,7 +127,7 @@ export default function EditEvent({ event }) {
 					eventOrganizer: values.eventOrganizer,
 					eventStartDate: values.eventStartDate,
 					eventContentPages,
-					eventReservableSlotsInfo,
+					eventMissionList,
 				})
 			);
 			formData.append("eventCoverMedia", values.eventCoverMedia);
@@ -169,35 +148,6 @@ export default function EditEvent({ event }) {
 		},
 	});
 
-	const newSlotFormik = useFormik({
-		initialValues: {
-			reservedSlotName: "",
-			reservedSlotDescription: "",
-			reservedSlotCount: "",
-		},
-		validate: validateSlotForm,
-		onSubmit: (values) => {
-			const found = eventCurrentReservableSlotInfo.slots.findIndex(
-				(rs) => rs.name == values.reservedSlotName
-			);
-			if (found != -1) {
-				toast.error("You already inserted a slot with this name.");
-				return;
-			}
-
-			eventCurrentReservableSlotInfo.slots = [
-				...eventCurrentReservableSlotInfo.slots,
-				{
-					name: values.reservedSlotName,
-					description: values.reservedSlotDescription,
-					count: values.reservedSlotCount,
-				},
-			];
-			setEventCurrentReservableSlotInfo(eventCurrentReservableSlotInfo);
-			//setReserevableSlots();
-			eventDataFormik.resetForm();
-		},
-	});
 
 	// a little function to help us with reordering the result
 	const reorder = (list, startIndex, endIndex) => {
@@ -207,20 +157,7 @@ export default function EditEvent({ event }) {
 
 		return result;
 	};
-	const onDragEnd = (result) => {
-		// dropped outside the list
-		if (!result.destination) {
-			return;
-		}
-		eventCurrentReservableSlotInfo.slots = reorder(
-			eventCurrentReservableSlotInfo.slots,
-			result.source.index,
-			result.destination.index
-		);
-
-		setEventCurrentReservableSlotInfo(eventCurrentReservableSlotInfo);
-	};
-
+ 
 	function validateFields(values) {
 		let errors = {};
 		if (values.eventName.trim().length < 4) {
@@ -286,6 +223,15 @@ export default function EditEvent({ event }) {
 		prism.highlightAll();
 	}, [currentContentPage]);
 
+	const [newReservableSlotName, setNewReservableSlotName] = useState(null);
+	const defaultMission = {
+		name: "Default Mission", factions: [{
+			name: "Default Faction",
+			slots: []
+		}]
+	};
+	const [eventMissionList, setEventMissionList] = useState(event.eventMissionList)
+	const [selectedMission, setSelectedMission] = useState(event.eventMissionList[0])
 	return (
 		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
@@ -443,7 +389,7 @@ export default function EditEvent({ event }) {
 					eventStartDate={eventDataFormik.values.eventStartDate}
 				></EventEditingCard>
 
-				<div className="mt-5 alert alert-info">
+				<div className="mt-5 alert alert-info bg-slate-600">
 					<div className="flex-1">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -453,9 +399,8 @@ export default function EditEvent({ event }) {
 						>
 							<ExclamationIcon></ExclamationIcon>
 						</svg>
-						<label>
-							The white lines are the safe area. The card will be of that height when
-							viewed in the event list.
+						<label className="prose max-w-none">
+							The white lines are the safe area. The card will be of that height when viewed in the event list.
 						</label>
 					</div>
 				</div>
@@ -694,227 +639,152 @@ export default function EditEvent({ event }) {
 											</label>
 										</div>
 									</Transition>
+									<div className="flex flex-row">
+										<aside className="flex flex-row space-x-2 px-4 ">
+											<div className="form-control flex-grow">
+												<input
+													placeholder="Add a new mission"
+													value={newReservableSlotName}
+													onChange={(e) => {
+														if (e.target.value) {
+															setNewReservableSlotName(e.target.value);
+														} else {
+															setNewReservableSlotName("");
+														}
+													}}
+													className="input input-bordered"
+												/>
+											</div>
+											<button
+												className="btn btn-primary"
+												onClick={() => {
+													if (newReservableSlotName) {
+
+														const newMisshun = {
+															name: newReservableSlotName, factions: [{
+																name: "Default Faction",
+																slots: []
+															}]
+														};
+														setSelectedMission(newMisshun);
+														setEventMissionList([...eventMissionList, newMisshun]);
+													}
+													setNewReservableSlotName("")
+												}}
+											>
+												<AddIcon></AddIcon>
+											</button>
+										</aside>
+										<div className="flex flex-1">
+											{eventMissionList.length > 1 ? (<div className="flex justify-items-stretch w-full space-x-2">
+												<div className="flex-1 flex-grow">
+													<Listbox value={selectedMission} onChange={(val) => {
+														console.log(val)
+														setSelectedMission({ ...val }
+														)
+													}}>
+														<div className="relative  z-10 h-full">
+															<Listbox.Button className="relative h-full w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+																<span className="block truncate">{selectedMission.name}</span>
+																<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+																	<ChevronDoubleDownIcon
+																		className="h-5 w-5 text-gray-400"
+																		aria-hidden="true"
+																	/>
+																</span>
+															</Listbox.Button>
+															<Transition
+																as={Fragment}
+																leave="transition ease-in duration-100"
+																leaveFrom="opacity-100"
+																leaveTo="opacity-0"
+															>
+																<Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+																	{eventMissionList.filter(item => item.name !== "Default Mission").map((person, personIdx) => (
+																		<Listbox.Option
+																			key={personIdx}
+																			className={({ active }) =>
+																				`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'bg-amber-100 text-amber-900' : 'text-gray-900'
+																				}`
+																			}
+																			value={person}
+																		>
+																			{({ selected }) => (
+																				<>
+																					<span
+																						className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}
+																					>
+																						{person.name}
+																					</span>
+																					{selected ? (
+																						<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+																							<CheckIcon className="h-5 w-5" aria-hidden="true" />
+																						</span>
+																					) : null}
+																				</>
+																			)}
+																		</Listbox.Option>
+																	))}
+																</Listbox.Options>
+															</Transition>
+														</div>
+													</Listbox>
+												</div>
+												<button
+													className="btn btn-primary"
+													onClick={() => {
+														const newList = eventMissionList.filter(item => item.name !== selectedMission.name);
+
+														setEventMissionList(eventMissionList.filter(item => item.name !== selectedMission.name));
+
+														if (newList.length > 0) {
+															setSelectedMission(newList[0]);
+														} else {
+															setSelectedMission(defaultMission);
+														}
+
+
+
+													}}
+												>
+													<DeleteIcon></DeleteIcon>
+												</button>
+											</div>) : (
+												<div className="p-0 text-center prose prose-xl   self-stretch md:prose-lg lg:prose-xl max-w-none md:max-w-3xl block m-auto">
+													The event has only one mission</div>)}
+										</div>
+
+
+									</div>
 
 									<div className="flex flex-row">
-										<aside className={"px-4 py-6 relative h-full overflow-y-auto "}>
-											<nav>
-												<div className="flex flex-row space-x-2">
-													<div className="form-control">
-														<input
-															placeholder="New faction name"
-															value={newReservableSlottitle}
-															onChange={(e) => {
-																if (e.target.value) {
-																	setNewReservableSlottitle(e.target.value);
-																}
-															}}
-															className="input input-bordered"
-														/>
-													</div>
+										<EventsSlotsCreation
+											key={JSON.stringify(selectedMission)}
+											currentMission={selectedMission}
+											onRemoveFaction={(reservableSlotsInfo) => {
+												eventMissionList.forEach(mission => {
+													if (mission.name == selectedMission.name) {
+														const newList = mission.factions.filter(
+															(e) => e.name !== reservableSlotsInfo.name
+														);
+														mission.factions = newList;
+														setSelectedMission({ ...mission });
+													}
+												});
+												setEventMissionList([...eventMissionList])
+											}}
+											onAddFaction={(newOne) => {
+												console.log("add Faction 2")
+												eventMissionList.forEach(mission => {
+													if (mission.name == selectedMission.name) {
+														const oldFactionsList = mission.factions || [];
+														mission.factions = [...oldFactionsList, newOne];
+														setSelectedMission({ ...mission })
+													}
+												});
+												setEventMissionList([...eventMissionList])
 
-													<button
-														className="btn btn-primary"
-														onClick={() => {
-															if (!newReservableSlottitle) {
-																return;
-															}
-															const factionTitle = newReservableSlottitle.trim();
-															if (factionTitle == "") {
-																return;
-															}
-															const newOne = {
-																title: factionTitle,
-																slots: [],
-															};
-															const index = eventReservableSlotsInfo.findIndex(
-																(item) => item.title == factionTitle
-															);
-
-															if (index == -1) {
-																setEventReservableSlotsInfo([
-																	...eventReservableSlotsInfo,
-																	newOne,
-																]);
-																setNewReservableSlottitle("");
-															} else {
-																toast.error("A page with this name already exists");
-															}
-														}}
-													>
-														<AddIcon></AddIcon>
-													</button>
-												</div>
-												{eventReservableSlotsInfo.map((reservableSlotsInfo) => (
-													<ul key={reservableSlotsInfo["title"]} className="">
-														<div className="flex flex-row items-center">
-															<EventNavBarFactionItem
-																item={reservableSlotsInfo}
-																isSelected={
-																	reservableSlotsInfo.title ==
-																	eventCurrentReservableSlotInfo?.title
-																}
-																onClick={(item) => {
-																	setEventCurrentReservableSlotInfo(item);
-																}}
-															></EventNavBarFactionItem>
-
-															{eventReservableSlotsInfo.length > 1 && (
-																<button
-																	className="btn btn-ghost"
-																	onClick={() => {
-																		const newList = eventReservableSlotsInfo.filter(
-																			(e) => e.title !== reservableSlotsInfo.title
-																		);
-
-																		setEventReservableSlotsInfo(newList);
-																		setEventCurrentReservableSlotInfo(newList[0]);
-																		//forceUpdate();
-																	}}
-																>
-																	<TrashIcon height={25}></TrashIcon>
-																</button>
-															)}
-														</div>
-													</ul>
-												))}
-											</nav>
-										</aside>
-										<main className="flex-grow">
-											<div>
-												<form onSubmit={newSlotFormik.handleSubmit}>
-													<div className="flex flex-row space-x-2">
-														<div className="flex-1 space-y-2">
-															<div className="form-control">
-																<label className="label">
-																	<span className="label-text">Slot name</span>
-																</label>
-																<input
-																	type="text"
-																	placeholder="Rifleman AT"
-																	name="reservedSlotName"
-																	onChange={newSlotFormik.handleChange}
-																	onBlur={newSlotFormik.handleBlur}
-																	value={newSlotFormik.values.reservedSlotName}
-																	className="input input-bordered"
-																/>
-
-																<span className="text-red-500 label-text-alt">
-																	{newSlotFormik.errors.reservedSlotName}
-																</span>
-															</div>
-
-															<div className="form-control">
-																<label className="label">
-																	<span className="label-text">Description (Optional)</span>
-																</label>
-																<input
-																	type="text"
-																	placeholder="Description"
-																	name="reservedSlotDescription"
-																	onChange={newSlotFormik.handleChange}
-																	onBlur={newSlotFormik.handleBlur}
-																	value={newSlotFormik.values.reservedSlotDescription}
-																	className="input input-bordered"
-																/>
-															</div>
-														</div>
-														<div className="flex flex-col justify-between space-y-2">
-															<div className="form-control">
-																<label className="label">
-																	<span className="label-text">Count</span>
-																</label>
-																<input
-																	placeholder="Count"
-																	name="reservedSlotCount"
-																	onBlur={newSlotFormik.handleBlur}
-																	onChange={(e) => {
-																		const re = /^[0-9\b]+$/;
-																		if (e.target.value === "" || re.test(e.target.value)) {
-																			newSlotFormik.handleChange(e);
-																		}
-																	}}
-																	value={newSlotFormik.values.reservedSlotCount}
-																	className="input input-bordered"
-																/>
-																<span className="text-red-500 label-text-alt">
-																	{newSlotFormik.errors.reservedSlotCount}
-																</span>
-															</div>
-															<button className="btn btn-block" type="submit">
-																Add
-															</button>
-														</div>
-													</div>
-												</form>
-
-												<DragDropContext onDragEnd={onDragEnd}>
-													<Droppable droppableId="droppable">
-														{(provided, dropSnapshot) => (
-															<div
-																{...provided.droppableProps}
-																ref={provided.innerRef}
-																className="p-2 space-y-5 "
-															>
-																{eventCurrentReservableSlotInfo?.slots?.map((item, index) => (
-																	<Draggable
-																		key={item.name}
-																		draggableId={item.name}
-																		index={index}
-																	>
-																		{(provided, snapshot) => (
-																			<div
-																				ref={provided.innerRef}
-																				{...provided.draggableProps}
-																				{...provided.dragHandleProps}
-																			>
-																				<div className="flex p-5 bg-white rounded-lg shadow-md outline-none py-4transition-all focus:outline-none">
-																					<div className="flex items-center justify-between w-full">
-																						<div className="flex items-center w-full">
-																							<div className="w-full text-sm">
-																								<div className="flex flex-row justify-between font-medium">
-																									<div className="h-10">{item.name}</div>
-																									<button
-																										className="btn btn-sm btn-ghost"
-																										onClick={() => {
-																											eventCurrentReservableSlotInfo.slots =
-																												eventCurrentReservableSlotInfo.slots.filter(
-																													(rs) => rs.name != item.name
-																												);
-
-																											setEventCurrentReservableSlotInfo(
-																												eventCurrentReservableSlotInfo
-																											);
-
-																											setEventReservableSlotsInfo([
-																												...eventReservableSlotsInfo,
-																											]);
-																										}}
-																									>
-																										<TrashIcon height={15}></TrashIcon>
-																									</button>
-																								</div>
-
-																								<div className="flex flex-row justify-between w-full">
-																									<div className="flex flex-1">{item.description}</div>
-																									<div>
-																										{item.count} {item.count > 1 ? "slots" : "slot"}
-																									</div>
-																								</div>
-																							</div>
-																						</div>
-																					</div>
-																				</div>
-																			</div>
-																		)}
-																	</Draggable>
-																))}
-																{provided.placeholder}
-															</div>
-														)}
-													</Droppable>
-												</DragDropContext>
-											</div>
-										</main>
+											}}></EventsSlotsCreation>
 									</div>
 								</div>
 							</Tab.Panel>
@@ -961,6 +831,19 @@ export async function getServerSideProps(context) {
 	const event = await MyMongo.collection("events").findOne({
 		slug: context.params.slug,
 	});
+
+
+	event.eventMissionList?.forEach(mission => {
+		mission._id = mission._id.toString();
+		mission.factions.forEach(faction => {
+			faction._id = faction._id.toString();
+			faction.slots.forEach(slot => {
+				slot._id = slot._id.toString();
+			});
+		});
+	});
+
+
 	return {
 		props: { event: { ...event, _id: event["_id"].toString() }, session },
 	};

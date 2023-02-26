@@ -115,9 +115,11 @@ export async function getServerSideProps({ params }: Params) {
 					$nin: ["CANCELED", "COMPLETED"],
 				},
 			},
-			{ projection: { _id: 0, tabs: 0 } }
+			{ projection: { _id: 0, tabs: 0, eventReservableSlotsInfo:0, eventMissionList:0 } }
 		)
 		.toArray();
+
+		 
 
 	return { props: { upcomingEvents: upcomingEvents, pastEvents: pastEvents } };
 }

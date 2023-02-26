@@ -88,7 +88,7 @@ export default function CreateSlotsModal({ isOpen, onClose }) {
 					>
 						<div className="max-w-2xl modal-standard">
 							<div className="flex flex-row items-center justify-between text-lg font-medium leading-6 text-gray-900">
-								<div>Slots</div>
+								<div>Sign ups</div>
 							</div>
 
 							<div

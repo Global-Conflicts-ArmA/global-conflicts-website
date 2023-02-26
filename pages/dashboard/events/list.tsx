@@ -40,8 +40,8 @@ export default function DashboardEventList({ events }) {
 				return row.closeReason
 					? row.closeReason.label
 					: moment(row.when) <= moment()
-					? "Happening now"
-					: "Upcoming";
+						? "Happening now"
+						: "Upcoming";
 			},
 			sortable: true,
 			compact: true,
@@ -127,7 +127,16 @@ export async function getServerSideProps(context) {
 
 		event["cantMakeItCount"] = cantMakeItCount.length;
 		delete event["_id"];
-	}
 
+		event.eventMissionList?.forEach(mission => {
+			mission._id = mission._id.toString();
+			mission.factions.forEach(faction => {
+				faction._id = faction._id.toString();
+				faction.slots.forEach(slot => {
+					slot._id = slot._id.toString();
+				});
+			});
+		});
+	}
 	return { props: { events, session } };
 }

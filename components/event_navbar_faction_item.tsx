@@ -9,6 +9,7 @@ export default function EventNavBarFactionItem({
 	onClick = null,
 	isSelected = false,
 }) {
+
 	return (
 		<div className="w-full">
 			<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
@@ -17,11 +18,11 @@ export default function EventNavBarFactionItem({
 						onClick={() => {
 							onClick(item);
 						}}
-						className={`p-4 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 break-all ${
+						className={`p-3 text-sm text-gray-500 transition-all hover:rounded-lg rounded-lg cursor-pointer hover:bg-gray-100 break-all ${
 							isSelected ? "font-bold" : ""
 						}`}
 					>
-						{isSelected ? "•" : ""} {item["title"]}
+						{isSelected ? "•" : ""} {item.name??item.title}
 					</div>
 				</div>
 			</div>

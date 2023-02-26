@@ -6,10 +6,6 @@ import "react-datepicker/dist/react-datepicker.css";
 import classNames from "../../lib/classnames";
 
 export default function EventRosterModal({ isOpen, onClose, roster }) {
-	function getFirstFaction(roster) {
-		return roster[Object.keys(roster)[0]];
-	}
-
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog
@@ -51,89 +47,43 @@ export default function EventRosterModal({ isOpen, onClose, roster }) {
 								Event Roster
 							</Dialog.Title>
 
-							<div>
-								{Object.keys(roster ?? {}).length > 1 && (
-									<Tab.Group>
-										<Tab.List className="flex p-1 mt-5 space-x-1 bg-blue-900/5 rounded-xl">
-											{Object.keys(roster).map((key) => {
-												return (
-													<Tab
-														key={key}
-														className={({ selected }) =>
-															classNames(
-																"transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg",
-																selected
-																	? "bg-white text-blue-700 shadow"
-																	: "  hover:bg-white/[0.12] text-gray-400 hover:text-blue-700"
-															)
-														}
-													>
-														{key}
-													</Tab>
-												);
-											})}
-										</Tab.List>
-										<Tab.Panels className="mt-2 ">
-											{Object.keys(roster).map((key, index) => {
-												return (
-													<Tab.Panel key={key + "_panel"}>
-														<div
-															className="mt-2 overflow-y-auto"
-															style={{ maxHeight: "75vh" }}
-														>
-															{roster[key].map((slot) => (
-																<div key={slot.name}>
-																	<div className="font-bold" key={slot.name}>
-																		{slot.name}
-																	</div>
-																	<div className="comma-list">
-																		{slot.players?.map((playerName) => (
-																			<span key={playerName}>{playerName}</span>
-																		))}
+							<div className="overflow-y-auto max-h-[50rem] pr-1">
 
-																		{(!slot.players ?? []) && (
-																			<div className="font-light">No takers yet!</div>
-																		)}
-																	</div>
-																</div>
-															))}
-														</div>
-													</Tab.Panel>
-												);
-											})}
-										</Tab.Panels>
-									</Tab.Group>
-								)}
-								{Object.keys(roster ?? {}).length == 1 && (
-									<>
-										{Object.keys(roster).map((key, index) => {
-											return (
-												<div
-													key={key + "_panel"}
-													className="mt-2 overflow-y-auto"
-													style={{ maxHeight: "75vh" }}
-												>
-													{roster[key].map((slot) => (
-														<div key={slot.name}>
-															<div className="font-bold" key={slot.name}>
-																{slot.name}
-															</div>
-															<div className="comma-list">
-																{slot.players?.map((playerName) => (
-																	<span key={playerName}>{playerName}</span>
-																))}
+								{roster?.map((mission, index) => {
+									return <div className="p-4 mb-2  border-2 rounded-lg bg-white dark:bg-gray-800 dark:drop-shadow-2xl dark:shadow-md  dark:border-slate-500/[0.1] border-slate-500/[0.2] drop-shadow-md">
+										{
+											roster.length > 1 ? <div className="flex flex-row justify-between">
+												<div className="text-3xl font-bold mb-2">{mission.name}:</div>
+												<h6 className="text-xs text-right">Mission #{index + 1}</h6>
+											</div> : <></>
 
-																{(!slot.players ?? []) && (
-																	<div className="font-light">No takers yet!</div>
-																)}
-															</div>
+										}
+										{mission.factions?.map(faction => {
+											return <div >
+												{mission.factions.length > 1 ? <div className="text-2xl font-bold mt-2">{faction.name}:</div>
+													: <></>}
+
+												{faction.slots?.map(slot => {
+													return <div className="flex flex-row flex-wrap">
+														<div className="mr-2  font-bold">{slot.name}: </div>
+														<div className="list-comma">
+															{slot.players?.map(player => {
+																return <span className="comma">{player}</span>
+															})}
+															{!slot.players ? <>No takers yet</> : <></>}
 														</div>
-													))}
-												</div>
-											);
+													</div>
+												})}
+											</div>
 										})}
-									</>
-								)}
+									</div>
+								})}
+
+
+
+
+
+
 							</div>
 							<div className="flex flex-row justify-between mt-4">
 								<button type="button" className="btn" onClick={onClose}>

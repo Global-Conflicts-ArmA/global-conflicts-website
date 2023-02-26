@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import multer from "multer";
- 
+
 import MyMongo from "../../../lib/mongodb";
 import { ObjectId } from "bson";
+import { oneMegabyteInBytes } from "../../../lib/missionsHelpers";
 
-const oneMegabyteInBytes = 10000000000000;
- 
+
 
 const upload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 2 },
@@ -47,7 +47,19 @@ const upload = multer({
 	},
 });
 
-const apiRoute = nextConnect({});
+
+
+
+const apiRoute = nextConnect({
+	onError(error, req: NextApiRequest, res: NextApiResponse) {
+		console.error(error);
+		res.status(501).json({ error: `${error.message}` });
+	},
+	onNoMatch(req, res: NextApiResponse) {
+		res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
+	},
+});
+
 
 apiRoute.use(
 	upload.fields([
@@ -57,7 +69,9 @@ apiRoute.use(
 );
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
-	const body = JSON.parse(req.body.eventJsonData);
+	console.log("AAAA");
+	const body = JSON.parse(req.body["eventJsonData"]);
+
 	let slug: string = body["eventName"]
 		.normalize("NFD")
 		.replaceAll(/[\u0300-\u036f]/g, "")
@@ -72,7 +86,16 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const socialFilename = slug + "." + fileSocialExt;
 
-
+	//add ObjectIds to the slots and factions
+	body["eventMissionList"].forEach(mission => {
+		mission._id = new ObjectId();
+		mission.factions.forEach(faction => {
+			faction._id = new ObjectId();
+			faction.slots.forEach(slot => {
+				slot._id = new ObjectId();
+			});
+		});
+	});
 	await MyMongo.collection("events").insertOne({
 		name: body["eventName"],
 		slots: body["eventSlotCount"],
@@ -80,7 +103,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		contentPages: body["eventContentPages"],
 		youtubeLink: body["youtubeLink"],
 		organizer: body["eventOrganizer"],
-		eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
+		eventMissionList: body["eventMissionList"],
 		when: Date.parse(body["eventStartDate"]),
 		imageLink: process.env.EVENT_MEDIA_URL_PATH + filename,
 		imageSocialLink: process.env.EVENT_MEDIA_SOCIAL_URL_PATH + socialFilename,
@@ -100,13 +123,23 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		.trim()
 		.toLowerCase();
 
+	body["eventMissionList"].forEach(mission => {
+		mission._id = new ObjectId();
+		mission.factions.forEach(faction => {
+			faction._id = new ObjectId();
+			faction.slots.forEach(slot => {
+				slot._id = new ObjectId();
+			});
+		});
+	});
+
 	let setData = {
 		name: body["eventName"],
 		slots: body["eventSlotCount"],
 		description: body["eventDescription"],
 		contentPages: body["eventContentPages"],
 		organizer: body["eventOrganizer"],
-		eventReservableSlotsInfo: body["eventReservableSlotsInfo"],
+		eventMissionList: body["eventMissionList"],
 		when: Date.parse(body["eventStartDate"]),
 		slug: slug,
 	};

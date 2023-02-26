@@ -14,8 +14,8 @@ export default async function handler(
 		return res.status(401).send("");
 	});
 
-	const slotName = req.body.slot?.name;
-	const factionTitle = req.body.factionTitle;
+	const eventMissionList = req.body.eventMissionList;
+
 	const eventId = req.body.eventId;
 	const eventObjectId = new ObjectId(eventId);
 
@@ -25,112 +25,65 @@ export default async function handler(
 	if (!eventFound) {
 		return res.status(400);
 	}
+	var factionTitle = "";
 
-	for (const faction of eventFound.eventReservableSlotsInfo) {
-		if (faction["title"] == factionTitle) {
-			for (const slot of faction["slots"]) {
-				if (slot["name"] == slotName) {
-					if (slot["amountReserved"] >= slot["count"]) {
-						return res.status(400).send("This slot is fully reserved.");
+
+	var userReservedSlots = [];
+
+	//check if there are slots avaliable
+	for (const mission of eventMissionList) {
+
+		//find mission
+		const dbMissionFound = eventFound.eventMissionList.filter((dbMission => dbMission._id.toString() == mission._id))[0]
+		//iterate the factions of the sent obj
+		for (const faction of mission.factions) {
+			//if there is a reserved slot:
+			if (mission.reservedSlot) {
+
+				//check remaining slots
+				const dbFactionFound = dbMissionFound.factions.filter((dbFaction => dbFaction._id.toString() == faction._id))[0]
+				const dbSlotFound = dbFactionFound.slots.filter((dbSlot => dbSlot._id.toString() == mission.reservedSlot._id))[0]
+				if (dbSlotFound) {
+					if ((dbSlotFound?.reserves?.length ?? 0) >= Number.parseInt(dbSlotFound["count"])) {
+						return res.status(400).send("A slot you want is fully reserved.");
 					}
+					userReservedSlots.push({
+						_id: dbSlotFound._id,
+						slotName: dbSlotFound.name,
+						factionName: dbFactionFound.name,
+						factionId: dbFactionFound._id,
+						missionName: dbMissionFound.name,
+						missionId: dbMissionFound._id,
+					})
 				}
+
 			}
 		}
 	}
+
+
 
 	let addResult: ModifyResult;
 	let pullResult: ModifyResult;
-	if (slotName) {
-		addResult = await MyMongo.collection("users").findOneAndUpdate(
-			{
-				discord_id: user["discord_id"],
-				"eventsSignedUp.eventId": eventObjectId,
-			},
-			{
-				$set: {
-					"eventsSignedUp.$.reservedSlotName": slotName,
-					"eventsSignedUp.$.reservedSlotFactionTitle": factionTitle,
-				},
-			},
-			{ returnDocument: ReturnDocument.BEFORE }
-		);
-		const addResultValue = addResult.value;
-		for (const event of addResultValue["eventsSignedUp"]) {
-			if (event["eventId"] == eventId) {
-				if (
-					event["reservedSlotFactionTitle"] != factionTitle ||
-					event["reservedSlotName"] != slotName
-				) {
-					//USER CHANGED SLOTS
 
-					MyMongo.collection("events").updateOne(
-						{
-							_id: eventObjectId,
-						},
-						{
-							$inc: {
-								"eventReservableSlotsInfo.$[outerCurrent].slots.$[innerCurrent].amountReserved":
-									-1,
-								"eventReservableSlotsInfo.$[outerNew].slots.$[innerNew].amountReserved": 1,
-							},
-						},
-						{
-							arrayFilters: [
-								{ "outerCurrent.title": event["reservedSlotFactionTitle"] },
-								{ "innerCurrent.name": event["reservedSlotName"] },
-								{ "outerNew.title": factionTitle },
-								{ "innerNew.name": slotName },
-							],
-						}
-					);
-				}
-			}
-		}
-	} else {
-		pullResult = await MyMongo.collection("users").findOneAndUpdate(
-			{
-				discord_id: user["discord_id"],
-				"eventsSignedUp.eventId": eventObjectId,
-			},
-			{
-				$unset: {
-					"eventsSignedUp.$.reservedSlotName": 1,
-					"eventsSignedUp.$.reservedSlotFactionTitle": 1,
-				},
-			},
-			{ returnDocument: ReturnDocument.BEFORE }
-		);
-		const pullResultValue = pullResult.value;
-	
-		if (pullResult.ok == 1) {
-			for (const event of pullResultValue.eventsSignedUp) {
-				if (event.eventId == eventId) {
-					MyMongo.collection("events").updateOne(
-						{
-							_id: eventObjectId,
-						},
-						{
-							$inc: {
-								"eventReservableSlotsInfo.$[outer].slots.$[inner].amountReserved": -1,
-							},
-						},
-						{
-							arrayFilters: [
-								{ "outer.title": event.reservedSlotFactionTitle },
-								{ "inner.name": event.reservedSlotName },
-							],
-						}
-					);
-				}
-			}
-		}
-	}
 
-	if (slotName ? addResult.ok > 0 : pullResult.ok > 0) {
-		return res.status(200).send("");
-	} else {
-		return res.status(400).send("");
-	}
+
+
+	addResult = await MyMongo.collection("users").findOneAndUpdate(
+		{
+			discord_id: user["discord_id"],
+			"eventsSignedUp.eventId": eventObjectId,
+		},
+		{
+			$set: {
+				"eventsSignedUp.$.reservedSlots": userReservedSlots
+			},
+		},
+
+	)
+
+
+	return res.status(200).send("");
 }
 
 // Run the middleware

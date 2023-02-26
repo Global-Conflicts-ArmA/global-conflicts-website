@@ -30,33 +30,50 @@ export default async function handler(
 		)
 		.toArray();
 
-	const roster = {};
-	eventFound.eventReservableSlotsInfo.forEach((faction) => {
-		roster[faction.title] = faction.slots;
-	});
+	const roster = eventFound.eventMissionList;
+	// eventFound.eventReservableSlotsInfo.forEach((faction) => {
+
+	// 	roster[faction.title] = faction.slots;
+	// });
 	for (const user of users) {
 		for (const signedUpEvent of user.eventsSignedUp) {
 			if (signedUpEvent.eventId.toString() == eventObjectId.toString()) {
-				if (roster[signedUpEvent.reservedSlotFactionTitle]) {
-					for (
-						let i = 0;
-						i < roster[signedUpEvent.reservedSlotFactionTitle].length;
-						i++
-					) {
-						if (
-							roster[signedUpEvent.reservedSlotFactionTitle][i].name ==
-							signedUpEvent.reservedSlotName
-						) {
-							if (roster[signedUpEvent.reservedSlotFactionTitle][i]["players"]) {
-								roster[signedUpEvent.reservedSlotFactionTitle][i]["players"].push(user.username ?? user.nickname);
-							} else {
-								roster[signedUpEvent.reservedSlotFactionTitle][i]["players"] = [
-									user.username ?? user.nickname,
-								];
+
+
+				roster.forEach(mission => {
+
+					mission.factions.forEach(faction => {
+						faction.slots.forEach(slot => {
+							console.log(signedUpEvent.reservedSlots)
+							const rsvrdSlotArr = signedUpEvent.reservedSlots?.filter(rsvrdSlot => rsvrdSlot._id.toString() == slot._id.toString())
+							if(rsvrdSlotArr?.length>0){
+								 
+								var arr = slot["players"] ?? [];
+								slot["players"] = [...arr, user.username ?? user.nickname]
 							}
-						}
-					}
-				}
+						});
+					});
+				});
+				// if (roster[signedUpEvent.reservedSlotFactionTitle]) {
+				// 	for (
+				// 		let i = 0;
+				// 		i < roster[signedUpEvent.reservedSlotFactionTitle].length;
+				// 		i++
+				// 	) {
+				// 		if (
+				// 			roster[signedUpEvent.reservedSlotFactionTitle][i].name ==
+				// 			signedUpEvent.reservedSlotName
+				// 		) {
+				// 			if (roster[signedUpEvent.reservedSlotFactionTitle][i]["players"]) {
+				// 				roster[signedUpEvent.reservedSlotFactionTitle][i]["players"].push(user.username ?? user.nickname);
+				// 			} else {
+				// 				roster[signedUpEvent.reservedSlotFactionTitle][i]["players"] = [
+				// 					user.username ?? user.nickname,
+				// 				];
+				// 			}
+				// 		}
+				// 	}
+				// }
 			}
 		}
 	}
