@@ -50,7 +50,7 @@ export default function EventRosterModal({ isOpen, onClose, roster }) {
 							<div className="overflow-y-auto max-h-[50rem] pr-1">
 
 								{roster?.map((mission, index) => {
-									return <div className="p-4 mb-2  border-2 rounded-lg bg-white dark:bg-gray-800 dark:drop-shadow-2xl dark:shadow-md  dark:border-slate-500/[0.1] border-slate-500/[0.2] drop-shadow-md">
+									return <div key={mission.name} className="p-4 mb-2  border-2 rounded-lg bg-white dark:bg-gray-800 dark:drop-shadow-2xl dark:shadow-md  dark:border-slate-500/[0.1] border-slate-500/[0.2] drop-shadow-md">
 										{
 											roster.length > 1 ? <div className="flex flex-row justify-between">
 												<div className="text-3xl font-bold mb-2">{mission.name}:</div>
@@ -59,16 +59,16 @@ export default function EventRosterModal({ isOpen, onClose, roster }) {
 
 										}
 										{mission.factions?.map(faction => {
-											return <div >
+											return <div key={faction.name}>
 												{mission.factions.length > 1 ? <div className="text-2xl font-bold mt-2">{faction.name}:</div>
 													: <></>}
 
 												{faction.slots?.map(slot => {
-													return <div className="flex flex-row flex-wrap">
+													return <div key={slot.name} className="flex flex-row flex-wrap">
 														<div className="mr-2  font-bold">{slot.name}: </div>
 														<div className="list-comma">
 															{slot.players?.map(player => {
-																return <span className="comma">{player}</span>
+																return <span key={player} className="comma">{player}</span>
 															})}
 															{!slot.players ? <>No takers yet</> : <></>}
 														</div>
