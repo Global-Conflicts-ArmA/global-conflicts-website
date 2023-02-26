@@ -12,6 +12,13 @@ export async function postDiscordNewMission(body) {
 	);
 }
 
+export async function postDiscordMissionUpdate(body) {
+	const botResponse = await axios.post(
+		`http://localhost:3001/missions/update`,
+		body
+	);
+}
+
 export async function postDiscordAuditRequest(body) {
 	const botResponse = await axios.post(
 		`http://localhost:3001/missions/request_audit`,
