@@ -504,17 +504,17 @@ export default function MissionDetails({
 	});
 	function getMedia() {
 		if (mediaError) {
-			return mission.media;
+			return mission.media.reverse();
 		}
 		if (media?.error) {
-			return mission.media;
+			return mission.media.reverse();
 		}
 
 		if (media) {
 			_mission.media = media;
 		}
 
-		return _mission.media;
+		return _mission.media.reverse();
 	}
 
 	function getLeaderString(leader) {
@@ -612,6 +612,7 @@ export default function MissionDetails({
 			} else {
 				return link;
 			}
+			 
 		}
 
 		return (
@@ -813,6 +814,7 @@ export default function MissionDetails({
 								This mission is unlisted
 							</div>
 						)}
+					{mission.votes?.length>0 && (<div className="prose">This mission has {mission.votes.length} vote{mission.votes.length>1 && "s" }</div>)} 
 					</div>
 
 					<div className="flex flex-row md:space-x-10">
@@ -1505,7 +1507,7 @@ export async function getServerSideProps(context) {
 		await Promise.all(
 			mission["reviews"].map(async (review): Promise<any> => {
 				var user = await MyMongo.collection("users").findOne(
-					{ _id: review["_id"] },
+					{ discord_id: review["authorID"] },
 					{ projection: { username: 1, nickname: 1, image: 1 } }
 				);
 
