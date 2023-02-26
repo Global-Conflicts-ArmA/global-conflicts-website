@@ -266,9 +266,9 @@ export default function SubmitReviewReportModal({
 											);
 										}}
 									/>
-									{text?.length > 300 && (
+									{text?.length > 800 && (
 										<span className="text-red-500 label-text-alt">
-											Max length: 300 characters
+											Max length: 800 characters
 										</span>
 									)}
 								</div>
