@@ -631,3 +631,12 @@ hr {
 		display: block;
 	}
 }
+ 
+ 
+ 
+.comma  + .comma:last-child::before {
+content: " and ";
+}
+.comma:nth-of-type(n + 2):not(:last-child)::before {
+content: ", ";
+}
