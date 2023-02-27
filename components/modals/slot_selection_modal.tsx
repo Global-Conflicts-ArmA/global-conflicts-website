@@ -10,17 +10,15 @@ export default function SlotSelectionModal({
 	onClose,
 	onReserve,
 	event,
+	roster
 }) {
 	let refDiv = useRef(null);
 
 
 	const [selectedMission, setSelectedMission] = useState(event.eventMissionList != null ? event.eventMissionList[0] : null)
-
 	const [workingEvent, setWorkingEvent] = useState(event)
 	const { data: session, status } = useSession();
 	useEffect(() => {
-
-
 		if (session != null) {
 			if (session.user["eventsSignedUp"]) {
 				for (const eventSingedUp of session.user["eventsSignedUp"]) {
@@ -51,23 +49,6 @@ export default function SlotSelectionModal({
 			}
 		}
 
-
-		// if (reservedSlotId) {
-		// 	for (const mission of event.eventMissionList) {
-		// 		for (const faction of mission.factions) {
-		// 			for (const slot of faction.slots) {
-		// 				if (slot._id == reservedSlotId) {
-		// 					// setSelectedSlot(slot);
-		// 				}
-
-		// 			}
-		// 		}
-
-		// 	}
-		// } else {
-		// 	setSelectedFactionId(null);
-		// 	setSelectedSlot(null);
-		// }
 	}, [
 		event.eventMissionList,
 		session
@@ -80,6 +61,13 @@ export default function SlotSelectionModal({
 			return "No reserved slot"
 		}
 		return mission.reservedFactionName + " > " + mission.reservedSlot.name;
+	}
+
+	function getSlottedCount(missionId, factionId, slotId) {
+		if (!roster) {
+			return 0;
+		};
+		return roster.filter(mission => mission._id == missionId)[0].factions.filter(faction => faction._id == factionId)[0].slots.filter(slot => slot._id == slotId)[0].players?.length
 	}
 
 	function hasOneReservedSlot() {
@@ -96,6 +84,21 @@ export default function SlotSelectionModal({
 	function getSelectedMission() {
 		return workingEvent.eventMissionList.filter((mission => { return mission._id == selectedMission._id }))[0]
 	}
+	function getRadioOptionClasses(checked, isFull) {
+		if (checked && isFull) {
+			return "bg-primary cursor-pointer"
+		}
+		if (isFull && !checked) {
+			return "dark:bg-gray-500 bg-gray-300 text-gray-500  dark:text-gray-300 cursor-not-allowed"
+		}
+		if (checked && !isFull) {
+			return "bg-primary cursor-pointer"
+		}
+		if (!checked && !isFull) {
+			return "dark:bg-gray-700 cursor-pointer" 
+		}
+	}
+
 
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
@@ -134,7 +137,7 @@ export default function SlotSelectionModal({
 						leaveTo="opacity-0 scale-110"
 					>
 						<div className="max-w-screen-lg modal-standard ">
-							<div className="overflow-y-auto" style={{maxHeight: "calc(100vh - 194px)"}}>
+							<div className="overflow-y-auto" style={{ maxHeight: "calc(100vh - 194px)" }}>
 								<Dialog.Title
 									as="h3"
 									className="mb-4 text-lg font-medium leading-6 prose text-gray-900"
@@ -219,7 +222,7 @@ export default function SlotSelectionModal({
 																	`transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg `,
 																	selected
 																		? "bg-primary text-white shadow"
-																		: "  hover:bg-primary/[0.5] text-gray-400 "
+																		: "  hover:bg-primary/[0.5] hover:text-white dark:text-gray-400 "
 																)
 															}
 														>
@@ -235,7 +238,7 @@ export default function SlotSelectionModal({
 														<Tab.Panel key={faction.title + "_panel"}>
 															<div
 																className="mt-2 "
-																
+
 															>
 																<RadioGroup
 																	value={getSelectedMission()?.reservedSlot}
@@ -258,15 +261,12 @@ export default function SlotSelectionModal({
 																		{faction.slots.map((slot) => (
 																			<RadioGroup.Option
 																				key={slot.name}
-																				disabled={slot.amountReserved >= parseInt(slot.count)}
+																				disabled={getSlottedCount(getSelectedMission()._id, faction._id, slot._id) >= parseInt(slot.count)}
 																				value={slot}
 																				className={({ active, checked }) =>
-																					`m-1 mt-5 mb transition-all outline-none ${slot.amountReserved >= parseInt(slot.count)
-																						? "bg-gray-50 text-gray-300 cursor-not-allowed"
-																						: ""
-																					}
-																				${checked || slot._id == getSelectedMission().reservedSlot?._id ? "bg-primary text-white " : "dark:bg-gray-700"}
-																					relative rounded-lg shadow-md px-5 py-4 cursor-pointer flex focus:outline-none`
+																					`m-1 mt-5 mb transition-all outline-none ${getRadioOptionClasses(checked, getSlottedCount(getSelectedMission()._id, faction._id, slot._id) >= parseInt(slot.count))}  
+																				${checked || slot._id == getSelectedMission().reservedSlot?._id ? "bg-primary text-white " : ""}
+																					relative rounded-lg shadow-md px-5 py-4  flex focus:outline-none`
 																				}
 																			>
 																				{({ active, checked }) => (
@@ -295,8 +295,8 @@ export default function SlotSelectionModal({
 																									<div className="flex flex-1">{slot.description}</div>
 																									<div>
 																										{checked
-																											? (slot.amountReserved ?? 0) + 1
-																											: slot.amountReserved ?? 0}
+																											? (getSlottedCount(getSelectedMission()._id, faction._id, slot._id) ?? 0) + 1
+																											: getSlottedCount(getSelectedMission()._id, faction._id, slot._id) ?? 0}
 																										/{slot.count}
 																									</div>
 																								</RadioGroup.Description>

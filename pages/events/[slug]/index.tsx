@@ -537,6 +537,7 @@ export default function EventHome({ event }) {
 			<SlotSelectionModal
 				isOpen={slotsModalOpen}
 				event={event}
+				roster={roster}
 				onReserve={async (eventMissionList) => {
 					await callReserveSlot(
 						event,
@@ -621,7 +622,7 @@ export async function getStaticPaths() {
 					name: 1,
 					slug: 1,
 				},
-			}
+}
 		)
 		.toArray();
 
@@ -635,3 +636,4 @@ export async function getStaticPaths() {
 	// on-demand if the path doesn't exist.
 	return { paths, fallback: "blocking", };
 }
+ 
