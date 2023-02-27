@@ -191,6 +191,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			uniqueName: updateResult.value["uniqueName"],
 			description: updateResult.value["description"],
 			updateAuthor: session.user["nickname"] ?? session.user["username"],
+			missionAuthor: updateResult.value["authorID"],
 			displayAvatarURL: session.user.image,
 			size: updateResult.value["size"],
 			type: updateResult.value["type"],
