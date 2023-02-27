@@ -165,6 +165,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	postDiscordNewMission({
 		name: name,
 		uniqueName: safeName,
+		mediaFileName: req["mediaName"],
 		description: description,
 		author: session.user["nickname"] ?? session.user["username"],
 		displayAvatarURL: session.user.image,
