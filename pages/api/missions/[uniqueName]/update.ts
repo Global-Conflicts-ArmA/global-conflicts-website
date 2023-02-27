@@ -16,7 +16,7 @@ import validateUser, {
 } from "../../../../middleware/check_auth_perms";
 import multer from "multer";
 import { ObjectId } from "bson";
-import { postDiscordMissionUpdate, postDiscordNewMission } from "../../../../lib/discordPoster";
+import { postDiscordMissionUpdate } from "../../../../lib/discordPoster";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
