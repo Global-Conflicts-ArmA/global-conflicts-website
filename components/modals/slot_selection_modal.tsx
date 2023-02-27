@@ -102,7 +102,7 @@ export default function SlotSelectionModal({
 			<Dialog
 				as="div"
 				initialFocus={refDiv}
-				className="fixed inset-0 z-10 "
+				className="fixed inset-0 z-10"
 				onClose={() => {
 
 					onClose();
@@ -134,212 +134,214 @@ export default function SlotSelectionModal({
 						leaveTo="opacity-0 scale-110"
 					>
 						<div className="max-w-screen-lg modal-standard ">
-							<Dialog.Title
-								as="h3"
-								className="mb-4 text-lg font-medium leading-6 prose text-gray-900"
-							>
-								Slots for <b>{event.name}</b>
-							</Dialog.Title>
+							<div className="overflow-y-auto" style={{maxHeight: "calc(100vh - 194px)"}}>
+								<Dialog.Title
+									as="h3"
+									className="mb-4 text-lg font-medium leading-6 prose text-gray-900"
+								>
+									Slots for <b>{event.name}</b>
+								</Dialog.Title>
 
-							{event?.eventMissionList?.length > 0 && (
-								<div>
+								{event?.eventMissionList?.length > 0 && (
+									<>
 
-									{event.eventMissionList.length > 1 ? <>
+										{event.eventMissionList.length > 1 ? <>
 
-										<p className="prose prose-lg mt-3">Missions:</p>
-										<Listbox value={selectedMission} onChange={(val) => {
-											console.log(val)
-											setSelectedMission({ ...val })
-										}}>
-											<div className="relative  z-10 h-full">
-												<Listbox.Button
+											<p className="prose prose-lg mt-3">Missions:</p>
+											<Listbox value={selectedMission} onChange={(val) => {
+												console.log(val)
+												setSelectedMission({ ...val })
+											}}>
+												<div className="relative  z-10 h-full">
+													<Listbox.Button
 
-													className="relative  h-full w-full cursor-default rounded-lg  dark:text-white dark:bg-gray-700  py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-													<span className="block truncate">{selectedMission.name}  <span className="text-xs italic">({getSelectedSlotNameForMission(getSelectedMission())})</span> </span>
-													<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-														<ChevronDoubleDownIcon
-															className="h-5 w-5 text-gray-400"
-															aria-hidden="true"
-														/>
-													</span>
-												</Listbox.Button>
-												<Transition
-													as={Fragment}
-													leave="transition ease-in duration-100"
-													leaveFrom="opacity-100"
-													leaveTo="opacity-0"
-												>
-													<Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white  dark:text-white dark:bg-gray-700 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-														{workingEvent.eventMissionList.filter(item => item.name !== "Default Mission").map((mission, personIdx) => (
-															<Listbox.Option
-																key={personIdx}
-																className={({ active }) =>
-																	`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'hover:bg-white/[0.12]' : 'dark:text-white'
-																	}`
-																}
-																value={mission}
-															>
-																{({ selected }) => (
-																	<>
-																		<div
-																			className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}
-																		>
-																			{mission.name} <span className="text-xs italic">({getSelectedSlotNameForMission(mission)})</span>
-																		</div>
-																		{selected ? (
-																			<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-																				<CheckIcon className="h-5 w-5" aria-hidden="true" />
-																			</span>
-																		) : null}
-																	</>
-																)}
-															</Listbox.Option>
-														))}
-													</Listbox.Options>
-												</Transition>
-											</div>
-										</Listbox>
-									</> : <></>}
-
-
-
-									<p className="prose prose-lg mt-5">Factions:</p>
-									<Tab.Group>
-										<Tab.List
-											className={`flex p-1 mt-0 space-x-1  rounded-xl ${selectedMission.factions.length == 1 ? "hidden" : "block"
-												}`}
-										>
-											{getSelectedMission().factions.map((faction) => {
-												return (
-													<Tab
-														key={faction.title}
-														className={({ selected }) =>
-															classNames(
-																`transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg `,
-																selected
-																	? "bg-primary text-white shadow"
-																	: "  hover:bg-primary/[0.5] text-gray-400 "
-															)
-														}
+														className="relative  h-full w-full cursor-default rounded-lg  dark:text-white dark:bg-gray-700  py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+														<span className="block truncate">{selectedMission.name}  <span className="text-xs italic">({getSelectedSlotNameForMission(getSelectedMission())})</span> </span>
+														<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+															<ChevronDoubleDownIcon
+																className="h-5 w-5 text-gray-400"
+																aria-hidden="true"
+															/>
+														</span>
+													</Listbox.Button>
+													<Transition
+														as={Fragment}
+														leave="transition ease-in duration-100"
+														leaveFrom="opacity-100"
+														leaveTo="opacity-0"
 													>
-														{faction.name}
-													</Tab>
-												);
-											})}
-										</Tab.List>
-										<Tab.Panels className="mt-2 ">
-											{getSelectedMission().factions.map((faction) => {
-
-												return (
-													<Tab.Panel key={faction.title + "_panel"}>
-														<div
-															className="mt-2 overflow-y-auto"
-															style={{ maxHeight: "75vh" }}
-														>
-															<RadioGroup
-																value={getSelectedMission()?.reservedSlot}
-																onChange={(val) => {
-																	for (const mission of workingEvent.eventMissionList) {
-																		if (mission._id == selectedMission._id) {
-																			mission.reservedSlot = val;
-																			mission.reservedFactionName = faction.name;
-																		}
+														<Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white  dark:text-white dark:bg-gray-700 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+															{workingEvent.eventMissionList.filter(item => item.name !== "Default Mission").map((mission, personIdx) => (
+																<Listbox.Option
+																	key={personIdx}
+																	className={({ active }) =>
+																		`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'hover:bg-white/[0.12]' : 'dark:text-white'
+																		}`
 																	}
-																	console.log(workingEvent)
-																	setWorkingEvent({ ...workingEvent })
+																	value={mission}
+																>
+																	{({ selected }) => (
+																		<>
+																			<div
+																				className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}
+																			>
+																				{mission.name} <span className="text-xs italic">({getSelectedSlotNameForMission(mission)})</span>
+																			</div>
+																			{selected ? (
+																				<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+																					<CheckIcon className="h-5 w-5" aria-hidden="true" />
+																				</span>
+																			) : null}
+																		</>
+																	)}
+																</Listbox.Option>
+															))}
+														</Listbox.Options>
+													</Transition>
+												</div>
+											</Listbox>
+										</> : <></>}
 
-																}}
+
+
+										<p className="prose prose-lg mt-5">Factions:</p>
+										<Tab.Group>
+											<Tab.List
+												className={`flex p-1 mt-0 space-x-1  rounded-xl ${selectedMission.factions.length == 1 ? "hidden" : "block"
+													}`}
+											>
+												{getSelectedMission().factions.map((faction) => {
+													return (
+														<Tab
+															key={faction.title}
+															className={({ selected }) =>
+																classNames(
+																	`transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg `,
+																	selected
+																		? "bg-primary text-white shadow"
+																		: "  hover:bg-primary/[0.5] text-gray-400 "
+																)
+															}
+														>
+															{faction.name}
+														</Tab>
+													);
+												})}
+											</Tab.List>
+											<Tab.Panels className="mt-2 ">
+												{getSelectedMission().factions.map((faction) => {
+
+													return (
+														<Tab.Panel key={faction.title + "_panel"}>
+															<div
+																className="mt-2 "
+																
 															>
-																<RadioGroup.Label className="sr-only">
-																	Server size
-																</RadioGroup.Label>
-																<div  >
-																	{faction.slots.map((slot) => (
-																		<RadioGroup.Option
-																			key={slot.name}
-																			disabled={slot.amountReserved >= parseInt(slot.count)}
-																			value={slot}
-																			className={({ active, checked }) =>
-																				`m-1 mt-5 mb transition-all outline-none ${slot.amountReserved >= parseInt(slot.count)
-																					? "bg-gray-50 text-gray-300 cursor-not-allowed"
-																					: ""
-																				}
+																<RadioGroup
+																	value={getSelectedMission()?.reservedSlot}
+																	onChange={(val) => {
+																		for (const mission of workingEvent.eventMissionList) {
+																			if (mission._id == selectedMission._id) {
+																				mission.reservedSlot = val;
+																				mission.reservedFactionName = faction.name;
+																			}
+																		}
+																		console.log(workingEvent)
+																		setWorkingEvent({ ...workingEvent })
+
+																	}}
+																>
+																	<RadioGroup.Label className="sr-only">
+																		Server size
+																	</RadioGroup.Label>
+																	<div  >
+																		{faction.slots.map((slot) => (
+																			<RadioGroup.Option
+																				key={slot.name}
+																				disabled={slot.amountReserved >= parseInt(slot.count)}
+																				value={slot}
+																				className={({ active, checked }) =>
+																					`m-1 mt-5 mb transition-all outline-none ${slot.amountReserved >= parseInt(slot.count)
+																						? "bg-gray-50 text-gray-300 cursor-not-allowed"
+																						: ""
+																					}
 																				${checked || slot._id == getSelectedMission().reservedSlot?._id ? "bg-primary text-white " : "dark:bg-gray-700"}
 																					relative rounded-lg shadow-md px-5 py-4 cursor-pointer flex focus:outline-none`
-																			}
-																		>
-																			{({ active, checked }) => (
-																				<div className="flex items-center justify-between w-full">
-																					<div className="flex items-center w-full">
-																						<div className="w-full text-sm">
-																							<RadioGroup.Label
-																								as="div"
-																								className={`flex flex-row justify-between font-medium  ${checked ? "" : ""
-																									}`}
-																							>
-																								<div className="h-10"> {slot.name}</div>
+																				}
+																			>
+																				{({ active, checked }) => (
+																					<div className="flex items-center justify-between w-full">
+																						<div className="flex items-center w-full">
+																							<div className="w-full text-sm">
+																								<RadioGroup.Label
+																									as="div"
+																									className={`flex flex-row justify-between font-medium  ${checked ? "" : ""
+																										}`}
+																								>
+																									<div className="h-10"> {slot.name}</div>
 
-																								{checked && (
-																									<div className="flex-shrink-0 text-white">
-																										<CheckIcon className="w-6 h-6" />
+																									{checked && (
+																										<div className="flex-shrink-0 text-white">
+																											<CheckIcon className="w-6 h-6" />
+																										</div>
+																									)}
+																								</RadioGroup.Label>
+
+																								<RadioGroup.Description
+																									as="div"
+																									className={`flex flex-row justify-between w-full ${checked ? "text-sky-100" : ""
+																										}`}
+																								>
+																									<div className="flex flex-1">{slot.description}</div>
+																									<div>
+																										{checked
+																											? (slot.amountReserved ?? 0) + 1
+																											: slot.amountReserved ?? 0}
+																										/{slot.count}
 																									</div>
-																								)}
-																							</RadioGroup.Label>
-
-																							<RadioGroup.Description
-																								as="div"
-																								className={`flex flex-row justify-between w-full ${checked ? "text-sky-100" : ""
-																									}`}
-																							>
-																								<div className="flex flex-1">{slot.description}</div>
-																								<div>
-																									{checked
-																										? (slot.amountReserved ?? 0) + 1
-																										: slot.amountReserved ?? 0}
-																									/{slot.count}
-																								</div>
-																							</RadioGroup.Description>
+																								</RadioGroup.Description>
+																							</div>
 																						</div>
 																					</div>
-																				</div>
-																			)}
-																		</RadioGroup.Option>
-																	))}
-																</div>
-															</RadioGroup>
-														</div>
-													</Tab.Panel>
-												);
-											})}
-										</Tab.Panels>
-									</Tab.Group>
+																				)}
+																			</RadioGroup.Option>
+																		))}
+																	</div>
+																</RadioGroup>
+															</div>
+														</Tab.Panel>
+													);
+												})}
+											</Tab.Panels>
+										</Tab.Group>
 
 
 
+									</>
+
+								)}
+
+								<div className="flex flex-row justify-between mt-4">
+									<button
+										type="button"
+										className="btn"
+										onClick={() => {
+
+											onClose();
+										}}
+									>
+										Close
+									</button>
+									<button
+										disabled={!hasOneReservedSlot()}
+										className="btn btn-primary btn-wide"
+										onClick={() => {
+											onReserve(workingEvent.eventMissionList);
+										}}
+									>
+										Reserve
+									</button>
 								</div>
-
-							)}
-
-							<div className="flex flex-row justify-between mt-4">
-								<button
-									type="button"
-									className="btn"
-									onClick={() => {
-
-										onClose();
-									}}
-								>
-									Close
-								</button>
-								<button
-									disabled={!hasOneReservedSlot()}
-									className="btn btn-primary btn-wide"
-									onClick={() => {
-										onReserve(workingEvent.eventMissionList);
-									}}
-								>
-									Reserve
-								</button>
 							</div>
 						</div>
 					</Transition.Child>
