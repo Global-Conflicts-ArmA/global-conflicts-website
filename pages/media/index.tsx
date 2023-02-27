@@ -7,7 +7,7 @@ import MediaHomeUploadModal from "../../components/modals/media_home_upload_moda
 import { useState } from "react";
 import DummyMediaItemHolder from "../../components/dummy_media_item_holder";
 import axios from "axios";
-import { Params } from "next/dist/server/router";
+import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 
 function MediaIndex({ mediaList }) {
 	const { data: session, status } = useSession();

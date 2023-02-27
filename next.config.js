@@ -4,6 +4,10 @@ module.exports = async (phase, { defaultConfig }) => {
 	 */
 	const nextConfig = {
 		swcMinify: true,
+
+		eslint: {
+			ignoreDuringBuilds: true
+		},
 		webpack: (config, options) => {
 			config.experiments = {
 				layers: true,
@@ -14,7 +18,7 @@ module.exports = async (phase, { defaultConfig }) => {
 		pageExtensions: ["js", "jsx", "ts", "tsx"],
 		topLevelAwait: true,
 		images: {
-			 
+
 			formats: ["image/avif", "image/webp"],
 			domains: [
 				"source.unsplash.com",

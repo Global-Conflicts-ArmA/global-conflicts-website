@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 
 import MyMongo from "../../../lib/mongodb";
-import { Params } from "next/dist/server/router";
 
 import SlotSelectionModal from "../../../components/modals/slot_selection_modal";
 import axios, { Axios } from "axios";
@@ -29,6 +28,7 @@ import prism from "prismjs";
 require("prismjs/components/prism-sqf");
 
 import "prismjs/themes/prism-okaidia.css";
+import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 
 
 const Completionist = () => (

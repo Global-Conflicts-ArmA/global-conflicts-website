@@ -3,10 +3,12 @@ import Head from "next/head";
 import React from "react";
 import Link from "next/link";
 import MyMongo from "../../lib/mongodb";
-import { Params } from "next/dist/server/router";
+
 
 import { Tab } from "@headlessui/react";
 import EventCard from "../../components/event_list_card";
+import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
+
 
 const Completionist = () => <span>It has started!</span>;
 

@@ -61,7 +61,7 @@ export function validateUserList(req, res, credList: Array<CREDENTIAL>, next = n
 		if (!session) {
 			return reject(401);
 		}
-		if (credList == [CREDENTIAL.ANY]) {
+		if (CREDENTIAL.ANY in credList) {
 			if (next) {
 				req.session = session;
 				return next();
