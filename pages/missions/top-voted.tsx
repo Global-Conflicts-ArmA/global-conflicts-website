@@ -91,7 +91,7 @@ function TopVoted({ missions, maxVotes }) {
 	function getVoteBtn(mission) {
 		if (session) {
 			return (
-				<div className="flex flex-row justify-start">
+				<div className="flex flex-row justify-start ">
 					<div className="flex flex-row mr-2">
 						<div className="mr-2 opacity-75 stat-title">Votes:</div>
 						<div className=""> {mission.votes.length}</div>
@@ -269,33 +269,33 @@ function TopVoted({ missions, maxVotes }) {
 										)}
 									</div>
 
-									<div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white ">
+									<div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white  ">
 										<div className="m-2">
-											<div className="opacity-75 stat-title">Players</div>
+											<div className="opacity-75 stat-title prose">Players</div>
 											<div className="text-sm stat-value ">
-												{mission.size.min} to {mission.size.max}
+												{mission.size.min} to {mission.size.max}d
 											</div>
 										</div>
 										<div className="m-2 border-none">
-											<div className="opacity-75 stat-title">Map</div>
+											<div className="opacity-75 stat-title prose">Map</div>
 											<div className="text-sm stat-value">
 												{mission.terrainName ?? mission.terrain}
 											</div>
 										</div>
 
 										<div className="m-2 border-none">
-											<div className="opacity-75 stat-title">Type</div>
+											<div className="opacity-75 stat-title prose">Type</div>
 											<div className="text-sm stat-value ">{mission.type}</div>
 										</div>
 
 										<div className="m-2 border-none">
-											<div className="opacity-75 stat-title">Respawn</div>
+											<div className="opacity-75 stat-title prose">Respawn</div>
 											<div className="text-sm stat-value">
 												{mission.respawn ? "Yes" : "No"}
 											</div>
 										</div>
 										<div className="m-2 border-none">
-											<div className="opacity-75 stat-title">JIP</div>
+											<div className="opacity-75 stat-title prose">JIP</div>
 											<div className="text-sm stat-value ">
 												{mission.jip ? "Yes" : "No"}
 											</div>

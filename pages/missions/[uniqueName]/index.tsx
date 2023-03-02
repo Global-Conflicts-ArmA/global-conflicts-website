@@ -892,7 +892,7 @@ export default function MissionDetails({
 						{mission.tags.map((role) => (
 							<span
 								style={{ color: role.color }}
-								className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box dark:text-gray-300"
+								className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box bg-white dark:bg-slate-800 text-black dark:text-white/[0.7]"
 								key={role}
 							>
 								{role}
