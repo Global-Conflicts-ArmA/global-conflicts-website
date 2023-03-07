@@ -734,10 +734,18 @@ export default function MissionDetails({
 		if (!session) {
 			return <></>
 		}
+
+		if (!mission.history) {
+			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
+				<span className="flex-1 p-2 text-sm">You can't rate a mission that hasn't been played yet.</span>
+				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150    rotate-0 `} />
+			</div>
+		}
+
 		if (session?.user["discord_id"] == mission.authorID) {
 			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
 				<span className="flex-1 p-2 text-sm">You can't rate your own mission</span>
-				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} />
+				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 rotate-0 `} />
 			</div>
 		}
 
@@ -759,11 +767,11 @@ export default function MissionDetails({
 			{({ open }) => (
 				<>
 					<Listbox.Button style={{ width: 340 }} className=" dark:bg-white bg-slate-600 dark:text-gray-700 text-white 
-			rounded-md  flex flex-row justify-center items-center"><span 
-			
-		
-			style={{paddingTop:1, paddingBottom:5}}
-			className="text-2xl">{selectedRating?.emoji} </span> <span className="flex-1 p-2 text-sm">{selectedRating?.name ?? "Rate this mission"} </span>
+			rounded-md  flex flex-row justify-center items-center"><span
+
+
+							style={{ paddingTop: 1, paddingBottom: 5 }}
+							className="text-2xl">{selectedRating?.emoji} </span> <span className="flex-1 p-2 text-sm">{selectedRating?.name ?? "Rate this mission"} </span>
 						<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} /></Listbox.Button>
 					<Transition
 						show={open}
@@ -996,7 +1004,7 @@ export default function MissionDetails({
 									</div>
 								</div>
 								<div className="m-2 border-none">
-									<div className="stat-title">JIP</div>
+									<div className="stat-title prose">JIP</div>
 									<div className="text-sm stat-value ">{mission.jip ? "Yes" : "No"}</div>
 								</div>
 							</div>
