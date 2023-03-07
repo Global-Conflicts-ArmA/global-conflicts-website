@@ -3,7 +3,7 @@ import MyMongo from "../../../lib/mongodb";
 import moment from "moment";
 import DownloadIcon from "../../../components/icons/download";
 import fs from "fs";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import CommentBox from "../../../components/comments_box";
 import ActionsIcon from "../../../components/icons/actions";
 import SubmitReviewReportModal from "../../../components/modals/submit_review_report_modal";
@@ -36,6 +36,8 @@ import { REVIEW_STATE_PENDING } from "../../../lib/reviewStates";
 import {
 	BanIcon,
 	CheckCircleIcon,
+	CheckIcon,
+	ChevronDoubleDownIcon,
 	ChevronRightIcon,
 	ClockIcon,
 	ExclamationCircleIcon,
@@ -49,7 +51,7 @@ import hasCreds, { hasCredsAny } from "../../../lib/credsChecker";
 import NewVersionModal from "../../../components/modals/new_version_modal";
 import useSWR, { useSWRConfig } from "swr";
 import fetcher from "../../../lib/fetcher";
-import { Disclosure, Transition } from "@headlessui/react";
+import { Disclosure, Listbox, Transition } from "@headlessui/react";
 import SubmitAARModal from "../../../components/modals/submit_aar_modal";
 import { generateMarkdown } from "../../../lib/markdownToHtml";
 import SimpleTextViewModal from "../../../components/modals/simple_text_view_modal";
@@ -586,8 +588,8 @@ export default function MissionDetails({
 						}
 					}
 				})
-				.finally(() => {});
-		} catch (error) {}
+				.finally(() => { });
+		} catch (error) { }
 	}
 
 	function getMediaGallery() {
@@ -612,7 +614,7 @@ export default function MissionDetails({
 			} else {
 				return link;
 			}
-			 
+
 		}
 
 		return (
@@ -692,6 +694,118 @@ export default function MissionDetails({
 		);
 	}
 
+
+	function getRatings() {
+		if (!session) {
+			return <></>
+		}
+
+		const element = <div className="ml-5 flex flex-row text-sm items-center">
+			<div>
+				👍{mission.ratings?.filter((rating) => rating.value == "positive")?.length ?? 0}
+			</div>
+			<div>/</div>
+			<div>
+				🆗{mission.ratings?.filter((rating) => rating.value == "neutral").length ?? 0}
+			</div>
+			<div>/</div>
+			<div>
+				👎{mission.ratings?.filter((rating) => rating.value == "negative").length ?? 0}
+			</div>
+
+		</div>;
+
+
+
+		if (
+			(hasCreds(session, CREDENTIAL.MISSION_MAKER) &&
+				session?.user["discord_id"] == mission.authorID) || hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM])
+		) {
+			return element;
+		} else {
+			return <></>
+		}
+
+
+
+	}
+
+	function getRatingListBox() {
+		if (!session) {
+			return <></>
+		}
+		if (session?.user["discord_id"] == mission.authorID) {
+			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
+				<span className="flex-1 p-2 text-sm">You can't rate your own mission</span>
+				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} />
+			</div>
+		}
+
+		return <Listbox value={selectedRating} onChange={(val) => {
+			setSelectedRating(val);
+			axios
+				.post(`/api/missions/${mission.uniqueName}/rate_mission`, val).then((response) => {
+					if (val.value == "negative") {
+						toast.success("Rating submited! 📝 If you didn't enjoy this mission, consider writing a constructive review for the mission maker.", { autoClose: 10000 });
+					} else {
+						toast.success("Rating submited!");
+					}
+				}).catch((error) => {
+					setSelectedRating(null);
+					toast.error("Error submiting rating!")
+				})
+		}}>
+
+			{({ open }) => (
+				<>
+					<Listbox.Button style={{ width: 340 }} className=" dark:bg-white bg-slate-600 dark:text-gray-700 text-white 
+			rounded-md  flex flex-row justify-center items-center"><span 
+			
+		
+			style={{paddingTop:1, paddingBottom:5}}
+			className="text-2xl">{selectedRating?.emoji} </span> <span className="flex-1 p-2 text-sm">{selectedRating?.name ?? "Rate this mission"} </span>
+						<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} /></Listbox.Button>
+					<Transition
+						show={open}
+
+					>
+						<Listbox.Options style={{ width: 340 }} className="absolute z-30 dark:bg-white bg-slate-600 dark:text-gray-700 text-white rounded-md mt-2 text-sm">
+							{possibleRatings.map((rating,) => (
+								<Listbox.Option
+									key={rating.value}
+									value={rating}
+									as={Fragment}
+								>
+									{({ selected }) => (
+										<div
+											className={`m-2 z-50 flex flex-row items-center p-1  ${selectedRating?.value == rating.value ? ' text-white/[.44] dark:text-transparent/20 cursor-not-allowed' : 'cursor-pointer'
+												}`}
+										>
+											<span className="text-2xl">{rating.emoji} </span> <span className="whitespace-nowrap pr-1">{rating.name} </span>{selectedRating?.value == rating.value && <CheckIcon spacing={0} height={15} />}
+
+										</div>
+									)}
+								</Listbox.Option>
+							))}
+						</Listbox.Options>
+					</Transition>
+				</>
+			)}
+		</Listbox>
+	}
+
+	const possibleRatings = [
+		{ value: "positive", emoji: "👍", name: 'The mission is well made and interesting' },
+		{ value: "neutral", emoji: "🆗", name: 'It\'s alright ' },
+		{ value: "negative", emoji: "👎", name: 'The mission has concept issues' }
+	]
+
+	const [selectedRating, setSelectedRating] = useState<any>(
+		mission.myRating ?
+			possibleRatings.find((possibleRating) => possibleRating.value == mission?.myRating?.value)
+			: null
+	)
+
 	return (
 		<>
 			<Head>
@@ -760,9 +874,8 @@ export default function MissionDetails({
 									className="z-10 tooltip tooltip-bottom tooltip-primary"
 								>
 									<button
-										className={`btn  primary-btn-sm min-w-187 ${
-											isLoadingVote ? "loading" : ""
-										}`}
+										className={`btn  primary-btn-sm min-w-187 ${isLoadingVote ? "loading" : ""
+											}`}
 										onClick={hasVotedLocal ? retractVote : doVote}
 									>
 										{hasVotedLocal ? "Retract vote" : "Vote"}
@@ -795,11 +908,10 @@ export default function MissionDetails({
 									<button
 										className={`ml-5 text-white 555:
 										${isLoadingListing ? "loading" : ""}
-										${
-											isMissionUnlisted
+										${isMissionUnlisted
 												? "bg-green-600 border-green-600 btn btn-sm hover:bg-green-900 hover:border-green-900"
 												: "bg-red-700 border-red-700 btn btn-sm hover:bg-red-900 hover:border-red-900"
-										}
+											}
 										`}
 										onClick={isMissionUnlisted ? listMission : unlistMission}
 									>
@@ -807,6 +919,7 @@ export default function MissionDetails({
 									</button>
 								</div>
 							)}
+
 						</div>
 
 						{isMissionUnlisted && (
@@ -814,8 +927,9 @@ export default function MissionDetails({
 								This mission is unlisted
 							</div>
 						)}
-					{mission.votes?.length>0 && (<div className="prose">This mission has {mission.votes.length} vote{mission.votes.length>1 && "s" }</div>)} 
+						{mission.votes?.length > 0 && (<div className="prose">This mission has {mission.votes.length} vote{mission.votes.length > 1 && "s"}</div>)}
 					</div>
+
 
 					<div className="flex flex-row md:space-x-10">
 						<div
@@ -847,38 +961,38 @@ export default function MissionDetails({
 
 							<div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white ">
 								<div className="m-2 ">
-									<div className=" stat-title">Players</div>
+									<div className="stat-title prose">Players</div>
 									<div className="text-sm stat-value ">
 										{mission.size.min} to {mission.size.max}
 									</div>
 								</div>
 								<div className="m-2 border-none">
-									<div className="stat-title">Map</div>
+									<div className="stat-title prose">Map</div>
 									<div className="text-sm stat-value">
 										{mission.terrainName ?? mission.terrain}
 									</div>
 								</div>
 
 								<div className="m-2 border-none">
-									<div className="stat-title">Type</div>
+									<div className="stat-title prose">Type</div>
 									<div className="text-sm stat-value ">{mission.type}</div>
 								</div>
 								<div className="m-2 border-none">
-									<div className="stat-title">Time of day</div>
+									<div className="stat-title prose">Time of day</div>
 									<div className="text-sm stat-value ">{mission.timeOfDay}</div>
 								</div>
 								<div className="m-2 border-none">
-									<div className="stat-title">Era</div>
+									<div className="stat-title prose">Era</div>
 									<div className="text-sm stat-value ">{mission.era}</div>
 								</div>
 								<div className="m-2 border-none">
-									<div className="stat-title">Respawn</div>
+									<div className="stat-title prose">Respawn</div>
 									<div className="text-sm stat-value">
 										{mission.respawn == true
 											? "Yes"
 											: mission.respawn == false
-											? "No"
-											: mission.respawn}
+												? "No"
+												: mission.respawn}
 									</div>
 								</div>
 								<div className="m-2 border-none">
@@ -899,21 +1013,40 @@ export default function MissionDetails({
 							</span>
 						))}
 					</div>
-					<hr className="my-5"></hr>
-					<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
+
+
+
+
+					<h2 className="flex flex-row  py-2 font-bold dark:text-gray-100">
+						Mission Rating{" "} {getRatings()}
+
+					</h2>
+					<div className=" flex flex-col md:flex-row  items-center  md:justify-between ">
+
+						<div className="prose prose-sm max-w-none mr-3 self-start text-xs ">If you played this mission, consider rating it. Rate the mission, not the leadership!<br />Ratings are visible only to the mission maker, admins and GMs.<br />You can change your rating at any time.</div>
+						<div className="relative mt-5  md:mt-0">
+							{getRatingListBox()}
+
+
+						</div>
+
+					</div>
+
+					<h2 className="flex flex-row justify-between  py-2 font-bold dark:text-gray-100">
 						Versions{" "}
 						{(mission.authorID == session?.user["discord_id"] ||
 							hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
-							<button
-								onClick={() => {
-									setNewVersionModalOpen(true);
-								}}
-								className="btn btn-sm btn-outline-standard"
-							>
-								<AddIcon></AddIcon> Upload new version
-							</button>
-						)}
+								<button
+									onClick={() => {
+										setNewVersionModalOpen(true);
+									}}
+									className="btn btn-sm btn-outline-standard"
+								>
+									<AddIcon></AddIcon> Upload new version
+								</button>
+							)}
 					</h2>
+
 
 					<DataTable
 						className="ease-in-out"
@@ -922,7 +1055,7 @@ export default function MissionDetails({
 						columns={columns}
 						data={mission.updates}
 					></DataTable>
-					<hr className="my-5"></hr>
+
 					<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
 						Gameplay History{" "}
 						{hasCreds(session, CREDENTIAL.ADMIN) && (
@@ -995,9 +1128,8 @@ export default function MissionDetails({
 													{({ open }) => (
 														<>
 															<Disclosure.Button
-																className={`flex flex-row items-center justify-between w-full p-2 mb-2 text-white transition-shadow duration-300 bg-gray-600 rounded-lg hover:shadow-lg ${
-																	open ? "shadow-lg" : "shadow-none"
-																}`}
+																className={`flex flex-row items-center justify-between w-full p-2 mb-2 text-white transition-shadow duration-300 bg-gray-600 rounded-lg hover:shadow-lg ${open ? "shadow-lg" : "shadow-none"
+																	}`}
 															>
 																<div className="flex flex-row items-center ">
 																	{" "}
@@ -1032,9 +1164,8 @@ export default function MissionDetails({
 																</div>
 
 																<ChevronRightIcon
-																	className={`duration-150 ease-in-out ${
-																		open ? "transform  rotate-90" : ""
-																	}`}
+																	className={`duration-150 ease-in-out ${open ? "transform  rotate-90" : ""
+																		}`}
 																	width={35}
 																	height={35}
 																	color="white"
@@ -1123,19 +1254,19 @@ export default function MissionDetails({
 							CREDENTIAL.MISSION_MAKER,
 							CREDENTIAL.MISSION_REVIEWER,
 						]) && (
-							<button
-								onClick={() => {
-									setMediaUploadModalOpen(true);
-								}}
-								className="btn btn-sm btn-outline-standard"
-							>
-								<UploadIcon height={24} width={24}></UploadIcon>
-							</button>
-						)}
+								<button
+									onClick={() => {
+										setMediaUploadModalOpen(true);
+									}}
+									className="btn btn-sm btn-outline-standard"
+								>
+									<UploadIcon height={24} width={24}></UploadIcon>
+								</button>
+							)}
 					</h2>
 					{getMediaGallery()}
 
-					<hr className="my-5"></hr>
+
 					<div className="flex flex-wrap w-full mb-16">
 						<div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
 							<CommentBox
@@ -1286,7 +1417,7 @@ export default function MissionDetails({
 						mission.updates = [...updates];
 						setActionsModalData(updates[index]);
 					}}
-					onAuditOpen={() => {}}
+					onAuditOpen={() => { }}
 					onClose={() => {
 						setActionsModalIsOpen(false);
 					}}
@@ -1360,7 +1491,7 @@ export default function MissionDetails({
 					isOpen={mediaUploadModalOpen}
 					mission={mission}
 					onClose={(links) => {
-						console.log(links);
+
 						if (links) {
 							if (!mission.media) {
 								mission.media = links;
@@ -1383,7 +1514,9 @@ export default function MissionDetails({
 // revalidation is enabled and a new request comes in
 
 export async function getServerSideProps(context) {
-	console.log(context.params);
+
+
+	const session = await getSession(context);
 
 	if (context.params.uniqueName == "<no source>") {
 		return { prop: {} };
@@ -1520,6 +1653,24 @@ export async function getServerSideProps(context) {
 		);
 	}
 
+	if (mission["ratings"]) {
+		await Promise.all(
+			mission["ratings"].map(async (rating): Promise<any> => {
+				var user = await MyMongo.collection("users").findOne(
+					{ discord_id: rating["ratingAuthorId"] },
+					{ projection: { username: 1, nickname: 1, image: 1 } }
+				);
+
+				rating["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
+
+
+				if (rating["ratingAuthorId"] == session?.user["discord_id"]) {
+					mission["myRating"] = rating;
+				}
+			})
+		);
+	}
+
 	if (mission["history"]) {
 		await Promise.all(
 			mission["history"]?.map(async (history) => {
@@ -1545,6 +1696,8 @@ export async function getServerSideProps(context) {
 			return b.date.getTime() - a.date.getTime();
 		});
 	}
+
+
 
 	mission["updates"]?.map((update) => {
 		update.main = fs.existsSync(
@@ -1583,9 +1736,9 @@ export async function getServerSideProps(context) {
 			.process(mission["description"]);
 
 		mission["descriptionMarkdown"] = thing.value.toString();
-	} catch (error) {}
+	} catch (error) { }
 
-	const session = await getSession(context);
+
 
 	const isMissionReviewer = hasCreds(session, CREDENTIAL.MISSION_REVIEWER);
 	let missionTestingQuestions = null;

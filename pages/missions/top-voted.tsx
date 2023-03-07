@@ -273,7 +273,7 @@ function TopVoted({ missions, maxVotes }) {
 										<div className="m-2">
 											<div className="opacity-75 stat-title prose">Players</div>
 											<div className="text-sm stat-value ">
-												{mission.size.min} to {mission.size.max}d
+												{mission.size.min} to {mission.size.max}
 											</div>
 										</div>
 										<div className="m-2 border-none">
