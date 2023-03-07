@@ -46,11 +46,19 @@ function MyMissions({ missions }) {
 		},
 		{
 			name: "Last Played",
-			selector: (row) => row.lastPlayed,
+			selector: (row) =>  row.lastPlayed ?? null,
 			sortable: true,
 			compact: true,
 			width: "100px",
-			format: (row) => moment(row.lastPlayed).format("ll"),
+			format: (row) => row.lastPlayed?  moment(row.lastPlayed).format("ll") : "--",
+		},
+		{
+			name: "Rating",
+			selector: (row) => row.ratingSummary,
+			sortable: false,
+			compact: true,
+			width: "100px",
+			format: (row) => `${row.ratingSummary["positive"]} / ${row.ratingSummary["neutral"]} / ${row.ratingSummary["negative"]}`,
 		},
 	];
 
@@ -62,7 +70,7 @@ function MyMissions({ missions }) {
 				<title>My Missions</title>
 			</Head>
 
-		 
+
 			<div className="flex flex-row justify-between mb-3 dark:text-gray-200">
 				<div>You have {missions.length} missions.</div>
 				<div>
@@ -108,7 +116,7 @@ export async function getServerSideProps(context) {
 					updates: 0,
 					reports: 0,
 					reviews: 0,
-					media:0,
+					media: 0,
 				},
 			}
 		)
@@ -116,8 +124,25 @@ export async function getServerSideProps(context) {
 	missions.map((mission) => {
 		mission["uploadDate"] = mission["uploadDate"]?.getTime();
 		mission["lastPlayed"] = mission["lastPlayed"]?.getTime();
+		mission["ratingSummary"] = {
+			positive: 0,
+			neutral: 0,
+			negative: 0,
+		}
+		mission["ratings"]?.forEach(item => {
+			if (item.value == "positive") {
+				mission["ratingSummary"].positive += 1;
+			}
+			if (item.value == "neutral") {
+				mission["ratingSummary"].neutral += 1;
+			}
+			if (item.value == "negative") {
+				mission["ratingSummary"].negative += 1;
+			}
+		})
+
 	});
- 
+
 
 	return { props: { missions } };
 }
