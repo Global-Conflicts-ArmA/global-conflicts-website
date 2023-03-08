@@ -89,7 +89,7 @@ export default function EventRosterModal({ isOpen, onClose, roster, event }) {
 													{user.image ? <img src={user.image} />:<></>} 
 												</div>
 											</div>
-											<div className="prose self-center">{user.username}</div>
+											<div className="prose self-center mr-1">{user.username}</div>
 										</div>)}
 								</div>
 							</div>
