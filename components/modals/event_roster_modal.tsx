@@ -5,7 +5,7 @@ import React, { Fragment } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import classNames from "../../lib/classnames";
 
-export default function EventRosterModal({ isOpen, onClose, roster }) {
+export default function EventRosterModal({ isOpen, onClose, roster, event }) {
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
 			<Dialog
@@ -48,6 +48,7 @@ export default function EventRosterModal({ isOpen, onClose, roster }) {
 							</Dialog.Title>
 
 							<div className="overflow-y-auto max-h-[50rem] pr-1">
+								<div className="prose italic">These are the reservations for the important slots:</div>
 
 								{roster?.map((mission, index) => {
 									return <div key={mission.name} className="p-4 mb-2  border-2 rounded-lg bg-white dark:bg-gray-800 dark:drop-shadow-2xl dark:shadow-md  dark:border-slate-500/[0.1] border-slate-500/[0.2] drop-shadow-md">
@@ -78,12 +79,19 @@ export default function EventRosterModal({ isOpen, onClose, roster }) {
 										})}
 									</div>
 								})}
+								<div className="prose italic">Full list of sign ups:</div>
+								<div className=" flex flex-row flex-wrap ">
+									{event.signups.map((user) =>
+										<div className=" badge  h-14 m-1">
 
-
-
-
-
-
+											<div className="avatar">
+												<div className="w-10 rounded-full mr-2 ">
+													{user.image ? <img src={user.image} />:<></>} 
+												</div>
+											</div>
+											<div className="prose self-center">{user.username}</div>
+										</div>)}
+								</div>
 							</div>
 							<div className="flex flex-row justify-between mt-4">
 								<button type="button" className="btn" onClick={onClose}>

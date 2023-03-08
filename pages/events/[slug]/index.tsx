@@ -155,7 +155,7 @@ export default function EventHome({ event }) {
 	const reloadSession = () => {
 		const event = new Event("visibilitychange");
 		document.dispatchEvent(event);
-	  };
+	};
 
 	const {
 		data: roster,
@@ -199,7 +199,7 @@ export default function EventHome({ event }) {
 
 	function hasReservableSlots() {
 		var has = false;
-		if(!event.eventMissionList){
+		if (!event.eventMissionList) {
 			return false;
 		}
 		for (let index = 0; index < event.eventMissionList.length; index++) {
@@ -528,6 +528,7 @@ export default function EventHome({ event }) {
 
 			<EventRosterModal
 				roster={roster}
+				event={event}
 				onClose={() => {
 					setRosterModalOpen(false);
 				}}
@@ -570,12 +571,41 @@ export default function EventHome({ event }) {
 }
 
 export async function getStaticProps({ params }: Params) {
-	const event = await MyMongo.collection("events").findOne({
-		slug: params.slug,
-	});
 
-	// const content = await markdownToHtml(post.content || "");
-	// const mdxSource = await serialize(post.content);
+	const events = await MyMongo.collection("events").aggregate(
+		[
+			{
+				$match: { slug: params.slug }
+
+			},
+			{
+				$lookup:
+				{
+					from: "users",
+					localField: "signups",
+					foreignField: "discord_id",
+					as: "signups",
+
+
+				}
+			},
+			{
+				$project: {
+					"signups._id": 0,
+					"signups.roles": 0,
+					"signups.nickname": 0,
+					"signups.email": 0,
+					"signups.emailVerified": 0,
+					"signups.eventsSignedUp": 0,
+
+				},
+
+			}
+		]
+
+	).toArray()
+	const event = events[0]
+
 
 	async function iterateContentPages(contentPages) {
 		await Promise.all(
@@ -590,9 +620,9 @@ export async function getStaticProps({ params }: Params) {
 		);
 	}
 
-	await iterateContentPages(event?.contentPages??[]);
- 
-	if(event.eventMissionList){
+	await iterateContentPages(event?.contentPages ?? []);
+
+	if (event.eventMissionList) {
 		event.eventMissionList.forEach(mission => {
 			mission._id = mission._id.toString();
 			mission.factions.forEach(faction => {
@@ -602,8 +632,19 @@ export async function getStaticProps({ params }: Params) {
 				});
 			});
 		});
-	
 	}
+
+	if (event.signups) {
+		await Promise.all(
+			event.signups.map(async (element): Promise<any> =>{
+				const discordUserResponse = await axios.get(
+					`http://localhost:3001/users/${element["discord_id"]}`
+				)
+				element["image"] = discordUserResponse.data["displayAvatarURL"];
+			})
+		);
+	}
+
 
 
 	return { props: { event: { ...event, _id: event["_id"].toString() } }, revalidate: 10, };
@@ -622,7 +663,7 @@ export async function getStaticPaths() {
 					name: 1,
 					slug: 1,
 				},
-}
+			}
 		)
 		.toArray();
 
@@ -636,4 +677,3 @@ export async function getStaticPaths() {
 	// on-demand if the path doesn't exist.
 	return { paths, fallback: "blocking", };
 }
- 
