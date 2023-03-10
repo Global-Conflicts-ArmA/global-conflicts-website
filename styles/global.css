@@ -63,6 +63,11 @@
 	position: unset !important;
 }
 
+.youtube-embed{
+	width: 100%;
+	aspect-ratio: 16/9;
+}
+
 .video-container {
 	overflow: hidden;
 	position: relative;
@@ -286,6 +291,8 @@ h3:hover .anchor-link {
 	min-height: 250px;
 	display: flex;
 	align-items: center;
+	border-radius:  16px;
+	
 }
 
 .event-media-safe-area {

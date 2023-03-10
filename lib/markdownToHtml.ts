@@ -1,17 +1,17 @@
 import rehypeFormat from "rehype-format";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
- 
+
 import remarkGfm from "remark-gfm";
 import html from "remark-html";
 import remarkParse from "remark-parse";
- 
+
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
 import rehypeRaw from "rehype-raw";
 
-export function generateMarkdown(text) {
-	const markdownObj = unified()
+export function generateMarkdown(text, sanitize=true) {
+	var thing = unified()
 		.use(remarkParse)
 		.use(html)
 		.use(remarkGfm)
@@ -19,8 +19,8 @@ export function generateMarkdown(text) {
 		.use(rehypeRaw, { passThrough: ["kbd"] })
 		.use(rehypeFormat)
 		.use(rehypeStringify)
-
-		.use(rehypeSanitize, {
+	if (sanitize) {
+		thing.use(rehypeSanitize, {
 			attributes: {
 				...defaultSchema.attributes,
 				code: [
@@ -55,6 +55,7 @@ export function generateMarkdown(text) {
 			},
 		})
 
-		.processSync(text);
+	}
+	const markdownObj = thing.processSync(text);
 	return markdownObj.value.toString();
 }

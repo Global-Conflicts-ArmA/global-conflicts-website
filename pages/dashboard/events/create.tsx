@@ -614,7 +614,7 @@ function EventsDashboardPage() {
 															<div
 																className="prose"
 																dangerouslySetInnerHTML={{
-																	__html: generateMarkdown(markdown),
+																	__html: generateMarkdown(markdown, false),
 																}}
 															></div>
 														);

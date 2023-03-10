@@ -574,7 +574,7 @@ export default function EditEvent({ event }) {
 															<div
 																className="prose max-w-none"
 																dangerouslySetInnerHTML={{
-																	__html: generateMarkdown(markdown),
+																	__html: generateMarkdown(markdown, false),
 																}}
 															></div>
 														);

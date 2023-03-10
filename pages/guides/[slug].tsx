@@ -31,7 +31,7 @@ export async function getStaticProps({ params }: Params) {
 		{ slug: params.slug },
 		{ projection: { _id: 0 } }
 	);
-	const markdownContent = generateMarkdown(guide["content"]);
+	const markdownContent = generateMarkdown(guide["content"], false);
 
 	return { props: { guideContent: markdownContent } };
 }

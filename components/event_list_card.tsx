@@ -76,7 +76,7 @@ export default function EventCard({
 					: "mb-10 transition-all duration-300 hover:cursor-pointer xl:hover:-mx-10"
 			}
 		>
-			<div className="relative drop-shadow-xl shadow-strong card">
+			<div className="relative drop-shadow-xl shadow-strong card ">
 				<figure className="card-figure" style={{ aspectRatio }}>
 					{event.imageLink?.includes("webm") || event.imageLink?.includes("mp4") ? (
 						<video loop key={event.imageLink} ref={videoRef}>

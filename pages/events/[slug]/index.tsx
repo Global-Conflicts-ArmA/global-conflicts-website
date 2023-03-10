@@ -613,7 +613,7 @@ export async function getStaticProps({ params }: Params) {
 				if (contentPage.markdownContent) {
 
 					contentPage.parsedMarkdownContent = generateMarkdown(
-						contentPage.markdownContent
+						contentPage.markdownContent, false
 					);
 				}
 			})
