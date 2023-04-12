@@ -37,12 +37,12 @@ export default function ProfileLayout({ children }) {
 									<div className="w-full max-w-md mx-auto bg-white dark:hover:bg-gray-700 dark:bg-gray-800 dark:text-white rounded-2xl">
 										<div>
 											<Link href={`/${btn.href}`}>
-												<a>
-													<div className={`p-4 mb-4 text-sm ${btn.current? "font-medium":"font-normal"} text-gray-800 rounded-lg cursor-pointer  `}>
-														{btn.current && "• "}
-														{btn["title"]}
-													</div>
-												</a>
+
+												<div className={`p-4 mb-4 text-sm ${btn.current ? "font-medium" : "font-normal"} text-gray-800 rounded-lg cursor-pointer  `}>
+													{btn.current && "• "}
+													{btn["title"]}
+												</div>
+
 											</Link>
 										</div>
 									</div>

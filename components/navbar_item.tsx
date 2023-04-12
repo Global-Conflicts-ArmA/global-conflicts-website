@@ -50,7 +50,7 @@ export default function NavBarItem({
 									>
 										{child["slug"] ? (
 											<Link replace={true} href={`/guides/${child["slug"]}`}>
-												<a>
+												 
 													<Disclosure.Panel
 														className={`flex flex-row px-4 py-2 h-9 md:mr-0 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
 															checkCurrent(child["slug"]) ? "font-bold bg-gray-100 dark:bg-gray-600 dark:text-gray-100" : ""
@@ -58,7 +58,7 @@ export default function NavBarItem({
 													>
 														{child["title"]}
 													</Disclosure.Panel>
-												</a>
+												 
 											</Link>
 										) : (
 											<div
@@ -80,7 +80,7 @@ export default function NavBarItem({
 					<div>
 						{item["slug"] ? (
 							<Link href={`/guides/${item["slug"]}`}>
-								<a>
+								 
 									<div
 										className={`transition-all duration-300 flex flex-row px-4 py-2 mb-4 text-sm  rounded-lg cursor-pointer hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 ${
 											checkCurrent(item["slug"]) ? "font-bold bg-gray-100" : "font-medium"
@@ -88,7 +88,7 @@ export default function NavBarItem({
 									>
 										{item["title"]}
 									</div>
-								</a>
+								 
 							</Link>
 						) : (
 							<div

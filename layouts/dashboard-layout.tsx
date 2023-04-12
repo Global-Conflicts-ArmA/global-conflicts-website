@@ -25,11 +25,11 @@ export default function DashBoardLayout({ children }) {
 									<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
 										<div>
 											<Link href={`/${btn.href}`}>
-												<a>
+												 
 													<div className="p-4 mb-4 text-sm font-medium text-gray-800 rounded-lg cursor-pointer hover:bg-gray-100">
 														{btn["title"]}
 													</div>
-												</a>
+											 
 											</Link>
 										</div>
 									</div>
