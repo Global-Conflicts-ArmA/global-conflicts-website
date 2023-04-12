@@ -261,7 +261,7 @@ function EventsDashboardPage() {
 
 
 	return (
-		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
+        <CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
 				<title>Create Event</title>
 			</Head>
@@ -851,7 +851,7 @@ function EventsDashboardPage() {
 				}}
 			></CreateSlotsModal>
 		</CredentialLockLayout>
-	);
+    );
 }
 
 export default EventsDashboardPage;

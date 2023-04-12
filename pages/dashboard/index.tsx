@@ -9,7 +9,7 @@ import { CREDENTIAL } from "../../middleware/check_auth_perms";
 function Dashboard() {
 	const { data: session } = useSession();
 	return (
-		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
+        <CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
 				<title>GC Dashboard</title>
 			</Head>
@@ -22,11 +22,11 @@ function Dashboard() {
 						</div>
 
 						<div className="flex flex-row mt-5 space-x-5">
-							<Link href="/dashboard/events/create" passHref>
+							<Link href="/dashboard/events/create" passHref legacyBehavior>
 								<button className="btn btn-lg">CREATE EVENT</button>
 							</Link>
 
-							<Link href="/dashboard/events/list" passHref>
+							<Link href="/dashboard/events/list" passHref legacyBehavior>
 								<button className="btn btn-lg">EDIT EVENT</button>
 							</Link>
 						</div>
@@ -34,7 +34,7 @@ function Dashboard() {
 				</main>
 			</div>
 		</CredentialLockLayout>
-	);
+    );
 }
 
 // This function gets called at build time

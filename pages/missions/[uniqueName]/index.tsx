@@ -814,707 +814,707 @@ export default function MissionDetails({
 			: null
 	)
 
-	return (
-		<>
-			<Head>
-				<title>{mission.name}</title>
+	return <>
+        <Head>
+            <title>{mission.name}</title>
 
-				<meta
-					name="description"
-					content={mission.descriptionNoMarkdown ?? mission.description}
-					key="description"
-				/>
-				<meta
-					property="og:description"
-					content={mission.descriptionNoMarkdown ?? mission.description}
-					key="og:description"
-				/>
-				<meta
-					name="twitter:description"
-					content={mission.descriptionNoMarkdown ?? mission.description}
-					key="twitter:description"
-				/>
-				<meta
-					property="og:url"
-					content={`https://gc-next-website.vercel.app/missions/${mission.uniqueName}`}
-					key="og:url"
-				/>
-				<meta
-					property="twitter:url"
-					content={`https://gc-next-website.vercel.app/missions/${mission.uniqueName}`}
-					key="twitter:url"
-				/>
+            <meta
+                name="description"
+                content={mission.descriptionNoMarkdown ?? mission.description}
+                key="description"
+            />
+            <meta
+                property="og:description"
+                content={mission.descriptionNoMarkdown ?? mission.description}
+                key="og:description"
+            />
+            <meta
+                name="twitter:description"
+                content={mission.descriptionNoMarkdown ?? mission.description}
+                key="twitter:description"
+            />
+            <meta
+                property="og:url"
+                content={`https://gc-next-website.vercel.app/missions/${mission.uniqueName}`}
+                key="og:url"
+            />
+            <meta
+                property="twitter:url"
+                content={`https://gc-next-website.vercel.app/missions/${mission.uniqueName}`}
+                key="twitter:url"
+            />
 
-				<meta property="og:title" content={mission.name} key="og:title" />
+            <meta property="og:title" content={mission.name} key="og:title" />
 
-				<meta name="twitter:title" content={mission.name} key="twitter:title" />
+            <meta name="twitter:title" content={mission.name} key="twitter:title" />
 
-				<meta
-					name="twitter:image"
-					content={getMissionMediaPath(true)}
-					key="twitter:image"
-				/>
-				<meta
-					property="og:image"
-					content={getMissionMediaPath(true)}
-					key="og:image"
-				/>
-			</Head>
-			<div
-				className="flex flex-col max-w-screen-lg mx-auto mt-5 xl:max-w-screen-xl"
-				id="missionPage"
-			>
-				<div className="mx-2">
-					<div className="mt-10 mb-5">
-						<div className="mb-1 font-bold prose">
-							<h1>{mission.name}</h1>
-						</div>
+            <meta
+                name="twitter:image"
+                content={getMissionMediaPath(true)}
+                key="twitter:image"
+            />
+            <meta
+                property="og:image"
+                content={getMissionMediaPath(true)}
+                key="og:image"
+            />
+        </Head>
+        <div
+            className="flex flex-col max-w-screen-lg mx-auto mt-5 xl:max-w-screen-xl"
+            id="missionPage"
+        >
+            <div className="mx-2">
+                <div className="mt-10 mb-5">
+                    <div className="mb-1 font-bold prose">
+                        <h1>{mission.name}</h1>
+                    </div>
 
-						<div className="flex flex-row items-center">
-							<div className="mr-5 text-2xl dark:text-gray-100">
-								Author: <span className="font-bold">{mission.missionMaker}</span>
-							</div>
-							{session?.user && (
-								<div
-									data-tip={
-										hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
-									}
-									className="z-10 tooltip tooltip-bottom tooltip-primary"
-								>
-									<button
-										className={`btn  primary-btn-sm min-w-187 ${isLoadingVote ? "loading" : ""
-											}`}
-										onClick={hasVotedLocal ? retractVote : doVote}
-									>
-										{hasVotedLocal ? "Retract vote" : "Vote"}
-									</button>
-								</div>
-							)}
+                    <div className="flex flex-row items-center">
+                        <div className="mr-5 text-2xl dark:text-gray-100">
+                            Author: <span className="font-bold">{mission.missionMaker}</span>
+                        </div>
+                        {session?.user && (
+                            <div
+                                data-tip={
+                                    hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
+                                }
+                                className="z-10 tooltip tooltip-bottom tooltip-primary"
+                            >
+                                <button
+                                    className={`btn  primary-btn-sm min-w-187 ${isLoadingVote ? "loading" : ""
+                                        }`}
+                                    onClick={hasVotedLocal ? retractVote : doVote}
+                                >
+                                    {hasVotedLocal ? "Retract vote" : "Vote"}
+                                </button>
+                            </div>
+                        )}
 
-							{canEdit() && (
-								<div
-									data-tip="Edit the details of your mission"
-									className="z-10 tooltip tooltip-bottom"
-								>
-									<Link href={`/missions/${mission.uniqueName}/edit`}>
-										<a className="ml-5 text-white btn btn-sm">Edit details</a>
-									</Link>
-								</div>
-							)}
+                        {canEdit() && (
+                            <div
+                                data-tip="Edit the details of your mission"
+                                className="z-10 tooltip tooltip-bottom"
+                            >
+                                <Link
+                                    href={`/missions/${mission.uniqueName}/edit`}
+                                    className="ml-5 text-white btn btn-sm">
+                                    Edit details
+                                </Link>
+                            </div>
+                        )}
 
-							{canUnlist() && (
-								<div
-									data-tip={
-										isMissionUnlisted
-											? "Add your mission to the list"
-											: "Remove your mission from the list"
-									}
-									className={`z-10 tooltip tooltip-bottom
-									${isMissionUnlisted ? "tooltip-success" : "tooltip-error"}
-									`}
-								>
-									<button
-										className={`ml-5 text-white 555:
-										${isLoadingListing ? "loading" : ""}
-										${isMissionUnlisted
-												? "bg-green-600 border-green-600 btn btn-sm hover:bg-green-900 hover:border-green-900"
-												: "bg-red-700 border-red-700 btn btn-sm hover:bg-red-900 hover:border-red-900"
-											}
-										`}
-										onClick={isMissionUnlisted ? listMission : unlistMission}
-									>
-										{isMissionUnlisted ? "LIST MISSION" : "UNLIST MISSION"}
-									</button>
-								</div>
-							)}
+                        {canUnlist() && (
+                            <div
+                                data-tip={
+                                    isMissionUnlisted
+                                        ? "Add your mission to the list"
+                                        : "Remove your mission from the list"
+                                }
+                                className={`z-10 tooltip tooltip-bottom
+                                ${isMissionUnlisted ? "tooltip-success" : "tooltip-error"}
+                                `}
+                            >
+                                <button
+                                    className={`ml-5 text-white 555:
+                                    ${isLoadingListing ? "loading" : ""}
+                                    ${isMissionUnlisted
+                                            ? "bg-green-600 border-green-600 btn btn-sm hover:bg-green-900 hover:border-green-900"
+                                            : "bg-red-700 border-red-700 btn btn-sm hover:bg-red-900 hover:border-red-900"
+                                        }
+                                    `}
+                                    onClick={isMissionUnlisted ? listMission : unlistMission}
+                                >
+                                    {isMissionUnlisted ? "LIST MISSION" : "UNLIST MISSION"}
+                                </button>
+                            </div>
+                        )}
 
-						</div>
+                    </div>
 
-						{isMissionUnlisted && (
-							<div className="mr-5 text-sm dark:text-gray-100">
-								This mission is unlisted
-							</div>
-						)}
-						{mission.votes?.length > 0 && (<div className="prose">This mission has {mission.votes.length} vote{mission.votes.length > 1 && "s"}</div>)}
-					</div>
-
-
-					<div className="flex flex-row md:space-x-10">
-						<div
-							className="flex-1 hidden overflow-hidden rounded-lg shadow-lg md:block"
-							style={{ height: "fit-content" }}
-						>
-							<MissionMediaCard
-								createObjectURL={getMissionMediaPath()}
-								mission={mission}
-								isVideo={false}
-							></MissionMediaCard>
-						</div>
-
-						<div className="flex flex-col justify-between flex-1 ">
-							<div className="ml-2">
-								<div className="max-w-3xl prose">
-									{mission.descriptionMarkdown ? (
-										<div
-											className="max-w-3xl"
-											dangerouslySetInnerHTML={{
-												__html: mission.descriptionMarkdown,
-											}}
-										></div>
-									) : (
-										mission.description
-									)}
-								</div>
-							</div>
-
-							<div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white ">
-								<div className="m-2 ">
-									<div className="stat-title prose">Players</div>
-									<div className="text-sm stat-value ">
-										{mission.size.min} to {mission.size.max}
-									</div>
-								</div>
-								<div className="m-2 border-none">
-									<div className="stat-title prose">Map</div>
-									<div className="text-sm stat-value">
-										{mission.terrainName ?? mission.terrain}
-									</div>
-								</div>
-
-								<div className="m-2 border-none">
-									<div className="stat-title prose">Type</div>
-									<div className="text-sm stat-value ">{mission.type}</div>
-								</div>
-								<div className="m-2 border-none">
-									<div className="stat-title prose">Time of day</div>
-									<div className="text-sm stat-value ">{mission.timeOfDay}</div>
-								</div>
-								<div className="m-2 border-none">
-									<div className="stat-title prose">Era</div>
-									<div className="text-sm stat-value ">{mission.era}</div>
-								</div>
-								<div className="m-2 border-none">
-									<div className="stat-title prose">Respawn</div>
-									<div className="text-sm stat-value">
-										{mission.respawn == true
-											? "Yes"
-											: mission.respawn == false
-												? "No"
-												: mission.respawn}
-									</div>
-								</div>
-								<div className="m-2 border-none">
-									<div className="stat-title prose">JIP</div>
-									<div className="text-sm stat-value ">{mission.jip ? "Yes" : "No"}</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div className="mt-4">
-						{mission.tags.map((role) => (
-							<span
-								style={{ color: role.color }}
-								className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box bg-white dark:bg-slate-800 text-black dark:text-white/[0.7]"
-								key={role}
-							>
-								{role}
-							</span>
-						))}
-					</div>
+                    {isMissionUnlisted && (
+                        <div className="mr-5 text-sm dark:text-gray-100">
+                            This mission is unlisted
+                        </div>
+                    )}
+                    {mission.votes?.length > 0 && (<div className="prose">This mission has {mission.votes.length} vote{mission.votes.length > 1 && "s"}</div>)}
+                </div>
 
 
+                <div className="flex flex-row md:space-x-10">
+                    <div
+                        className="flex-1 hidden overflow-hidden rounded-lg shadow-lg md:block"
+                        style={{ height: "fit-content" }}
+                    >
+                        <MissionMediaCard
+                            createObjectURL={getMissionMediaPath()}
+                            mission={mission}
+                            isVideo={false}
+                        ></MissionMediaCard>
+                    </div>
+
+                    <div className="flex flex-col justify-between flex-1 ">
+                        <div className="ml-2">
+                            <div className="max-w-3xl prose">
+                                {mission.descriptionMarkdown ? (
+                                    <div
+                                        className="max-w-3xl"
+                                        dangerouslySetInnerHTML={{
+                                            __html: mission.descriptionMarkdown,
+                                        }}
+                                    ></div>
+                                ) : (
+                                    mission.description
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white ">
+                            <div className="m-2 ">
+                                <div className="stat-title prose">Players</div>
+                                <div className="text-sm stat-value ">
+                                    {mission.size.min} to {mission.size.max}
+                                </div>
+                            </div>
+                            <div className="m-2 border-none">
+                                <div className="stat-title prose">Map</div>
+                                <div className="text-sm stat-value">
+                                    {mission.terrainName ?? mission.terrain}
+                                </div>
+                            </div>
+
+                            <div className="m-2 border-none">
+                                <div className="stat-title prose">Type</div>
+                                <div className="text-sm stat-value ">{mission.type}</div>
+                            </div>
+                            <div className="m-2 border-none">
+                                <div className="stat-title prose">Time of day</div>
+                                <div className="text-sm stat-value ">{mission.timeOfDay}</div>
+                            </div>
+                            <div className="m-2 border-none">
+                                <div className="stat-title prose">Era</div>
+                                <div className="text-sm stat-value ">{mission.era}</div>
+                            </div>
+                            <div className="m-2 border-none">
+                                <div className="stat-title prose">Respawn</div>
+                                <div className="text-sm stat-value">
+                                    {mission.respawn == true
+                                        ? "Yes"
+                                        : mission.respawn == false
+                                            ? "No"
+                                            : mission.respawn}
+                                </div>
+                            </div>
+                            <div className="m-2 border-none">
+                                <div className="stat-title prose">JIP</div>
+                                <div className="text-sm stat-value ">{mission.jip ? "Yes" : "No"}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-4">
+                    {mission.tags.map((role) => (
+                        <span
+                            style={{ color: role.color }}
+                            className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box bg-white dark:bg-slate-800 text-black dark:text-white/[0.7]"
+                            key={role}
+                        >
+                            {role}
+                        </span>
+                    ))}
+                </div>
 
 
-					<h2 className="flex flex-row  py-2 font-bold dark:text-gray-100">
-						Mission Rating{" "} {getRatings()}
-
-					</h2>
-					<div className=" flex flex-col md:flex-row  items-center  md:justify-between ">
-
-						<div className="prose prose-sm max-w-none mr-3 self-start text-xs ">If you played this mission, consider rating it. Rate the mission, not the leadership!<br />Ratings are visible only to the mission maker, admins and GMs.<br />You can change your rating at any time.</div>
-						<div className="relative mt-5  md:mt-0">
-							{getRatingListBox()}
 
 
-						</div>
+                <h2 className="flex flex-row  py-2 font-bold dark:text-gray-100">
+                    Mission Rating{" "} {getRatings()}
 
-					</div>
+                </h2>
+                <div className=" flex flex-col md:flex-row  items-center  md:justify-between ">
 
-					<h2 className="flex flex-row justify-between  py-2 font-bold dark:text-gray-100">
-						Versions{" "}
-						{(mission.authorID == session?.user["discord_id"] ||
-							hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
-								<button
-									onClick={() => {
-										setNewVersionModalOpen(true);
-									}}
-									className="btn btn-sm btn-outline-standard"
-								>
-									<AddIcon></AddIcon> Upload new version
-								</button>
-							)}
-					</h2>
+                    <div className="prose prose-sm max-w-none mr-3 self-start text-xs ">If you played this mission, consider rating it. Rate the mission, not the leadership!<br />Ratings are visible only to the mission maker, admins and GMs.<br />You can change your rating at any time.</div>
+                    <div className="relative mt-5  md:mt-0">
+                        {getRatingListBox()}
 
 
-					<DataTable
-						className="ease-in-out"
-						highlightOnHover={true}
-						striped={true}
-						columns={columns}
-						data={mission.updates}
-					></DataTable>
+                    </div>
 
-					<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
-						Gameplay History{" "}
-						{hasCreds(session, CREDENTIAL.ADMIN) && (
-							<button
-								onClick={() => {
-									setgameplayHistoryModalOpen(true);
-								}}
-								className="btn btn-sm btn-outline-standard"
-							>
-								<AddIcon></AddIcon>
-							</button>
-						)}
-					</h2>
-					<div>
-						{getHistory() ? (
-							getHistory().map((historyItem, index) => {
-								return (
-									<div key={historyItem._id}>
-										<div className="flex flex-row justify-between mb-2 align-baseline">
-											<div className="font-bold align-text-bottom">
-												<div className="dark:text-gray-100">
-													{moment(historyItem.date).format("LL")}
-												</div>
-												<div className="dark:text-gray-100">
-													Outcome:{" "}
-													<span className={getOutcomeClass(historyItem.outcome)}>
-														{historyItem.outcome}
-													</span>
-												</div>
-											</div>
-											<div className="flex flex-row items-center space-x-1">
-												{hasCreds(session, CREDENTIAL.ADMIN) && (
-													<button
-														className="btn btn-xs dark:text-white dark:btn-ghost"
-														onClick={() => {
-															setGameplayHistoryModalHistoryToLoad(historyItem);
-															setgameplayHistoryModalOpen(true);
-														}}
-													>
-														Edit AAR
-													</button>
-												)}
+                </div>
 
-												<a
-													className="btn btn-xs dark:text-white dark:btn-ghost"
-													href={historyItem.aarReplayLink}
-													target="_blank"
-													rel="noreferrer"
-												>
-													AAR Replay
-												</a>
-												{historyItem.gmNote && (
-													<button
-														className="btn btn-xs dark:text-white dark:btn-ghost"
-														onClick={() => {
-															setSimpleTextViewing(historyItem.gmNote);
-															setSimpleTextHeaderViewing(`GM Notes:`);
-															setSimpleTextModalOpen(true);
-														}}
-													>
-														GM Notes
-													</button>
-												)}
-											</div>
-										</div>
-
-										{historyItem.leaders.map((leader) => {
-											return (
-												<Disclosure key={leader.discordID}>
-													{({ open }) => (
-														<>
-															<Disclosure.Button
-																className={`flex flex-row items-center justify-between w-full p-2 mb-2 text-white transition-shadow duration-300 bg-gray-600 rounded-lg hover:shadow-lg ${open ? "shadow-lg" : "shadow-none"
-																	}`}
-															>
-																<div className="flex flex-row items-center ">
-																	{" "}
-																	{!leader.displayAvatarURL && (
-																		<Shimmer>
-																			<div
-																				className="avatar mask mask-circle"
-																				style={{ width: 50, height: 50 }}
-																			/>
-																		</Shimmer>
-																	)}
-																	{leader.displayAvatarURL && (
-																		<Image
-																			className="avatar mask mask-circle"
-																			src={leader.displayAvatarURL}
-																			width={50}
-																			height={50}
-																			alt="user avatar"
-																		/>
-																	)}
-																	<div className="flex flex-row items-end ml-5 text-2xl">
-																		{!leader.name && (
-																			<Shimmer>
-																				<div
-																					className="rounded-lg "
-																					style={{ width: 90, height: 26 }}
-																				/>
-																			</Shimmer>
-																		)}
-																		<div>{getLeaderString(leader)}</div>
-																	</div>
-																</div>
-
-																<ChevronRightIcon
-																	className={`duration-150 ease-in-out ${open ? "transform  rotate-90" : ""
-																		}`}
-																	width={35}
-																	height={35}
-																	color="white"
-																>
-																	{" "}
-																</ChevronRightIcon>
-															</Disclosure.Button>
-
-															<Transition
-																show={open}
-																enter="transition duration-100 ease-out"
-																enterFrom="transform scale-95 opacity-0 max-h-0"
-																enterTo="transform scale-100 opacity-100 max-h-9000px"
-																leave="transition duration-75 ease-out"
-																leaveFrom="transform scale-100 opacity-100"
-																leaveTo="transform scale-95 opacity-0"
-															>
-																<Disclosure.Panel static className="mb-3 prose max-w-none">
-																	{leader.aar ? (
-																		<>
-																			<div className="max-w-none">
-																				{leader.aar && (
-																					<div
-																						className="max-w-none"
-																						dangerouslySetInnerHTML={{
-																							__html: generateMarkdown(leader.aar),
-																						}}
-																					></div>
-																				)}
-																			</div>
-																			{canSubmitAAR(leader) && (
-																				<button
-																					className="z-10 ml-2 btn btn-xs dark:btn-ghost "
-																					onClick={() => {
-																						setAarTextToLoad(leader.aar);
-																						setHistoryIdToLoadForAAR(historyItem._id);
-
-																						setSubmitAARModalOpen(true);
-																					}}
-																				>
-																					Edit AAR
-																				</button>
-																			)}
-																		</>
-																	) : (
-																		<div className="flex flex-row items-center">
-																			<div>No AAR Submited yet.</div>
-																			{canSubmitAAR(leader) && (
-																				<button
-																					className="z-10 ml-2 btn btn-xs dark:btn-ghost"
-																					onClick={() => {
-																						setAarTextToLoad(leader.aar);
-																						setHistoryIdToLoadForAAR(historyItem._id);
-																						setSubmitAARModalOpen(true);
-																					}}
-																				>
-																					Click here to submit your AAR
-																				</button>
-																			)}
-																		</div>
-																	)}
-																</Disclosure.Panel>
-															</Transition>
-														</>
-													)}
-												</Disclosure>
-											);
-										})}
-
-										{index + 1 != getHistory().length && <hr className="mt-5 mb-3"></hr>}
-									</div>
-								);
-							})
-						) : (
-							<div className="dark:text-gray-200">No History yet</div>
-						)}
-					</div>
-
-					<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
-						Media Gallery{" "}
-						{hasCredsAny(session, [
-							CREDENTIAL.ADMIN,
-							CREDENTIAL.GM,
-							CREDENTIAL.MEMBER,
-							CREDENTIAL.NEW_GUY,
-							CREDENTIAL.MISSION_MAKER,
-							CREDENTIAL.MISSION_REVIEWER,
-						]) && (
-								<button
-									onClick={() => {
-										setMediaUploadModalOpen(true);
-									}}
-									className="btn btn-sm btn-outline-standard"
-								>
-									<UploadIcon height={24} width={24}></UploadIcon>
-								</button>
-							)}
-					</h2>
-					{getMediaGallery()}
+                <h2 className="flex flex-row justify-between  py-2 font-bold dark:text-gray-100">
+                    Versions{" "}
+                    {(mission.authorID == session?.user["discord_id"] ||
+                        hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
+                            <button
+                                onClick={() => {
+                                    setNewVersionModalOpen(true);
+                                }}
+                                className="btn btn-sm btn-outline-standard"
+                            >
+                                <AddIcon></AddIcon> Upload new version
+                            </button>
+                        )}
+                </h2>
 
 
-					<div className="flex flex-wrap w-full mb-16">
-						<div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
-							<CommentBox
-								title="Bug Reports"
-								btnText="Submit Report"
-								onSubmitClick={() => {
-									setCommentModalIsOpen(true);
-									setCommentModalData({
-										title: "Submit Bug Report",
-										type: "report",
-										placeholder: "Enter the description of the bug here",
-									});
-								}}
-								onEditClick={(comment) => {
-									setCommentModalIsOpen(true);
-									setCommentModalData({
-										title: "Edit Bug Report",
-										type: "report",
-										placeholder: "Enter the description of the bug here",
-										comment: comment,
-									});
-								}}
-								comments={mission["reports"]}
-							></CommentBox>
-						</div>
+                <DataTable
+                    className="ease-in-out"
+                    highlightOnHover={true}
+                    striped={true}
+                    columns={columns}
+                    data={mission.updates}
+                ></DataTable>
 
-						<div className="flex-1 min-w-full sm:min-w-300">
-							<CommentBox
-								comments={mission["reviews"]}
-								onSubmitClick={() => {
-									setCommentModalIsOpen(true);
-									setCommentModalData({
-										title: "Submit review",
-										type: "review",
-										placeholder: "Enter your review of this mission here",
-									});
-								}}
-								onEditClick={(comment) => {
-									setCommentModalIsOpen(true);
-									setCommentModalData({
-										title: "Edit review",
-										type: "review",
-										placeholder: "Enter your review of this mission here",
-										comment: comment,
-									});
-								}}
-								title="Reviews"
-								btnText="Submit Review"
-							></CommentBox>
-						</div>
-					</div>
-				</div>
+                <h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
+                    Gameplay History{" "}
+                    {hasCreds(session, CREDENTIAL.ADMIN) && (
+                        <button
+                            onClick={() => {
+                                setgameplayHistoryModalOpen(true);
+                            }}
+                            className="btn btn-sm btn-outline-standard"
+                        >
+                            <AddIcon></AddIcon>
+                        </button>
+                    )}
+                </h2>
+                <div>
+                    {getHistory() ? (
+                        getHistory().map((historyItem, index) => {
+                            return (
+                                <div key={historyItem._id}>
+                                    <div className="flex flex-row justify-between mb-2 align-baseline">
+                                        <div className="font-bold align-text-bottom">
+                                            <div className="dark:text-gray-100">
+                                                {moment(historyItem.date).format("LL")}
+                                            </div>
+                                            <div className="dark:text-gray-100">
+                                                Outcome:{" "}
+                                                <span className={getOutcomeClass(historyItem.outcome)}>
+                                                    {historyItem.outcome}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-row items-center space-x-1">
+                                            {hasCreds(session, CREDENTIAL.ADMIN) && (
+                                                <button
+                                                    className="btn btn-xs dark:text-white dark:btn-ghost"
+                                                    onClick={() => {
+                                                        setGameplayHistoryModalHistoryToLoad(historyItem);
+                                                        setgameplayHistoryModalOpen(true);
+                                                    }}
+                                                >
+                                                    Edit AAR
+                                                </button>
+                                            )}
 
-				<SubmitAARModal
-					isOpen={submitAARModalOpen}
-					aarText={aarTextToLoad == "" ? null : aarTextToLoad}
-					mission={mission}
-					historyIdToLoadForAAR={historyIdToLoadForAAR}
-					onClose={(aar) => {
-						setSubmitAARModalOpen(false);
-						setTimeout(() => {
-							setAarTextToLoad("");
-							setHistoryIdToLoadForAAR("");
-						}, 200);
-						const currentHistory = history ?? [];
-						let newHistory = [];
+                                            <a
+                                                className="btn btn-xs dark:text-white dark:btn-ghost"
+                                                href={historyItem.aarReplayLink}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                            >
+                                                AAR Replay
+                                            </a>
+                                            {historyItem.gmNote && (
+                                                <button
+                                                    className="btn btn-xs dark:text-white dark:btn-ghost"
+                                                    onClick={() => {
+                                                        setSimpleTextViewing(historyItem.gmNote);
+                                                        setSimpleTextHeaderViewing(`GM Notes:`);
+                                                        setSimpleTextModalOpen(true);
+                                                    }}
+                                                >
+                                                    GM Notes
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
 
-						let historyIndex = currentHistory.findIndex(
-							(history) => history._id == historyIdToLoadForAAR
-						);
-						let leaderIndex = currentHistory[historyIndex].leaders.findIndex(
-							(leader) => leader.discordID == session.user["discord_id"]
-						);
-						currentHistory[historyIndex].leaders[leaderIndex].aar = aar;
-						newHistory = [...currentHistory];
-						historyMutate(newHistory, false);
-					}}
-				></SubmitAARModal>
+                                    {historyItem.leaders.map((leader) => {
+                                        return (
+                                            <Disclosure key={leader.discordID}>
+                                                {({ open }) => (
+                                                    <>
+                                                        <Disclosure.Button
+                                                            className={`flex flex-row items-center justify-between w-full p-2 mb-2 text-white transition-shadow duration-300 bg-gray-600 rounded-lg hover:shadow-lg ${open ? "shadow-lg" : "shadow-none"
+                                                                }`}
+                                                        >
+                                                            <div className="flex flex-row items-center ">
+                                                                {" "}
+                                                                {!leader.displayAvatarURL && (
+                                                                    <Shimmer>
+                                                                        <div
+                                                                            className="avatar mask mask-circle"
+                                                                            style={{ width: 50, height: 50 }}
+                                                                        />
+                                                                    </Shimmer>
+                                                                )}
+                                                                {leader.displayAvatarURL && (
+                                                                    <Image
+                                                                        className="avatar mask mask-circle"
+                                                                        src={leader.displayAvatarURL}
+                                                                        width={50}
+                                                                        height={50}
+                                                                        alt="user avatar"
+                                                                    />
+                                                                )}
+                                                                <div className="flex flex-row items-end ml-5 text-2xl">
+                                                                    {!leader.name && (
+                                                                        <Shimmer>
+                                                                            <div
+                                                                                className="rounded-lg "
+                                                                                style={{ width: 90, height: 26 }}
+                                                                            />
+                                                                        </Shimmer>
+                                                                    )}
+                                                                    <div>{getLeaderString(leader)}</div>
+                                                                </div>
+                                                            </div>
 
-				<SubmitReviewReportModal
-					isOpen={commentModalOpen}
-					data={commentModalData}
-					mission={mission}
-					onRemove={(comment) => {
-						const list = mission[comment.type + "s"] ?? [];
+                                                            <ChevronRightIcon
+                                                                className={`duration-150 ease-in-out ${open ? "transform  rotate-90" : ""
+                                                                    }`}
+                                                                width={35}
+                                                                height={35}
+                                                                color="white"
+                                                            >
+                                                                {" "}
+                                                            </ChevronRightIcon>
+                                                        </Disclosure.Button>
 
-						let itemIndex = list.findIndex(
-							(item) => item._id == commentModalData.comment._id
-						);
-						list.splice(itemIndex, 1);
+                                                        <Transition
+                                                            show={open}
+                                                            enter="transition duration-100 ease-out"
+                                                            enterFrom="transform scale-95 opacity-0 max-h-0"
+                                                            enterTo="transform scale-100 opacity-100 max-h-9000px"
+                                                            leave="transition duration-75 ease-out"
+                                                            leaveFrom="transform scale-100 opacity-100"
+                                                            leaveTo="transform scale-95 opacity-0"
+                                                        >
+                                                            <Disclosure.Panel static className="mb-3 prose max-w-none">
+                                                                {leader.aar ? (
+                                                                    <>
+                                                                        <div className="max-w-none">
+                                                                            {leader.aar && (
+                                                                                <div
+                                                                                    className="max-w-none"
+                                                                                    dangerouslySetInnerHTML={{
+                                                                                        __html: generateMarkdown(leader.aar),
+                                                                                    }}
+                                                                                ></div>
+                                                                            )}
+                                                                        </div>
+                                                                        {canSubmitAAR(leader) && (
+                                                                            <button
+                                                                                className="z-10 ml-2 btn btn-xs dark:btn-ghost "
+                                                                                onClick={() => {
+                                                                                    setAarTextToLoad(leader.aar);
+                                                                                    setHistoryIdToLoadForAAR(historyItem._id);
 
-						mission[comment.type + "s"] = [...list];
-					}}
-					onEdit={(comment) => {
-						const list = mission[comment.type + "s"];
+                                                                                    setSubmitAARModalOpen(true);
+                                                                                }}
+                                                                            >
+                                                                                Edit AAR
+                                                                            </button>
+                                                                        )}
+                                                                    </>
+                                                                ) : (
+                                                                    <div className="flex flex-row items-center">
+                                                                        <div>No AAR Submited yet.</div>
+                                                                        {canSubmitAAR(leader) && (
+                                                                            <button
+                                                                                className="z-10 ml-2 btn btn-xs dark:btn-ghost"
+                                                                                onClick={() => {
+                                                                                    setAarTextToLoad(leader.aar);
+                                                                                    setHistoryIdToLoadForAAR(historyItem._id);
+                                                                                    setSubmitAARModalOpen(true);
+                                                                                }}
+                                                                            >
+                                                                                Click here to submit your AAR
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                )}
+                                                            </Disclosure.Panel>
+                                                        </Transition>
+                                                    </>
+                                                )}
+                                            </Disclosure>
+                                        );
+                                    })}
 
-						let itemIndex = list.findIndex(
-							(item) => item._id == commentModalData.comment._id
-						);
-						list[itemIndex] = comment;
-						mission[comment.type + "s"] = [...list];
-					}}
-					onSubmit={(comment) => {
-						const list = mission[comment.type + "s"] ?? [];
-						const newlist = [...list, comment];
-						mission[comment.type + "s"] = newlist;
-					}}
-					onClose={() => {
-						setCommentModalIsOpen(false);
-						setTimeout(() => {
-							setCommentModalData(null);
-						}, 200);
-					}}
-				></SubmitReviewReportModal>
+                                    {index + 1 != getHistory().length && <hr className="mt-5 mb-3"></hr>}
+                                </div>
+                            );
+                        })
+                    ) : (
+                        <div className="dark:text-gray-200">No History yet</div>
+                    )}
+                </div>
 
-				<ActionsModal
-					isOpen={actionsModalOpen}
-					update={actionsModalData}
-					questions={missionTestingQuestions}
-					mission={mission}
-					updateTestingAudit={(testingAudit) => {
-						if (testingAudit) {
-							let updates: any[] = mission.updates;
-							const index = updates.indexOf(actionsModalData);
-							updates[index].testingAudit = testingAudit;
-							mission.updates = [...updates];
-							setActionsModalData(updates[index]);
-						}
-						setActionsModalIsOpen(true);
-					}}
-					updateCopyMission={(destination, present) => {
-						setActionsModalIsOpen(false);
-						let updates: any[] = mission.updates;
-						const index = updates.indexOf(actionsModalData);
-						updates[index][destination] = present;
+                <h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
+                    Media Gallery{" "}
+                    {hasCredsAny(session, [
+                        CREDENTIAL.ADMIN,
+                        CREDENTIAL.GM,
+                        CREDENTIAL.MEMBER,
+                        CREDENTIAL.NEW_GUY,
+                        CREDENTIAL.MISSION_MAKER,
+                        CREDENTIAL.MISSION_REVIEWER,
+                    ]) && (
+                            <button
+                                onClick={() => {
+                                    setMediaUploadModalOpen(true);
+                                }}
+                                className="btn btn-sm btn-outline-standard"
+                            >
+                                <UploadIcon height={24} width={24}></UploadIcon>
+                            </button>
+                        )}
+                </h2>
+                {getMediaGallery()}
 
-						mission.updates = [...updates];
-						setActionsModalData(updates[index]);
-					}}
-					updateAskAudit={() => {
-						setActionsModalIsOpen(false);
-						let updates: any[] = mission.updates;
-						const index = updates.indexOf(actionsModalData);
-						updates[index].testingAudit = {
-							reviewState: REVIEW_STATE_PENDING,
-						};
 
-						mission.updates = [...updates];
-						setActionsModalData(updates[index]);
-					}}
-					onAuditOpen={() => { }}
-					onClose={() => {
-						setActionsModalIsOpen(false);
-					}}
-				></ActionsModal>
+                <div className="flex flex-wrap w-full mb-16">
+                    <div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
+                        <CommentBox
+                            title="Bug Reports"
+                            btnText="Submit Report"
+                            onSubmitClick={() => {
+                                setCommentModalIsOpen(true);
+                                setCommentModalData({
+                                    title: "Submit Bug Report",
+                                    type: "report",
+                                    placeholder: "Enter the description of the bug here",
+                                });
+                            }}
+                            onEditClick={(comment) => {
+                                setCommentModalIsOpen(true);
+                                setCommentModalData({
+                                    title: "Edit Bug Report",
+                                    type: "report",
+                                    placeholder: "Enter the description of the bug here",
+                                    comment: comment,
+                                });
+                            }}
+                            comments={mission["reports"]}
+                        ></CommentBox>
+                    </div>
 
-				<NewVersionModal
-					isOpen={newVersionModalOpen}
-					mission={mission}
-					onClose={(update) => {
-						if (!update) {
-							setNewVersionModalOpen(false);
-							return;
-						}
-						let updates: any[] = mission.updates;
-						update.authorName = session.user["nickname"] ?? session.user["username"];
-						update.archive = true;
-						updates.push(update);
-						mission.updates = [...updates];
-						setNewVersionModalOpen(false);
-					}}
-				></NewVersionModal>
+                    <div className="flex-1 min-w-full sm:min-w-300">
+                        <CommentBox
+                            comments={mission["reviews"]}
+                            onSubmitClick={() => {
+                                setCommentModalIsOpen(true);
+                                setCommentModalData({
+                                    title: "Submit review",
+                                    type: "review",
+                                    placeholder: "Enter your review of this mission here",
+                                });
+                            }}
+                            onEditClick={(comment) => {
+                                setCommentModalIsOpen(true);
+                                setCommentModalData({
+                                    title: "Edit review",
+                                    type: "review",
+                                    placeholder: "Enter your review of this mission here",
+                                    comment: comment,
+                                });
+                            }}
+                            title="Reviews"
+                            btnText="Submit Review"
+                        ></CommentBox>
+                    </div>
+                </div>
+            </div>
 
-				<GameplayHistoryModal
-					discordUsers={discordUsers}
-					mission={mission}
-					isOpen={gameplayHistoryModalOpen}
-					historyToLoad={gameplayHistoryModalHistoryToLoad}
-					onClose={(data, isUpdate) => {
-						setTimeout(() => {
-							setGameplayHistoryModalHistoryToLoad(null);
-						}, 200);
-						if (!data) {
-							setgameplayHistoryModalOpen(false);
-							return;
-						}
-						const currentHistory = history ?? [];
-						let newHistory = [];
-						if (isUpdate) {
-							let itemIndex = currentHistory.findIndex((item) => item._id == data._id);
-							currentHistory[itemIndex] = data;
-							newHistory = [...currentHistory];
-						} else {
-							newHistory = [data, ...currentHistory];
-						}
+            <SubmitAARModal
+                isOpen={submitAARModalOpen}
+                aarText={aarTextToLoad == "" ? null : aarTextToLoad}
+                mission={mission}
+                historyIdToLoadForAAR={historyIdToLoadForAAR}
+                onClose={(aar) => {
+                    setSubmitAARModalOpen(false);
+                    setTimeout(() => {
+                        setAarTextToLoad("");
+                        setHistoryIdToLoadForAAR("");
+                    }, 200);
+                    const currentHistory = history ?? [];
+                    let newHistory = [];
 
-						for (const historyItem of newHistory) {
-							if (typeof historyItem.date == "string") {
-								historyItem.date = moment(historyItem.date).toDate();
-							}
-						}
+                    let historyIndex = currentHistory.findIndex(
+                        (history) => history._id == historyIdToLoadForAAR
+                    );
+                    let leaderIndex = currentHistory[historyIndex].leaders.findIndex(
+                        (leader) => leader.discordID == session.user["discord_id"]
+                    );
+                    currentHistory[historyIndex].leaders[leaderIndex].aar = aar;
+                    newHistory = [...currentHistory];
+                    historyMutate(newHistory, false);
+                }}
+            ></SubmitAARModal>
 
-						newHistory.sort((a, b) => {
-							return b.date.getTime() - a.date.getTime();
-						});
-						historyMutate(newHistory, false);
+            <SubmitReviewReportModal
+                isOpen={commentModalOpen}
+                data={commentModalData}
+                mission={mission}
+                onRemove={(comment) => {
+                    const list = mission[comment.type + "s"] ?? [];
 
-						setgameplayHistoryModalOpen(false);
-					}}
-				></GameplayHistoryModal>
+                    let itemIndex = list.findIndex(
+                        (item) => item._id == commentModalData.comment._id
+                    );
+                    list.splice(itemIndex, 1);
 
-				<SimpleTextViewModal
-					text={simpleTextViewing}
-					header={simpleTextHeaderViewing}
-					isOpen={simpleTextModalOPen}
-					onClose={() => {
-						setSimpleTextModalOpen(false);
-					}}
-				></SimpleTextViewModal>
+                    mission[comment.type + "s"] = [...list];
+                }}
+                onEdit={(comment) => {
+                    const list = mission[comment.type + "s"];
 
-				<MediaUploadModal
-					isOpen={mediaUploadModalOpen}
-					mission={mission}
-					onClose={(links) => {
+                    let itemIndex = list.findIndex(
+                        (item) => item._id == commentModalData.comment._id
+                    );
+                    list[itemIndex] = comment;
+                    mission[comment.type + "s"] = [...list];
+                }}
+                onSubmit={(comment) => {
+                    const list = mission[comment.type + "s"] ?? [];
+                    const newlist = [...list, comment];
+                    mission[comment.type + "s"] = newlist;
+                }}
+                onClose={() => {
+                    setCommentModalIsOpen(false);
+                    setTimeout(() => {
+                        setCommentModalData(null);
+                    }, 200);
+                }}
+            ></SubmitReviewReportModal>
 
-						if (links) {
-							if (!mission.media) {
-								mission.media = links;
-							} else {
-								mission.media = [...mission.media, ...links];
-							}
-							mediaMutate([...mission.media], true);
-						}
+            <ActionsModal
+                isOpen={actionsModalOpen}
+                update={actionsModalData}
+                questions={missionTestingQuestions}
+                mission={mission}
+                updateTestingAudit={(testingAudit) => {
+                    if (testingAudit) {
+                        let updates: any[] = mission.updates;
+                        const index = updates.indexOf(actionsModalData);
+                        updates[index].testingAudit = testingAudit;
+                        mission.updates = [...updates];
+                        setActionsModalData(updates[index]);
+                    }
+                    setActionsModalIsOpen(true);
+                }}
+                updateCopyMission={(destination, present) => {
+                    setActionsModalIsOpen(false);
+                    let updates: any[] = mission.updates;
+                    const index = updates.indexOf(actionsModalData);
+                    updates[index][destination] = present;
 
-						setMediaUploadModalOpen(false);
-					}}
-				></MediaUploadModal>
-			</div>
-		</>
-	);
+                    mission.updates = [...updates];
+                    setActionsModalData(updates[index]);
+                }}
+                updateAskAudit={() => {
+                    setActionsModalIsOpen(false);
+                    let updates: any[] = mission.updates;
+                    const index = updates.indexOf(actionsModalData);
+                    updates[index].testingAudit = {
+                        reviewState: REVIEW_STATE_PENDING,
+                    };
+
+                    mission.updates = [...updates];
+                    setActionsModalData(updates[index]);
+                }}
+                onAuditOpen={() => { }}
+                onClose={() => {
+                    setActionsModalIsOpen(false);
+                }}
+            ></ActionsModal>
+
+            <NewVersionModal
+                isOpen={newVersionModalOpen}
+                mission={mission}
+                onClose={(update) => {
+                    if (!update) {
+                        setNewVersionModalOpen(false);
+                        return;
+                    }
+                    let updates: any[] = mission.updates;
+                    update.authorName = session.user["nickname"] ?? session.user["username"];
+                    update.archive = true;
+                    updates.push(update);
+                    mission.updates = [...updates];
+                    setNewVersionModalOpen(false);
+                }}
+            ></NewVersionModal>
+
+            <GameplayHistoryModal
+                discordUsers={discordUsers}
+                mission={mission}
+                isOpen={gameplayHistoryModalOpen}
+                historyToLoad={gameplayHistoryModalHistoryToLoad}
+                onClose={(data, isUpdate) => {
+                    setTimeout(() => {
+                        setGameplayHistoryModalHistoryToLoad(null);
+                    }, 200);
+                    if (!data) {
+                        setgameplayHistoryModalOpen(false);
+                        return;
+                    }
+                    const currentHistory = history ?? [];
+                    let newHistory = [];
+                    if (isUpdate) {
+                        let itemIndex = currentHistory.findIndex((item) => item._id == data._id);
+                        currentHistory[itemIndex] = data;
+                        newHistory = [...currentHistory];
+                    } else {
+                        newHistory = [data, ...currentHistory];
+                    }
+
+                    for (const historyItem of newHistory) {
+                        if (typeof historyItem.date == "string") {
+                            historyItem.date = moment(historyItem.date).toDate();
+                        }
+                    }
+
+                    newHistory.sort((a, b) => {
+                        return b.date.getTime() - a.date.getTime();
+                    });
+                    historyMutate(newHistory, false);
+
+                    setgameplayHistoryModalOpen(false);
+                }}
+            ></GameplayHistoryModal>
+
+            <SimpleTextViewModal
+                text={simpleTextViewing}
+                header={simpleTextHeaderViewing}
+                isOpen={simpleTextModalOPen}
+                onClose={() => {
+                    setSimpleTextModalOpen(false);
+                }}
+            ></SimpleTextViewModal>
+
+            <MediaUploadModal
+                isOpen={mediaUploadModalOpen}
+                mission={mission}
+                onClose={(links) => {
+
+                    if (links) {
+                        if (!mission.media) {
+                            mission.media = links;
+                        } else {
+                            mission.media = [...mission.media, ...links];
+                        }
+                        mediaMutate([...mission.media], true);
+                    }
+
+                    setMediaUploadModalOpen(false);
+                }}
+            ></MediaUploadModal>
+        </div>
+    </>;
 }
 
 // This function gets called at build time on server-side.

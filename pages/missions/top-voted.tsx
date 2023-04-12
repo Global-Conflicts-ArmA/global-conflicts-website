@@ -174,7 +174,7 @@ function TopVoted({ missions, maxVotes }) {
 	}
 
 	return (
-		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
+        <div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-col max-w-screen-xl mx-auto mb-10">
 				<div className="mx-4 mt-10 prose lg:prose-xl" style={{ maxWidth: "none" }}>
 					<h1>Top voted missions</h1>
@@ -222,94 +222,95 @@ function TopVoted({ missions, maxVotes }) {
 
 			<div className="mx-4 my-10 space-y-10 md:mx-4 ">
 				{missions.map((mission, index) => {
-					return (
-						<>
-							<div key={mission.uniqueName} className="flex flex-row ">
-								<div
-									className="flex-1 hidden w-full overflow-hidden shadow-lg card md:block"
-									style={{ height: "fit-content" }}
-								>
-									<MissionMediaCard
-										createObjectURL={getMissionMediaPath(mission)}
-										isVideo={false}
-										isVotingCard={false}
-										mission={mission}
-										aspectRatio="16/9"
-									></MissionMediaCard>
-								</div>
-								<div className="flex-1 max-w-full prose md:ml-4">
-									<div className="flex flex-col items-start justify-between sm:flex-row">
-										<div>
-											<h2 style={{ margin: 0 }}>
-												<span>{index + 1})&nbsp;</span>
+					return <>
+                        <div key={mission.uniqueName} className="flex flex-row ">
+                            <div
+                                className="flex-1 hidden w-full overflow-hidden shadow-lg card md:block"
+                                style={{ height: "fit-content" }}
+                            >
+                                <MissionMediaCard
+                                    createObjectURL={getMissionMediaPath(mission)}
+                                    isVideo={false}
+                                    isVotingCard={false}
+                                    mission={mission}
+                                    aspectRatio="16/9"
+                                ></MissionMediaCard>
+                            </div>
+                            <div className="flex-1 max-w-full prose md:ml-4">
+                                <div className="flex flex-col items-start justify-between sm:flex-row">
+                                    <div>
+                                        <h2 style={{ margin: 0 }}>
+                                            <span>{index + 1})&nbsp;</span>
 
-												<Link href={`/missions/${mission.uniqueName}`}>
-													<a className="overflow-hidden" style={{ wordBreak: "break-word" }}>
-														{mission.name}
-													</a>
-												</Link>
-											</h2>
-											<h4 className="mb-0">
-												Author: <span className="font-bold">{mission.missionMaker}</span>
-											</h4>
-										</div>
-										<div className="hidden md:block">{getVoteBtn(mission)}</div>
-									</div>
-									<div className="block md:hidden">{getVoteBtn(mission)}</div>
-									<div>
-										{mission.descriptionMarkdown ? (
-											<div
-												className="max-w-3xl prose"
-												dangerouslySetInnerHTML={{
-													__html: mission.descriptionMarkdown,
-												}}
-											></div>
-										) : (
-											mission.description
-										)}
-									</div>
+                                            <Link
+                                                href={`/missions/${mission.uniqueName}`}
+                                                className="overflow-hidden"
+                                                style={{ wordBreak: "break-word" }}>
 
-									<div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white  ">
-										<div className="m-2">
-											<div className="opacity-75 stat-title prose">Players</div>
-											<div className="text-sm stat-value ">
-												{mission.size.min} to {mission.size.max}
-											</div>
-										</div>
-										<div className="m-2 border-none">
-											<div className="opacity-75 stat-title prose">Map</div>
-											<div className="text-sm stat-value">
-												{mission.terrainName ?? mission.terrain}
-											</div>
-										</div>
+                                                {mission.name}
 
-										<div className="m-2 border-none">
-											<div className="opacity-75 stat-title prose">Type</div>
-											<div className="text-sm stat-value ">{mission.type}</div>
-										</div>
+                                            </Link>
+                                        </h2>
+                                        <h4 className="mb-0">
+                                            Author: <span className="font-bold">{mission.missionMaker}</span>
+                                        </h4>
+                                    </div>
+                                    <div className="hidden md:block">{getVoteBtn(mission)}</div>
+                                </div>
+                                <div className="block md:hidden">{getVoteBtn(mission)}</div>
+                                <div>
+                                    {mission.descriptionMarkdown ? (
+                                        <div
+                                            className="max-w-3xl prose"
+                                            dangerouslySetInnerHTML={{
+                                                __html: mission.descriptionMarkdown,
+                                            }}
+                                        ></div>
+                                    ) : (
+                                        mission.description
+                                    )}
+                                </div>
 
-										<div className="m-2 border-none">
-											<div className="opacity-75 stat-title prose">Respawn</div>
-											<div className="text-sm stat-value">
-												{mission.respawn ? "Yes" : "No"}
-											</div>
-										</div>
-										<div className="m-2 border-none">
-											<div className="opacity-75 stat-title prose">JIP</div>
-											<div className="text-sm stat-value ">
-												{mission.jip ? "Yes" : "No"}
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-							{index + 1 < missions.length && <hr></hr>}
-						</>
-					);
+                                <div className="flex flex-row flex-wrap w-full bg-transparent stats dark:text-white  ">
+                                    <div className="m-2">
+                                        <div className="opacity-75 stat-title prose">Players</div>
+                                        <div className="text-sm stat-value ">
+                                            {mission.size.min} to {mission.size.max}
+                                        </div>
+                                    </div>
+                                    <div className="m-2 border-none">
+                                        <div className="opacity-75 stat-title prose">Map</div>
+                                        <div className="text-sm stat-value">
+                                            {mission.terrainName ?? mission.terrain}
+                                        </div>
+                                    </div>
+
+                                    <div className="m-2 border-none">
+                                        <div className="opacity-75 stat-title prose">Type</div>
+                                        <div className="text-sm stat-value ">{mission.type}</div>
+                                    </div>
+
+                                    <div className="m-2 border-none">
+                                        <div className="opacity-75 stat-title prose">Respawn</div>
+                                        <div className="text-sm stat-value">
+                                            {mission.respawn ? "Yes" : "No"}
+                                        </div>
+                                    </div>
+                                    <div className="m-2 border-none">
+                                        <div className="opacity-75 stat-title prose">JIP</div>
+                                        <div className="text-sm stat-value ">
+                                            {mission.jip ? "Yes" : "No"}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {index + 1 < missions.length && <hr></hr>}
+                    </>;
 				})}
 			</div>
 		</div>
-	);
+    );
 }
 
 export async function getServerSideProps(context) {
