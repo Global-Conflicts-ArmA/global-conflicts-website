@@ -285,7 +285,7 @@ export default function EditEvent({ event }) {
 								className="input input-lg input-bordered"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventName}
+								{eventDataFormik.errors.eventName.toString()}
 							</span>
 						</div>
 
@@ -298,7 +298,7 @@ export default function EditEvent({ event }) {
 								Select Image, GIF or video Clip(8mb max)
 							</label>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventCoverMedia}
+								{eventDataFormik.errors.eventCoverMedia.toString()}
 							</span>
 						</div>
 					</div>
@@ -316,7 +316,7 @@ export default function EditEvent({ event }) {
 								className="h-24 textarea textarea-bordered"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventDescription}
+								{eventDataFormik.errors.eventDescription.toString()}
 							</span>
 						</div>
 					</div>
@@ -336,7 +336,7 @@ export default function EditEvent({ event }) {
 								Select a time and date
 							</button>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventStartDate}
+								{eventDataFormik.errors.eventStartDate.toString()}
 							</span>
 						</div>
 						<div className="form-control ">
@@ -358,7 +358,7 @@ export default function EditEvent({ event }) {
 								className="input input-bordered input-lg"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventSlotCount}
+								{eventDataFormik.errors.eventSlotCount.toString()}
 							</span>
 						</div>
 						<div className="form-control ">
@@ -375,7 +375,7 @@ export default function EditEvent({ event }) {
 								className="input input-bordered input-lg"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventOrganizer}
+								{eventDataFormik.errors.eventOrganizer.toString()}
 							</span>
 						</div>
 					</div>

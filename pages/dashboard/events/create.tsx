@@ -298,7 +298,7 @@ function EventsDashboardPage() {
 								className="input input-lg input-bordered"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventName}
+								{eventDataFormik.errors.eventName.toString()}
 							</span>
 						</div>
 
@@ -311,7 +311,7 @@ function EventsDashboardPage() {
 								Select Image, GIF or video Clip
 							</label>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventCoverMedia}
+								{eventDataFormik.errors.eventCoverMedia.toString()}
 							</span>
 						</div>
 					</div>
@@ -329,7 +329,7 @@ function EventsDashboardPage() {
 								className="h-24 textarea textarea-bordered"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventDescription}
+								{eventDataFormik.errors.eventDescription.toString()}
 							</span>
 						</div>
 					</div>
@@ -349,7 +349,7 @@ function EventsDashboardPage() {
 								Select a time and date
 							</button>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventStartDate}
+								{eventDataFormik.errors.eventStartDate.toString()}
 							</span>
 						</div>
 						<div className="form-control ">
@@ -371,7 +371,7 @@ function EventsDashboardPage() {
 								className="input input-bordered input-lg"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventSlotCount}
+								{eventDataFormik.errors.eventSlotCount.toString()}
 							</span>
 						</div>
 						<div className="form-control ">
@@ -388,7 +388,7 @@ function EventsDashboardPage() {
 								className="input input-bordered input-lg"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventOrganizer}
+								{eventDataFormik.errors.eventOrganizer.toString()}
 							</span>
 						</div>
 					</div>
@@ -420,7 +420,7 @@ function EventsDashboardPage() {
 							Select Image
 						</label>
 						<span className="text-red-500 label-text-alt">
-							{eventDataFormik.errors.eventCoverMediaSocial}
+							{eventDataFormik.errors.eventCoverMediaSocial.toString()}
 						</span>
 					</div>
 				</form>

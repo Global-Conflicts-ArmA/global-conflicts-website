@@ -185,7 +185,7 @@ export default function EventsSlotsCreation({ currentMission, onAddFaction, onRe
                                 />
 
                                 <span className="text-red-500 label-text-alt">
-                                    {newSlotFormik.errors.reservedSlotName}
+                                    {newSlotFormik.errors.reservedSlotName.toString()}
                                 </span>
                             </div>
 
@@ -223,7 +223,7 @@ export default function EventsSlotsCreation({ currentMission, onAddFaction, onRe
                                     className="input input-bordered"
                                 />
                                 <span className="text-red-500 label-text-alt">
-                                    {newSlotFormik.errors.reservedSlotCount}
+                                    {newSlotFormik.errors.reservedSlotCount.toString()}
                                 </span>
                             </div>
                             <button className="btn btn-block" type="submit">
