@@ -4,7 +4,7 @@ module.exports = async (phase, { defaultConfig }) => {
 	 */
 	const nextConfig = {
 		swcMinify: true,
-
+		 
 		eslint: {
 			ignoreDuringBuilds: true
 		},
@@ -30,6 +30,8 @@ module.exports = async (phase, { defaultConfig }) => {
 				"imgur.com",
 				"i.imgur.com",
 				"cdn.discordapp.com",
+				"community.cloudflare.steamstatic.com",
+				"avatars.akamai.steamstatic.com"
 			],
 		},
 		async redirects() {

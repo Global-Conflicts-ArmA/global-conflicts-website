@@ -25,7 +25,7 @@
     "**/*.ts",
     "**/*.tsx",
     "components/MDXComponents.js"
-  ],
+, "lib/steam/steamAuthFunctions.js"  ],
   "exclude": [
     "node_modules"
   ]

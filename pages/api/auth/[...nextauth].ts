@@ -1,11 +1,11 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import MyMongo from "../../../lib/mongodb";
 import axios from "axios";
 
-export default NextAuth({
+export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers A
 	secret: process.env.SECRET,
 	providers: [
@@ -69,18 +69,18 @@ export default NextAuth({
 			return session;
 		},
 		async signIn({ user, account, profile, email, credentials }) {
-			 
+
 			const botResponse = await axios.get(
 				`http://localhost:3001/users/${user["discord_id"]}`
 			);
 			const member = botResponse.data;
 
-			if(member.rolesMap){
+			if (member.rolesMap) {
 				return true;
-			}else{
+			} else {
 				return "/auth/not-on-discord";
 			}
- 
+
 		},
 	},
 
@@ -93,4 +93,6 @@ export default NextAuth({
 	},
 
 	// A database is optional, but required to persist accounts in a database
-});
+};
+
+export default NextAuth(authOptions)

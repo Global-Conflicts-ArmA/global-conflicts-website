@@ -8,21 +8,22 @@ import React, { useEffect, useState } from "react";
 import ProgressBar from "@ramonak/react-progress-bar";
 import gcSmallLogo from "../../public/logo-patch.webp";
 function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
-	const [goalsToUse, setGoalsToUse] = useState(goals);
+    const [goalsToUse, setGoalsToUse] = useState(goals);
 
-	useEffect(() => {
-		// Update the document title using the browser API
-		setTimeout(() => {
-			goals.map((goal) => {
-				goal.percentToUse = goal.percent;
-				return goal;
-			});
+    useEffect(() => {
+        // Update the document title using the browser API
+        setTimeout(() => {
+            goals.map((goal) => {
+                goal.percentToUse = goal.percent;
+                return goal;
+            });
 
-			setGoalsToUse([...goals]);
-		}, 100);
-	}, [goals]);
+            setGoalsToUse([...goals]);
+        }, 100);
+    }, [goals]);
 
-	return <>
+
+    return <>
         <Head>
             <title>Donate to Global Conflicts</title>
         </Head>
@@ -32,6 +33,7 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
                 <div className="mx-5">
                     <div className="max-w-2xl mb-10 prose">
                         <h1>Help maintain and grow our servers:</h1>
+                        
                     </div>
                     <div className="flex flex-col lg:flex-row justify-evenly ">
                         <Image
@@ -64,7 +66,7 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
                                             borderRadius={"10px"}
                                             className="grain-progress-bar"
                                             labelSize={".9em"}
-                                             
+
                                             completed={goal.percentToUse}
                                         />
                                     </div>
@@ -75,9 +77,9 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
                     <div className="flex flex-col items-center mt-5 sm:flex-row sm:justify-end">
                         <div className="mr-5 dark:text-gray-200">By helping us you gain our sincere thank you.</div>
                         <Link href="https://www.patreon.com/globalconflicts" className="primary-btn">
-                            
-                                Become a patreon
-                            
+
+                            Become a patreon
+
                         </Link>
                     </div>
                     <div>
@@ -117,57 +119,57 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 
 // This function gets called at build time
 export async function getServerSideProps(context) {
-	try {
-		const patreonResponse = await axios.get(
-			"https://www.patreon.com/globalconflicts"
-		);
+    try {
+        const patreonResponse = await axios.get(
+            "https://www.patreon.com/globalconflicts"
+        );
 
-		const body = patreonResponse.data;
-		const functionString = "Object.assign(window.patreon.bootstrap, ";
-		const scriptStart = body.indexOf(functionString);
-		const lastIndex = scriptStart + body.substring(scriptStart).indexOf(");");
-		var mySubString = body.substring(
-			body.indexOf(functionString) + functionString.length,
-			lastIndex
-		);
+        const body = patreonResponse.data;
+        const functionString = "Object.assign(window.patreon.bootstrap, ";
+        const scriptStart = body.indexOf(functionString);
+        const lastIndex = scriptStart + body.substring(scriptStart).indexOf(");");
+        var mySubString = body.substring(
+            body.indexOf(functionString) + functionString.length,
+            lastIndex
+        );
 
-		const json = JSON.parse(mySubString);
+        const json = JSON.parse(mySubString);
 
-		const currentAmount = json.campaign.data.attributes.pledge_sum;
-		const currentAmountNum = currentAmount / 100;
-		const currentAmountString = currentAmountNum.toLocaleString("en-US", {
-			style: "currency",
-			currency: "CAD",
-		});
+        const currentAmount = json.campaign.data.attributes.pledge_sum;
+        const currentAmountNum = currentAmount / 100;
+        const currentAmountString = currentAmountNum.toLocaleString("en-US", {
+            style: "currency",
+            currency: "CAD",
+        });
 
-		const goals = json.campaign.included.filter((thing) => thing.type === "goal");
-		goals.map((goal) => {
-			const dollarsNum = goal.attributes.amount_cents / 100;
-			const dollarsString = dollarsNum.toLocaleString("en-US", {
-				style: "currency",
-				currency: "CAD",
-			});
-			goal["amountDollarsString"] = dollarsString;
-			goal["amountDollarsNum"] = dollarsNum;
+        const goals = json.campaign.included.filter((thing) => thing.type === "goal");
+        goals.map((goal) => {
+            const dollarsNum = goal.attributes.amount_cents / 100;
+            const dollarsString = dollarsNum.toLocaleString("en-US", {
+                style: "currency",
+                currency: "CAD",
+            });
+            goal["amountDollarsString"] = dollarsString;
+            goal["amountDollarsNum"] = dollarsNum;
 
-			goal["percent"] = Math.round((currentAmountNum / dollarsNum) * 100);
-			goal["percentToUse"] = 0;
-			goal["description"] = goal.attributes.description;
-			delete goal["attributes"];
-			return goal;
-		});
+            goal["percent"] = Math.round((currentAmountNum / dollarsNum) * 100);
+            goal["percentToUse"] = 0;
+            goal["description"] = goal.attributes.description;
+            delete goal["attributes"];
+            return goal;
+        });
 
-		const botResponse = await axios.get("http://localhost:3001/users/donators");
-		const donators = botResponse.data;
+        const botResponse = await axios.get("http://localhost:3001/users/donators");
+        const donators = botResponse.data;
 
-		return {
-			props: { currentAmountNum, currentAmountString, goals, donators },
-		};
-	} catch (error) {
-		return {
-			props: {},
-		};
-	}
+        return {
+            props: { currentAmountNum, currentAmountString, goals, donators },
+        };
+    } catch (error) {
+        return {
+            props: {},
+        };
+    }
 }
 
 export default Donate;
