@@ -32,7 +32,7 @@ export default function ActionsModal({
 				setTimeout(() => {
 					setIsLoadingAudit(false);
 				}, 200);
-				updateAskAudit();
+				updateAskAudit(REVIEW_STATE_PENDING);
 				toast.success("Audit requested.");
 			})
 			.catch((error) => {
@@ -44,6 +44,26 @@ export default function ActionsModal({
 				setIsLoadingAudit(false);
 			});
 	}
+	function cancelAuditRequest() {
+		setIsLoadingAudit(true);
+		axios
+			.post(`/api/audit/${mission.uniqueName}/${update._id}/cancel`)
+			.then((response) => {
+				setTimeout(() => {
+					setIsLoadingAudit(false);
+				}, 200);
+				updateAskAudit(null);
+				toast.success("Audit request canceled.");
+			})
+			.catch((error) => {
+				if (error.response?.data && error.response?.data?.error) {
+					toast.error(error.response.data.error);
+				} else {
+					toast.error("Error canceled audit request.");
+				}
+				setIsLoadingAudit(false);
+			});
+	};
 
 	function copyOrRemoveMission(destination: string, isCopying) {
 		setIsLoadingCopy(true);
@@ -128,11 +148,11 @@ export default function ActionsModal({
 									<div>
 										{(mission.authorID == session?.user["discord_id"] ||
 											hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
-											<p className="mb-0">
-												For adding missions the server must not be in the mission selection
-												screen, else it will crash.
-											</p>
-										)}
+												<p className="mb-0">
+													For adding missions the server must not be in the mission selection
+													screen, else it will crash.
+												</p>
+											)}
 
 										<div className="flex flex-col align-middle justify-evenly">
 											{hasCreds(session, CREDENTIAL.ADMIN) && (
@@ -155,57 +175,67 @@ export default function ActionsModal({
 
 											{(mission.authorID == session?.user["discord_id"] ||
 												hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
-												<button
-													className={
-														isLoadingCopy
-															? "flex-1 m-2 btn whitespace-nowrap flex flex-nowrap flex-row loading "
-															: "flex-1 m-2 btn whitespace-nowrap flex flex-nowrap flex-row  "
-													}
-													onClick={() => {
-														if (isLoadingAudit || isLoadingCopy) {
-															return;
+													<button
+														className={
+															isLoadingCopy
+																? "flex-1 m-2 btn whitespace-nowrap flex flex-nowrap flex-row loading "
+																: "flex-1 m-2 btn whitespace-nowrap flex flex-nowrap flex-row  "
 														}
+														onClick={() => {
+															if (isLoadingAudit || isLoadingCopy) {
+																return;
+															}
 
-														copyOrRemoveMission("test", !update?.test);
-													}}
-												>
-													{update?.test ? "Remove from Test Server" : "Copy to Test Server"}
-												</button>
-											)}
+															copyOrRemoveMission("test", !update?.test);
+														}}
+													>
+														{update?.test ? "Remove from Test Server" : "Copy to Test Server"}
+													</button>
+												)}
 										</div>
 									</div>
-									{update?.testingAudit?.reviewState == null &&
-										mission.authorID == session?.user["discord_id"] && (
-											<>
-												<hr></hr>
+									{(update?.testingAudit?.reviewState == null || update?.testingAudit?.reviewState == REVIEW_STATE_PENDING) && (mission.authorID == session?.user["discord_id"] || hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
+										<>
+											<hr></hr>
 
-												<div>
-													<p className="mb-0">
-														To <b>upload</b> your mission to the <b>main server</b>, ask the
-														review team to audit it. If it passes it will be uploaded. You
-														will be notified of the results.
-													</p>
+											<div>
+												{update?.testingAudit?.reviewState == null && (<p className="mb-0">
+													To <b>upload</b> your mission to the <b>main server</b>, ask the
+													review team to audit it. If it passes it will be uploaded. You
+													will be notified of the results.
+												</p>)}
 
-													<div className="flex flex-row flex-wrap align-middle justify-evenly">
-														<button
-															className={
-																isLoadingAudit
-																	? "flex-1 m-2 btn whitespace-nowrap loading"
-																	: "flex-1 m-2 btn whitespace-nowrap"
+
+												<div className={"flex flex-row flex-wrap align-middle justify-evenly"}>
+													<button
+														className={
+
+															(isLoadingAudit
+																? "flex-1 m-2 btn whitespace-nowrap loading"
+																: "flex-1 m-2 btn whitespace-nowrap") +
+															(update?.testingAudit?.reviewState == REVIEW_STATE_PENDING ? " btn-warning" : "")
+														}
+														onClick={() => {
+															if (isLoadingAudit || isLoadingCopy) {
+																return;
 															}
-															onClick={() => {
-																if (isLoadingAudit || isLoadingCopy) {
-																	return;
-																}
+															if(update?.testingAudit?.reviewState == REVIEW_STATE_PENDING){
+																cancelAuditRequest();
+																onClose();
+																
+															}else{
 																askForAudit();
-															}}
-														>
-															Ask for an audit
-														</button>
-													</div>
+																onClose();
+															}
+															
+														}}
+													>
+														{update?.testingAudit?.reviewState == null ? "Ask for an audit" : "Cancel audit request"}
+													</button>
 												</div>
-											</>
-										)}
+											</div>
+										</>
+									)}
 									{hasCreds(session, CREDENTIAL.MISSION_REVIEWER) && (
 										<>
 											<hr></hr>

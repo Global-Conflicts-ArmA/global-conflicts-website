@@ -1413,17 +1413,19 @@ export default function MissionDetails({
                     updates[index][destination] = present;
 
                     mission.updates = [...updates];
+					
                     setActionsModalData(updates[index]);
                 }}
-                updateAskAudit={() => {
+                updateAskAudit={(auditState) => {
                     setActionsModalIsOpen(false);
                     let updates: any[] = mission.updates;
                     const index = updates.indexOf(actionsModalData);
                     updates[index].testingAudit = {
-                        reviewState: REVIEW_STATE_PENDING,
+                        reviewState: auditState
                     };
-
+					
                     mission.updates = [...updates];
+					setMission({...mission});
                     setActionsModalData(updates[index]);
                 }}
                 onAuditOpen={() => { }}

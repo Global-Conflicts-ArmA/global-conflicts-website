@@ -26,6 +26,13 @@ export async function postDiscordAuditRequest(body) {
 	);
 }
 
+export async function postDiscordAuditRequestCancel(body) {
+	const botResponse = await axios.post(
+		`http://localhost:3001/missions/request_audit_cancel`,
+		body
+	);
+}
+
 export async function postDiscordAuditSubmit(body) {
 	const botResponse = await axios.post(
 		`http://localhost:3001/missions/audit_submited`,
