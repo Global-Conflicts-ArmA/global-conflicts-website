@@ -15,8 +15,8 @@ import AboutSignUpModal from "../../../components/modals/about_sign_ups_modal";
 import NavBarItem from "../../../components/navbar_item";
 import EventCard from "../../../components/event_list_card";
 import {
-	ExclamationCircleIcon,
-	InformationCircleIcon,
+    ExclamationCircleIcon,
+    InformationCircleIcon,
 } from "@heroicons/react/outline";
 import EventRosterModal from "../../../components/modals/event_roster_modal";
 import useSWR from "swr";
@@ -32,104 +32,104 @@ import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 
 
 const Completionist = () => (
-	<div className="my-10 prose">
-		<h1>It has begun!</h1>
-	</div>
+    <div className="my-10 prose">
+        <h1>It has begun!</h1>
+    </div>
 );
 
 // Renderer callback with condition
 const renderer = ({ days, hours, minutes, seconds, completed }) => {
-	if (completed) {
-		// Render a complete state
-		return <Completionist />;
-	} else {
-		// Render a countdown
-		var daysStyle = { "--value": days } as React.CSSProperties;
-		var hoursStyle = { "--value": hours } as React.CSSProperties;
-		var minutesStyle = { "--value": minutes } as React.CSSProperties;
-		var secondsStyle = { "--value": seconds } as React.CSSProperties;
-		return (
-			<>
-				<div className="my-10 prose">
-					<h1>Starts in:</h1>
-				</div>
-				<div className="flex items-center prose grid-flow-col gap-5 mx-10 text-sm text-center auto-cols-max">
-					<div className="flex flex-col">
-						<span className="font-mono text-2xl countdown">
-							<span style={daysStyle}></span>
-						</span>
-						days
-					</div>
-					<div className="flex flex-col">
-						<span className="font-mono text-2xl countdown">
-							<span style={hoursStyle}></span>
-						</span>
-						hours
-					</div>
-					<div className="flex flex-col">
-						<span className="font-mono text-2xl countdown">
-							<span style={minutesStyle}></span>
-						</span>
-						min
-					</div>
-					<div className="flex flex-col">
-						<span className="font-mono text-2xl countdown">
-							<span style={secondsStyle}></span>
-						</span>
-						sec
-					</div>
-				</div>
-			</>
-		);
-	}
+    if (completed) {
+        // Render a complete state
+        return <Completionist />;
+    } else {
+        // Render a countdown
+        var daysStyle = { "--value": days } as React.CSSProperties;
+        var hoursStyle = { "--value": hours } as React.CSSProperties;
+        var minutesStyle = { "--value": minutes } as React.CSSProperties;
+        var secondsStyle = { "--value": seconds } as React.CSSProperties;
+        return (
+            <>
+                <div className="my-10 prose">
+                    <h1>Starts in:</h1>
+                </div>
+                <div className="flex items-center prose grid-flow-col gap-5 mx-10 text-sm text-center auto-cols-max">
+                    <div className="flex flex-col">
+                        <span className="font-mono text-2xl countdown">
+                            <span style={daysStyle}></span>
+                        </span>
+                        days
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="font-mono text-2xl countdown">
+                            <span style={hoursStyle}></span>
+                        </span>
+                        hours
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="font-mono text-2xl countdown">
+                            <span style={minutesStyle}></span>
+                        </span>
+                        min
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="font-mono text-2xl countdown">
+                            <span style={secondsStyle}></span>
+                        </span>
+                        sec
+                    </div>
+                </div>
+            </>
+        );
+    }
 };
 
 async function callReserveSlot(
-	event,
-	onSuccess,
-	onError,
-	eventMissionList
+    event,
+    onSuccess,
+    onError,
+    eventMissionList
 ) {
-	axios
-		.post("/api/events/reserve", {
-			eventId: event._id,
-			eventMissionList
-		})
-		.then((response) => {
-			onSuccess();
-		})
-		.catch((error) => {
-			onError();
-		});
+    axios
+        .post("/api/events/reserve", {
+            eventId: event._id,
+            eventMissionList
+        })
+        .then((response) => {
+            onSuccess();
+        })
+        .catch((error) => {
+            onError();
+        });
 }
 
 async function callCantMakeIt(event, onSuccess, onError, cantMakeIt) {
-	axios
-		.post("/api/events/cant_make_it", {
-			eventId: event._id,
+    axios
+        .post("/api/events/cant_make_it", {
+            eventId: event._id,
 
-			cantMakeIt: cantMakeIt,
-		})
-		.then((response) => {
-			onSuccess();
-		})
-		.catch((error) => {
-			onError();
-		});
+            cantMakeIt: cantMakeIt,
+        })
+        .then((response) => {
+            onSuccess();
+        })
+        .catch((error) => {
+            onError();
+        });
 }
 
 async function callSignUp(event, onSuccess, onError, doSignup) {
-	axios
-		.post("/api/events/sign_up", {
-			eventId: event._id,
-			doSignup: doSignup,
-		})
-		.then((response) => {
-			onSuccess();
-		})
-		.catch((error) => {
-			onError();
-		});
+    axios
+        .post("/api/events/sign_up", {
+            eventId: event._id,
+            doSignup: doSignup,
+        })
+        .then((response) => {
+            onSuccess();
+        })
+        .catch((error) => {
+            onError();
+        });
 }
 
 export default function EventHome({ event }) {
@@ -137,95 +137,95 @@ export default function EventHome({ event }) {
 
 
 
-	const [currentContentPage, setCurrentContentPage] = useState(
-		event.contentPages[0]
-	);
+    const [currentContentPage, setCurrentContentPage] = useState(
+        event.contentPages[0]
+    );
 
-	let [slotsModalOpen, setSlotsModalOpen] = useState(false);
-	let [rosterModalOpen, setRosterModalOpen] = useState(false);
-	let [aboutSignUpModalOpen, setAboutSignUpModalOpen] = useState(false);
-	const { data: session, status } = useSession();
+    let [slotsModalOpen, setSlotsModalOpen] = useState(false);
+    let [rosterModalOpen, setRosterModalOpen] = useState(false);
+    let [aboutSignUpModalOpen, setAboutSignUpModalOpen] = useState(false);
+    const { data: session, status } = useSession();
 
-	let [isSignedUp, setIsSignedUp] = useState(false);
-	let [didSignUp, setDidSignUp] = useState(null);
-	let [hasReservedSlot, setHasReservedSlot] = useState(false);
+    let [isSignedUp, setIsSignedUp] = useState(false);
+    let [didSignUp, setDidSignUp] = useState(null);
+    let [hasReservedSlot, setHasReservedSlot] = useState(false);
 
-	let [cantMakeIt, setCantMakeIt] = useState(false);
+    let [cantMakeIt, setCantMakeIt] = useState(false);
 
-	const reloadSession = () => {
-		const event = new Event("visibilitychange");
-		document.dispatchEvent(event);
-	};
+    const reloadSession = () => {
+        const event = new Event("visibilitychange");
+        document.dispatchEvent(event);
+    };
 
-	const {
-		data: roster,
-		isValidating,
-		mutate: mutadeRoster,
-	} = useSWR(`/api/events/roster?eventId=${event._id}`, fetcher, {
-		revalidateOnFocus: false,
-	});
+    const {
+        data: roster,
+        isValidating,
+        mutate: mutadeRoster,
+    } = useSWR(`/api/events/roster?eventId=${event._id}`, fetcher, {
+        revalidateOnFocus: false,
+    });
 
-	useEffect(() => {
-		prism.highlightAll();
-	}, [currentContentPage]);
-
-
-
-
-	useEffect(() => {
-		if (session != null) {
-			if (session.user["eventsSignedUp"]) {
-				for (const eventSingedUp of session.user["eventsSignedUp"]) {
-					if (eventSingedUp["eventId"] == event._id) {
-						setIsSignedUp(true);
-
-						//user has reserved one or more slots
-						setHasReservedSlot(eventSingedUp.reservedSlots && eventSingedUp.reservedSlots.length > 0)
-						break;
-					}
-				}
-
-				for (const eventCantMakeIt of session.user["cantMakeIt"] ?? []) {
-					if (eventCantMakeIt["eventId"] == event._id) {
-						setCantMakeIt(true);
-						break;
-					}
-				}
-			}
-		}
-	}, [event, session]);
+    useEffect(() => {
+        prism.highlightAll();
+    }, [currentContentPage]);
 
 
 
-	function hasReservableSlots() {
-		var has = false;
-		if (!event.eventMissionList) {
-			return false;
-		}
-		for (let index = 0; index < event.eventMissionList.length; index++) {
-			const mission = event.eventMissionList[index];
-			for (let index = 0; index < mission.factions.length; index++) {
-				const faction = mission.factions[index];
-				if (faction.slots.length >= 1) {
-					has = true;
-				}
-			}
-		}
-		return has;
-	}
 
-	function getPreviewImage(where: string) {
-		if (event.imageLink.includes(".webm") || event.imageLink.includes(".mp4")) {
-			if (where == "twitter") {
-				return "https://gc-next-website.vercel.app/twitterimage.jpg";
-			}
-			return "https://gc-next-website.vercel.app/twitterimage.jpg";
-		} else {
-			return `https://gc-next-website.vercel.app${event.imageLink}`;
-		}
-	}
+    useEffect(() => {
+        if (session != null) {
+            if (session.user["eventsSignedUp"]) {
+                for (const eventSingedUp of session.user["eventsSignedUp"]) {
+                    if (eventSingedUp["eventId"] == event._id) {
+                        setIsSignedUp(true);
 
-	return <>
+                        //user has reserved one or more slots
+                        setHasReservedSlot(eventSingedUp.reservedSlots && eventSingedUp.reservedSlots.length > 0)
+                        break;
+                    }
+                }
+
+                for (const eventCantMakeIt of session.user["cantMakeIt"] ?? []) {
+                    if (eventCantMakeIt["eventId"] == event._id) {
+                        setCantMakeIt(true);
+                        break;
+                    }
+                }
+            }
+        }
+    }, [event, session]);
+
+
+
+    function hasReservableSlots() {
+        var has = false;
+        if (!event.eventMissionList) {
+            return false;
+        }
+        for (let index = 0; index < event.eventMissionList.length; index++) {
+            const mission = event.eventMissionList[index];
+            for (let index = 0; index < mission.factions.length; index++) {
+                const faction = mission.factions[index];
+                if (faction.slots.length >= 1) {
+                    has = true;
+                }
+            }
+        }
+        return has;
+    }
+
+    function getPreviewImage(where: string) {
+        if (event.imageLink.includes(".webm") || event.imageLink.includes(".mp4")) {
+            if (where == "twitter") {
+                return "https://gc-next-website.vercel.app/twitterimage.jpg";
+            }
+            return "https://gc-next-website.vercel.app/twitterimage.jpg";
+        } else {
+            return `https://gc-next-website.vercel.app${event.imageLink}`;
+        }
+    }
+
+    return <>
         <Head>
             <title>{event.name}</title>
 
@@ -342,8 +342,10 @@ export default function EventHome({ event }) {
                     className="btn btn-md btn-outline-standard "
                     target="_blank"
                     legacyBehavior>
-                    How it works{" "}
-                    <QuestionMarkCircleIcon height={25}></QuestionMarkCircleIcon>
+                    <span>
+                        How it works{" "}<QuestionMarkCircleIcon height={25}></QuestionMarkCircleIcon>
+
+                    </span>
 
                 </Link>
             </div>
@@ -574,108 +576,108 @@ export default function EventHome({ event }) {
 
 export async function getStaticProps({ params }: Params) {
 
-	const events = await MyMongo.collection("events").aggregate(
-		[
-			{
-				$match: { slug: params.slug }
+    const events = await MyMongo.collection("events").aggregate(
+        [
+            {
+                $match: { slug: params.slug }
 
-			},
-			{
-				$lookup:
-				{
-					from: "users",
-					localField: "signups",
-					foreignField: "discord_id",
-					as: "signups",
-
-
-				}
-			},
-			{
-				$project: {
-					"signups._id": 0,
-					"signups.roles": 0,
-					"signups.nickname": 0,
-					"signups.email": 0,
-					"signups.emailVerified": 0,
-					"signups.eventsSignedUp": 0,
-
-				},
-
-			}
-		]
-
-	).toArray()
-	const event = events[0]
+            },
+            {
+                $lookup:
+                {
+                    from: "users",
+                    localField: "signups",
+                    foreignField: "discord_id",
+                    as: "signups",
 
 
-	async function iterateContentPages(contentPages) {
-		await Promise.all(
-			contentPages.map(async (contentPage) => {
-				if (contentPage.markdownContent) {
+                }
+            },
+            {
+                $project: {
+                    "signups._id": 0,
+                    "signups.roles": 0,
+                    "signups.nickname": 0,
+                    "signups.email": 0,
+                    "signups.emailVerified": 0,
+                    "signups.eventsSignedUp": 0,
 
-					contentPage.parsedMarkdownContent = generateMarkdown(
-						contentPage.markdownContent, false
-					);
-				}
-			})
-		);
-	}
+                },
 
-	await iterateContentPages(event?.contentPages ?? []);
+            }
+        ]
 
-	if (event.eventMissionList) {
-		event.eventMissionList.forEach(mission => {
-			mission._id = mission._id.toString();
-			mission.factions.forEach(faction => {
-				faction._id = faction._id.toString();
-				faction.slots.forEach(slot => {
-					slot._id = slot._id?.toString();
-				});
-			});
-		});
-	}
-
-	if (event.signups) {
-		await Promise.all(
-			event.signups.map(async (element): Promise<any> =>{
-				const discordUserResponse = await axios.get(
-					`http://localhost:3001/users/${element["discord_id"]}`
-				)
-				element["image"] = discordUserResponse.data["displayAvatarURL"];
-			})
-		);
-	}
+    ).toArray()
+    const event = events[0]
 
 
+    async function iterateContentPages(contentPages) {
+        await Promise.all(
+            contentPages.map(async (contentPage) => {
+                if (contentPage.markdownContent) {
 
-	return { props: { event: { ...event, _id: event["_id"].toString() } }, revalidate: 10, };
+                    contentPage.parsedMarkdownContent = generateMarkdown(
+                        contentPage.markdownContent, false
+                    );
+                }
+            })
+        );
+    }
+
+    await iterateContentPages(event?.contentPages ?? []);
+
+    if (event.eventMissionList) {
+        event.eventMissionList.forEach(mission => {
+            mission._id = mission._id.toString();
+            mission.factions.forEach(faction => {
+                faction._id = faction._id.toString();
+                faction.slots.forEach(slot => {
+                    slot._id = slot._id?.toString();
+                });
+            });
+        });
+    }
+
+    if (event.signups) {
+        await Promise.all(
+            event.signups.map(async (element): Promise<any> => {
+                const discordUserResponse = await axios.get(
+                    `http://localhost:3001/users/${element["discord_id"]}`
+                )
+                element["image"] = discordUserResponse.data["displayAvatarURL"];
+            })
+        );
+    }
+
+
+
+    return { props: { event: { ...event, _id: event["_id"].toString() } }, revalidate: 10, };
 }
 
 // This function gets called at build time on server-side.
 // It may be called again, on a serverless function, if
 // the path has not been generated.
 export async function getStaticPaths() {
-	const events = await MyMongo.collection("events")
-		.find(
-			{},
-			{
-				projection: {
-					_id: 0,
-					name: 1,
-					slug: 1,
-				},
-			}
-		)
-		.toArray();
+    const events = await MyMongo.collection("events")
+        .find(
+            {},
+            {
+                projection: {
+                    _id: 0,
+                    name: 1,
+                    slug: 1,
+                },
+            }
+        )
+        .toArray();
 
-	// Get the paths we want to pre-render based on posts
-	const paths = events.map((event) => ({
-		params: { slug: event.slug },
-	}));
+    // Get the paths we want to pre-render based on posts
+    const paths = events.map((event) => ({
+        params: { slug: event.slug },
+    }));
 
-	// We'll pre-render only these paths at build time.
-	// { fallback: blocking } will server-render pages
-	// on-demand if the path doesn't exist.
-	return { paths, fallback: "blocking", };
+    // We'll pre-render only these paths at build time.
+    // { fallback: blocking } will server-render pages
+    // on-demand if the path doesn't exist.
+    return { paths, fallback: "blocking", };
 }

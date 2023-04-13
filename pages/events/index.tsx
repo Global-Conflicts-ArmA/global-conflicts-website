@@ -13,11 +13,11 @@ import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 const Completionist = () => <span>It has started!</span>;
 
 function classNames(...classes) {
-	return classes.filter(Boolean).join(" ");
+    return classes.filter(Boolean).join(" ");
 }
 
 export default function EventHome({ upcomingEvents, pastEvents }) {
-	return <>
+    return <>
         <Head>
             <title>Events</title>
         </Head>
@@ -72,9 +72,9 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
                             <div className="mx-1 my-10 space-y-10 md:mx-12">
                                 {upcomingEvents.map((event) => (
                                     (<Link key={event.name} href={`/events/${event.slug}`} passHref legacyBehavior>
-
-                                        <EventCard event={event}></EventCard>
-
+                                        <a>
+                                            <EventCard event={event}></EventCard>
+                                        </a>
                                     </Link>)
                                 ))}
                             </div>
@@ -84,8 +84,9 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
                             <div className="mx-1 my-10 space-y-10 md:mx-12">
                                 {pastEvents.map((event) => (
                                     (<Link key={event.name} href={`/events/${event.slug}`} passHref legacyBehavior>
-
+                                        <a>
                                         <EventCard event={event}></EventCard>
+                                        </a>
 
                                     </Link>)
                                 ))}
@@ -99,27 +100,27 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
 }
 
 export async function getServerSideProps({ params }: Params) {
-	const pastEvents = await MyMongo.collection("events")
-		.find(
-			{
-				"closeReason.value": "COMPLETED",
-			},
-			{ projection: { _id: 0, tabs: 0 } }
-		)
-		.toArray();
+    const pastEvents = await MyMongo.collection("events")
+        .find(
+            {
+                "closeReason.value": "COMPLETED",
+            },
+            { projection: { _id: 0, tabs: 0, eventReservableSlotsInfo: 0, eventMissionList: 0 } }
+        )
+        .toArray();
 
-	const upcomingEvents = await MyMongo.collection("events")
-		.find(
-			{
-				"closeReason.value": {
-					$nin: ["CANCELED", "COMPLETED"],
-				},
-			},
-			{ projection: { _id: 0, tabs: 0, eventReservableSlotsInfo:0, eventMissionList:0 } }
-		)
-		.toArray();
+    const upcomingEvents = await MyMongo.collection("events")
+        .find(
+            {
+                "closeReason.value": {
+                    $nin: ["CANCELED", "COMPLETED"],
+                },
+            },
+            { projection: { _id: 0, tabs: 0, eventReservableSlotsInfo: 0, eventMissionList: 0 } }
+        )
+        .toArray();
 
-		 
 
-	return { props: { upcomingEvents: upcomingEvents, pastEvents: pastEvents } };
+
+    return { props: { upcomingEvents: upcomingEvents, pastEvents: pastEvents } };
 }
