@@ -36,6 +36,7 @@ yarn-error.log*
 .vercel
 node_modules
 
+
 /public/eventCoverMedia
 /public/missions
 /public/missionsCoverMedia
@@ -46,3 +47,4 @@ node_modules
 /global-conflicts-yt-oath2.json
 /global-conflicts-yt-oauth-token.json
 .yarn/*
+iisnode
