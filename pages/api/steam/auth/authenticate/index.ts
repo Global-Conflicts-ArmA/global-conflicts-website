@@ -8,8 +8,8 @@ import { authOptions } from "../../../auth/[...nextauth]"
 
 const apiRoute = nextConnect({
   onError(error, req: NextApiRequest, res: NextApiResponse) {
-
-    res.status(501).json({ error: `${error.message}` });
+    
+    res.status(501).json({ error: `${error}` });
   },
   onNoMatch(req, res: NextApiResponse) {
     res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
