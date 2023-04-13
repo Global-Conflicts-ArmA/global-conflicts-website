@@ -6,7 +6,7 @@ export default function CloseEventModal({ isOpen, onClose, onCloseEvent }) {
 	const [numberOfPlayers, setNumberOfPlayer] = useState("");
 
 	return (
-		<Transition appear show={isOpen} as={Fragment}>
+        <Transition appear show={isOpen} as={Fragment}>
 			<Dialog
 				as="div"
 				className="fixed inset-0 z-10 overflow-y-auto"
@@ -111,5 +111,5 @@ export default function CloseEventModal({ isOpen, onClose, onCloseEvent }) {
 				</div>
 			</Dialog>
 		</Transition>
-	);
+    );
 }

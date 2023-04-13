@@ -19,7 +19,7 @@ export default function NavBarItem({
 	}
 
 	return (
-		<div className="w-full pt-4">
+        <div className="w-full pt-4">
 			<div className="w-full mx-auto bg-white rounded-none max-w-none md:max-w-md md:rounded-lg dark:bg-gray-800 dark:text-white">
 				{item["children"] ? (
 					<Disclosure defaultOpen={false}>
@@ -49,7 +49,7 @@ export default function NavBarItem({
 										leaveTo="transform scale-95 opacity-0"
 									>
 										{child["slug"] ? (
-											<Link replace={true} href={`/guides/${child["slug"]}`}>
+											<Link replace={true} href={`/guides/${child["slug"]}`} legacyBehavior>
 												 
 													<Disclosure.Panel
 														className={`flex flex-row px-4 py-2 h-9 md:mr-0 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
@@ -79,7 +79,7 @@ export default function NavBarItem({
 				) : (
 					<div>
 						{item["slug"] ? (
-							<Link href={`/guides/${item["slug"]}`}>
+							<Link href={`/guides/${item["slug"]}`} legacyBehavior>
 								 
 									<div
 										className={`transition-all duration-300 flex flex-row px-4 py-2 mb-4 text-sm  rounded-lg cursor-pointer hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 ${
@@ -106,5 +106,5 @@ export default function NavBarItem({
 				)}
 			</div>
 		</div>
-	);
+    );
 }

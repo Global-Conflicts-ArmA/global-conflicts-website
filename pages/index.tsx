@@ -280,7 +280,8 @@ function Home() {
                                 <Link
                                     href="/downloads"
                                     passHref={true}
-                                    className="no-underline-important underline-important-hover">
+                                    className="no-underline-important underline-important-hover"
+                                    legacyBehavior>
 
                                     <h3 className="hover:cursor-pointer">Custom Launcher</h3>
 
@@ -300,7 +301,8 @@ function Home() {
                                 <Link
                                     href="https://github.com/Global-Conflicts-ArmA/Olsen-Framework-Arma-3"
                                     passHref={true}
-                                    className="no-underline-important underline-important-hover">
+                                    className="no-underline-important underline-important-hover"
+                                    legacyBehavior>
 
                                     <h3>Mission Framework</h3>
 
@@ -313,7 +315,8 @@ function Home() {
                                 <Link
                                     href="/missions/top-voted"
                                     passHref={true}
-                                    className="no-underline-important underline-important-hover">
+                                    className="no-underline-important underline-important-hover"
+                                    legacyBehavior>
 
                                     <h3>Mission catalog and voting system</h3>
 
@@ -328,7 +331,8 @@ function Home() {
                                 <Link
                                     href="https://aar.globalconflicts.net/"
                                     passHref={true}
-                                    className="no-underline-important underline-important-hover">
+                                    className="no-underline-important underline-important-hover"
+                                    legacyBehavior>
 
                                     <h3 className="hover:cursor-pointer">After Action Review</h3>
 
@@ -358,7 +362,7 @@ function Home() {
                                 </div>
                             </div>
                             <div className="flex-1">
-                                <Link href="http://discord.globalconflicts.net/" passHref={true}>
+                                <Link href="http://discord.globalconflicts.net/" passHref={true} legacyBehavior>
 
                                     <Image
                                         src={discordLogo}

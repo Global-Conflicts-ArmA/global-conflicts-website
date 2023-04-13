@@ -94,7 +94,7 @@ export default function MyApp({
 				{router.pathname != "/auth/signin" && (
 					<footer className="bottom-0 p-10 bg-gray-800 footer text-neutral-content footer-center dark:bg-gray-900 ">
 						<div>
-							<Link href={"/"} passHref={true} className="flex ">
+							<Link href={"/"} passHref={true} className="flex " legacyBehavior>
 
                                 <Image
                                     className="block w-auto h-8"
@@ -115,9 +115,9 @@ export default function MyApp({
 						<div>
 							<div className="grid grid-flow-col gap-4">
 								<Link
-									href="https://www.youtube.com/channel/UCgG8GzuD8ngIcC_ChOExUDw"
-									passHref={true}
-								>
+                                    href="https://www.youtube.com/channel/UCgG8GzuD8ngIcC_ChOExUDw"
+                                    passHref={true}
+                                    legacyBehavior>
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -131,9 +131,9 @@ export default function MyApp({
 
                                 </Link>
 								<Link
-									href="https://www.instagram.com/global.conflicts/"
-									passHref={true}
-								>
+                                    href="https://www.instagram.com/global.conflicts/"
+                                    passHref={true}
+                                    legacyBehavior>
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"

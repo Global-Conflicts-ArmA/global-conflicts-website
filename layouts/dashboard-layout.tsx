@@ -13,7 +13,7 @@ const btns = [
 
 export default function DashBoardLayout({ children }) {
 	return (
-		<div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
+        <div className="max-w-screen-lg mx-auto xl:max-w-screen-xl">
 			<div className="flex flex-row">
 				<aside
 					className={"px-4 py-6  relative h-full overflow-y-auto  mt-10"}
@@ -24,7 +24,7 @@ export default function DashBoardLayout({ children }) {
 								<div className="w-full pt-4">
 									<div className="w-full max-w-md mx-auto bg-white rounded-2xl">
 										<div>
-											<Link href={`/${btn.href}`}>
+											<Link href={`/${btn.href}`} legacyBehavior>
 												 
 													<div className="p-4 mb-4 text-sm font-medium text-gray-800 rounded-lg cursor-pointer hover:bg-gray-100">
 														{btn["title"]}
@@ -41,5 +41,5 @@ export default function DashBoardLayout({ children }) {
 				<main className="flex-grow max-w-3xl m-10 ">{children}</main>
 			</div>
 		</div>
-	);
+    );
 }

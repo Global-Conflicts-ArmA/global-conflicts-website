@@ -9,7 +9,7 @@ export default function NotOnDiscord({ providers }) {
             You must join our Discord server first!
         </div>
         <div className="flex justify-center mt-20 text-2xl font-bold">
-            <Link href="http://discord.globalconflicts.net/" passHref={true}>
+            <Link href="http://discord.globalconflicts.net/" passHref={true} legacyBehavior>
 
                 <Image
                     src={discordLogo}

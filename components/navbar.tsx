@@ -76,7 +76,7 @@ export default function NavBar() {
 	useEffect(() => {}, [router.pathname]);
 
 	return (
-		<Disclosure as="nav" className="bg-gray-800">
+        <Disclosure as="nav" className="bg-gray-800">
 			{({ open }) => (
 				<>
 					<div className="px-2 mx-auto max-w-7xl sm:px-6 lg:px-8 ">
@@ -95,46 +95,46 @@ export default function NavBar() {
 							<div className="flex items-center justify-start flex-1 sm:justify-start">
 								<div className="flex items-center flex-shrink-0">
 									<div className="hidden p-1 pl-10 rounded-md nav-bar-big-logo-alone ">
-										<Link href={"/"} passHref={true}>
-											<a className="flex ">
-												<Image
-													className="w-auto h-8 "
-													width="151"
-													height="50"
-													quality={100}
-													src={gcWhiteBanner}
-													alt="Global Conflicts Logo"
-												/>
-											</a>
-										</Link>
+										<Link href={"/"} passHref={true} className="flex ">
+
+                                            <Image
+                                                className="w-auto h-8 "
+                                                width="151"
+                                                height="50"
+                                                quality={100}
+                                                src={gcWhiteBanner}
+                                                alt="Global Conflicts Logo"
+                                            />
+
+                                        </Link>
 									</div>
 									<div className="hidden pl-0 rounded-md nav-bar-small-logo ">
-										<Link href={"/"} passHref={true}>
-											<a className="flex ">
-												<Image
-													className="w-auto h-8 "
-													width="50"
-													height="50"
-													quality={100}
-													src={gcSmallLogo}
-													alt="Global Conflicts Logo"
-												/>
-											</a>
-										</Link>
+										<Link href={"/"} passHref={true} className="flex ">
+
+                                            <Image
+                                                className="w-auto h-8 "
+                                                width="50"
+                                                height="50"
+                                                quality={100}
+                                                src={gcSmallLogo}
+                                                alt="Global Conflicts Logo"
+                                            />
+
+                                        </Link>
 									</div>
 									<div className="hidden pl-0 rounded-md nav-bar-big-logo ">
-										<Link href={"/"} passHref={true}>
-											<a className="flex ">
-												<Image
-													className="w-auto h-8 "
-													width="151"
-													height="50"
-													quality={100}
-													src={gcWhiteBanner}
-													alt="Global Conflicts Logo"
-												/>
-											</a>
-										</Link>
+										<Link href={"/"} passHref={true} className="flex ">
+
+                                            <Image
+                                                className="w-auto h-8 "
+                                                width="151"
+                                                height="50"
+                                                quality={100}
+                                                src={gcWhiteBanner}
+                                                alt="Global Conflicts Logo"
+                                            />
+
+                                        </Link>
 									</div>
 								</div>
 								<div className="hidden nav-bar-normal-buttons md:ml-6">
@@ -265,5 +265,5 @@ export default function NavBar() {
 				</>
 			)}
 		</Disclosure>
-	);
+    );
 }

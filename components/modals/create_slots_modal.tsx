@@ -54,7 +54,7 @@ export default function CreateSlotsModal({ isOpen, onClose }) {
 	});
 
 	return (
-		<Transition appear show={isOpen} as={Fragment}>
+        <Transition appear show={isOpen} as={Fragment}>
 			<Dialog
 				as="div"
 				initialFocus={refDiv}
@@ -217,7 +217,7 @@ export default function CreateSlotsModal({ isOpen, onClose }) {
 				</div>
 			</Dialog>
 		</Transition>
-	);
+    );
 }
 
 export function SortableItem(props) {

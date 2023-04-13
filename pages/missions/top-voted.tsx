@@ -245,7 +245,8 @@ function TopVoted({ missions, maxVotes }) {
                                             <Link
                                                 href={`/missions/${mission.uniqueName}`}
                                                 className="overflow-hidden"
-                                                style={{ wordBreak: "break-word" }}>
+                                                style={{ wordBreak: "break-word" }}
+                                                legacyBehavior>
 
                                                 {mission.name}
 

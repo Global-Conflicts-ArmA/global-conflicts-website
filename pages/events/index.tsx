@@ -71,7 +71,7 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
                         <Tab.Panel>
                             <div className="mx-1 my-10 space-y-10 md:mx-12">
                                 {upcomingEvents.map((event) => (
-                                    (<Link key={event.name} href={`/events/${event.slug}`} passHref>
+                                    (<Link key={event.name} href={`/events/${event.slug}`} passHref legacyBehavior>
 
                                         <EventCard event={event}></EventCard>
 
@@ -83,7 +83,7 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
                         <Tab.Panel>
                             <div className="mx-1 my-10 space-y-10 md:mx-12">
                                 {pastEvents.map((event) => (
-                                    (<Link key={event.name} href={`/events/${event.slug}`} passHref>
+                                    (<Link key={event.name} href={`/events/${event.slug}`} passHref legacyBehavior>
 
                                         <EventCard event={event}></EventCard>
 

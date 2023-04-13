@@ -340,7 +340,8 @@ export default function EventHome({ event }) {
                     href="/guides/events#signup-and-slotting-procedure"
                     passHref
                     className="btn btn-md btn-outline-standard "
-                    target="_blank">
+                    target="_blank"
+                    legacyBehavior>
                     How it works{" "}
                     <QuestionMarkCircleIcon height={25}></QuestionMarkCircleIcon>
 
