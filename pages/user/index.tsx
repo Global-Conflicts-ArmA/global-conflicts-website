@@ -79,6 +79,9 @@ function ProfileIndex(props) {
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
+	if(!session){
+		return { props: { ...{}} };
+	}
 	const steamDataMongo = await MyMongo.collection("users")
 		.findOne(
 			{

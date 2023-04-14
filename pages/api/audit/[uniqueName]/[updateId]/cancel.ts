@@ -47,7 +47,7 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 			uniqueName: uniqueName,
 			"updates._id": updateOid,
 			authorID: session.user.discord_id,
-			"updates.$.testingAudit.reviewState": REVIEW_STATE_PENDING,
+			"updates.$.testingAudit.reviewState": { $ne: REVIEW_STATE_PENDING },
 		};
 	}
 
