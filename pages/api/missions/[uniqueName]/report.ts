@@ -13,6 +13,8 @@ import { getSession } from "next-auth/react";
 import axios from "axios";
 import { postNewBugReport } from "../../../../lib/discordPoster";
 import { buildVersionStr } from "../../../../lib/missionsHelpers";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -28,7 +30,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const { text, version } = req.body;
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 
 	const report = {
 		_id: new ObjectId(),
@@ -71,7 +73,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const { text, version, _id } = req.body;
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 
 	const review = {
 		_id: new ObjectId(_id),
@@ -97,7 +99,7 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const { id } = req.body;
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 
 	const updateResult = await MyMongo.collection("missions").updateOne(
 		{

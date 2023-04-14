@@ -15,6 +15,8 @@ import validateUser, {
 	CREDENTIAL,
 } from "../../../../middleware/check_auth_perms";
 import multer from "multer";
+import { authOptions } from "../../auth/[...nextauth]";
+import { getServerSession } from "next-auth/next";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -66,7 +68,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const { uniqueName } = req.query;
 
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 
 	const description = body["description"];
 	const type = body["type"].value;
@@ -118,7 +120,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const { uniqueName } = req.query;
 
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 
 	const description = body["description"];
 	const type = body["type"].value;

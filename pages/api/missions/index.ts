@@ -19,6 +19,8 @@ import {
 } from "../../../lib/missionsHelpers";
 import { MapItem } from "../../../interfaces/mapitem";
 import { postDiscordNewMission } from "../../../lib/discordPoster";
+import { authOptions } from "../auth/[...nextauth]";
+import { getServerSession } from "next-auth/next";
 
 const missionUpload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 2 },
@@ -95,7 +97,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		res.status(400).json({ error: "A mission with this name already exists." });
 	}
 
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 	const mapClass = req["mapClass"];
 	const missionFileName = req["missionFileName"];
 
@@ -131,7 +133,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	await MyMongo.collection("missions").insertOne({
 		uniqueName: safeName,
 		name: name,
-		authorID: session.user.discord_id,
+		authorID: session.user["discord_id"],
 		description: description,
 		descriptionNoMarkdown: descriptionNoMarkdown.value,
 		era: era,
@@ -149,7 +151,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 				version: {
 					major: 1,
 				},
-				authorID: session.user.discord_id,
+				authorID: session.user["discord_id"],
 				date: new Date(),
 				fileName: missionFileName,
 				changeLog: "First Version",

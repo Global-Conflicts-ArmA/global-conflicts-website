@@ -14,6 +14,8 @@ import {
 } from "../../../../../lib/reviewStates";
 import { postDiscordAuditRequest, postDiscordAuditRequestCancel } from "../../../../../lib/discordPoster";
 import { buildVersionStr } from "../../../../../lib/missionsHelpers";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -31,13 +33,13 @@ apiRoute.use((req, res, next) =>
 
 apiRoute.post(async (req: NextApiRequest, res) => {
 	const { uniqueName, updateId } = req.query;
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 
 	let query = {};
 
 	const updateOid = new ObjectId(updateId.toString());
 
-	if (session.user.isAdmin) {
+	if (session.user["isAdmin"]) {
 		query = {
 			uniqueName: uniqueName,
 			"updates._id": updateOid,
@@ -46,7 +48,7 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 		query = {
 			uniqueName: uniqueName,
 			"updates._id": updateOid,
-			authorID: session.user.discord_id,
+			authorID: session.user["discord_id"],
 			"updates.$.testingAudit.reviewState": { $ne: REVIEW_STATE_PENDING },
 		};
 	}

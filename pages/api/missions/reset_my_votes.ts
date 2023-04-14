@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import MyMongo from "../../../lib/mongodb";
 import nextConnect from "next-connect";
 import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
+import { authOptions } from "../auth/[...nextauth]";
+import { getServerSession } from "next-auth/next";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -18,7 +20,7 @@ apiRoute.use((req, res, next) =>
 );
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 
 	console.log(session);
 

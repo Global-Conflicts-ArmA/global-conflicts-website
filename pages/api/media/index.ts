@@ -15,6 +15,8 @@ import { ObjectId } from "mongodb";
 import { testImageNode } from "../../../lib/testImage";
 import multer from "multer";
 import UploadcareStorage from "../../../lib/multer-storage-uploadcare";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
 
 const apiRoute = nextConnect({});
 
@@ -32,7 +34,7 @@ apiRoute.use((req, res, next) => validateUser(req, res, CREDENTIAL.ANY, next));
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
-		const session = req["session"];
+		const session = await getServerSession(req, res, authOptions);
 
 		let imgurLinks = [];
 		let files = [];

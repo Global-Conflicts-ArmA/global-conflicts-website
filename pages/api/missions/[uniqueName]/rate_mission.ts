@@ -12,6 +12,8 @@ import { ObjectId } from "bson";
 
 import axios from "axios";
 import { postNewReview } from "../../../../lib/discordPoster";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({
     onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -27,7 +29,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     const { uniqueName } = req.query;
 
     const { value } = req.body;
-    const session = req["session"];
+    const session = await getServerSession(req, res, authOptions);
 
     const rating = {
         date: new Date(),

@@ -17,6 +17,8 @@ import validateUser, {
 import multer from "multer";
 import { ObjectId } from "bson";
 import { postDiscordMissionUpdate } from "../../../../lib/discordPoster";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -81,16 +83,16 @@ const missionUpload = multer({
 			case "missionFile":
 				const body = JSON.parse(req.body["missionJsonData"]);
 				let query = {};
-				const session = req["session"];
+				const session = await getServerSession(req, null, authOptions);
 				const { uniqueName } = req.query;
-				if (session.user.isAdmin) {
+				if (session.user["isAdmin"]) {
 					query = {
 						uniqueName: uniqueName,
 					};
 				} else {
 					query = {
 						uniqueName: uniqueName,
-						authorID: session.user.discord_id,
+						authorID: session.user["discord_id"],
 					};
 				}
 				const isMajorVersion = body["isMajorVersion"];
@@ -142,19 +144,19 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = JSON.parse(req.body["missionJsonData"]);
 	const { uniqueName } = req.query;
 
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 	let query = {};
 
 
 
-	if (session.user.isAdmin || session.user["roles"].includes(CREDENTIAL.MISSION_REVIEWER)) {
+	if (session.user["isAdmin"] || session.user["roles"].includes(CREDENTIAL.MISSION_REVIEWER)) {
 		query = {
 			uniqueName: uniqueName,
 		};
 	} else {
 		query = {
 			uniqueName: uniqueName,
-			authorID: session.user.discord_id,
+			authorID: session.user["discord_id"],
 		};
 	}
 
@@ -167,7 +169,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const update = {
 		_id: new ObjectId(),
 		version: nextVersion,
-		authorID: session.user.discord_id,
+		authorID: session.user["discord_id"],
 		date: new Date(),
 		changeLog: body.changelog,
 		fileName: missionFileName,

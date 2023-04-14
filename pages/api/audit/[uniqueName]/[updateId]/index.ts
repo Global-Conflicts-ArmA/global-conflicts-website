@@ -9,24 +9,20 @@ import { ObjectId } from "bson";
 import { postDiscordAuditSubmit } from "../../../../../lib/discordPoster";
 import { buildVersionStr } from "../../../../../lib/missionsHelpers";
 import axios from "axios";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({
-	onError(error, req: NextApiRequest, res: NextApiResponse) {
-		res.status(501).json({ error: `${error.message}` });
-	},
-	onNoMatch(req, res: NextApiResponse) {
-		res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
-	},
+
 });
 
-apiRoute.use((req, res, next) =>
-	validateUser(req, res, CREDENTIAL.MISSION_REVIEWER, next)
-);
+
 
 apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
+
 	const body = req.body;
 	const { uniqueName, updateId } = req.query;
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions)
 
 	let query = {
 		uniqueName: uniqueName,
@@ -45,7 +41,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 					reviewState: reviewState,
 					reviewChecklist: reviewChecklist,
 					reviewerNotes: reviewerNotes,
-					reviewerDiscordId: session.user.discord_id,
+					reviewerDiscordId: session.user["discord_id"],
 					displayAvatarURL: session.user.image,
 				},
 			},

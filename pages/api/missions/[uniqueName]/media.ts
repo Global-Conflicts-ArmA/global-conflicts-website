@@ -11,6 +11,8 @@ import axios from "axios";
 
 import hasCreds from "../../../../lib/credsChecker";
 import { ObjectId, ReturnDocument } from "mongodb";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({});
 
@@ -49,7 +51,7 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const { mediaToDelete } = req.body;
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 
 	const canDelete =
 		hasCreds(session, CREDENTIAL.GM) ||

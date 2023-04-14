@@ -19,7 +19,7 @@ export function CredentialLockLayout(props) {
 
 	if (hasCreds(props.session, props.cred)) {
 		if (props.matchId) {
-			if (props.session.user.discord_id == props.matchId) {
+			if (props.session.user["discord_id"] == props.matchId) {
 				return <>{props.children}</>;
 			} else {
 				return (

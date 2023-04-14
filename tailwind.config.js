@@ -75,5 +75,6 @@ module.exports = {
 		styled: true,
 		themes: false,
 		rtl: false,
+		logs:false,
 	},
 };

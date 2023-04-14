@@ -11,6 +11,8 @@ import { ObjectId } from "bson";
 import { postNewAAR } from "../../../../../../lib/discordPoster";
 import { ReturnDocument } from "mongodb";
 import axios from "axios";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -26,7 +28,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = req.body;
 	const arrText = body["aarText"];
 
-	const session = req["session"];
+	const session = await getServerSession(req, res, authOptions);
 	const historyIdObjId = new ObjectId(historyId as string);
 
 	MyMongo.collection("missions")
