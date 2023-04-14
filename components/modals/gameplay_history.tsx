@@ -187,7 +187,7 @@ export default function GameplayHistoryModal({
 									isClearable
 									value={outcome}
 								/>
-
+								{/* @ts-ignore */}
 								<NumberFormat
 									format="##/##/####"
 									placeholder="DD/MM/YYYY"

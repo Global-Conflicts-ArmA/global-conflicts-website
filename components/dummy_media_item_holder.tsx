@@ -19,9 +19,11 @@ function generateThumbnailLink(link: String): String | any {
 }
 
 const InViewComp = (item) => (
+	/* @ts-ignore */
 	<InView>
 		{({ inView, ref, entry }) => (
 			<div ref={ref} className="w-full h-full" >
+		{/* @ts-ignore */}
 				<ReactPlayer
 					playing={inView}
 					stopOnUnmount={true}

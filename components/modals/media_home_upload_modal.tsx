@@ -389,7 +389,8 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 															<TrashIcon width={15}></TrashIcon>
 														</button>
 														{linkObj.type.includes("video") ? (
-															<ReactPlayer
+															// @ts-ignore /
+															<ReactPlayer 
 																playing={true}
 																muted={true}
 																controls={true}
