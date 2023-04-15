@@ -19,6 +19,8 @@ import { ObjectId } from "bson";
 import { postDiscordMissionUpdate } from "../../../../lib/discordPoster";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]";
+import { ServerResponse } from "http"
+import { Stream } from "stream"
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -83,7 +85,8 @@ const missionUpload = multer({
 			case "missionFile":
 				const body = JSON.parse(req.body["missionJsonData"]);
 				let query = {};
-				const session = await getServerSession(authOptions);
+				let response = new Stream.Writable() as ServerResponse;
+				const session = await getServerSession(req, response, authOptions);
 				const { uniqueName } = req.query;
 				if (session.user["isAdmin"]) {
 					query = {
