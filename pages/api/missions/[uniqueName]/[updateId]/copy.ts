@@ -4,12 +4,13 @@ import nextConnect from "next-connect";
 import MyMongo from "../../../../../lib/mongodb";
 
 import fs from "fs";
-import validateUser, {
-	CREDENTIAL,
-} from "../../../../../middleware/check_auth_perms";
+ 
 
 import { ObjectId } from "bson";
 import { getSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../../auth/[...nextauth]";
+import validateUser, { CREDENTIAL } from "../../../../../middleware/check_auth_perms";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -20,9 +21,9 @@ const apiRoute = nextConnect({
 	},
 });
 
-apiRoute.use((req, res, next) =>
-	validateUser(req, res, CREDENTIAL.MISSION_MAKER, next)
-);
+// apiRoute.use((req, res, next) =>
+// 	validateUser(req, res, CREDENTIAL.MISSION_MAKER, next)
+// );
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const destination = req.body["destination"];
@@ -30,7 +31,10 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const { uniqueName, updateId } = req.query;
 
-	const session = await getSession({ req });
+	const session = await getServerSession(req, res, authOptions)
+
+
+	
 	let isAdmin = false;
 
 	for (var i = 0; i < session.user["roles"].length; i++) {
