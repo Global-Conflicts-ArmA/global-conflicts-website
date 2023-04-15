@@ -21,6 +21,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]";
 import { ServerResponse } from "http"
 import { Stream } from "stream"
+import hasCreds, { hasCredsAny } from "../../../../lib/credsChecker";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -86,13 +87,13 @@ const missionUpload = multer({
 				const body = JSON.parse(req.body["missionJsonData"]);
 				let query = {};
 
-				
+
 				const { uniqueName } = req.query;
-			
-					query = {
-						uniqueName: uniqueName,
-					};
-				
+
+				query = {
+					uniqueName: uniqueName,
+				};
+
 				const isMajorVersion = body["isMajorVersion"];
 
 				const missionFound = await MyMongo.collection("missions").findOne(query, {
@@ -147,7 +148,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 
 
-	if (session.user["isAdmin"] || session.user["roles"].includes(CREDENTIAL.MISSION_REVIEWER)) {
+	if (hasCreds(session, CREDENTIAL.MISSION_MAKER)) {
 		query = {
 			uniqueName: uniqueName,
 		};
