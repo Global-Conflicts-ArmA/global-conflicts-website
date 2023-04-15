@@ -85,19 +85,14 @@ const missionUpload = multer({
 			case "missionFile":
 				const body = JSON.parse(req.body["missionJsonData"]);
 				let query = {};
-				let fakeResponse = {} as ServerResponse;
-				const session = await getServerSession(req, fakeResponse, authOptions);
+
+				
 				const { uniqueName } = req.query;
-				if (session.user["isAdmin"]) {
+			
 					query = {
 						uniqueName: uniqueName,
 					};
-				} else {
-					query = {
-						uniqueName: uniqueName,
-						authorID: session.user["discord_id"],
-					};
-				}
+				
 				const isMajorVersion = body["isMajorVersion"];
 
 				const missionFound = await MyMongo.collection("missions").findOne(query, {
