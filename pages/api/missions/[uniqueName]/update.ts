@@ -83,7 +83,7 @@ const missionUpload = multer({
 			case "missionFile":
 				const body = JSON.parse(req.body["missionJsonData"]);
 				let query = {};
-				const session = await getServerSession(req, null, authOptions);
+				const session = await getServerSession(authOptions);
 				const { uniqueName } = req.query;
 				if (session.user["isAdmin"]) {
 					query = {
