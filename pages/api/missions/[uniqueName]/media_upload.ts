@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import nextConnect from "next-connect";
 import MyMongo from "../../../../lib/mongodb";
-import concat from "concat-stream";
-import validateUser, {
+ 
+import   {
 	CREDENTIAL,
 } from "../../../../middleware/check_auth_perms";
 
@@ -18,6 +18,7 @@ import multer from "multer";
 import UploadcareStorage from "../../../../lib/multer-storage-uploadcare";
 import { authOptions } from "../../auth/[...nextauth]";
 import { getServerSession } from "next-auth/next";
+import { hasCredsAny } from "../../../../lib/credsChecker";
  
 const apiRoute = nextConnect({});
 
@@ -33,11 +34,14 @@ apiRoute.use(
 	}).any()
 );
 
-apiRoute.use((req, res, next) => validateUser(req, res, CREDENTIAL.ANY, next));
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		const session = await getServerSession(req, res, authOptions);
+
+		if (!hasCredsAny(session, [CREDENTIAL.ANY])) {
+			return res.status(401).json({ error: `Not Authorized` });
+		}
 		const { uniqueName } = req.query;
 		let imgurLinks = [];
 		let files = [];

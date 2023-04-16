@@ -1,16 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import MyMongo from "../../../../../lib/mongodb";
-import validateUser, {
-	CREDENTIAL,
-} from "../../../../../middleware/check_auth_perms";
-
+ 
 import { ObjectId } from "bson";
 import { postDiscordAuditSubmit } from "../../../../../lib/discordPoster";
 import { buildVersionStr } from "../../../../../lib/missionsHelpers";
 import axios from "axios";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../auth/[...nextauth]";
+import { CREDENTIAL } from "../../../../../middleware/check_auth_perms";
+import { hasCredsAny } from "../../../../../lib/credsChecker";
 
 const apiRoute = nextConnect({
 
@@ -22,7 +21,11 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const body = req.body;
 	const { uniqueName, updateId } = req.query;
-	const session = await getServerSession(req, res, authOptions)
+	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.ANY])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
 
 	let query = {
 		uniqueName: uniqueName,

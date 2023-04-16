@@ -1,14 +1,14 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import MyMongo from "../../../../lib/mongodb";
-import { getSession } from "next-auth/react";
-import { postFirstvoteForAMission } from "../../../../lib/discordPoster";
-import axios from "axios";
-import fs from "fs";
-import validateUser, {
+ 
+import  {
 	CREDENTIAL,
-	validateUserList,
+ 
 } from "../../../../middleware/check_auth_perms";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../auth/[...nextauth]";
+import { hasCredsAny } from "../../../../lib/credsChecker";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -19,18 +19,17 @@ const apiRoute = nextConnect({
 	},
 });
 
-apiRoute.use((req, res, next) =>
-	validateUserList(
-		req,
-		res,
-		[CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_MAKER, CREDENTIAL.ADMIN],
-		next
-	)
-);
+ 
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
-	const session = await getSession({ req });
+
+	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_MAKER, CREDENTIAL.ADMIN])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
+
 	if (!session) {
 		res.status(401).json({ error: "You must be logged in to vote!" });
 	}

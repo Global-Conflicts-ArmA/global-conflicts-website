@@ -1,9 +1,11 @@
-import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
+import { CREDENTIAL } from "../../../middleware/check_auth_perms";
 import MyMongo from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ObjectId, UpdateResult } from "mongodb";
 import { hasCredsAny } from "../../../lib/credsChecker";
-import { getSession, useSession } from "next-auth/react";
+
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
 
 export default async function handler(
 	req: NextApiRequest,
@@ -12,14 +14,16 @@ export default async function handler(
 	if (req.method != "POST") {
 		res.status(404).send("");
 	}
-	const session = await getSession({ req });
- 
+	const session = await getServerSession(req, res, authOptions);
+	
+
+
 	const hasCreds = hasCredsAny(session, [
 		CREDENTIAL.NEW_GUY,
 		CREDENTIAL.MEMBER,
 	]);
 	if (!hasCreds) {
-		return res.status(401).send("");
+		return res.status(401).send("Not Authorized");
 	}
 
 	const doSignup = req.body.doSignup;

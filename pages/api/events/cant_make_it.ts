@@ -1,7 +1,10 @@
-import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
+import { CREDENTIAL } from "../../../middleware/check_auth_perms";
 import MyMongo from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
 import { ObjectId, UpdateResult } from "mongodb";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../auth/[...nextauth]";
+import { hasCredsAny } from "../../../lib/credsChecker";
 
 export default async function handler(
 	req: NextApiRequest,
@@ -10,9 +13,13 @@ export default async function handler(
 	if (req.method != "POST") {
 		res.status(404).send("");
 	}
-	const user = await validateUser(req, res, CREDENTIAL.MEMBER).catch((error) => {
-		return res.status(401).send("");
-	});
+
+
+	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.MEMBER])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
 
 	const eventId = req.body.eventId;
 	const eventObjectId = new ObjectId(eventId);

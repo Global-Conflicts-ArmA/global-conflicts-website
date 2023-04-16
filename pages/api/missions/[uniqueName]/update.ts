@@ -1,17 +1,16 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 import nextConnect from "next-connect";
-import { remark } from "remark";
 import {
 	buildVersionStr,
 	filterMediaFile,
-	missionsFolder,
+
 	oneMegabyteInBytes,
 } from "../../../../lib/missionsHelpers";
 import MyMongo from "../../../../lib/mongodb";
 
 import fs from "fs";
-import validateUser, {
+import {
 	CREDENTIAL, validateUserList,
 } from "../../../../middleware/check_auth_perms";
 import multer from "multer";
@@ -19,8 +18,7 @@ import { ObjectId } from "bson";
 import { postDiscordMissionUpdate } from "../../../../lib/discordPoster";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]";
-import { ServerResponse } from "http"
-import { Stream } from "stream"
+
 import hasCreds, { hasCredsAny } from "../../../../lib/credsChecker";
 
 const apiRoute = nextConnect({
@@ -33,14 +31,7 @@ const apiRoute = nextConnect({
 	},
 });
 
-apiRoute.use((req, res, next) =>
-	validateUserList(
-		req,
-		res,
-		[CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_MAKER, CREDENTIAL.ADMIN],
-		next
-	)
-);
+
 
 function getNextVersionName(isMajorVersion, version) {
 	if (isMajorVersion) {
@@ -143,7 +134,14 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = JSON.parse(req.body["missionJsonData"]);
 	const { uniqueName } = req.query;
 
+ 
 	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_MAKER, CREDENTIAL.ADMIN])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
+
+
 	let query = {};
 
 

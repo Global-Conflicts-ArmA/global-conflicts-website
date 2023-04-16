@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import nextConnect from "next-connect";
 import MyMongo from "../../../../../lib/mongodb";
-import validateUser, {
+import {
 	CREDENTIAL,
 } from "../../../../../middleware/check_auth_perms";
 
@@ -16,6 +16,7 @@ import { postDiscordAuditRequest } from "../../../../../lib/discordPoster";
 import { buildVersionStr } from "../../../../../lib/missionsHelpers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../auth/[...nextauth]";
+import { hasCredsAny } from "../../../../../lib/credsChecker";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -26,13 +27,14 @@ const apiRoute = nextConnect({
 	},
 });
 
-apiRoute.use((req, res, next) =>
-	validateUser(req, res, CREDENTIAL.MISSION_MAKER, next)
-);
 
 apiRoute.post(async (req: NextApiRequest, res) => {
 	const { uniqueName, updateId } = req.query;
 	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.MISSION_MAKER])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
 
 	let query = {};
 
@@ -55,7 +57,7 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 	}
 
 	const result = await MyMongo.collection("missions").findOne(query, {
-		projection: { _id: 1, updates: 1, uniqueName: 1, name:1},
+		projection: { _id: 1, updates: 1, uniqueName: 1, name: 1 },
 	});
 	if (!result) {
 		return res
@@ -70,7 +72,7 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 	});
 	if (updateResult.matchedCount > 0) {
 		const updateFound = result.updates.find((element) => element._id == updateId);
-		 
+
 		const versionStr = buildVersionStr(updateFound.version);
 
 		postDiscordAuditRequest({

@@ -1,8 +1,8 @@
-import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
+ 
 import MyMongo from "../../../lib/mongodb";
 import { NextApiRequest, NextApiResponse } from "next";
-import { ModifyResult, ObjectId, ReturnDocument, UpdateResult } from "mongodb";
-import { getSession } from "next-auth/react";
+import {   ObjectId,   } from "mongodb";
+ 
 
 export default async function handler(
 	req: NextApiRequest,

@@ -11,12 +11,13 @@ import {
 import MyMongo from "../../../../lib/mongodb";
 import strip from "strip-markdown";
 
-import validateUser, {
+import  {
 	CREDENTIAL,
 } from "../../../../middleware/check_auth_perms";
 import multer from "multer";
 import { authOptions } from "../../auth/[...nextauth]";
 import { getServerSession } from "next-auth/next";
+import { hasCredsAny } from "../../../../lib/credsChecker";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -27,9 +28,7 @@ const apiRoute = nextConnect({
 	},
 });
 
-apiRoute.use((req, res, next) =>
-	validateUser(req, res, CREDENTIAL.MISSION_MAKER, next)
-);
+ 
 
 const missionUpload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 2 },
@@ -69,6 +68,10 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const session = await getServerSession(req, res, authOptions);
+ 
+	if (!hasCredsAny(session, [CREDENTIAL.MISSION_MAKER])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
 
 	const description = body["description"];
 	const type = body["type"].value;
@@ -113,14 +116,16 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	res.status(200).json({ slug: uniqueName });
 });
 
- 
-
 apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = JSON.parse(req.body["missionJsonData"]);
 
 	const { uniqueName } = req.query;
 
 	const session = await getServerSession(req, res, authOptions);
+ 
+	if (!hasCredsAny(session, [CREDENTIAL.MISSION_MAKER])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
 
 	const description = body["description"];
 	const type = body["type"].value;

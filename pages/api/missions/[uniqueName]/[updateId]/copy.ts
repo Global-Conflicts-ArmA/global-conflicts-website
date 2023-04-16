@@ -7,11 +7,12 @@ import fs from "fs";
  
 
 import { ObjectId } from "bson";
-import { getSession } from "next-auth/react";
+ 
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../auth/[...nextauth]";
-import validateUser, { CREDENTIAL } from "../../../../../middleware/check_auth_perms";
-
+import { hasCredsAny } from "../../../../../lib/credsChecker";
+import { CREDENTIAL } from "../../../../../middleware/check_auth_perms";
+ 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
 		res.status(501).json({ error: `${error.message}` });
@@ -31,19 +32,12 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const { uniqueName, updateId } = req.query;
 
-	const session = await getServerSession(req, res, authOptions)
-
-
-	
-	let isAdmin = false;
-
-	for (var i = 0; i < session.user["roles"].length; i++) {
-		if (session.user["roles"][i].name == "Admin") {
-			isAdmin = true;
-			break;
-		}
-	}
-
+	const session = await getServerSession(req, res, authOptions);
+	const isAdmin = hasCredsAny(session, [CREDENTIAL.ADMIN])
+	if(!isAdmin){
+		return res.status(401).json({ error: `Not Authorized` });
+	}		
+ 
 	if (destination == "main" && !isAdmin) {
 		return res.status(401).json({ error: `Not allowed` });
 	}

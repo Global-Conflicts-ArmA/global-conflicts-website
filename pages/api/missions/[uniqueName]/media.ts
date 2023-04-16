@@ -3,23 +3,27 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import MyMongo from "../../../../lib/mongodb";
 
-import validateUser, {
+import {
 	CREDENTIAL,
 } from "../../../../middleware/check_auth_perms";
 
 import axios from "axios";
 
-import hasCreds from "../../../../lib/credsChecker";
+import hasCreds, { hasCredsAny } from "../../../../lib/credsChecker";
 import { ObjectId, ReturnDocument } from "mongodb";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({});
 
-apiRoute.use((req, res, next) => validateUser(req, res, CREDENTIAL.ANY, next));
-
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
+
+	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.ANY])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
 
 	const mission = await MyMongo.collection("missions").findOne(
 		{
@@ -52,6 +56,10 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const { mediaToDelete } = req.body;
 	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.ANY])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
 
 	const canDelete =
 		hasCreds(session, CREDENTIAL.GM) ||

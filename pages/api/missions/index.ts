@@ -4,7 +4,7 @@ import multer from "multer";
 
 import MyMongo from "../../../lib/mongodb";
 import { ObjectId } from "bson";
-import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
+import   { CREDENTIAL } from "../../../middleware/check_auth_perms";
 
 import { remark } from "remark";
 import strip from "strip-markdown";
@@ -21,6 +21,7 @@ import { MapItem } from "../../../interfaces/mapitem";
 import { postDiscordNewMission } from "../../../lib/discordPoster";
 import { authOptions } from "../auth/[...nextauth]";
 import { getServerSession } from "next-auth/next";
+import { hasCredsAny } from "../../../lib/credsChecker";
 
 const missionUpload = multer({
 	limits: { fileSize: oneMegabyteInBytes * 2 },
@@ -71,10 +72,7 @@ const apiRoute = nextConnect({
 		res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
 	},
 });
-
-apiRoute.use((req, res, next) =>
-	validateUser(req, res, CREDENTIAL.MISSION_MAKER, next)
-);
+ 
 
 apiRoute.use(
 	missionUpload.fields([
@@ -85,6 +83,13 @@ apiRoute.use(
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const body = JSON.parse(req.body["missionJsonData"]);
+
+	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.MISSION_MAKER])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
+	
 
 	let name = body["name"];
 	const safeName = makeSafeName(name);
@@ -97,7 +102,6 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		res.status(400).json({ error: "A mission with this name already exists." });
 	}
 
-	const session = await getServerSession(req, res, authOptions);
 	const mapClass = req["mapClass"];
 	const missionFileName = req["missionFileName"];
 

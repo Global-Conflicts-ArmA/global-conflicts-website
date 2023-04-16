@@ -1,15 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next";
 
 import nextConnect from "next-connect";
-import MyMongo from "../../../lib/mongodb";
 
 import fs from "fs";
-import validateUser, { CREDENTIAL } from "../../../middleware/check_auth_perms";
+import { CREDENTIAL } from "../../../middleware/check_auth_perms";
 
-import { ObjectId } from "bson";
-import { getSession } from "next-auth/react";
-import axios from "axios";
+
 import AdmZip from "adm-zip";
+import { authOptions } from "../auth/[...nextauth]";
+import { getServerSession } from "next-auth/next";
+import { hasCredsAny } from "../../../lib/credsChecker";
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
 		res.status(501).json({ error: `${error.message}` });
@@ -18,10 +18,16 @@ const apiRoute = nextConnect({
 		res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
 	},
 });
-apiRoute.use((req, res, next) => validateUser(req, res, CREDENTIAL.ANY, next));
 
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
+
+	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.ANY])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
+
 
 	try {
 		const zip = new AdmZip();

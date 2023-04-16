@@ -3,8 +3,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
 import MyMongo from "../../../../../lib/mongodb";
 
-import fs from "fs";
-import validateUser, {
+ 
+import {
 	CREDENTIAL,
 } from "../../../../../middleware/check_auth_perms";
 
@@ -12,6 +12,9 @@ import { ObjectId } from "bson";
 
 import axios from "axios";
 import { postNewMissionHistory } from "../../../../../lib/discordPoster";
+import { hasCredsAny } from "../../../../../lib/credsChecker";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../../auth/[...nextauth]";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -24,6 +27,13 @@ const apiRoute = nextConnect({
 
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
+
+	const session = await getServerSession(req, res, authOptions);
+	const isAdmin = hasCredsAny(session, [CREDENTIAL.ADMIN])
+	if(!isAdmin){
+		return res.status(401).json({ error: `Not Authorized` });
+	}		
+	
 	const result = await MyMongo.collection("missions").findOne(
 		{
 			uniqueName: uniqueName,
@@ -55,9 +65,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	return res.status(200).json(result.history);
 });
 
-apiRoute.use((req, res, next) =>
-	validateUser(req, res, CREDENTIAL.ADMIN, next)
-);
+
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
@@ -65,6 +73,12 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const history = req.body;
 	history["_id"] = new ObjectId();
 	history["date"] = new Date(history["date"]);
+	const session = await getServerSession(req, res, authOptions);
+	const isAdmin = hasCredsAny(session, [CREDENTIAL.ADMIN])
+	if(!isAdmin){
+		return res.status(401).json({ error: `Not Authorized` });
+	}		
+
 	const updateResult = await MyMongo.collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,

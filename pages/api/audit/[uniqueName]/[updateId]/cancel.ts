@@ -2,20 +2,21 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import nextConnect from "next-connect";
 import MyMongo from "../../../../../lib/mongodb";
-import validateUser, {
+import  {
 	CREDENTIAL, validateUserList,
 } from "../../../../../middleware/check_auth_perms";
 
 import { ObjectId } from "bson";
 import {
-	REVIEW_STATE_ACCEPTED,
+ 
 	REVIEW_STATE_PENDING,
-	REVIEW_STATE_REPROVED,
+ 
 } from "../../../../../lib/reviewStates";
-import { postDiscordAuditRequest, postDiscordAuditRequestCancel } from "../../../../../lib/discordPoster";
+import {  postDiscordAuditRequestCancel } from "../../../../../lib/discordPoster";
 import { buildVersionStr } from "../../../../../lib/missionsHelpers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../auth/[...nextauth]";
+import { hasCredsAny } from "../../../../../lib/credsChecker";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -33,7 +34,14 @@ apiRoute.use((req, res, next) =>
 
 apiRoute.post(async (req: NextApiRequest, res) => {
 	const { uniqueName, updateId } = req.query;
+
 	const session = await getServerSession(req, res, authOptions);
+
+	if (!hasCredsAny(session, [CREDENTIAL.ANY])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
+
+	 
 
 	let query = {};
 
