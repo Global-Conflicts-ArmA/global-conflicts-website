@@ -80,7 +80,7 @@ export default async function handler(
 
 	addResult = await MyMongo.collection("users").findOneAndUpdate(
 		{
-			discord_id: user["discord_id"],
+			discord_id:  session.user["discord_id"],
 			"eventsSignedUp.eventId": eventObjectId,
 		},
 		{

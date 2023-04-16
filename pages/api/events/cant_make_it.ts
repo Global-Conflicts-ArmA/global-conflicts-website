@@ -28,8 +28,11 @@ export default async function handler(
 	let cantMakeItResult: UpdateResult;
 	let canMakeItResult: UpdateResult;
 
+	
+
 	const userIsSignedUp = await MyMongo.collection("users").findOne({
-		discord_id: user["discord_id"],
+		
+		discord_id: session.user["discord_id"],
 		"eventsSignedUp.eventId": eventId,
 	});
 
@@ -40,7 +43,7 @@ export default async function handler(
 	if (cantMakeIt) {
 		cantMakeItResult = await MyMongo.collection("users").updateOne(
 			{
-				discord_id: user["discord_id"],
+				discord_id: session.user["discord_id"],
 			},
 			{
 				$addToSet: {
@@ -55,7 +58,7 @@ export default async function handler(
 				{ _id: eventObjectId },
 				{
 					$addToSet: {
-						cantMakeIt: user["discord_id"],
+						cantMakeIt:  session.user["discord_id"],
 					},
 				}
 			);
@@ -64,7 +67,7 @@ export default async function handler(
 	} else {
 		canMakeItResult = await MyMongo.collection("users").updateOne(
 			{
-				discord_id: user["discord_id"],
+				discord_id:  session.user["discord_id"],
 			},
 			{
 				$pull: {
@@ -79,7 +82,7 @@ export default async function handler(
 				{ _id: eventObjectId },
 				{
 					$pull: {
-						cantMakeIt: user["discord_id"],
+						cantMakeIt:  session.user["discord_id"],
 					},
 				}
 			);

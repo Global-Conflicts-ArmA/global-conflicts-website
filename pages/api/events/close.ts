@@ -35,7 +35,7 @@ export default async function handler(
 			$set: {
 				closeReason: reason,
 				numberOfParticipants: numberOfParticipants,
-				closedBy: user["discord_id"],
+				closedBy:  session.user["discord_id"],
 				closedDate: new Date(),
 			},
 		}
