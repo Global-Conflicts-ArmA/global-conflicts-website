@@ -34,9 +34,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const session = await getServerSession(req, res, authOptions);
 	const isAdmin = hasCredsAny(session, [CREDENTIAL.ADMIN])
-	if(!isAdmin){
-		return res.status(401).json({ error: `Not Authorized` });
-	}		
+	
  
 	if (destination == "main" && !isAdmin) {
 		return res.status(401).json({ error: `Not allowed` });
