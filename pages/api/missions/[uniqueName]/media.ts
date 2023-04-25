@@ -31,6 +31,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 		},
 		{
 			projection: { media: 1 },
+			sort:{ "media.date":1}
 		}
 	);
 
@@ -48,6 +49,13 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 			}
 		}
 	}
+	if(mission?.media){
+		mission.media.sort((a, b) => {
+			return b.date - a.date ;
+		});
+	}
+	
+
 	return res.status(200).json(mission?.media ?? []);
 });
 

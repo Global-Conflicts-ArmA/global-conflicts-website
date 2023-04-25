@@ -58,7 +58,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		`http://localhost:3001/users/${session.user["discord_id"]}`
 	);
 
-	console.log(mission);
+ 
 
 	postNewReview({
 		name: mission.name,

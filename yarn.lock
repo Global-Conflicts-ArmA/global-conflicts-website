@@ -619,7 +619,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@heroicons/react@npm:^1.0.5":
+"@heroicons/react@npm:^1.0.6":
   version: 1.0.6
   resolution: "@heroicons/react@npm:1.0.6"
   peerDependencies:
@@ -11110,7 +11110,7 @@ react-dom@latest:
     "@google-cloud/local-auth": ^1.0.1
     "@googleapis/youtube": ^4.2.0
     "@headlessui/react": ^1.5.0
-    "@heroicons/react": ^1.0.5
+    "@heroicons/react": ^1.0.6
     "@mapbox/rehype-prism": ^0.8.0
     "@next-auth/mongodb-adapter": 0.0.2-pr.193-1fc34f1e.284
     "@ramonak/react-progress-bar": ^4.4.0

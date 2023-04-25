@@ -5,6 +5,8 @@ import { generateMarkdown } from "../lib/markdownToHtml";
 import moment from "moment";
 import hasCreds from "../lib/credsChecker";
 import { CREDENTIAL } from "../middleware/check_auth_perms";
+import Bug from "./icons/bug";
+import { CheckIcon } from "@heroicons/react/outline";
 
 export default function CommentBox({
 	title,
@@ -12,6 +14,8 @@ export default function CommentBox({
 	btnText = "",
 	onSubmitClick,
 	onEditClick,
+	updateBugReport = (item, action) => { },
+	isMissionMaker
 }) {
 	const { data: session } = useSession();
 	function buildVersionString(versionObj): string {
@@ -52,31 +56,54 @@ export default function CommentBox({
 									<div className="flex flex-row justify-between">
 										<div>
 											<div className="font-bold dark:text-gray-50">{item.authorName}</div>
-											<div className="text-xs font-light dark:text-gray-100">
+											<div className="text-xs font-light dark:text-gray-100 flex flex-row">
 												{moment(item.date).format("ll")}
+												<div className={`transition-all ml-2 text-green-600 flex flex-row items-center ${item.isClosed ? "opacity-100" : "opacity-0"}`}>
+													<CheckIcon className="h-4" ></CheckIcon> FIXED
+												</div>
 											</div>
 										</div>
 										<div className="flex flex-row dark:text-white">
 											{buildVersionString(item.version)}
-											{(hasCreds(session, CREDENTIAL.ADMIN) ||
-												session?.user["discord_id"] == item.authorID) && (
-												<div className="ml-3 space-x-1">
-													<button
-														onClick={() => {
-															onEditClick(item);
-														}}
-														className="btn btn-outline btn-square btn-xs dark:text-white "
-													>
-														<EditIcon className={"w-4 h-4"}></EditIcon>
-													</button>
+											{title == "Bug Reports" && (hasCreds(session, CREDENTIAL.MISSION_REVIEWER) || isMissionMaker) && (
+												<div className="ml-3 space-x-1 ">
+													<span data-tip={
+														item.isClosed == true ? "Re-open report" : "Mark as fixed"
+													}
+														className={`tooltip  sm:tooltip-bottom   ${item.isClosed ? 'tooltip-warning' : 'tooltip-info'}`} >
+														<button
+															onClick={() => {
+																updateBugReport(item, item.isClosed == true ? "re-open" : "close");
+															}}
+
+															className="btn btn-outline btn-square btn-xs dark:text-white"
+														>
+															{item.isClosed ? <Bug className={"w-4 h-4"}></Bug> : <CheckIcon className={"w-4 h-4"}></CheckIcon>}
+
+														</button>
+													</span>
 												</div>
 											)}
+
+											{(hasCreds(session, CREDENTIAL.ADMIN) ||
+												session?.user["discord_id"] == item.authorID) && (
+													<div className="ml-3 space-x-1">
+														<button
+															onClick={() => {
+																onEditClick(item);
+															}}
+															className="btn btn-outline btn-square btn-xs dark:text-white "
+														>
+															<EditIcon className={"w-4 h-4"}></EditIcon>
+														</button>
+													</div>
+												)}
 										</div>
 									</div>
-									<div className="font-light leading-normal prose ease-in-out line-clamp-3 hover:line-clamp-none ">
+									<div className="font-light leading-normal prose ease-in-out line-clamp-3 hover:block ">
 										{item.text && (
 											<div
-												className="max-w-3xl break-all prose-less-margin"
+												className="max-w-3xl break-words prose-less-margin"
 												dangerouslySetInnerHTML={{
 													__html: generateMarkdown(item.text),
 												}}
