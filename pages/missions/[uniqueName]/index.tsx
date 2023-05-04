@@ -717,14 +717,7 @@ export default function MissionDetails({
 
 
 
-		if (
-			(hasCreds(session, CREDENTIAL.MISSION_MAKER) &&
-				session?.user["discord_id"] == mission.authorID) || hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM])
-		) {
-			return element;
-		} else {
-			return <></>
-		}
+		return element;
 
 
 
@@ -1789,9 +1782,9 @@ export async function getServerSideProps(context) {
 		mission["media"]?.map((media) => {
 			media["_id"] = media["_id"].toString();
 		});
-		if(mission?.media){
+		if (mission?.media) {
 			mission.media.sort((a, b) => {
-				return b.date - a.date ;
+				return b.date - a.date;
 			});
 		}
 	}
