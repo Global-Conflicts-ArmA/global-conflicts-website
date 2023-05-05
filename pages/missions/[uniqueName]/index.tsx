@@ -715,12 +715,9 @@ export default function MissionDetails({
 
 		</div>;
 
-
-
-		return element;
-
-
-
+		return <h2 className="flex flex-row  py-2 font-bold dark:text-gray-100">
+			Mission Rating{" "} {element}
+		</h2>
 	}
 
 	function getRatingListBox() {
@@ -1062,23 +1059,14 @@ export default function MissionDetails({
 					))}
 				</div>
 
-
-
-
-				<h2 className="flex flex-row  py-2 font-bold dark:text-gray-100">
-					Mission Rating{" "} {getRatings()}
-
-				</h2>
-				<div className=" flex flex-col md:flex-row  items-center  md:justify-between ">
-
+				{getRatings()}
+				{session && <div className=" flex flex-col md:flex-row  items-center  md:justify-between ">
 					<div className="prose prose-sm max-w-none mr-3 self-start text-xs ">If you played this mission, consider rating it. Rate the mission, not the leadership!<br />Ratings are visible only to the mission maker, admins and GMs.<br />You can change your rating at any time.</div>
 					<div className="relative mt-5  md:mt-0">
 						{getRatingListBox()}
-
-
 					</div>
-
-				</div>
+				</div>}
+				
 
 				<h2 className="flex flex-row justify-between  py-2 font-bold dark:text-gray-100">
 					Versions{" "}
