@@ -1061,7 +1061,7 @@ export default function MissionDetails({
 
 				{getRatings()}
 				{session && <div className=" flex flex-col md:flex-row  items-center  md:justify-between ">
-					<div className="prose prose-sm max-w-none mr-3 self-start text-xs ">If you played this mission, consider rating it. Rate the mission, not the leadership!<br />Ratings are visible only to the mission maker, admins and GMs.<br />You can change your rating at any time.</div>
+					<div className="prose prose-sm max-w-none mr-3 self-start text-xs ">If you played this mission, consider rating it. Rate the mission, not the leadership! You can change your rating at any time.</div>
 					<div className="relative mt-5  md:mt-0">
 						{getRatingListBox()}
 					</div>
