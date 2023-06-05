@@ -112,6 +112,7 @@ export const config = {
 	api: {
 		bodyParser: false,
 		//  Disallow body parsing, consume as stream
+		sizeLimit: '220mb',
 	},
 };
 
