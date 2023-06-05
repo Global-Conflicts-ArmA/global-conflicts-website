@@ -668,7 +668,7 @@ export default function MissionDetails({
 									loop={true}
 									width={"100%"}
 									height={"100%"}
-									url={linkObj.link}
+									url={linkObj.cdnLink ?? linkObj.link}
 								/>
 							) : (
 								<a

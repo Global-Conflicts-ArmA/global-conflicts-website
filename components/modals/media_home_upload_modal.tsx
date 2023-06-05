@@ -397,7 +397,7 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 																loop={true}
 																width={"100%"}
 																height={"100%"}
-																url={linkObj.link}
+																url={linkObj.cdnLink ?? linkObj.link}
 															/>
 														) : (
 															<Image
@@ -406,7 +406,7 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 																layout="fill"
 																objectFit="cover"
 																unoptimized={true}
-																src={linkObj.link}
+																src={linkObj.cdnLink ?? linkObj.link}
 																alt={"User uploaded image from this mission"}
 															/>
 														)}
