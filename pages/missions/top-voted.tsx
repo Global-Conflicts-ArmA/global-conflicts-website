@@ -93,7 +93,7 @@ function TopVoted({ missions, maxVotes }) {
 			return (
 				<div className="flex flex-row justify-start ">
 					<div className="flex flex-row mr-2">
-						<div className="mr-2 opacity-75 stat-title">Votes:</div>
+						<div className="mr-2 opacity-75 stat-title prose">Votes:</div>
 						<div className=""> {mission.votes.length}</div>
 					</div>
 					<div
