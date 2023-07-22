@@ -394,11 +394,13 @@ function WideCard(image, marginTop) {
 			className="flex justify-self-center card shadow-strong dark:shadow-lg"
 		>
 			<Image
-				alt="Mountains"
+				alt="Decorative image"
 				src={image}
 				layout="fill"
 				objectFit="cover"
 				quality={100}
+                className="rounded-xl"
+                
 			/>
 		</div>
 	);
