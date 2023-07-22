@@ -26,6 +26,10 @@
       "title": "Tactics",
       "children": [
          {
+            "title": "Invantry Core",
+            "slug": "infantry-core"
+         },
+         {
             "title": "JTAC",
             "slug": "jtac"
          }

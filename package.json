@@ -84,6 +84,7 @@
     "remark-rehype": "^10.1.0",
     "request": "^2.88.2",
     "rich-markdown-editor": "^11.21.3",
+    "sass": "^1.64.0",
     "streamifier": "^0.1.1",
     "strip-markdown": "^5.0.0",
     "styled-components": "^5.3.3",
