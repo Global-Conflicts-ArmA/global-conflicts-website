@@ -3,13 +3,13 @@ import _guidesOrder from "../../guides-order.json";
 import { useRouter } from "next/router";
 import MyMongo from "../../lib/mongodb";
 import { generateMarkdown } from "../../lib/markdownToHtml";
-
+import style from '../../components/guides.module.scss'
 function Guide({ guideContent }) {
 	const router = useRouter();
 	const slug = router.query.slug || [];
-
+		// 
 	return (
-		<article className="max-w-3xl m-5 mt-20 prose dark:prose-invert">
+		<article  className={"max-w-3xl m-5 mt-20 prose dark:prose-invert "+style.guidecss}>
 			<kbd className="hidden kbd"></kbd>
 			<div
 				dangerouslySetInnerHTML={{
