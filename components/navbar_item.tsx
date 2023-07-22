@@ -20,7 +20,7 @@ export default function NavBarItem({
 
 	return (
         <div className="w-full pt-4">
-			<div className="w-full mx-auto bg-white rounded-none max-w-none md:max-w-md md:rounded-lg dark:bg-gray-800 dark:text-white">
+			<div className="w-full mx-auto bg-gray-100 rounded-none max-w-none md:max-w-md md:rounded-lg dark:bg-gray-800 dark:text-white">
 				{item["children"] ? (
 					<Disclosure defaultOpen={false}>
 						{({ open }) => (
@@ -52,7 +52,7 @@ export default function NavBarItem({
 											<Link replace={true} href={`/guides/${child["slug"]}`} legacyBehavior>
 												 
 													<Disclosure.Panel
-														className={`flex flex-row px-4 py-2 h-9 md:mr-0 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 ${
+														className={`flex flex-row px-4 py-2 h-9 md:mr-0 text-sm text-gray-500 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 prose ${
 															checkCurrent(child["slug"]) ? "font-bold bg-gray-100 dark:bg-gray-600 dark:text-gray-100" : ""
 														}`}
 													>

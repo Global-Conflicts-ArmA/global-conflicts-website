@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function DecorativeCard({image, width, height}) {
 	return (
-		<div className="shadow-strong dark:shadow-lg rounded-xl" style={{ width: width, height: height }}>
+		<div className="shadow-strong dark:shadow-lg rounded-xl" style={{ width: width }}>
 			<Image
 				alt="card"
 				className="rounded-xl"
