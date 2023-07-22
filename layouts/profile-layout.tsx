@@ -2,7 +2,7 @@ import React from "react";
 
 import Link from "next/link";
 
-import _guidesOrder from "../guides-order.json";
+ 
 
 import { useRouter } from "next/router";
 

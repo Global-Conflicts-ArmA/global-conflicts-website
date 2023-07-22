@@ -1,9 +1,6 @@
-import React, { createContext, useContext } from "react";
+import React from "react";
 
 import Link from "next/link";
-
-import _guidesOrder from "../guides-order.json";
-
  
 
 const btns = [

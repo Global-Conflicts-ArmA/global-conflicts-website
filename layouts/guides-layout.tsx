@@ -1,8 +1,8 @@
 import { Disclosure } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
-import { useRouter } from "next/router";
-import React, { createContext, useContext } from "react";
-import NavBar from "../components/navbar";
+
+import React from "react";
+
 import NavBarItem from "../components/navbar_item";
 
 import _guidesOrder from "../guides-order.json";
