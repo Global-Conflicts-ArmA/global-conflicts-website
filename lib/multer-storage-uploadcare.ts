@@ -5,14 +5,11 @@ import { Request } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 import axios from "axios";
-import { ImgurClient } from "imgur";
+ 
 import FormData from "form-data";
-import { Readable } from "stream";
-import streamifier from "streamifier";
+ 
 // all credentials with a refresh token, in order to get access tokens automatically
-const imgurClient = new ImgurClient({
-	clientId: process.env.IMGUR_CLIENT_ID,
-});
+ 
 
 type Options = {
 	public_key: string;
@@ -22,7 +19,7 @@ type Options = {
 
 interface CustomFileResult extends Partial<Express.Multer.File> {
 	uploadcare_file_id: string;
-	imgur_link?: string;
+	quaxLink?: string;
 }
 
 class UploadcareStorageClass implements multer.StorageEngine {
@@ -60,18 +57,16 @@ class UploadcareStorageClass implements multer.StorageEngine {
 	): Promise<void> => {
 		file.stream.pipe(
 			concat(async (fileBuffer) => {
-				let imgurResponse;
+				let quaxResponse;
 				var data = new FormData();
-				data.append("image", fileBuffer, file.originalname);
+				data.append("files[]", fileBuffer, file.originalname);
 				try {
-					imgurResponse = await axios({
+					quaxResponse = await axios({
 						method: "POST",
-						url: `https://api.imgur.com/3/upload`,
-						maxContentLength: Infinity,
-						maxBodyLength: Infinity,
+						url: `https://qu.ax/upload.php`,
+					 
 						headers: {
-							Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`,
-							"content-type": "multipart/form-data",
+							 
 							...data.getHeaders(),
 						},
 						data: data,
@@ -80,23 +75,11 @@ class UploadcareStorageClass implements multer.StorageEngine {
 					console.log(e);
 				}
 
-				let imgurLink = null;
-				if (imgurResponse) {
-					const imgurType: string = imgurResponse.data["data"]["type"];
-
-					let type = "";
-					if (imgurType.includes("video")) {
-						imgurLink = `https://content.globalconflicts.net/imgur/${
-							imgurResponse.data["data"]["id"] + ".mp4"
-						}`;
-						type = "video";
-					} else {
-						const imgurId = imgurResponse.data["data"]["link"].substr(
-							imgurResponse.data["data"]["link"].lastIndexOf("/") + 1
-						);
-						imgurLink = `https://content.globalconflicts.net/imgur/${imgurId}`;
-						type = "image";
-					}
+				let quaxLink = null;
+				if (quaxResponse) {
+					const id = quaxResponse.data["files"][0]["url"].split("/")[3];
+					quaxLink = `https://content.globalconflicts.net/quax/${id}`;
+ 
 				}
 
 				request.post(
@@ -118,7 +101,7 @@ class UploadcareStorageClass implements multer.StorageEngine {
 					async function _createCallback(err, httpResponse, body) {
 						if (err) return cb(err);
 
-						return cb(null, { uploadcare_file_id: body.file, imgur_link: imgurLink });
+						return cb(null, { uploadcare_file_id: body.file, quaxLink: quaxLink });
 					}
 				);
 			})

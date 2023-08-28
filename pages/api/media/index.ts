@@ -45,13 +45,13 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	try {
 		const session = await getServerSession(req, res, authOptions);
 
-		let imgurLinks = [];
+		let mediaLinks = [];
 		let files = [];
 
 		for (const file of req["files"]) {
-			imgurLinks.push({
+			mediaLinks.push({
 				_id: new ObjectId(),
-				link: file.imgur_link,
+				link: file.quaxLink,
 				cdnLink: `https://ucarecdn.com/${
 					file.uploadcare_file_id
 				}/${file.originalname.replaceAll(" ", "_")}`,
@@ -60,7 +60,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 				discord_id: session.user["discord_id"],
 			});
 		}
-		let allLinks = [...imgurLinks];
+		let allLinks = [...mediaLinks];
 		if (req.body["directLinks"]) {
 			const directLinks = [].concat(req.body["directLinks"]);
 			let directLinksObjs = [];

@@ -58,8 +58,8 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 			toast.error("Invalid link type!");
 			return;
 		} else {
-			setDisplayingLinks((imgurLinks) => [
-				...imgurLinks,
+			setDisplayingLinks((mediaLinks) => [
+				...mediaLinks,
 				{
 					link: directLink,
 					type: type,

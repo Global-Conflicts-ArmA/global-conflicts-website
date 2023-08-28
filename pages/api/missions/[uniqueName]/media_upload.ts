@@ -43,20 +43,20 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			return res.status(401).json({ error: `Not Authorized` });
 		}
 		const { uniqueName } = req.query;
-		let imgurLinks = [];
+		let mediaLinks = [];
 		let files = [];
 
 		for (const file of req["files"]) {
-			imgurLinks.push({
+			mediaLinks.push({
 				_id: new ObjectId(),
-				link: file.imgur_link,
+				link: file.quaxLink,
 				cdnLink: `https://ucarecdn.com/${file.uploadcare_file_id}/${file.originalname.replaceAll(" ","_")}`,
 				type: file.mimetype,
 				date: new Date(),
 				discord_id: session.user["discord_id"],
 			});
 		}
-		let allLinks = [...imgurLinks];
+		let allLinks = [...mediaLinks];
 		if (req.body["directLinks"]) {
 			const directLinks = [].concat(req.body["directLinks"]);
 			let directLinksObjs = [];
