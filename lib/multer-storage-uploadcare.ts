@@ -59,11 +59,12 @@ class UploadcareStorageClass implements multer.StorageEngine {
 			concat(async (fileBuffer) => {
 				let quaxResponse;
 				var data = new FormData();
-				data.append("files[]", fileBuffer, file.originalname);
+				data.append('reqtype', 'fileupload');
+				data.append("fileToUpload", fileBuffer, file.originalname);
 				try {
 					quaxResponse = await axios({
 						method: "POST",
-						url: `https://qu.ax/upload.php`,
+						url: `https://catbox.moe/user/api.php`,
 					 
 						headers: {
 							 
@@ -77,7 +78,7 @@ class UploadcareStorageClass implements multer.StorageEngine {
 
 				let quaxLink = null;
 				if (quaxResponse) {
-					const id = quaxResponse.data["files"][0]["url"].split("/")[3];
+					const id = quaxResponse.data.split("/")[3];
 					quaxLink = `https://content.globalconflicts.net/quax/${id}`;
  
 				}
