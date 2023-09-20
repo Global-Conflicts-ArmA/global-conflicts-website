@@ -6,8 +6,8 @@ import React, { useEffect, useState } from "react";
 import { Disclosure } from "@headlessui/react";
 import { ChevronUpIcon } from "@heroicons/react/outline";
 
-function Downloads({}) {
-	return <>
+function Downloads({ }) {
+    return <>
         <Head>
             <title>Global Conflicts - Downloads</title>
         </Head>
@@ -19,10 +19,10 @@ function Downloads({}) {
                 </div>
                 <section className="my-5">
                     <div className="prose ">
-                        <h2>Global Conflicts Laucher</h2>
+                        <h2>Swifty</h2>
                     </div>
                     <a
-                        href="http://launcher.globalconflicts.net/download/GC_Launcher.zip"
+                        href="https://getswifty.net/releases/Setup.exe"
                         download
                         className="my-5 text-white btn btn-xl btn-wide"
                     >
@@ -31,37 +31,28 @@ function Downloads({}) {
 
                     <div className="prose">
                         <p>
-                            Our custom launcher will download all the mods necessary in a few
-                            clicks. It can detect mods that you already have downloaded via Steam
-                            Workshop and let you copy them, so you don&apos;t need to download them
-                            again.{" "}
-                            <a
-                                href="https://github.com/PiZZAD0X/Bulletproof-Arma-Launcher"
-                                download
-                                className="p-1 btn btn-ghost btn-xs"
-                            >
-                                Source code
-                            </a>{" "}
+                            Swifty is a mod updater designed to be keep the entire modpack always updated without the need to change modsets HTMLs like the default Arma 3 launcher.
+                            <Link href="/guides/swifty" className="p-1 btn btn-ghost btn-xs">
+                                Here is a quick guide on how to use it
+                            </Link>.
                         </p>
                         <div className="bg-white dark:bg-gray-500 rounded-2xl">
                             <Disclosure>
                                 {({ open }) => (
                                     <>
                                         <Disclosure.Button className="flex justify-between w-full px-4 py-2 text-sm font-medium text-left text-blue-900 bg-blue-100 rounded-lg dark:text-gray-200 dark:bg-gray-600 hover:bg-blue-200 dark:hover:bg-gray-400 ">
-                                            <span>Can&apos;t use our launcher?</span>
+                                            <span>Can&apos;t use Swifty?</span>
                                             <ChevronUpIcon
-                                                className={`${
-                                                    open ? "transform rotate-180" : ""
-                                                } duration-100 w-5 h-5 text-blue-500 dark:text-white`}
+                                                className={`${open ? "transform rotate-180" : ""
+                                                    } duration-100 w-5 h-5 text-blue-500 dark:text-white`}
                                             />
                                         </Disclosure.Button>
                                         <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-200">
-                                            If you are having issues with our launcher or just don&apos;t trust
-                                            it, you can use Swifty instead{" "}
-                                            <Link href="/guides/swifty" className="p-1 btn btn-ghost btn-xs">
+                                            If you are having issues with Swifty for whatever reason, you can also download the modpack via torrents, using your torrent client of choice. You will then need to create a modset on your Arma 3 Launcher by yourself.
+                                            <Link href="https://launcher.globalconflicts.net/torrents/main_modpack_torrents.zip" className="p-1 btn btn-ghost btn-xs">
                                                 Click here
                                             </Link>{" "}
-                                            to know more.
+                                            to download the archive containing all the necessary torrents.
                                         </Disclosure.Panel>
                                     </>
                                 )}

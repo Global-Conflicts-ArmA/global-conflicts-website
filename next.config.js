@@ -16,7 +16,6 @@ module.exports = async (phase, { defaultConfig }) => {
 			return config;
 		},
 		pageExtensions: ["js", "jsx", "ts", "tsx"],
-		topLevelAwait: true,
 		images: {
 
 			formats: ["image/avif", "image/webp"],
