@@ -16,7 +16,7 @@ import { postDiscordAuditRequest } from "../../../../../lib/discordPoster";
 import { buildVersionStr } from "../../../../../lib/missionsHelpers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../auth/[...nextauth]";
-import { hasCredsAny } from "../../../../../lib/credsChecker";
+import hasCreds, { hasCredsAny } from "../../../../../lib/credsChecker";
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -40,7 +40,7 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 
 	const updateOid = new ObjectId(updateId.toString());
 
-	if (session.user["isAdmin"]) {
+	if (hasCreds(session, CREDENTIAL.ADMIN)) {
 		query = {
 			uniqueName: uniqueName,
 			"updates._id": updateOid,
