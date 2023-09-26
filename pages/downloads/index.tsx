@@ -47,7 +47,7 @@ function Downloads({ }) {
                                                     } duration-100 w-5 h-5 text-blue-500 dark:text-white`}
                                             />
                                         </Disclosure.Button>
-                                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm text-gray-200">
+                                        <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm dark:text-gray-200">
                                             If you are having issues with Swifty for whatever reason, you can also download the modpack via torrents, using your torrent client of choice. You will then need to create a modset on your Arma 3 Launcher by yourself.
                                             <Link href="https://launcher.globalconflicts.net/torrents/main_modpack_torrents.zip" className="p-1 btn btn-ghost btn-xs">
                                                 Click here

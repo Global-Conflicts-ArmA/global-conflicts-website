@@ -1,6 +1,7 @@
 .guidecss {
     img {
         margin: 0;
+        display: initial;
     }
 
     th {
@@ -15,7 +16,10 @@
         }
     }
 
-
+    code{
+        color: #414141;
+        background-color: #f3f3f3;
+    }
      
 
 
