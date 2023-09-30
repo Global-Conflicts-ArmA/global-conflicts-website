@@ -1827,12 +1827,12 @@ export async function getServerSideProps(context) {
 
 	let hasLiveVersion = true;
 	// checks if it has a live version
-	// for (const update of mission.updates) {
-	// 	if (update.main) {
-	// 		hasLiveVersion = true;
-	// 		break;
-	// 	}
-	// }
+	for (const update of mission.updates) {
+		if (update.main) {
+			hasLiveVersion = true;
+			break;
+		}
+	}
 
 	return {
 		props: {
