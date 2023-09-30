@@ -57,7 +57,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		const versionStr = buildVersionStr(updateFound.version);
 
 		const botResponse = await axios.get(
-			`http://localhost:3001/users/${updateResult.value.authorID}`
+			`http://localhost:3001/users/${updateFound.authorID}`
 		);
 
 		postDiscordAuditSubmit({
