@@ -43,7 +43,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	let hasAcceptedVersion = false;
 	// checks if it has an approved version
 	for (const update of mission.updates) {
-		if ( update?.testingAudit?.reviewState == "review_accepted") {
+		if ( update?.testingAudit?.reviewState == "review_accepted" || update?.reviewState == 'review_accepted') {
 			hasAcceptedVersion = true;
 			break;
 		}

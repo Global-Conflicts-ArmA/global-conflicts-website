@@ -1829,7 +1829,9 @@ export async function getServerSideProps(context) {
 	let hasAcceptedVersion = false;
 	// checks if it has an approved version
 	for (const update of mission.updates) {
-		if ( update?.testingAudit?.reviewState == "review_accepted") {
+		console.log("update")
+		//the reviewState on the update object is an legacy thing
+		if ( update?.testingAudit?.reviewState == "review_accepted" || update?.reviewState == 'review_accepted') {
 			hasAcceptedVersion = true;
 			break;
 		}
