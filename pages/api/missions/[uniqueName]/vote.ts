@@ -40,22 +40,18 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		uniqueName: uniqueName,
 	});
 
-	let hasLiveVersion = false;
-	// checks if it has a live version
+	let hasAcceptedVersion = false;
+	// checks if it has an approved version
 	for (const update of mission.updates) {
-		if (
-			fs.existsSync(
-				`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.fileName}`
-			)
-		) {
-			hasLiveVersion = true;
+		if ( update?.testingAudit?.reviewState == "review_accepted") {
+			hasAcceptedVersion = true;
 			break;
 		}
 	}
-	if (!hasLiveVersion) {
+	if (!hasAcceptedVersion) {
 		return res.status(400).json({
 			error:
-				"Why are you trying to vote for a mission that is not on the main server?",
+				"You can't vote for this mission. It has not been approved yet.",
 		});
 	}
 
