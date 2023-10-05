@@ -64,7 +64,7 @@ export default function MissionDetails({
 	discordUsers,
 	hasVoted,
 	missionTestingQuestions,
-	hasLiveVersion,
+	hasAcceptedVersion,
 }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
 	let [newVersionModalOpen, setNewVersionModalOpen] = useState(false);
@@ -352,13 +352,14 @@ export default function MissionDetails({
 	];
 
 	function doVote(event) {
+		console.log("test")
 		if (!session) {
 			toast.error("You must be logged in to vote!");
 			return;
 		}
-		if (!hasLiveVersion) {
+		if (!hasAcceptedVersion) {
 			toast.error(
-				"Why are you trying to vote for a mission that is not on the main server?"
+				"You can't vote for this mission. It has not been approved yet."
 			);
 			return;
 		}
@@ -1825,14 +1826,14 @@ export async function getServerSideProps(context) {
 		discordUsers = botResponse.data;
 	}
 
-	let hasLiveVersion = true;
-	// checks if it has a live version
-	// for (const update of mission.updates) {
-	// 	if (update.main) {
-	// 		hasLiveVersion = true;
-	// 		break;
-	// 	}
-	// }
+	let hasAcceptedVersion = false;
+	// checks if it has an approved version
+	for (const update of mission.updates) {
+		if ( update?.testingAudit?.reviewState == "review_accepted") {
+			hasAcceptedVersion = true;
+			break;
+		}
+	}
 
 	return {
 		props: {
@@ -1842,7 +1843,7 @@ export async function getServerSideProps(context) {
 				? mission.votes?.includes(session?.user["discord_id"])
 				: false,
 			missionTestingQuestions,
-			hasLiveVersion: hasLiveVersion,
+			hasAcceptedVersion: hasAcceptedVersion,
 		},
 	};
 }
