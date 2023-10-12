@@ -4,7 +4,6 @@ import axios from 'axios';
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
-		console.log(error);
 		res.status(501).json({ error: `${error.message}` });
 	},
 	onNoMatch(req, res: NextApiResponse) {
@@ -12,14 +11,12 @@ const apiRoute = nextConnect({
 	},
 });
 
- 
-apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 
-    const serverData = await axios.get(
+apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
+	const serverRes = await axios.get(
 		`http://localhost:3001/server/`
 	);
-
-	return res.status(200).json(serverData);
+	return res.status(200).json(serverRes.data);
 });
 
 export default apiRoute;

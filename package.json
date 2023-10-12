@@ -31,6 +31,7 @@
     "babel-plugin-prismjs": "^2.1.0",
     "babel-plugin-superjson-next": "^0.4.3",
     "clsx": "^1.1.1",
+    "cors": "^2.8.5",
     "daisyui": "2.51.5",
     "express": "^4.17.3",
     "file-saver": "^2.0.5",

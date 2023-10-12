@@ -190,14 +190,14 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			uniqueName: updateResult.value["uniqueName"],
 			description: updateResult.value["description"],
 			version: update.version,
-			changelog: body.changelog,
+			changelog: update.changeLog,
 			updateAuthor: session.user["nickname"] ?? session.user["username"],
 			missionAuthor: updateResult.value["authorID"],
 			displayAvatarURL: session.user.image,
 			size: updateResult.value["size"],
 			type: updateResult.value["type"],
 			terrainName: updateResult.value["terrainName"],
-			tags: updateResult.value["tags"],
+			tags: updateResult.value["tags"]
 		});
 
 		res.status(200).json(update);
