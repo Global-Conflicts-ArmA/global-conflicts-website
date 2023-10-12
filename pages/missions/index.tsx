@@ -14,7 +14,7 @@ import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { MapItem } from "../../interfaces/mapitem";
 import Select from "react-select";
-import { tagsOptions } from "../../lib/missionSelectOptions";
+import { eraOptions, respawnOptions, respawnOptionsFilter, tagsOptions } from "../../lib/missionSelectOptions";
 const columns = [
 	{
 		name: "Name",
@@ -85,13 +85,19 @@ function MissionList({ missions }) {
 
 	const [missionsFiltred, setMissionsFiltred] = useState([]);
 	const [filterTags, setFilterTags] = useState([]);
+	const [filterEras, setFilterEras] = useState([]);
+	const [filterRespawn, setFilterRespawn] = useState([]);
 
 	const [anythingFilter, setAnythingFilter] = useState(() => (mission) => true);
 	const [authorFilter, setAuthorFilter] = useState(() => (mission) => true);
 
 	const [typeFilter, setTypeFilter] = useState(() => (mission) => true);
 	const [mapFilter, setMapFilter] = useState(() => (mission) => true);
+
 	const [tagFilter, setTagFilter] = useState(() => (mission) => true);
+	const [eraFilter, setEraFilter] = useState(() => (mission) => true);
+	const [respawnFilter, setRespawnFilter] = useState(() => (mission) => true);
+
 	const [statefilter, setStatefilter] = useState(() => (mission) => true);
 
 	const { data: session } = useSession();
@@ -101,7 +107,7 @@ function MissionList({ missions }) {
 		setDenseMode(denseMode == "true");
 
 		function filterMissions() {
-			console.log("aaa");
+
 			const missionsFound = missions
 				.filter((mission) => {
 					if (!showUnlistedMissions && mission.isUnlisted) {
@@ -120,6 +126,8 @@ function MissionList({ missions }) {
 					}
 				})
 				.filter(tagFilter)
+				.filter(eraFilter)
+				.filter(respawnFilter)
 				.filter(statefilter)
 				.filter(mapFilter)
 				.filter(typeFilter)
@@ -133,6 +141,8 @@ function MissionList({ missions }) {
 	}, [
 		anythingFilter,
 		tagFilter,
+		eraFilter,
+		respawnFilter,
 		authorFilter,
 		mapFilter,
 		missions,
@@ -249,7 +259,7 @@ function MissionList({ missions }) {
 								let hasMatch = true;
 								if (e.length > 0) {
 									if (x["tags"]) {
-										
+
 										hasMatch = e.every((r) => x["tags"].includes(r.value));
 									}
 								}
@@ -260,6 +270,78 @@ function MissionList({ missions }) {
 						components={makeAnimated()}
 					/>
 				</div>
+
+				<div className="form-control">
+					<label className="label">
+						<span className="label-text">Era</span>
+					</label>
+					<Select
+						isMulti
+						classNamePrefix="select-input"
+						name="Eras"
+						styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+						value={filterEras}
+						onChange={(e) => {
+							setFilterEras(e);
+
+							setEraFilter(() => (x) => {
+								let hasMatch = true;
+
+								if (e.length > 0) {
+									if (x["era"]) {
+										hasMatch = e.some((r) => x["era"].includes(r.value));
+									}
+								}
+								return hasMatch;
+							});
+						}}
+						options={eraOptions}
+						components={makeAnimated()}
+					/>
+				</div>
+				<div className="form-control">
+					<label className="label">
+						<span className="label-text">Respawn</span>
+					</label>
+					<Select
+
+						classNamePrefix="select-input"
+						name="Respawn"
+						styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+						value={filterRespawn}
+						onChange={(e) => {
+							setFilterRespawn(e);
+
+							setRespawnFilter(() => (x) => {
+
+								if (e.value == null) {
+									console.log("null")
+									return true;
+								}
+								return x["respawn"] == e.value;
+
+								let hasMatch = true;
+								if (e.length > 0) {
+									if (x["respawn"]) {
+
+
+
+										if (typeof x["respawn"] == "boolean") {
+											hasMatch = e.every((r) => x["respawn"] == r.value);
+										} else {
+											hasMatch = e.some((r) => x["respawn"].includes(r.value));
+										}
+
+									}
+								}
+								return hasMatch;
+							});
+						}}
+						options={respawnOptionsFilter}
+						components={makeAnimated()}
+					/>
+				</div>
+
 
 				<div className="mt-3">
 					<Switch.Group>
@@ -272,14 +354,12 @@ function MissionList({ missions }) {
 										localStorage.setItem("denseMode", val == true ? "true" : "false");
 										setDenseMode(val);
 									}}
-									className={`${
-										denseMode ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
-									}  switch-standard`}
+									className={`${denseMode ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+										}  switch-standard`}
 								>
 									<span
-										className={`${
-											denseMode ? "translate-x-6" : "translate-x-1"
-										} inline-block w-4 h-4 transform bg-white  rounded-full transition-transform`}
+										className={`${denseMode ? "translate-x-6" : "translate-x-1"
+											} inline-block w-4 h-4 transform bg-white  rounded-full transition-transform`}
 									/>
 								</Switch>
 							</div>
@@ -291,60 +371,56 @@ function MissionList({ missions }) {
 					CREDENTIAL.ADMIN,
 					CREDENTIAL.MISSION_REVIEWER,
 				]) && (
-					<>
-						<div className="mt-3">
-							<Switch.Group>
-								<div className="flex items-center">
-									<Switch.Label className="w-full mr-4 text-sm">
-										Only missions pending audit
-									</Switch.Label>
-									<div>
-										<Switch
-											checked={onlyPending}
-											onChange={setOnlyPending}
-											className={`${
-												onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
-											}  switch-standard`}
-										>
-											<span
-												className={`${
-													onlyPending ? "translate-x-6" : "translate-x-1"
-												} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
-											/>
-										</Switch>
+						<>
+							<div className="mt-3">
+								<Switch.Group>
+									<div className="flex items-center">
+										<Switch.Label className="w-full mr-4 text-sm">
+											Only missions pending audit
+										</Switch.Label>
+										<div>
+											<Switch
+												checked={onlyPending}
+												onChange={setOnlyPending}
+												className={`${onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+													}  switch-standard`}
+											>
+												<span
+													className={`${onlyPending ? "translate-x-6" : "translate-x-1"
+														} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+												/>
+											</Switch>
+										</div>
 									</div>
-								</div>
-							</Switch.Group>
-						</div>
+								</Switch.Group>
+							</div>
 
-						<div className="mt-3">
-							<Switch.Group>
-								<div className="flex items-center">
-									<Switch.Label className="w-full mr-4 text-sm">
-										Show unlisted missions
-									</Switch.Label>
-									<div>
-										<Switch
-											checked={showUnlistedMissions}
-											onChange={setShowUnlistedMissions}
-											className={`${
-												showUnlistedMissions
-													? "bg-blue-600"
-													: "bg-gray-200 dark:bg-gray-500"
-											}  switch-standard`}
-										>
-											<span
-												className={`${
-													showUnlistedMissions ? "translate-x-6" : "translate-x-1"
-												} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
-											/>
-										</Switch>
+							<div className="mt-3">
+								<Switch.Group>
+									<div className="flex items-center">
+										<Switch.Label className="w-full mr-4 text-sm">
+											Show unlisted missions
+										</Switch.Label>
+										<div>
+											<Switch
+												checked={showUnlistedMissions}
+												onChange={setShowUnlistedMissions}
+												className={`${showUnlistedMissions
+														? "bg-blue-600"
+														: "bg-gray-200 dark:bg-gray-500"
+													}  switch-standard`}
+											>
+												<span
+													className={`${showUnlistedMissions ? "translate-x-6" : "translate-x-1"
+														} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+												/>
+											</Switch>
+										</div>
 									</div>
-								</div>
-							</Switch.Group>
-						</div>
-					</>
-				)}
+								</Switch.Group>
+							</div>
+						</>
+					)}
 			</>
 		);
 	}
