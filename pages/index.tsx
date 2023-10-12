@@ -109,7 +109,8 @@ function Home() {
                         <h1
                             className={`max-h-full mb-8 ${getMottoSizeMargin()} font-bold leading-none tracking-tight text-transparent whitespace-pre-wrap header-gradient h-fill-avaliable bg-clip-text bg-gradient-to-br from-gray-800 to-gray-900 font-heading sm:mb-10 dark:text-white`}
                         >
-                            {`Tactical Arma 3 gameplay\nwith no strings attached.`}
+                            {/* {`Tactical Arma 3 gameplay\nwith no strings attached.`} */}
+                            Free Kevin Squeakers!
                         </h1>
                     </div>
                 </div>
