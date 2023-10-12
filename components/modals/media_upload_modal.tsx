@@ -4,13 +4,18 @@ import React, { Fragment, useState } from "react";
 import { FileDrop } from "react-file-drop";
 
 import Image from "next/image";
-import ReactPlayer from "react-player";
+ 
 
 import { Flip, toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/outline";
 import { useSession } from "next-auth/react";
 import { testImage } from "../../lib/testImage";
 import classNames from "../../lib/classnames";
+import dynamic from "next/dynamic";
+
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
+
+
 export default function MediaUploadModal({ isOpen, onClose, mission }) {
 	let [displayingFiles, setDisplayingLinks] = useState([]);
 	const { data: session } = useSession();
