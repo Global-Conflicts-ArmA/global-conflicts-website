@@ -59,10 +59,10 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	return res.status(200).json(mission?.media ?? []);
 });
 
-apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
+apiRoute.patch(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
-	const { mediaToDelete } = req.body;
+	const mediaToDelete  = req.body.data.mediaToDelete;
 	const session = await getServerSession(req, res, authOptions);
 
 	if (!hasCredsAny(session, [CREDENTIAL.ANY])) {

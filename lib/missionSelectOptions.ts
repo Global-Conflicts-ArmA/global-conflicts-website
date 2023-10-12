@@ -6,6 +6,16 @@ export const respawnOptions = [
 		label: "Objective/gameplay based",
 	},
 ];
+export const respawnOptionsFilter = [
+	{ value: null, label: "Any" },
+	{ value: true, label: "Yes" },
+	{ value: false, label: "No" },
+	{
+		value: "Objective/gameplay based",
+		label: "Objective/gameplay based",
+	},
+];
+
 export const jipOptions = [
 	{ value: true, label: "Yes" },
 	{ value: false, label: "No" },

@@ -56,7 +56,8 @@ import SubmitAARModal from "../../../components/modals/submit_aar_modal";
 import { generateMarkdown } from "../../../lib/markdownToHtml";
 import SimpleTextViewModal from "../../../components/modals/simple_text_view_modal";
 import MediaUploadModal from "../../../components/modals/media_upload_modal";
-import ReactPlayer from "react-player";
+import dynamic from 'next/dynamic'
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 import { imageKitLoader } from "../../../lib/imagekitloader";
 
 export default function MissionDetails({
@@ -569,7 +570,7 @@ export default function MissionDetails({
 	function deleteImage(linkObj) {
 		try {
 			axios
-				.delete(`/api/missions/${mission.uniqueName}/media/`, {
+				.patch(`/api/missions/${mission.uniqueName}/media/`, {
 					data: { mediaToDelete: linkObj },
 				})
 				.then((response) => {
@@ -1281,8 +1282,7 @@ export default function MissionDetails({
 					)}
 				</div>
 
-				<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
-					Media Gallery{" "}
+				<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">Media Gallery{" "}
 					{hasCredsAny(session, [
 						CREDENTIAL.ADMIN,
 						CREDENTIAL.GM,
@@ -1311,10 +1311,7 @@ export default function MissionDetails({
 							isMissionMaker={session?.user["discord_id"] == mission.authorID}
 							btnText="Submit Report"
 							updateBugReport={(item, action) => {
-
-
 								updateBugReport(item, action);
-
 							}}
 							onSubmitClick={() => {
 								setCommentModalIsOpen(true);

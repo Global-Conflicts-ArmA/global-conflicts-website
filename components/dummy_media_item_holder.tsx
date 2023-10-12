@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import ReactPlayer from "react-player";
+ 
 import Image from "next/image";
 import Shimmer from "react-shimmer-effect";
 import { InView } from 'react-intersection-observer';
 
 import { LinkIcon } from "@heroicons/react/outline";
+import dynamic from "next/dynamic";
+
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
+
+
 
 function generateThumbnailLink(link: String): String | any {
 	if (link.includes("ucarecdn")) {

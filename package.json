@@ -35,11 +35,14 @@
     "daisyui": "2.51.5",
     "express": "^4.17.3",
     "file-saver": "^2.0.5",
-    "formidable": "^2.0.1",
+    "formidable": "^3.5.1",
     "formik": "^2.2.9",
     "fs": "^0.0.1-security",
     "googleapis": "^99.0.0",
     "imgur": "^2.1.4",
+    "jimp": "^0.22.10",
+    "mime": "^3.0.0",
+    "mime-types": "^2.1.35",
     "moment": "^2.29.1",
     "mongodb": "4.4.0",
     "multer": "^1.4.4",
@@ -94,6 +97,7 @@
     "tailwindcss": "^3.0.23",
     "tailwindcss-scrims": "^1.0.0",
     "unified": "^10.1.0",
+    "uuid": "^9.0.1",
     "youtube-api": "^3.0.1"
   },
   "devDependencies": {

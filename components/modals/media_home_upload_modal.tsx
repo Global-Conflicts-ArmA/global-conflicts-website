@@ -4,7 +4,7 @@ import React, { Fragment, useEffect, useState } from "react";
 import { FileDrop } from "react-file-drop";
 
 import Image from "next/image";
-import ReactPlayer from "react-player";
+ 
 import Select from "react-select";
 import { Flip, toast } from "react-toastify";
 import { TrashIcon } from "@heroicons/react/outline";
@@ -13,6 +13,11 @@ import { testImage } from "../../lib/testImage";
 import classNames from "../../lib/classnames";
 import fetcher from "../../lib/fetcher";
 import useSWR from "swr";
+import dynamic from "next/dynamic";
+
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
+
+
 export default function MediaHomeUploadModal({ isOpen, onClose }) {
 	let [displayingFiles, setDisplayingLinks] = useState([]);
 	const { data: session } = useSession();

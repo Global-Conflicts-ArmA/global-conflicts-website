@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 import nextConnect from "next-connect";
 import MyMongo from "../../../lib/mongodb";
- 
-import  {
+
+import {
 	CREDENTIAL,
 } from "../../../middleware/check_auth_perms";
 
@@ -14,58 +14,110 @@ import { postNewMedia } from "../../../lib/discordPoster";
 import { ObjectId } from "mongodb";
 import { testImageNode } from "../../../lib/testImage";
 import multer from "multer";
-import UploadcareStorage from "../../../lib/multer-storage-uploadcare";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
 import { hasCredsAny } from "../../../lib/credsChecker";
+import { Formidable } from "formidable";
+import { v4 as uuidv4 } from 'uuid';
+
+import fs from "fs";
+
+import Jimp from "jimp";
+import mime from 'mime';
 
 const apiRoute = nextConnect({});
 
-apiRoute.use(
-	multer({
-		storage: UploadcareStorage({
-			public_key: process.env.NEXT_PUBLIC_UPLOADCARE_PUBLIC_KEY,
-			private_key: process.env.NEXT_PUBLIC_UPLOADCARE_SECRET_KEY,
-			store: 1, // 'auto' || 0 || 1
-		}),
-	}).any()
-);
 
- 
+
+
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 
 	const session = await getServerSession(req, res, authOptions);
 
-    if (!hasCredsAny(session, [CREDENTIAL.ANY])) {
-        return res.status(401).json({ error: `Not Authorized` });
-    }
+	if (!hasCredsAny(session, [CREDENTIAL.ANY])) {
+		return res.status(401).json({ error: `Not Authorized` });
+	}
 
-	
+
+
+	const data = await new Promise((resolve, reject) => {
+		const form = new Formidable();
+
+		form.parse(req, (err, fields, files) => {
+			if (err) reject({ err })
+			resolve({ err, fields, files })
+		})
+	})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	try {
 		const session = await getServerSession(req, res, authOptions);
 
-		let mediaLinks = [];
-		let files = [];
+		let uploadedFiles = [];
 
-		for (const file of req["files"]) {
-			mediaLinks.push({
+
+		for (const file of data["files"].files) {
+
+			const ext = mime.getExtension(file.mimetype)
+			let mimeType = "image/jpg";
+			let filename = "";
+			if (ext == "png") {
+				mimeType = "image/jpg"
+				filename = uuidv4() + ".jpg"
+				Jimp.read(file.filepath, (err, pngFile) => {
+					if (err) {
+						return;
+					}
+					pngFile
+						.quality(95) // set JPEG quality
+						.write(`D:\\community_media\\${filename}`, (error, value) => {
+							console.log(error);
+						}); // save
+				});
+			} else {
+				mimeType = file.mimetype
+				try {
+					filename = uuidv4() + "." + ext
+					fs.copyFileSync(file.filepath, `D:\\community_media\\${filename}`);
+				} catch (error) {
+					console.log(error);
+				}
+			}
+
+			uploadedFiles.push({
 				_id: new ObjectId(),
-				link: file.quaxLink,
-				cdnLink: `https://ucarecdn.com/${
-					file.uploadcare_file_id
-				}/${file.originalname.replaceAll(" ", "_")}`,
+				cdnLink: `https://content.globalconflicts.net/community_media/${filename}`,
 				type: file.mimetype,
 				date: new Date(),
 				discord_id: session.user["discord_id"],
 			});
 		}
-		let allLinks = [...mediaLinks];
-		if (req.body["directLinks"]) {
-			const directLinks = [].concat(req.body["directLinks"]);
+		let allLinks = [...uploadedFiles];
+		if (data["fields"]["directLinks"]) {
+			const directLinks = [].concat(data["fields"]["directLinks"]);
 			let directLinksObjs = [];
 			for (const directLink of directLinks) {
-				console.log(directLink);
+			 
 				const type = (await testImageNode(directLink)) ? "image" : "video";
 				directLinksObjs.push({
 					_id: new ObjectId(),
@@ -77,7 +129,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			}
 			allLinks = [...allLinks, ...directLinksObjs];
 		}
-		const insertResult = await MyMongo.collection("mediaWithtoutAssignedMissions").insertMany( allLinks);
+		const insertResult = await MyMongo.collection("mediaWithtoutAssignedMissions").insertMany(allLinks);
 		if (insertResult.acknowledged) {
 			const botResponse = await axios.get(
 				`http://localhost:3001/users/${session.user["discord_id"]}`
