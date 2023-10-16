@@ -33,15 +33,15 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName, updateId } = req.query;
 
 	const session = await getServerSession(req, res, authOptions);
-	const isAdmin = hasCredsAny(session, [CREDENTIAL.ADMIN])
-	
+	const canCopyToMain = hasCredsAny(session, [CREDENTIAL.ADMIN])
+	const canCopyToTest = hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_REVIEWER])
  
-	if (destination == "main" && !isAdmin) {
+	if (destination == "main" && !canCopyToMain) {
 		return res.status(401).json({ error: `Not allowed` });
 	}
 
 	let query = {};
-	if (isAdmin) {
+	if (canCopyToTest) {
 		query = {
 			uniqueName: uniqueName,
 			"updates._id": new ObjectId(updateId as string),
