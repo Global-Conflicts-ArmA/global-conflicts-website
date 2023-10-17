@@ -114,15 +114,9 @@ function MissionList({ missions }) {
 						return false;
 					} else {
 						if (onlyPending) {
-							for (const update of mission.updates) {
-								if (update?.testingAudit?.reviewState == "review_pending") {
-									return true;
-								}
-							}
-							return false;
-						} else {
-							return true;
+							return (mission.lastUpdateEntry?.testingAudit?.reviewState == "review_pending" || mission.lastUpdateEntry?.reviewState == "review_pending")
 						}
+						return true
 					}
 				})
 				.filter(tagFilter)
