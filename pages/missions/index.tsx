@@ -19,11 +19,13 @@ const columns = [
 	{
 		name: "Name",
 		selector: (row) => row.name,
+		width: "20%",
 		sortable: true,
 	},
 	{
 		name: "Map",
 		selector: (row) => row.terrainName ?? row.terrain,
+		width: "20%",
 		hide: Media.MD,
 		sortable: true,
 	},
@@ -31,21 +33,21 @@ const columns = [
 		name: "Min",
 		selector: (row) => row.size.min,
 		sortable: true,
-		width: "50px",
+		width: "5%",
 		compact: true,
 	},
 	{
 		name: "Max",
 		selector: (row) => row.size.max,
 		sortable: true,
-		width: "50px",
+		width: "5%",
 		compact: true,
 	},
 	{
 		name: "Type",
 		selector: (row) => row.type,
 		sortable: true,
-		width: "50px",
+		width: "5%",
 		compact: true,
 	},
 	{
@@ -53,6 +55,7 @@ const columns = [
 		selector: (row) => {
 			return row.missionMaker;
 		},
+		width: "15%",
 		sortable: true,
 		compact: true,
 	},
@@ -63,16 +66,23 @@ const columns = [
 
 		sortable: true,
 		compact: true,
-		width: "100px",
+		width: "10%",
 		format: (row) => moment(row.uploadDate).format("ll"),
+	},
+	{
+		name: "Last Updated",
+		selector: (row) => row.lastUpdateEntry.date ?? null,
+		sortable: true,
+		compact: true,
+		width: "10%",
+		format: (row) => row.lastUpdateEntry ? moment(row.lastUpdateEntry.date).format("ll") : "--",
 	},
 	{
 		name: "Last Played",
 		selector: (row) => row.lastPlayed ?? null,
 		sortable: true,
 		compact: true,
-
-		width: "100px",
+		width: "10%",
 		format: (row) =>
 			row.lastPlayed ? moment(row.lastPlayed).format("ll") : "--",
 	},
@@ -93,7 +103,6 @@ function MissionList({ missions }) {
 
 	const [typeFilter, setTypeFilter] = useState(() => (mission) => true);
 	const [mapFilter, setMapFilter] = useState(() => (mission) => true);
-
 	const [tagFilter, setTagFilter] = useState(() => (mission) => true);
 	const [eraFilter, setEraFilter] = useState(() => (mission) => true);
 	const [respawnFilter, setRespawnFilter] = useState(() => (mission) => true);
@@ -107,7 +116,6 @@ function MissionList({ missions }) {
 		setDenseMode(denseMode == "true");
 
 		function filterMissions() {
-
 			const missionsFound = missions
 				.filter((mission) => {
 					if (!showUnlistedMissions && mission.isUnlisted) {
@@ -253,7 +261,7 @@ function MissionList({ missions }) {
 								let hasMatch = true;
 								if (e.length > 0) {
 									if (x["tags"]) {
-
+										
 										hasMatch = e.every((r) => x["tags"].includes(r.value));
 									}
 								}
@@ -265,6 +273,7 @@ function MissionList({ missions }) {
 					/>
 				</div>
 
+				
 				<div className="form-control">
 					<label className="label">
 						<span className="label-text">Era</span>
@@ -336,7 +345,6 @@ function MissionList({ missions }) {
 					/>
 				</div>
 
-
 				<div className="mt-3">
 					<Switch.Group>
 						<div className="flex items-center">
@@ -348,12 +356,14 @@ function MissionList({ missions }) {
 										localStorage.setItem("denseMode", val == true ? "true" : "false");
 										setDenseMode(val);
 									}}
-									className={`${denseMode ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
-										}  switch-standard`}
+									className={`${
+										denseMode ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+									}  switch-standard`}
 								>
 									<span
-										className={`${denseMode ? "translate-x-6" : "translate-x-1"
-											} inline-block w-4 h-4 transform bg-white  rounded-full transition-transform`}
+										className={`${
+											denseMode ? "translate-x-6" : "translate-x-1"
+										} inline-block w-4 h-4 transform bg-white  rounded-full transition-transform`}
 									/>
 								</Switch>
 							</div>
@@ -365,56 +375,60 @@ function MissionList({ missions }) {
 					CREDENTIAL.ADMIN,
 					CREDENTIAL.MISSION_REVIEWER,
 				]) && (
-						<>
-							<div className="mt-3">
-								<Switch.Group>
-									<div className="flex items-center">
-										<Switch.Label className="w-full mr-4 text-sm">
-											Only missions pending audit
-										</Switch.Label>
-										<div>
-											<Switch
-												checked={onlyPending}
-												onChange={setOnlyPending}
-												className={`${onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
-													}  switch-standard`}
-											>
-												<span
-													className={`${onlyPending ? "translate-x-6" : "translate-x-1"
-														} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
-												/>
-											</Switch>
-										</div>
+					<>
+						<div className="mt-3">
+							<Switch.Group>
+								<div className="flex items-center">
+									<Switch.Label className="w-full mr-4 text-sm">
+										Only missions pending audit
+									</Switch.Label>
+									<div>
+										<Switch
+											checked={onlyPending}
+											onChange={setOnlyPending}
+											className={`${
+												onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+											}  switch-standard`}
+										>
+											<span
+												className={`${
+													onlyPending ? "translate-x-6" : "translate-x-1"
+												} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+											/>
+										</Switch>
 									</div>
-								</Switch.Group>
-							</div>
+								</div>
+							</Switch.Group>
+						</div>
 
-							<div className="mt-3">
-								<Switch.Group>
-									<div className="flex items-center">
-										<Switch.Label className="w-full mr-4 text-sm">
-											Show unlisted missions
-										</Switch.Label>
-										<div>
-											<Switch
-												checked={showUnlistedMissions}
-												onChange={setShowUnlistedMissions}
-												className={`${showUnlistedMissions
-														? "bg-blue-600"
-														: "bg-gray-200 dark:bg-gray-500"
-													}  switch-standard`}
-											>
-												<span
-													className={`${showUnlistedMissions ? "translate-x-6" : "translate-x-1"
-														} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
-												/>
-											</Switch>
-										</div>
+						<div className="mt-3">
+							<Switch.Group>
+								<div className="flex items-center">
+									<Switch.Label className="w-full mr-4 text-sm">
+										Show unlisted missions
+									</Switch.Label>
+									<div>
+										<Switch
+											checked={showUnlistedMissions}
+											onChange={setShowUnlistedMissions}
+											className={`${
+												showUnlistedMissions
+													? "bg-blue-600"
+													: "bg-gray-200 dark:bg-gray-500"
+											}  switch-standard`}
+										>
+											<span
+												className={`${
+													showUnlistedMissions ? "translate-x-6" : "translate-x-1"
+												} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+											/>
+										</Switch>
 									</div>
-								</Switch.Group>
-							</div>
-						</>
-					)}
+								</div>
+							</Switch.Group>
+						</div>
+					</>
+				)}
 			</>
 		);
 	}
