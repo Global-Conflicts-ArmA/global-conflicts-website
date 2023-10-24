@@ -116,7 +116,7 @@ function MissionList({ missions }) {
 		setDenseMode(denseMode == "true");
 
 		function filterMissions() {
-			console.log("aaa");
+
 			const missionsFound = missions
 				.filter((mission) => {
 					console.log(mission.lastUpdateEntry)

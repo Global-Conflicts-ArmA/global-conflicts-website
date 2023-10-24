@@ -570,7 +570,7 @@ export default function MissionDetails({
 	function deleteImage(linkObj) {
 		try {
 			axios
-				.patch(`/api/missions/${mission.uniqueName}/media/`, {
+				.post(`/api/missions/${mission.uniqueName}/media_delete`, {
 					data: { mediaToDelete: linkObj },
 				})
 				.then((response) => {
