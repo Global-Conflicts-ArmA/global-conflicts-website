@@ -119,9 +119,6 @@ function MissionList({ missions }) {
 
 			const missionsFound = missions
 				.filter((mission) => {
-					console.log(mission.lastUpdateEntry)
-					console.log(mission.updates[mission.updates.length - 1])
-					console.log(mission.updates[mission.updates.length - 1]?.testingAudit?.reviewState)
 					if (!showUnlistedMissions && mission.isUnlisted) {
 						return false;
 					} else {
