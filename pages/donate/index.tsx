@@ -1,3 +1,5 @@
+import MyMongo from "../../lib/mongodb";
+
 import axios from "axios";
 
 import Head from "next/head";
@@ -7,20 +9,9 @@ import React, { useEffect, useState } from "react";
 
 import ProgressBar from "@ramonak/react-progress-bar";
 import gcSmallLogo from "../../public/logo-patch.webp";
-function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
-    const [goalsToUse, setGoalsToUse] = useState(goals);
+function Donate({ currentAmountNum, currentAmountString, donators, serverDonationGoalUsd, serverDonationGoalUsdString }) {
 
-    useEffect(() => {
-        // Update the document title using the browser API
-        setTimeout(() => {
-            goals.map((goal) => {
-                goal.percentToUse = goal.percent;
-                return goal;
-            });
 
-            setGoalsToUse([...goals]);
-        }, 100);
-    }, [goals]);
 
 
     return <>
@@ -33,7 +24,7 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
                 <div className="mx-5">
                     <div className="max-w-2xl mb-10 prose">
                         <h1>Help maintain and grow our servers:</h1>
-                        
+
                     </div>
                     <div className="flex flex-col lg:flex-row justify-evenly ">
                         <Image
@@ -46,32 +37,28 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
                         />
 
                         <div className="flex-1 flex-grow mt-5 space-y-5 lg:ml-10 lg:mt-0">
-                            {goalsToUse.map((goal) => {
-                                return (
-                                    <div key={goal.id}>
-                                        <h2 className="dark:text-white">{goal.description.replace("<br>", "")}</h2>
-                                        <div className="dark:text-gray-200">
-                                            <span data-tip="🇨🇦" className="tooltip ">
-                                                {currentAmountString}&nbsp;
-                                            </span>
-                                            of
-                                            <span data-tip="🇨🇦" className="tooltip ">
-                                                &nbsp;{goal.amountDollarsString}&nbsp;
-                                            </span>
-                                            per month
-                                        </div>
-                                        <ProgressBar
-                                            transitionDuration={"2s"}
-                                            height={"50px"}
-                                            borderRadius={"10px"}
-                                            className="grain-progress-bar"
-                                            labelSize={".9em"}
+                            <div >
+                                <h2 className="dark:text-white">Server costs</h2>
+                                <div className="dark:text-gray-200">
+                                    <span data-tip="🇨🇦" className="tooltip ">
+                                        {currentAmountString}&nbsp;
+                                    </span>
+                                    of
+                                    <span data-tip="🇨🇦" className="tooltip ">
+                                        &nbsp;{serverDonationGoalUsdString}&nbsp;
+                                    </span>
+                                    per month
+                                </div>
+                                <ProgressBar
+                                    transitionDuration={"2s"}
+                                    height={"50px"}
+                                    borderRadius={"10px"}
+                                    className="grain-progress-bar"
+                                    labelSize={".9em"}
 
-                                            completed={goal.percentToUse}
-                                        />
-                                    </div>
-                                );
-                            })}
+                                    completed={Math.round(currentAmountNum/serverDonationGoalUsd * 100)}
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-col items-center mt-5 sm:flex-row sm:justify-end">
@@ -119,57 +106,47 @@ function Donate({ currentAmountNum, currentAmountString, goals, donators }) {
 
 // This function gets called at build time
 export async function getServerSideProps(context) {
-    try {
-        const patreonResponse = await axios.get(
-            "https://www.patreon.com/globalconflicts"
-        );
 
-        const body = patreonResponse.data;
-        const functionString = "Object.assign(window.patreon.bootstrap, ";
-        const scriptStart = body.indexOf(functionString);
-        const lastIndex = scriptStart + body.substring(scriptStart).indexOf(");");
-        var mySubString = body.substring(
-            body.indexOf(functionString) + functionString.length,
-            lastIndex
-        );
+    const patreonResponse = await axios.get(
+        "https://www.patreon.com/globalconflicts"
+    );
 
-        const json = JSON.parse(mySubString);
+    const body = patreonResponse.data;
+    const functionString = `<script id="__NEXT_DATA__" type="application/json">`;
+    const scriptStart = body.indexOf(functionString);
+    const lastIndex = scriptStart + body.substring(scriptStart).indexOf("</script>");
+    var mySubString = body.substring(
+        body.indexOf(functionString) + functionString.length,
+        lastIndex
+    );
 
-        const currentAmount = json.campaign.data.attributes.pledge_sum;
-        const currentAmountNum = currentAmount / 100;
-        const currentAmountString = currentAmountNum.toLocaleString("en-US", {
-            style: "currency",
-            currency: "CAD",
-        });
+    const json = JSON.parse(mySubString);
 
-        const goals = json.campaign.included.filter((thing) => thing.type === "goal");
-        goals.map((goal) => {
-            const dollarsNum = goal.attributes.amount_cents / 100;
-            const dollarsString = dollarsNum.toLocaleString("en-US", {
-                style: "currency",
-                currency: "CAD",
-            });
-            goal["amountDollarsString"] = dollarsString;
-            goal["amountDollarsNum"] = dollarsNum;
+    const currentAmount = json.props.pageProps.bootstrapEnvelope.bootstrap.campaign.data.attributes.campaign_pledge_sum;
+    const currentAmountNum = currentAmount / 100;
+    const currentAmountString = currentAmountNum.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+    });
 
-            goal["percent"] = Math.round((currentAmountNum / dollarsNum) * 100);
-            goal["percentToUse"] = 0;
-            goal["description"] = goal.attributes.description;
-            delete goal["attributes"];
-            return goal;
-        });
 
-        const botResponse = await axios.get("http://localhost:3001/users/donators");
-        const donators = botResponse.data;
 
-        return {
-            props: { currentAmountNum, currentAmountString, goals, donators },
-        };
-    } catch (error) {
-        return {
-            props: {},
-        };
-    }
+    const botResponse = await axios.get("http://localhost:3001/users/donators");
+    const donators = botResponse.data;
+
+    const configs = await MyMongo.collection("configs").findOne({});
+    const serverDonationGoalUsd = configs.server_donation_goal_usd;
+    const serverDonationGoalUsdString = serverDonationGoalUsd.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+    });
+
+
+
+    return {
+        props: { currentAmountNum, currentAmountString, donators, serverDonationGoalUsd,serverDonationGoalUsdString },
+    };
+
 }
 
 export default Donate;
