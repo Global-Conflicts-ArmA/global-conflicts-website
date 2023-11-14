@@ -15,6 +15,7 @@ import { ChevronDownIcon } from "@heroicons/react/outline";
 import { MapItem } from "../../interfaces/mapitem";
 import Select from "react-select";
 import { eraOptions, respawnOptions, respawnOptionsFilter, tagsOptions } from "../../lib/missionSelectOptions";
+import { REVIEW_STATE_ACCEPTED, REVIEW_STATE_PENDING } from '../../lib/reviewStates';
 const columns = [
 	{
 		name: "Name",
@@ -91,6 +92,7 @@ const columns = [
 function MissionList({ missions }) {
 	const [denseMode, setDenseMode] = useState(false);
 	const [onlyPending, setOnlyPending] = useState(false);
+	const [onlyApproved, setOnlyApproved] = useState(false);
 	const [showUnlistedMissions, setShowUnlistedMissions] = useState(false);
 
 	const [missionsFiltred, setMissionsFiltred] = useState([]);
@@ -123,9 +125,13 @@ function MissionList({ missions }) {
 						return false;
 					} else {
 						if (onlyPending) {
-							return (mission.lastUpdateEntry?.testingAudit?.reviewState == "review_pending" || mission.lastUpdateEntry?.reviewState == "review_pending")
+							return (mission.lastUpdateEntry?.testingAudit?.reviewState == REVIEW_STATE_PENDING || mission.lastUpdateEntry?.reviewState == REVIEW_STATE_PENDING)
+						} else {
+							if (onlyApproved) {
+								return (mission.lastUpdateEntry?.testingAudit?.reviewState == REVIEW_STATE_ACCEPTED || mission.lastUpdateEntry?.reviewState == REVIEW_STATE_ACCEPTED)
+							}
+							return true
 						}
-						return true
 					}
 				})
 				.filter(tagFilter)
@@ -150,6 +156,7 @@ function MissionList({ missions }) {
 		mapFilter,
 		missions,
 		onlyPending,
+		onlyApproved,
 		showUnlistedMissions,
 		statefilter,
 		typeFilter,
@@ -365,6 +372,28 @@ function MissionList({ missions }) {
 										className={`${
 											denseMode ? "translate-x-6" : "translate-x-1"
 										} inline-block w-4 h-4 transform bg-white  rounded-full transition-transform`}
+									/>
+								</Switch>
+							</div>
+						</div>
+					</Switch.Group>
+				</div>
+				<div className="mt-3">
+					<Switch.Group>
+						<div className="flex items-center">
+							<Switch.Label className="w-full mr-4 text-sm">Show only approved missions</Switch.Label>
+							<div>
+								<Switch
+									checked={onlyApproved}
+									onChange={setOnlyApproved}
+									className={`${
+										onlyApproved ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+									}  switch-standard`}
+								>
+									<span
+										className={`${
+											onlyApproved ? "translate-x-6" : "translate-x-1"
+										} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
 									/>
 								</Switch>
 							</div>

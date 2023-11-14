@@ -47,7 +47,7 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 
 	const updateOid = new ObjectId(updateId.toString());
 
-	if (hasCreds(session, CREDENTIAL.ADMIN)) {
+	if (hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_REVIEWER])) {
 		query = {
 			uniqueName: uniqueName,
 			"updates._id": updateOid,
