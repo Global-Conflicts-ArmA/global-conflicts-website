@@ -62,10 +62,10 @@ function Downloads({ }) {
                 </section>
                 <section className="my-5">
                     <div className="prose">
-                        <h2>Teamspeak</h2>
+                        <h2>Teamspeak 3</h2>
                     </div>
                     <a
-                        href="https://www.teamspeak.com/en/downloads/"
+                        href="https://www.teamspeak.com/en/downloads/#ts3client"
                         download
                         className="my-5 text-white btn btn-xl btn-wide"
                     >
@@ -78,7 +78,9 @@ function Downloads({ }) {
                             simulate direct and radio communications via the ACRE2 mod. If you never
                             used it and are a bit confused, check out this guide about Teamspeak and
                             ACRE2.
+
                         </p>
+                        <p>Make sure to download Teamspeak version 3.6.x</p>
                     </div>
                 </section>
             </main>
