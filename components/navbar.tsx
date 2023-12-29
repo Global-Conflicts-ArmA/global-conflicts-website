@@ -45,6 +45,12 @@ export default function NavBar() {
 					href: "/missions/top-voted",
 					current: router.pathname == "/missions/top-voted",
 				},
+				{
+					name: "Top Rated",
+					mobileName: "Top Rated Missions",
+					href: "/missions/top-rated",
+					current: router.pathname == "/missions/top-rated",
+				},
 			],
 		},
 		{
