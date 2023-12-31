@@ -558,7 +558,10 @@ export async function getServerSideProps() {
 					as: "missionMaker",
 				},
 			},
-			{ $addFields: { lastUpdateEntry: { $last: "$updates" } } },
+			{ $addFields: { 
+				lastUpdateEntry: { $last: "$updates" },
+				lastHistoryEntry: { $last: "$history" }
+			} },
 			{
 				$project: {
 					_id: 0,
@@ -568,7 +571,11 @@ export async function getServerSideProps() {
 					media: 0,
 					reviewChecklist: 0,
 					ratios: 0,
-					history: 0,
+					"history._id": 0,
+					"history.aarReplayLink": 0,
+					"history.leaders": 0,
+					"history.outcome": 0,
+					"history.gmNote": 0,
 					"updates._id": 0,
 					"updates.version": 0,
 					"updates.authorID": 0,
@@ -581,6 +588,8 @@ export async function getServerSideProps() {
 
 					reports: 0,
 					"lastUpdateEntry._id": 0,
+					"lastHistoryEntry._id": 0,
+					"lastHistoryEntry.leaders._id": 0,
 				},
 			},
 		])
@@ -592,7 +601,7 @@ export async function getServerSideProps() {
 			console.log(e);
 		}
 
-		mission["lastPlayed"] = mission["lastPlayed"]?.getTime();
+		mission["lastPlayed"] = mission["lastHistoryEntry"]?.date?.getTime();
 		if (!mission["terrainName"]) {
 			mission["terrainName"] =
 				terrainsMap.find(
