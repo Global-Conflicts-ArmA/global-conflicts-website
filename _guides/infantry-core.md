@@ -7,7 +7,7 @@ This handbook is therefore held as a basis of expected in-game performance and b
 
 
 
-<h2 id=\"the-squad-fireteam-buddy-team\">The Squad, Fireteam and the Buddy Team</h2>
+<h2 id="the-squad-fireteam-buddy-team">The Squad, Fireteam and the Buddy Team</h2>
 
 **Squad:**
  * Mission tasks are assigned to squads (or sections). 
@@ -44,7 +44,7 @@ This handbook is therefore held as a basis of expected in-game performance and b
   * Helps each other with covering different areas, digging trenches, clearing buildings and buddy aid.
 
 
-<h2 id=\"the-start-of-the-mission\">The start of the mission</h2>
+<h2 id="the-start-of-the-mission">The start of the mission</h2>
 
 The start of the mission is crucial. Before stepping out, everybody should know what they will be doing. As such, SLs should take a moment to sit down with his squad and **explain the plan and how he plans to execute it.**
 Radio checks and equipment checks should be made.
@@ -52,7 +52,7 @@ Some missions won’t give this time to the players after the briefing. If this 
 
 ## Spacing
 The default spacing is **10m**. You can use the DUI radar to estimate your distance:
-![alt_text](http://content.globalconflicts.net/guides/infantry-core/dui-spacing.png \"image_tooltip\")
+![alt_text](http://content.globalconflicts.net/guides/infantry-core/dui-spacing.png "image_tooltip")
 The spacing should be adjusted depending on the situation. Decreased in dense areas, increased in dangerous environments. 
 
 
@@ -75,14 +75,14 @@ This also ensures that the guy next to you also got the order. This is called �
 
 ### The File
 Used when moving in non contested areas and contact is not expected.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/file-theory.png\" alt=\"The file\" style=\"width:300px;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/file-theory.png" alt="The file" style="width:300px;"/>
 
 
 ### The Line
 
 Used when there is a need to maximize frontal firepower.
 In an idealistic scenario the squad members should not be in a perfect line, but instead be staggered to avoid enfilade fire from the flanks.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/line-theory.png\" alt=\"The line\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/line-theory.png" alt="The line" style="width:100%;"/>
 
 
 
@@ -97,7 +97,7 @@ If the TL has not called HEAVY LEFT or HEAVY RIGHT, the AR/MG should position hi
  
 
 
-| <img src=\"http://content.globalconflicts.net/guides/infantry-core/squad-wedge-theory.png\" alt=\"Squad wedge\" style=\"width:100%;\"/> | <img src=\"http://content.globalconflicts.net/guides/infantry-core/fireteam-wedge-theory.png\" alt=\"Fireteam Wedge\" style=\"width:100%;\"/>  |
+| <img src="http://content.globalconflicts.net/guides/infantry-core/squad-wedge-theory.png" alt="Squad wedge" style="width:100%;"/> | <img src="http://content.globalconflicts.net/guides/infantry-core/fireteam-wedge-theory.png" alt="Fireteam Wedge" style="width:100%;"/>  |
 |--|--|
 |A squad wedge.|A fireteam wedge. | 
 
@@ -107,7 +107,7 @@ If the TL has not called HEAVY LEFT or HEAVY RIGHT, the AR/MG should position hi
 The column is a squad formation where the fireteams are arranged in a wedge one behind another. This is the default squad formation when traveling in contested areas.
 If the squad has two TLs, then the SL should ideally be positioned in the middle between the fireteams.
 This formation provides good dispersion laterally and in-depth without sacrificing control. It facilitates maneuver while maintaining a fighting posture. Note that this formation only makes sense in a squad context.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/squad-column-theory.png\" alt=\"The column\" style=\"width:300px;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/squad-column-theory.png" alt="The column" style="width:300px;"/>
 
 
 
@@ -118,7 +118,7 @@ This formation provides good dispersion laterally and in-depth without sacrifici
 The staggered Column is primarily used when traveling down roads, specifically in urban areas. It separates the squad onto either side of the road to decrease the vulnerability to machine gun fire. Allows easy response to enemy ambushes
 If able, the fireteams should each take one side of this formation. Each member should position himself behind his squadmate that is on the opposite side. Note this formation is not a substitute for proper urban operations techniques.
 
-| <img src=\"http://content.globalconflicts.net/guides/infantry-core/staggered-column-theory.png\" alt=\"The Staggered column in theory\" style=\"height: 285px;margin:auto;\"/> | <img src=\"http://content.globalconflicts.net/guides/infantry-core/staggered-column-ingame.png\" alt=\"The Staggered column in game\" style=\"width:100%\"/> |
+| <img src="http://content.globalconflicts.net/guides/infantry-core/staggered-column-theory.png" alt="The Staggered column in theory" style="height: 285px;margin:auto;"/> | <img src="http://content.globalconflicts.net/guides/infantry-core/staggered-column-ingame.png" alt="The Staggered column in game" style="width:100%"/> |
 |--|--|
 | The staggered column in theory. | The staggered column in-game. |
 
@@ -133,7 +133,7 @@ This is simply moving to a position without any tactical consideration. This sho
 
 ### Traveling overwatch
 A considerable distance between elements when moving. This is intended to allow for more tactical decisions and mutual support.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/traveling-overwatch.png\" alt=\"Traveling overwatch\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/traveling-overwatch.png" alt="Traveling overwatch" style="width:100%;"/>
 
 ##### An example of traveling overwatch, where the trailing element can fire over and support the lead element.
 
@@ -144,41 +144,41 @@ One team covers and/or shoots, and the other moves. This is the essence of bound
 
 * **Successive Bounds:**  
 One element starts the bound, and upon reaching the desired position, they will signal and the other element will move up to the first element in a rough line.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/sucessive-boundings.gif\" alt=\"Sucessive boundings\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/sucessive-boundings.gif" alt="Sucessive boundings" style="width:100%;"/>
 
 
 
-\t **This is how a SL can call this movement technique:**
-\t\t
-\t*SL*: Alright! We will bound forward here. Blue team will advance 50m first, Red team, you are covering. Call when ready!    
-\t*Blue TL*: Blue Ready.  
-\t*Red TL*: Red Ready.  
-\t*SL*: Blue, go!  
-\t*Blue TL*: Blue team moving, on me!  
-\t**Blue team makes their move, assumes an overwatch position and signals that they are set.**  
-\t*Blue TL*: Blue Set!  
-\t*Red TL*: Red team moving, on me!  
-\t**Red team moves up to Blue Team, forming a rough squad line and signals that they are set.**  
-\t*Red TL*: Red Set!  
+     **This is how a SL can call this movement technique:**
+        
+    *SL*: Alright! We will bound forward here. Blue team will advance 50m first, Red team, you are covering. Call when ready!    
+    *Blue TL*: Blue Ready.  
+    *Red TL*: Red Ready.  
+    *SL*: Blue, go!  
+    *Blue TL*: Blue team moving, on me!  
+    **Blue team makes their move, assumes an overwatch position and signals that they are set.**  
+    *Blue TL*: Blue Set!  
+    *Red TL*: Red team moving, on me!  
+    **Red team moves up to Blue Team, forming a rough squad line and signals that they are set.**  
+    *Red TL*: Red Set!  
 
 
 
 * **Alternating Bounds:**  
 Same thing as the previous, but the other element will move past the first, aiming for useful areas to hold.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/alternating-boundings.gif\" alt=\"Alternate boundings\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/alternating-boundings.gif" alt="Alternate boundings" style="width:100%;"/>
 
     **This is how a SL can call this movement technique:**
     
-\t*SL*: Listen up! We will do alternate boundings up to that compound. We will have to move in the open, so go prone once you are set. We will move in 75m steps. Blue team will go first, Red will cover. Call when ready!  
-\t*Blue TL*: Blue Ready.  
-\t*Red TL*: Red Ready.  
-\t*SL*: Blue, go!  
-\t*Blue TL*: Blue team moving, on me!  
-\t**Blue team makes their move, assumes an overwatch position and signals that they are set.**  
-\t*Blue TL*: Blue Set!  
-\t*Red TL*: Red team moving, on me!  
-\t**Red team moves up and goes past where the blue team is another 75 meters. Then they stop and assume overwatch positions.**  
-\t*Red TL*: Red Set!  
+    *SL*: Listen up! We will do alternate boundings up to that compound. We will have to move in the open, so go prone once you are set. We will move in 75m steps. Blue team will go first, Red will cover. Call when ready!  
+    *Blue TL*: Blue Ready.  
+    *Red TL*: Red Ready.  
+    *SL*: Blue, go!  
+    *Blue TL*: Blue team moving, on me!  
+    **Blue team makes their move, assumes an overwatch position and signals that they are set.**  
+    *Blue TL*: Blue Set!  
+    *Red TL*: Red team moving, on me!  
+    **Red team moves up and goes past where the blue team is another 75 meters. Then they stop and assume overwatch positions.**  
+    *Red TL*: Red Set!  
 
 
 
@@ -188,12 +188,12 @@ During movement there will be periods when the squad has to halt, depending on t
 
 ### Short Halt
 Upon hearing this command, everyone should cover different directions while remaining in formation.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/short-halt.gif\" alt=\"Short halt\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/short-halt.gif" alt="Short halt" style="width:100%;"/>
 
 
 ### Long Halt
 This is not a specific command that will be issued, but the idea is to take better defensible positions at the expense of the formation. The SL will simply tell the squad to hold and take cover.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/long-halt.gif\" alt=\"Long halt\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/long-halt.gif" alt="Long halt" style="width:100%;"/>
 
 
 ## Vehicle Movement Techniques
@@ -211,8 +211,8 @@ With that in mind, at Global Conflicts, we will always use the staggered column 
 - Always keep a minimum distance of 50m between vehicles when moving at high speeds (40 km/h+).  
 
 This is how a staggered vehicle column looks like:
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/vehicle-staggered-column.png\" alt=\"Vehicle staggered column\" style=\"width:100%;\"/>
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/vehicle-staggered-column-topview.png\" alt=\"Vehicle staggered column top view\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/vehicle-staggered-column.png" alt="Vehicle staggered column" style="width:100%;"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/vehicle-staggered-column-topview.png" alt="Vehicle staggered column top view" style="width:100%;"/>
 
 
 ### Choosing a Driver
@@ -226,7 +226,7 @@ The driver role should be delegated to players with non-critical weapon systems.
 There are two main formations to be executed when performing halts: Herringbone and Triangle “Y”.  
 Use the **Herringbone** when the halt is shorter or temporary. Unless told otherwise by leadership, the gunners stay mounted and everybody else dismounts and provides security nearby.  
 The **Triangle Y** is used when there is a need to block the road or provide fire capabilities down the axis of the road. 
-| <img src=\"http://content.globalconflicts.net/guides/infantry-core/herringbone.jpg\" alt=\"Herringbone formation\" style=\"width:100%;\"/> | <img src=\"http://content.globalconflicts.net/guides/infantry-core/triangle-y.png\" alt=\"Traingle-y formation\" style=\"width:100%;\"/> |
+| <img src="http://content.globalconflicts.net/guides/infantry-core/herringbone.jpg" alt="Herringbone formation" style="width:100%;"/> | <img src="http://content.globalconflicts.net/guides/infantry-core/triangle-y.png" alt="Traingle-y formation" style="width:100%;"/> |
 |--|--|
 | The herringbone formation | The triangle Y formation |
 
@@ -271,7 +271,7 @@ Here are some examples of contact reports via platoon radios:
 
  * *6 THIS 1, VISUAL ON ENEMY ENEMY SQUAD, MOVING FROM EAST TO WEST, NOT ACTIVE. GRID: 324 556. OVER.*
  *  *2 THIS 1, HEY WATCH OUT, THERE IS AN ENEMY RPG TEAM ON BUILDING RED 5.*
-\t* Note: Here you are saying “Hey watch out” as a means to grab the other’s squad attention and to tell them to be careful. Building “Red 5” was previously marked on the map and it’s easily referenceable.
+    * Note: Here you are saying “Hey watch out” as a means to grab the other’s squad attention and to tell them to be careful. Building “Red 5” was previously marked on the map and it’s easily referenceable.
 * *BREAK, 1 SQUAD HAS CONTACT CLOSE TO OUR EAST!*
     * Note: Here you immediately use BREAK because it’s an important message(This is used in emergencies and any other traffic on the radio net should be stopped so that you can transmit and be heard), you are being ambushed and you need to let everyone know ASAP. Develop the situation, win the immediate fight and elaborate the contact report when able.
 * _6 THIS IS 1, EYES ON ENEMY ZU-32 MTLB, NOT ACTIVE BUT OVERWATCHING OUR ATACK AXIS. GRID: 275 182 - IT’S ON THE TREELINE. OVER._
@@ -327,24 +327,24 @@ In any situation, always first check the direction of the wind and think where y
 ### Assaulting a fortified position
 
  - **Situation: You have a supporting element**  
-\tIf you have a supporting friendly element that can provide covering/suppressive fire onto the enemy position, do not throw smokes that would obscure their vision. It’s better to throw smokes to isolate the objective area from enemy flanking fire and in-depth positions.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/smoke-with-support-element.jpg\" alt=\"Smoke with supporting element\" style=\"width:100%;\"/>
+    If you have a supporting friendly element that can provide covering/suppressive fire onto the enemy position, do not throw smokes that would obscure their vision. It’s better to throw smokes to isolate the objective area from enemy flanking fire and in-depth positions.
+<img src="http://content.globalconflicts.net/guides/infantry-core/smoke-with-support-element.jpg" alt="Smoke with supporting element" style="width:100%;"/>
 
 - **Situation: You DON’T have a supporting element**  
     If your unit is alone and must assault, focus on blinding the enemy with smokes first. This will is a palliative measure in place of suppressive fire from your friendly supporting element.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/smoke-without-support-element.jpg\" alt=\"Smoke without supporting element\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/smoke-without-support-element.jpg" alt="Smoke without supporting element" style="width:100%;"/>
 
 ###  Running across an open field under fire
 Throw smokes towards the direction of fire, away from friendlies. See where other smokes have landed and try to create a smoke screen to obscure the path your team must take as much as possible.
 Don’t run with a primed smoke grenade. You will not be obscured and you will create chaos for the people behind you.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/smoke-running-across-open.jpg\" alt=\"Running across the open smoke\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/smoke-running-across-open.jpg" alt="Running across the open smoke" style="width:100%;"/>
 
 
 
 ###  Retreating
 Throw smoke towards the enemy position to put a wall between you and the enemy. If possible also throw a decoy smoke in a direction in which you will not be moving to.
 Don’t throw smoke at your own position.
-<img src=\"http://content.globalconflicts.net/guides/infantry-core/smoke-retreating.jpg\" alt=\"Reatreating smoke\" style=\"width:100%;\"/>
+<img src="http://content.globalconflicts.net/guides/infantry-core/smoke-retreating.jpg" alt="Reatreating smoke" style="width:100%;"/>
 
 ### In Arma, the AI vision IS blocked by smoke. [Here is an example of AI being affected by smoke](https://www.youtube.com/watch?v=sn-sfGTMrmg).
 
@@ -353,7 +353,7 @@ Enfilade fire occurs when the target presents itself in a concentrated arc for t
 
 
 
-| <img src=\"http://content.globalconflicts.net/guides/infantry-core/enfilade.jpg\" alt=\"Frontal enfilade\" style=\"width:100%;\"/> | <img src=\"http://content.globalconflicts.net/guides/infantry-core/enfilade-flanking.jpg\" alt=\"Flanking enfilade\" style=\"width:100%;\"/>  |
+| <img src="http://content.globalconflicts.net/guides/infantry-core/enfilade.jpg" alt="Frontal enfilade" style="width:100%;"/> | <img src="http://content.globalconflicts.net/guides/infantry-core/enfilade-flanking.jpg" alt="Flanking enfilade" style="width:100%;"/>  |
 |--|--|
 |Frontal Enfilade|Flanking Enfilade|
 
@@ -362,7 +362,7 @@ Enfilade fire occurs when the target presents itself in a concentrated arc for t
 Understanding your role in your team is paramount for a well rounded and effective fighting force. 
 The table below shows what you should be focusing on depending on your weapon system.
 
-<table className=\"target-precedence-table\">
+<table className="target-precedence-table">
   <tr>
    <td>
    </td>
@@ -381,71 +381,71 @@ The table below shows what you should be focusing on depending on your weapon sy
   <tr>
    <td>Grenadier
    </td>
-   <td><strong style=\"color:red\">HIGH</strong>
+   <td><strong style="color:red">HIGH</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td> 
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
   </tr>
   <tr>
    <td>Machinegunner
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
-   <td><strong style=\"color:red\">HIGH</strong>
+   <td><strong style="color:red">HIGH</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
   </tr>
   <tr>
    <td>Auto Rifleman
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
-   <td><strong style=\"color:red\">HIGH</strong>
+   <td><strong style="color:red">HIGH</strong>
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
   </tr>
   <tr>
    <td>Marksman/Sniper
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
-   <td><strong style=\"color:red\">HIGH</strong>
+   <td><strong style="color:red">HIGH</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
   </tr>
   <tr>
    <td>Rifleman
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
-   <td><strong style=\"color:#87df00\">LOW</strong>
+   <td><strong style="color:#87df00">LOW</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
-   <td><strong style=\"color:#ff9b00\">MEDIUM</strong>
+   <td><strong style="color:#ff9b00">MEDIUM</strong>
    </td>
-   <td><strong style=\"color:red\">HIGH</strong>
+   <td><strong style="color:red">HIGH</strong>
    </td>
   </tr>
 </table>
