@@ -1,0 +1,68 @@
+[
+   {
+      "slug": "getting-started",
+      "title": "Getting started",
+      "type": "single"
+   },
+   {
+      "title": "SOP",
+      "children": [
+         {
+            "title": "Rules & standards",
+            "slug": "rules"
+         },
+         {
+            "title": "Our staff",
+            "slug": "staff"
+         }
+      ],
+      "type": "section"
+   },
+   {
+      "title": "Technical Support",
+      "children": [
+         {
+            "title": "Swifty launcher guide",
+            "slug": "swifty"
+         },
+         {
+            "title": "Teamspeak guide",
+            "slug": "teamspeak"
+         }
+      ],
+      "type": "section"
+   },
+   {
+      "slug": "events",
+      "title": "Events",
+      "type": "single"
+   },
+   {
+      "title": "Tactics",
+      "children": [
+         {
+            "title": "Infantry core",
+            "slug": "infantry-core"
+         },
+         {
+            "title": "JTAC",
+            "slug": "jtac"
+         }
+      ],
+      "type": "section"
+   },
+   {
+      "title": "Radios and communication",
+      "children": [
+         {
+            "title": "Basic",
+            "slug": "basic-radios-comms"
+         },
+         {
+            "title": "Advanced",
+            "slug": "advanced-radios-comms"
+         }
+      ],
+      "type": "section"
+   },
+]
