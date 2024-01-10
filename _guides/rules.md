@@ -34,22 +34,15 @@ By joining Global Conflicts, you agree to the above and below while part of our 
  - Keep all shit-posting #containment-zone.
  - Not safe for work (NSFW) content is not permitted across all channels (This includes but not limited to, porn/suggestive, gore, human/animal suffering)
  - Do not intentionally interrupt other users. 
- - Do not talk/speak/shout excessively loud.
+ - Do not shout excessively loud to disrupt users.
 \t - Do not mic spam audio clips loudly or often.
  - Do not excessively or unnecessarily ping users.
   
  **Teamspeak**
 - Do not intentionally interrupt other users. 
-- Do not talk/speak/shout excessively loud.
+- Do not shout excessively loud to disrupt users.
 \t- Do not mic spam audio clips loudly or often.
 - If you have powers for a certain channel, do not abuse your permissions.
-
-## Documented SOPs:  
-[**Player infraction-punishment SOPs**](https://docs.google.com/document/d/e/2PACX-1vRUmZifP9i5xdPb5fRrD9Ux4QAB21DoWkaOqhpf4tKnO-Ill5paItpTM-FkUW-QN3qEZ-cljmOJeGmd/pub)  
-[**Player blacklisting SOPs**](https://docs.google.com/document/d/e/2PACX-1vQpQlC8JYQYtHst2L-tbYPBahQvHmKtrF4mcfQN7GQKAqudG3_8u-QyaEISsow2d4jsZhNfWrTtOODr/pub)  
-[**Staff and role Structure**](https://docs.google.com/document/d/e/2PACX-1vS9rngvC1tT7X1QSl3Jy-WQ7fa1O3yvPyzSkF-PezMbfHP00hBACLd0drrW9WFKRFGciO6KSFR0upip/pub)  
-[**About the New Guy Probation Period**](https://docs.google.com/document/d/e/2PACX-1vTuljLxk7IU9C0Vcl58EkeMaMKjULXcbZeNm0JRfzUURa2g330uUaC-aLPysTM5GLG-7eGDf4_pt7Ii/pub)  
-
 
 ## Standards
 
@@ -61,3 +54,8 @@ By joining Global Conflicts, you agree to the above and below while part of our 
  - Trust in your leadership.
  - Have fun!
 
+## Documented SOPs:  
+[**Player infraction-punishment SOPs**](https://docs.google.com/document/d/e/2PACX-1vRUmZifP9i5xdPb5fRrD9Ux4QAB21DoWkaOqhpf4tKnO-Ill5paItpTM-FkUW-QN3qEZ-cljmOJeGmd/pub)  
+[**Player blacklisting SOPs**](https://docs.google.com/document/d/e/2PACX-1vQpQlC8JYQYtHst2L-tbYPBahQvHmKtrF4mcfQN7GQKAqudG3_8u-QyaEISsow2d4jsZhNfWrTtOODr/pub)  
+[**Staff and role Structure**](https://docs.google.com/document/d/e/2PACX-1vS9rngvC1tT7X1QSl3Jy-WQ7fa1O3yvPyzSkF-PezMbfHP00hBACLd0drrW9WFKRFGciO6KSFR0upip/pub)  
+[**About the New Guy Probation Period**](https://docs.google.com/document/d/e/2PACX-1vTuljLxk7IU9C0Vcl58EkeMaMKjULXcbZeNm0JRfzUURa2g330uUaC-aLPysTM5GLG-7eGDf4_pt7Ii/pub)  

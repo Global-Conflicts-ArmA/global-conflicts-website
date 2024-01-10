@@ -122,7 +122,7 @@ function Home() {
                             <h1>Who we are</h1>
                             <p>
                                 Global Conflicts is an Arma community formed by people from different
-                                countries with more than 11 years of experience throughout the arma
+                                countries with more than 13 years of experience throughout the arma
                                 series. Teamwork, tactical play and good fun are our core values. We
                                 achieve this by encouraging a culture of mutual improvement and
                                 enthusiasm for authentic scenarios in our missions. While our missions
@@ -147,18 +147,17 @@ function Home() {
                                     members of our community.
                                 </p>
                                 <p>
-                                    Each mission is a handcrafted experience, with beginning and an end,
-                                    defined objectives, with varying lengths usually 45 minutes to an hour.
+                                    Each mission is a handcrafted experience.
+                                    With a unique blend of any faction, any era, and any scenario, with
+                                    defined objectives, varying in lengths from 25 minutes to an hour+.
                                     When a mission is selected, we ask for volunteers to lead the mission
                                     — anyone can step up.
                                 </p>
                                 <p>
-                                    In-game we try to do things using realistic procedures without
-                                    sacrificing our sanity and fun. For example, we don&apos;t place
-                                    markers on the map to indicate enemy positions, we rely on
-                                    communication. We don&apos;t have 3D markers over friendlies, we rely on
-                                    situational awareness and PID. But we do use the “mini-radar” that shows
-                                    your squad mates positions, if they are in your field of view.
+                                    In-game we try to do things using realistic procedures while 
+                                    balancing gameplay without sacrificing our sanity and fun. 
+                                    Fun is the ultimate goal. The point is to have fun - in our case,
+                                    we strive for organized, semi-serious disciplined fun.
                                 </p>
                             </div>
                             <div>
@@ -251,7 +250,7 @@ function Home() {
                             <div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300 ">
                                 <h2>Requirements </h2>
                                 <p>
-                                    We don&apos;t have any pre-requisites besides a working microphone and
+                                    We don't have any pre-requisites besides a working microphone and
                                     a mature attitude. All we ask is that you follow our SOPs and make
                                     friends, not enemies!
                                 </p>
@@ -286,15 +285,14 @@ function Home() {
                                     <h3 className="hover:cursor-pointer">Custom Launcher</h3>
 
                                 </Link>
-
                                 <p>
                                     Our custom launcher will download all the mods necessary in a few
                                     clicks. It can detect mods that you already have downloaded via Steam
-                                    Workshop and let you copy them, so you don&apos;t need to download
+                                    Workshop and lets you copy them, so you don't need to download
                                     them again.
                                     <br />
                                     <small>
-                                        Note: Because we can&apos;t afford a digital signature, Windows will
+                                        Note: Because we can't afford a digital signature, Windows will
                                         warn you when you first run our launcher. You can ignore it.
                                     </small>
                                 </p>
@@ -304,12 +302,12 @@ function Home() {
                                     className="no-underline-important underline-important-hover"
                                     legacyBehavior>
 
-                                    <h3>Mission Framework</h3>
+                                    <h3 className="hover:cursor-pointer">Mission Framework</h3>
 
                                 </Link>
                                 <p>
-                                    We have a robust in-house customizable framework for making
-                                    missions. With it you can quickly produce high quality scenarios
+                                    We have a robust in-house made framework for making
+                                    missions. With it, you can quickly produce high quality scenarios
                                     without re-inventing common scripts (e.g. gear or a capture zone).
                                 </p>
                                 <Link
@@ -318,14 +316,15 @@ function Home() {
                                     className="no-underline-important underline-important-hover"
                                     legacyBehavior>
 
-                                    <h3>Mission catalog and voting system</h3>
+
+                                    <h3 className="hover:cursor-pointer">Mission catalog and voting system</h3>
 
                                 </Link>
                                 <p>
                                     An in-house solution to keep tabs on the hundreds of missions we have.
-                                    We can track mission testing status and how many times it has been
+                                    We can track the mission's testing status and how many times it's been
                                     played. Besides that, it allows for members to vote for missions they
-                                    want to play during sessions and also leave reviews or bug reports for the
+                                    want to play during sessions, leave a rating, and also leave reviews or bug reports for the
                                     mission makers.
                                 </p>
                                 <Link
@@ -338,8 +337,8 @@ function Home() {
 
                                 </Link>
                                 <p>
-                                    The AAR system allows us to see a replay of our missions and thus give
-                                    an opportunity to see what worked and what didn&apos;t. With this tool
+                                    The after action report(AAR) tool allows us to watch a replay of our missions and thus gives
+                                    an opportunity to see what worked and what didn't. With this tool
                                     we can analyze and improve our tactics for future missions.
                                 </p>
                             </div>
@@ -357,7 +356,7 @@ function Home() {
                                     <p>
                                         Join us on Discord and use our launcher to download the mods.
                                         <br />
-                                        That&apos;s all you need to play with us.
+                                        That's all you need to play with us.
                                     </p>
                                 </div>
                             </div>
