@@ -48,11 +48,11 @@ function Downloads({ }) {
                                             />
                                         </Disclosure.Button>
                                         <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm dark:text-gray-200">
-                                            If you are having issues with Swifty for whatever reason, you can also download the modpack via torrents, using your torrent client of choice. You will then need to create a modset on your Arma 3 Launcher by yourself.
-                                            <Link href="https://launcher.globalconflicts.net/torrents/main_modpack_torrents.zip" className="p-1 btn btn-ghost btn-xs">
-                                                Click here
+                                            If you're having problems with Swifty for whatever reason, you can instead manually download the mods by clicking 
+                                            <Link href="https://launcher.globalconflicts.net/mods/" className="p-1 btn btn-ghost btn-xs">
+                                                here.
                                             </Link>{" "}
-                                            to download the archive containing all the necessary torrents.
+                                            You will need to add the downloaded mods to a launcher of your choice, i.e Swifty or the vanilla Arma launcher.
                                         </Disclosure.Panel>
                                     </>
                                 )}
@@ -75,10 +75,10 @@ function Downloads({ }) {
                     <div className="prose">
                         <p>
                             Teamspeak is a program used for voice communication. It allow us to
-                            simulate direct and radio communications via the ACRE2 mod. If you never
-                            used it and are a bit confused, check out this guide about Teamspeak and
-                            ACRE2.
-
+                            simulate direct and radio communications via the ACRE2 mod. 
+                            <Link href="/guides/teamspeak" className="p-1 btn btn-ghost btn-xs">
+                               Click here for a Teamspeak guide
+                            </Link>.
                         </p>
                         <p>Make sure to download Teamspeak version 3.6.x</p>
                     </div>

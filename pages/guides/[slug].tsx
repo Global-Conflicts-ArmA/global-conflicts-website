@@ -1,9 +1,11 @@
 import GuidesLayout from "../../layouts/guides-layout";
 import _guidesOrder from "../../guides-order.json";
 import { useRouter } from "next/router";
-import MyMongo from "../../lib/mongodb";
 import { generateMarkdown } from "../../lib/markdownToHtml";
 import style from '../../components/guides.module.scss'
+import fs from 'fs'
+import path from 'path'
+
 function Guide({ guideContent }) {
 	const router = useRouter();
 	const slug = router.query.slug || [];
@@ -27,41 +29,20 @@ type Params = {
 };
 
 export async function getStaticProps({ params }: Params) {
-	const guide = await MyMongo.collection("guides").findOne(
-		{ slug: params.slug },
-		{ projection: { _id: 0 } }
-	);
-	const markdownContent = generateMarkdown(guide["content"], false);
-
+	const filePath = path.join('_guides', `${params.slug}.md`)
+	const content = fs.readFileSync(filePath, 'utf-8')
+	const markdownContent = generateMarkdown(content, false)
 	return { props: { guideContent: markdownContent } };
 }
 
 export async function getStaticPaths() {
-	const guidesOrder = getGuidesPaths();
-	return {
-		paths: guidesOrder.map((slug) => {
-			return {
-				params: {
-					slug: slug,
-				},
-			};
-		}),
-		fallback: false,
-	};
-}
-
-export function getGuidesPaths() {
-	const paths = [];
-	_guidesOrder.forEach((guide) => {
-		if (guide["children"]) {
-			guide["children"].forEach((child) => {
-				paths.push(child["slug"]);
-			});
-		} else {
-			paths.push(guide["slug"]);
+	const files = fs.readdirSync('_guides')
+	const paths = files.map( (filename) => ({
+		params: {
+			slug: filename.replace('.md', '')
 		}
-	});
-	return paths;
+	}))
+	return { paths, fallback: false }
 }
 
 Guide.PageLayout = GuidesLayout;
