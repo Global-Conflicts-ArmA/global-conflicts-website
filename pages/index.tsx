@@ -194,11 +194,11 @@ function Home() {
                             style={{ marginTop: -33 }}
                         >
                             <div
-                                className="top-0 right-0 z-20 max-w-md mt-20 select-none image-on-top"
+                                className="top-0 relative right-0 z-20 max-w-md mt-20 select-none image-on-top"
                                 style={{
                                     maxWidth: "50%",
                                     pointerEvents: "none",
-                                    zIndex: 1,
+                                    zIndex: 22,
                                 }}
                             >
                                 <Image
@@ -275,27 +275,7 @@ function Home() {
                                 <DecorativeCard width={390} height={585} image={c11}></DecorativeCard>
                             </div>
                             <div className="p-5 prose lg:prose-xl">
-                                <h1>Our tools</h1>
-                                <Link
-                                    href="/downloads"
-                                    passHref={true}
-                                    className="no-underline-important underline-important-hover"
-                                    legacyBehavior>
 
-                                    <h3 className="hover:cursor-pointer">Custom Launcher</h3>
-
-                                </Link>
-                                <p>
-                                    Our custom launcher will download all the mods necessary in a few
-                                    clicks. It can detect mods that you already have downloaded via Steam
-                                    Workshop and lets you copy them, so you don't need to download
-                                    them again.
-                                    <br />
-                                    <small>
-                                        Note: Because we can't afford a digital signature, Windows will
-                                        warn you when you first run our launcher. You can ignore it.
-                                    </small>
-                                </p>
                                 <Link
                                     href="https://github.com/Global-Conflicts-ArmA/Olsen-Framework-Arma-3"
                                     passHref={true}
