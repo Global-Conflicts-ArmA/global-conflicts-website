@@ -16,6 +16,7 @@ import { MapItem } from "../../interfaces/mapitem";
 import Select from "react-select";
 import { eraOptions, respawnOptions, respawnOptionsFilter, tagsOptions } from "../../lib/missionSelectOptions";
 import { REVIEW_STATE_ACCEPTED, REVIEW_STATE_PENDING } from '../../lib/reviewStates';
+import fs from "fs"
 const columns = [
 	{
 		name: "Name",
@@ -89,10 +90,15 @@ const columns = [
 	},
 ];
 
+function cheapOnMainServerCheck(updates: { fileName: string; }[]) {
+	return updates.some((update: { fileName: string }) => fs.existsSync(`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.fileName}`))
+}
+
 function MissionList({ missions }) {
 	const [denseMode, setDenseMode] = useState(false);
 	const [onlyPending, setOnlyPending] = useState(false);
 	const [onlyApproved, setOnlyApproved] = useState(false);
+	const [onlyMainServer, setMainServer] = useState(false);
 	const [showUnlistedMissions, setShowUnlistedMissions] = useState(false);
 
 	const [missionsFiltred, setMissionsFiltred] = useState([]);
@@ -129,8 +135,13 @@ function MissionList({ missions }) {
 						} else {
 							if (onlyApproved) {
 								return (mission.lastUpdateEntry?.testingAudit?.reviewState == REVIEW_STATE_ACCEPTED || mission.lastUpdateEntry?.reviewState == REVIEW_STATE_ACCEPTED)
+							} else {
+								if (onlyMainServer) {
+									return mission.onMainServer
+								} else {
+									return true
+								}
 							}
-							return true
 						}
 					}
 				})
@@ -157,6 +168,7 @@ function MissionList({ missions }) {
 		missions,
 		onlyPending,
 		onlyApproved,
+		onlyMainServer,
 		showUnlistedMissions,
 		statefilter,
 		typeFilter,
@@ -165,6 +177,7 @@ function MissionList({ missions }) {
 	function getFilterInputs() {
 		return (
 			<>
+				<div className="max-h-screen">
 				<div className=" form-control">
 					<label className="label">
 						<span className="label-text">Filter by anything</span>
@@ -251,7 +264,6 @@ function MissionList({ missions }) {
 						className="input input-bordered input-sm"
 					/>
 				</div>
-
 				<div className="form-control">
 					<label className="label">
 						<span className="label-text">Tags</span>
@@ -280,8 +292,6 @@ function MissionList({ missions }) {
 						components={makeAnimated()}
 					/>
 				</div>
-
-				
 				<div className="form-control">
 					<label className="label">
 						<span className="label-text">Era</span>
@@ -400,6 +410,28 @@ function MissionList({ missions }) {
 						</div>
 					</Switch.Group>
 				</div>
+				<div className="mt-3">
+					<Switch.Group>
+						<div className="flex items-center">
+							<Switch.Label className="w-full mr-4 text-sm">Show only missions on server</Switch.Label>
+							<div>
+								<Switch
+									checked={onlyMainServer}
+									onChange={setMainServer}
+									className={`${
+										onlyMainServer ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
+									}  switch-standard`}
+								>
+									<span
+										className={`${
+											onlyMainServer ? "translate-x-6" : "translate-x-1"
+										} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+									/>
+								</Switch>
+							</div>
+						</div>
+					</Switch.Group>
+				</div>
 				{hasCredsAny(session, [
 					CREDENTIAL.GM,
 					CREDENTIAL.ADMIN,
@@ -459,6 +491,7 @@ function MissionList({ missions }) {
 						</div>
 					</>
 				)}
+				</div>
 			</>
 		);
 	}
@@ -580,7 +613,6 @@ export async function getServerSideProps() {
 					"updates.version": 0,
 					"updates.authorID": 0,
 					"updates.date": 0,
-					"updates.fileName": 0,
 					"updates.changeLog": 0,
 					"updates.testingAudit.reviewChecklist": 0,
 					"updates.testingAudit.reviewerNotes": 0,
@@ -613,6 +645,11 @@ export async function getServerSideProps() {
 			mission["missionMaker"][0]?.nickname ??
 			mission["missionMaker"][0]?.username ??
 			"Unknown";
+
+		mission["onMainServer"] = cheapOnMainServerCheck(mission.updates)
+
+		console.log(mission.name, mission.onMainServer)
+		
 	});
 
 	return { props: { missions } };
