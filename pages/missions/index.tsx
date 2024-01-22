@@ -115,9 +115,25 @@ function MissionList({ missions }) {
 	const [eraFilter, setEraFilter] = useState(() => (mission) => true);
 	const [respawnFilter, setRespawnFilter] = useState(() => (mission) => true);
 
-	const [statefilter, setStatefilter] = useState(() => (mission) => true);
-
 	const { data: session } = useSession();
+
+	function onlyApprovedSwitch(arg: boolean) {
+		setOnlyPending(false)
+		setMainServer(false)
+		setOnlyApproved(arg)
+	}
+
+	function onlyMainSwitch(arg: boolean) {
+		setOnlyPending(false)
+		setMainServer(arg)
+		setOnlyApproved(false)
+	}
+
+	function onlyPendingSwitch(arg: boolean) {
+		setOnlyPending(arg)
+		setMainServer(false)
+		setOnlyApproved(false)
+	}
 
 	useEffect(() => {
 		const denseMode = localStorage.getItem("denseMode");
@@ -148,7 +164,6 @@ function MissionList({ missions }) {
 				.filter(tagFilter)
 				.filter(eraFilter)
 				.filter(respawnFilter)
-				.filter(statefilter)
 				.filter(mapFilter)
 				.filter(typeFilter)
 				.filter(authorFilter)
@@ -170,7 +185,6 @@ function MissionList({ missions }) {
 		onlyApproved,
 		onlyMainServer,
 		showUnlistedMissions,
-		statefilter,
 		typeFilter,
 	]);
 
@@ -395,7 +409,7 @@ function MissionList({ missions }) {
 							<div>
 								<Switch
 									checked={onlyApproved}
-									onChange={setOnlyApproved}
+									onChange={onlyApprovedSwitch}
 									className={`${
 										onlyApproved ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
 									}  switch-standard`}
@@ -417,7 +431,7 @@ function MissionList({ missions }) {
 							<div>
 								<Switch
 									checked={onlyMainServer}
-									onChange={setMainServer}
+									onChange={onlyMainSwitch}
 									className={`${
 										onlyMainServer ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
 									}  switch-standard`}
@@ -447,7 +461,7 @@ function MissionList({ missions }) {
 									<div>
 										<Switch
 											checked={onlyPending}
-											onChange={setOnlyPending}
+											onChange={onlyPendingSwitch}
 											className={`${
 												onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
 											}  switch-standard`}
