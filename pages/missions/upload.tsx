@@ -1,4 +1,4 @@
-import React, {   useState } from "react";
+import React, { useState } from "react";
 import ReactMde from "react-mde";
  
 import "react-mde/lib/styles/css/react-mde-editor.css";
@@ -8,10 +8,10 @@ import "react-mde/lib/styles/css/react-mde.css";
 
 import makeAnimated from "react-select/animated";
 import Select from "react-select";
-import { Transition } from "@headlessui/react";
+import { Switch, Transition } from "@headlessui/react";
 import { ExclamationIcon } from "@heroicons/react/outline";
 import { CredentialLockLayout } from "../../layouts/credential-lock-layout";
-
+import MyMongo from "../../lib/mongodb";
 import { getSession, useSession } from "next-auth/react";
 import { useFormik } from "formik";
 import { parseInputInteger } from "../../lib/numberParser";
@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import FormikErrortext from "../../components/formikErrorText";
 import MissionMediaCard from "../../components/mission_media_card";
+import MissionAuditModalFake from "../../components/modals/mission_audit_modal_fake";
 import useMatchMedia from "../../lib/matchmedia";
 import {
 	eraOptions,
@@ -36,12 +37,14 @@ import isFileImage from "../../lib/isImage";
  
 
 const editorHeight = 338;
- 
 
-function UploadMission() {
+export default function UploadMission({
+	missionTestingQuestions
+}) {
 	const isDesktopResolution = useMatchMedia("(min-width:1280px)", true);
 	const [missionFile, setMissionFile] = useState<File | undefined>(null);
 	const [imageObjectUrl, setImageObjectUrl] = useState(null);
+	let [missionAuditModalFakeOpen, setMissionAuditModalFakeIsOpen] = useState(false);
 	const uploadProgressToast = React.useRef(null);
 	function getTerrainPic(mapClass: string) {
 		return `/terrain_pics/${mapClass.toLowerCase()}.jpg`;
@@ -119,6 +122,7 @@ function UploadMission() {
 	};
 
 	const [isLoading, setIsLoading] = useState(false);
+	const [requestAuditOnUpload, setRequestAudit] = useState(true);
 
 	const missionFormik = useFormik({
 		initialValues: {
@@ -250,6 +254,7 @@ function UploadMission() {
 			formData.append("missionJsonData", JSON.stringify(data));
 			formData.append("missionFile", values.missionFile);
 			formData.append("media", values.media);
+			formData.append("requestAudit", JSON.stringify(requestAuditOnUpload));
 
 			try {
 				axios
@@ -285,6 +290,13 @@ function UploadMission() {
 			cred={CREDENTIAL.MISSION_MAKER}
 			message={`You must have the <b>"Mission Maker"</b> role on our Discord server to upload missions.`}
 		>
+		<MissionAuditModalFake
+			isOpen={missionAuditModalFakeOpen}
+			questions={missionTestingQuestions}
+			onCloseAuditModal={(testingAudit) => {
+				setMissionAuditModalFakeIsOpen(false);
+			}}
+		></MissionAuditModalFake>
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl">
 				<form onSubmit={missionFormik.handleSubmit}>
 					<div className="my-10 prose">
@@ -690,6 +702,56 @@ function UploadMission() {
 						</div>
 					</div>
 
+					<>
+						<hr></hr>
+						<div>
+							<p className="mt-1 mb-0">
+								Click the button to submit your examination of this mission.
+							</p>
+
+							<div className="flex flex-row flex-wrap align-middle justify-evenly">
+								<button
+									onClick={() => {
+										if (isLoading) {
+											return;
+										}
+										setMissionAuditModalFakeIsOpen(true);
+									}}
+									className="flex-1 m-2 btn whitespace-nowrap"
+								>
+									Open audit process
+								</button>
+							</div>
+						</div>
+					</>
+
+					<div className="mt-3">
+						<Switch.Group>
+							<div className="flex items-center">
+								<Switch.Label className="w-full mr-4 text-sm">
+									Request Audit Review
+								</Switch.Label>
+								<div>
+									<Switch
+										checked={requestAuditOnUpload}
+										onChange={setRequestAudit}
+										className={`${
+											requestAuditOnUpload
+												? "bg-blue-600"
+												: "bg-gray-200 dark:bg-gray-500"
+										}  switch-standard`}
+									>
+										<span
+											className={`${
+												requestAuditOnUpload ? "translate-x-6" : "translate-x-1"
+											} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+										/>
+									</Switch>
+								</div>
+							</div>
+						</Switch.Group>
+					</div>
+
 					<div className="mt-10">
 						<input type="file" name="myImage" />
 						<button
@@ -718,11 +780,16 @@ function UploadMission() {
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
+
+	const configs = await MyMongo.collection("configs").findOne(
+		{},
+		{ projection: { mission_review_questions: 1 } }
+	);
+	const missionTestingQuestions = configs["mission_review_questions"];
+
 	return {
-		props: { session },
+		props: {
+			missionTestingQuestions
+		},
 	};
 }
-
-UploadMission.PageLayout = UploadMission;
-
-export default UploadMission;
