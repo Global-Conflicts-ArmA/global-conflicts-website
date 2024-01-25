@@ -647,8 +647,6 @@ export async function getServerSideProps() {
 			"Unknown";
 
 		mission["onMainServer"] = cheapOnMainServerCheck(mission.updates)
-
-		console.log(mission.name, mission.onMainServer)
 		
 	});
 
