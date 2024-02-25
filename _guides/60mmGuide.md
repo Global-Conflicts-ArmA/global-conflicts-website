@@ -66,10 +66,10 @@ To do so, you use the context menu to scroll and click "unload", which'll place 
 Ok so we've got a fire mission to destroy a target at a location, now we need the information to fire on the target.
 
  1. Find your location.
-The first step is to identify your own location, by using either GPS, landmarks, road-signs, terrain signs/types.
--- Crossroads, religious land marks, terrain saddles, and such are identifiable features for example.
-For this example we're located at a crossroad.
-![enter image description here](https://i.imgur.com/xw6PTFH.jpeg)
+ The first step is to identify your own location, by using either GPS, landmarks, road-signs, terrain signs/types.
+ -- Crossroads, religious land marks, terrain saddles, and such are identifiable features for example.
+ For this example we're located at a crossroad.
+ ![enter image description here](https://i.imgur.com/xw6PTFH.jpeg)
  2. Locate your target.
  For all intents and purposes here, we've been given an 8 digit grid (0443-0809) by our FO, meaning we have a target accuracy of up to 10 meters. ![enter image description here](https://i.imgur.com/9jb5auZ.jpeg)
  3. While on the mortar, open the range table with CTRL+B, then open your map and self interact to open your map tools.
@@ -91,30 +91,29 @@ For this example we're located at a crossroad.
  ![enter image description here](https://i.imgur.com/AHRcL2s.jpeg)
  We can see that 750m at the bottom of the table is the max range for "Charge 0" shown at the top, so while we *could* use this charge to reach our target, we'll have no room to add for further ranges if we need to make adjustments, so using a higher charge might be more viable, although higher charges will also increase the Time of flight (ToF), meaning longer time until the round hits the target.
  We can also see that the last four rows of the last column are empty, we have no information on elevation difference - Which we'll need!
- 
-	General rule of thumb is that if the target is within range to use a lower charge, do so, but because we're at the max of charge 0, we're going to use charge 1.
-	
-	Press F to cycle to charge 1
-	![enter image description here](https://i.imgur.com/9Vzj7Zk.jpeg)
 
+ General rule of thumb is that if the target is within range to use a lower charge, do so, but because we're at the max of charge 0, we're going to use charge 1.
 	
-	We start in the first column, going down each row until we find our range.
-	Once we find our range, we look at the next column which'll give our elevation.
-	The third column is the time of flight for the round in seconds.
-	And the fourth column is the elevation different you apply to your original elevation, for every 100 meters altitude difference between you and target.
-	 
-	So we can see our elevation for 750 meters, on charge 1, is 1229, with an elevation difference of 24mils per 100 meters.
-	
-	**How does elevation difference work?**
-	Using our example above, we have 24mils to either add or subtract for every 100 meters difference in altitude.
-	For this, our target is 100 meters higher then our location.
-	We already know our standard elevation of 1229, now we adjust for that 100 meter height difference.
-	Because we are 100 meters **lower** then our target, we will add 24mils, making our final elevation to target 1253.
-	If we was **above** our target by 100 meters, we'd deduct 24mils from 1229.
-	For every extra 100 meters, you'd continue to add or subtract the mils in the forth column.
-	
-	Using page up or down, adjust the elevation of your mortar until the dial on the left shows the same.
-![enter image description here](https://i.imgur.com/p4KoW1C.jpeg)
+ Press F to cycle to charge 1
+ ![enter image description here](https://i.imgur.com/9Vzj7Zk.jpeg)
+
+ We start in the first column, going down each row until we find our range.
+ Once we find our range, we look at the next column which'll give our elevation.
+ The third column is the time of flight for the round in seconds.
+ And the fourth column is the elevation different you apply to your original elevation, for every 100 meters altitude difference between you and target.
+ 
+ So we can see our elevation for 750 meters, on charge 1, is 1229, with an elevation difference of 24mils per 100 meters.
+
+ **How does elevation difference work?**
+ Using our example above, we have 24mils to either add or subtract for every 100 meters difference in altitude.
+ For this, our target is 100 meters higher then our location.
+  We already know our standard elevation of 1229, now we adjust for that 100 meter height difference.
+ Because we are 100 meters **lower** then our target, we will add 24mils, making our final elevation to target 1253.
+ If we was **above** our target by 100 meters, we'd deduct 24mils from 1229.
+ For every extra 100 meters, you'd continue to add or subtract the mils in the forth column.
+
+ Using page up or down, adjust the elevation of your mortar until the dial on the left shows the same.
+ ![enter image description here](https://i.imgur.com/p4KoW1C.jpeg)
 
  5. At this point your gun should laid on the target correctly and ready to fire.
 
