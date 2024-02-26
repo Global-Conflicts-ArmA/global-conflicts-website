@@ -68,7 +68,7 @@ Ok so we've got a fire mission to destroy a target at a location, now we need th
 
  1. Find your location.<br/>
  The first step is to identify your own location, by using either GPS, landmarks, road-signs, terrain signs/types.<br/>
- -- Crossroads, religious land marks, terrain saddles, and such are identifiable features for example.<br/>
+ 	Crossroads, religious land marks, terrain saddles, and such are identifiable features for example.<br/>
  For this example we're located at a crossroad.<br/>
  ![enter image description here](https://i.imgur.com/xw6PTFH.jpeg)<br/>
  2. Locate your target.<br/>
@@ -93,28 +93,29 @@ Ok so we've got a fire mission to destroy a target at a location, now we need th
  We can see that 750m at the bottom of the table is the max range for "Charge 0" shown at the top, so while we *could* use this charge to reach our target, we'll have no room to add for further ranges if we need to make adjustments, so using a higher charge might be more viable, although higher charges will also increase the Time of flight (ToF), meaning longer time until the round hits the target.<br/>
 We can also see that the last four rows of the last column are empty, we have no information on elevation difference - Which we'll need!<br/>
 
- General rule of thumb is that if the target is within range to use a lower charge, do so, but because we're at the max of charge 0, we're going to use charge 1.<br/>
+	General rule of thumb is that if the target is within range to use a lower charge, do so, but because we're at the max of charge 0, we're going to use charge 1.<br/>
 
- Press F to cycle to charge 1<br/>
-![enter image description here](https://i.imgur.com/9Vzj7Zk.jpeg)<br/>
+	Press F to cycle to charge 1<br/>
 
- We start in the first column, going down each row until we find our range.<br/>
- Once we find our range, we look at the next column which'll give our elevation.<br/>
- The third column is the time of flight for the round in seconds.<br/>
- And the fourth column is the elevation different you apply to your original elevation, for every 100 meters altitude difference between you and target.<br/>
+ 	![enter image description here](https://i.imgur.com/9Vzj7Zk.jpeg)<br/>
+
+ 	We start in the first column, going down each row until we find our range.<br/>
+ 	Once we find our range, we look at the next column which'll give our elevation.<br/>
+ 	The third column is the time of flight for the round in seconds.<br/>
+ 	And the fourth column is the elevation different you apply to your original elevation, for every 100 meters altitude difference between you and target.<br/>
  
- So we can see our elevation for 750 meters, on charge 1, is 1229, with an elevation difference of 24mils per 100 meters.<br/>
+ 	So we can see our elevation for 750 meters, on charge 1, is 1229, with an elevation difference of 24mils per 100 meters.<br/>
 
- **How does elevation difference work?**<br/>
- Using our example above, we have 24mils to either add or subtract for every 100 meters difference in altitude.<br/>
- For this, our target is 100 meters higher then our location.<br/>
-We already know our standard elevation of 1229, now we adjust for that 100 meter height difference.<br/>
+ 	**How does elevation difference work?**<br/>
+	 Using our example above, we have 24mils to either add or subtract for every 100 meters difference in altitude.<br/>
+ 	For this, our target is 100 meters higher then our location.<br/>
+	We already know our standard elevation of 1229, now we adjust for that 100 meter height difference.<br/>
  Because we are 100 meters **lower** then our target, we will add 24mils, making our final elevation to target 1253.<br/>
- If we was **above** our target by 100 meters, we'd deduct 24mils from 1229.<br/>
- For every extra 100 meters, you'd continue to add or subtract the mils in the forth column.<br/>
+	 If we was **above** our target by 100 meters, we'd deduct 24mils from 1229.<br/>
+ 	For every extra 100 meters, you'd continue to add or subtract the mils in the forth column.<br/>
 
- Using page up or down, adjust the elevation of your mortar until the dial on the left shows the same.<br/>
- ![enter image description here](https://i.imgur.com/p4KoW1C.jpeg)
+	 Using page up or down, adjust the elevation of your mortar until the dial on the left shows the same.<br/>
+	 ![enter image description here](https://i.imgur.com/p4KoW1C.jpeg)
 
  5. At this point your gun should laid on the target correctly and ready to fire.
 
