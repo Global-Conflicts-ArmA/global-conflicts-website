@@ -122,22 +122,22 @@ Lets go through the process you can/should expect from setting up, calculating, 
 
 **Situation:** You've received orders to move to a location where you will be capable of engaging forces in support of the assaulting element. 
 
-**Setting up:** The battery/section commander will look for a location which'll provide optimal engagement ranges - Closer the better due to shorter time of flight of rounds, an area which'll also provide ample cover and/or concealment, with escape routes out in-case of an emergency, and ideally flat enough ground.
+**Setting up:** The battery/section commander will look for a location which'll provide optimal engagement ranges - Closer the better due to shorter time of flight of rounds, an area which'll also provide ample cover and/or concealment, with escape routes out in-case of an emergency, and ideally flat enough ground.<br/>
 
-Once at your chosen location, the commander should quickly survey the area to see if it's okay.
-If it is, the commander should be at this time contacting other callsigns to receive warning orders for fire-missions.
-The gunner should be either collecting ammo into their inventory or unload an ammo create from the vehicle, as well as setting up and mouting their mortar, awaiting tasking from the battery commander.
+Once at your chosen location, the commander should quickly survey the area to see if it's okay.<br/>
+If it is, the commander should be at this time contacting other callsigns to receive warning orders for fire-missions.<br/>
+The gunner should be either collecting ammo into their inventory or unload an ammo create from the vehicle, as well as setting up and mouting their mortar, awaiting tasking from the battery commander.<br/>
 
 - Commanders should also be aware of distance from nearest friendly forces. Being to separated can leave you exposed if attacked.
 
-**Calculating:** Once a fire-mission has come through and the battery is ready to begin working.
-The battery commander should ideally have his fire mission come over the radio in a format like below, which'll provide everything the battery needs to know to not only conduct the fire-mission accurately, but also prevent blue on blue, and give the required affect on target.
+**Calculating:** Once a fire-mission has come through and the battery is ready to begin working.<br/>
+The battery commander should ideally have his fire mission come over the radio in a format like below, which'll provide everything the battery needs to know to not only conduct the fire-mission accurately, but also prevent blue on blue, and give the required affect on target.<br/>
 ![enter image description here](https://i.imgur.com/U7IckYr.jpeg)
-As the fire-mission is coming over the radio, the battery commander should have his map and map tools open, calculating the fire-mission, which should be the azimuth and range for the gunner.
-As the commander calculates these two, he should read/speak it out loud to the gunner, who should read-back the information, which makes sure it's correct.
+As the fire-mission is coming over the radio, the battery commander should have his map and map tools open, calculating the fire-mission, which should be the azimuth and range for the gunner.<br/>
+As the commander calculates these two, he should read/speak it out loud to the gunner, who should read-back the information, which makes sure it's correct.<br/>
 
-Confirming it's correct, the gunner will then input his azimuth into the mortar and do his range>elevation calculations.
-Having input the information, the gunner will now wait for his fire orders.
+Confirming it's correct, the gunner will then input his azimuth into the mortar and do his range>elevation calculations.<br/>
+Having input the information, the gunner will now wait for his fire orders.<br/>
 
 **Firing:** The gunner is now waiting for the commander to tell him the affect required within this fire-mission.
 At this time, the commander should relay to the gunner the follow information:
@@ -151,8 +151,8 @@ At this time, the commander should relay to the gunner the follow information:
 
 When the gunner has this final information, he should now know everything he needs to conduct that fire mission. 
 
-**Packing up:** Leaving is the simple part, but knowing when to leave is key.
-Mortars or artillery in general has a very audible and distinct noise that can easily be traced when firing.
-Staying in one location to long could result in being bumped by the enemy and overrun, or even counter-battery fire.
+**Packing up:** Leaving is the simple part, but knowing when to leave is key.<br/>
+Mortars or artillery in general has a very audible and distinct noise that can easily be traced when firing.<br/>
+Staying in one location to long could result in being bumped by the enemy and overrun, or even counter-battery fire.<br/>
 
 Remember to pick up your mortar, load your ammo/equipment back into the vehicle, and relay to other callsigns that your artillery is offline and not available for X amount of time, as this allows other units to be aware of windows when they could be unsupported by fires.
