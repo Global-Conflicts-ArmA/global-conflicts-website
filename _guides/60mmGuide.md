@@ -106,7 +106,7 @@ Press F to cycle to charge 1
  **How does elevation difference work?**
  Using our example above, we have 24mils to either add or subtract for every 100 meters difference in altitude.
  For this, our target is 100 meters higher then our location.
-  We already know our standard elevation of 1229, now we adjust for that 100 meter height difference.
+We already know our standard elevation of 1229, now we adjust for that 100 meter height difference.
  Because we are 100 meters **lower** then our target, we will add 24mils, making our final elevation to target 1253.
  If we was **above** our target by 100 meters, we'd deduct 24mils from 1229.
  For every extra 100 meters, you'd continue to add or subtract the mils in the forth column.
