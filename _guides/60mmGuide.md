@@ -40,19 +40,19 @@ When setting up your mortar, there's a few things to consider such as, is the gr
  - There is also a shortcut key (“4” by default) to quickly get-out of the M6 with empty hands.
 
 ### Loading/Unloading
-**Loading**
-The 60mm mortar **cannot** be loaded by a 2nd person, thus a loader is useless as literally every interaction can be done by the gunner while mounted.
-- Rounds can be loaded from either your backpack, on the ground or in an ammo crate near the tube, but not from a vehicle.
+**Loading**<br/>
+The 60mm mortar **cannot** be loaded by a 2nd person, thus a loader is useless as literally every interaction can be done by the gunner while mounted.<br/>
+- Rounds can be loaded from either your backpack, on the ground or in an ammo crate near the tube, but not from a vehicle.<br/>
 
- 1. Prepare the correct type of round. 
- This is accomplished by approaching either the M6’s ammo crate or the M6’s tube.
- Use the context menu to select a round.
- Once selected the round will turn green. This tells to the tube which round to load next when the gunner chooses to reload.
- 2. Load the round, either by once again using the context menu on the M6’s tube, or by pressing “R” to reload.
+ 1. Prepare the correct type of round. <br/>
+ This is accomplished by approaching either the M6’s ammo crate or the M6’s tube.<br/>
+ Use the context menu to select a round.<br/>
+ Once selected the round will turn green. This tells to the tube which round to load next when the gunner chooses to reload.<br/>
+ 2. Load the round, either by once again using the context menu on the M6’s tube, or by pressing “R” to reload.<br/>
 
-**Unloading**
-Let's say you load a HE round into the tube, but then get told to conduct a smoke fire mission, remember to always unload the round currently in the tube before switching to new ammo and firing.
-To do so, you use the context menu to scroll and click "unload", which'll place the unspent round on the floor next to you.
+**Unloading**<br/>
+Let's say you load a HE round into the tube, but then get told to conduct a smoke fire mission, remember to always unload the round currently in the tube before switching to new ammo and firing.<br/>
+To do so, you use the context menu to scroll and click "unload", which'll place the unspent round on the floor next to you.<br/>
 
 ### Firing
 
@@ -66,37 +66,37 @@ To do so, you use the context menu to scroll and click "unload", which'll place 
 ## Calculating fire missions
 Ok so we've got a fire mission to destroy a target at a location, now we need the information to fire on the target.
 
- 1. Find your location.
- The first step is to identify your own location, by using either GPS, landmarks, road-signs, terrain signs/types.
- -- Crossroads, religious land marks, terrain saddles, and such are identifiable features for example.
- For this example we're located at a crossroad.
- ![enter image description here](https://i.imgur.com/xw6PTFH.jpeg)
- 2. Locate your target.
- For all intents and purposes here, we've been given an 8 digit grid (0443-0809) by our FO, meaning we have a target accuracy of up to 10 meters. ![enter image description here](https://i.imgur.com/9jb5auZ.jpeg)
- 3. While on the mortar, open the range table with CTRL+B, then open your map and self interact to open your map tools.
- Click and drag your map tools until the little black dot in the centre is over your location.
- Rotate the map tools so the red shooting line passes through your target location.
- ![enter image description here](https://i.imgur.com/R67K3li.jpeg)
- This gives you the azimuth to rotate the mortar to.
- Here we can see we have a have an azimuth of 3240mils, so move your mouse either left or right until the compass on the mortar shows the same azimuth like so.
- ![enter image description here](https://i.imgur.com/fmGxGHM.jpeg)
- When dealing with artillery, you use azimuth and not degrees/bearings as it's a much more accurate over distance. The azimuth is displayed on the compass in the outer white ring with the larger numbers, starting at 0000-6400 for a full 360 degrees.
- Mills goes up and down in increments of 20, so each small post/black line is 0020 mils.
+ 1. Find your location.<br/>
+ The first step is to identify your own location, by using either GPS, landmarks, road-signs, terrain signs/types.<br/>
+ -- Crossroads, religious land marks, terrain saddles, and such are identifiable features for example.<br/>
+ For this example we're located at a crossroad.<br/>
+ ![enter image description here](https://i.imgur.com/xw6PTFH.jpeg)<br/>
+ 2. Locate your target.<br/>
+ For all intents and purposes here, we've been given an 8 digit grid (0443-0809) by our FO, meaning we have a target accuracy of up to 10 meters. ![enter image description here](https://i.imgur.com/9jb5auZ.jpeg)<br/>
+ 3. While on the mortar, open the range table with CTRL+B, then open your map and self interact to open your map tools.<br/>
+ Click and drag your map tools until the little black dot in the centre is over your location.<br/>
+ Rotate the map tools so the red shooting line passes through your target location.<br/>
+ ![enter image description here](https://i.imgur.com/R67K3li.jpeg)<br/>
+ This gives you the azimuth to rotate the mortar to.<br/>
+ Here we can see we have a have an azimuth of 3240mils, so move your mouse either left or right until the compass on the mortar shows the same azimuth like so.<br/>
+ ![enter image description here](https://i.imgur.com/fmGxGHM.jpeg)<br/>
+ When dealing with artillery, you use azimuth and not degrees/bearings as it's a much more accurate over distance. The azimuth is displayed on the compass in the outer white ring with the larger numbers, starting at 0000-6400 for a full 360 degrees.<br/>
+ Mills goes up and down in increments of 20, so each small post/black line is 0020 mils.<br/>
  
- 4. Now we're dialled in on the azimuth, we need to get our elevation.
- Go back to your map and move the map tools, so "0" on the ruler is placed over your location.
- ![enter image description here](https://i.imgur.com/x2fXLTD.jpeg)
- The largest posts/black lines represent 1km, followed by 500m posts, medium posts are 100m, and the smallest posts are 20m.
- Here we we count from 0 up until are target, which will be roughly 750m.
- So we've got the distance, now come out the map and look at your range table on the right.
- ![enter image description here](https://i.imgur.com/AHRcL2s.jpeg)
- We can see that 750m at the bottom of the table is the max range for "Charge 0" shown at the top, so while we *could* use this charge to reach our target, we'll have no room to add for further ranges if we need to make adjustments, so using a higher charge might be more viable, although higher charges will also increase the Time of flight (ToF), meaning longer time until the round hits the target.
+ 4. Now we're dialled in on the azimuth, we need to get our elevation.<br/>
+ Go back to your map and move the map tools, so "0" on the ruler is placed over your location.<br/>
+ ![enter image description here](https://i.imgur.com/x2fXLTD.jpeg)<br/>
+ The largest posts/black lines represent 1km, followed by 500m posts, medium posts are 100m, and the smallest posts are 20m.<br/>
+ Here we we count from 0 up until are target, which will be roughly 750m.<br/>
+ So we've got the distance, now come out the map and look at your range table on the right.<br/>
+ ![enter image description here](https://i.imgur.com/AHRcL2s.jpeg)<br/>
+ We can see that 750m at the bottom of the table is the max range for "Charge 0" shown at the top, so while we *could* use this charge to reach our target, we'll have no room to add for further ranges if we need to make adjustments, so using a higher charge might be more viable, although higher charges will also increase the Time of flight (ToF), meaning longer time until the round hits the target.<br/>
 We can also see that the last four rows of the last column are empty, we have no information on elevation difference - Which we'll need!<br/>
 
-General rule of thumb is that if the target is within range to use a lower charge, do so, but because we're at the max of charge 0, we're going to use charge 1.<br/>
+ General rule of thumb is that if the target is within range to use a lower charge, do so, but because we're at the max of charge 0, we're going to use charge 1.<br/>
 
-Press F to cycle to charge 1<br/>
-![enter image description here](https://i.imgur.com/9Vzj7Zk.jpeg)
+ Press F to cycle to charge 1<br/>
+![enter image description here](https://i.imgur.com/9Vzj7Zk.jpeg)<br/>
 
  We start in the first column, going down each row until we find our range.<br/>
  Once we find our range, we look at the next column which'll give our elevation.<br/>
@@ -119,10 +119,10 @@ We already know our standard elevation of 1229, now we adjust for that 100 meter
  5. At this point your gun should laid on the target correctly and ready to fire.
 
 ## The process
-So you've slotted as a mortar team and now you're out on the frontline, ready to make it rain.
-Lets go through the process you can/should expect from setting up, calculating, firing, and packing up (2 man crew)
+So you've slotted as a mortar team and now you're out on the frontline, ready to make it rain.<br/>
+Lets go through the process you can/should expect from setting up, calculating, firing, and packing up (2 man crew)<br/>
 
-**Situation:** You've received orders to move to a location where you will be capable of engaging forces in support of the assaulting element. 
+**Situation:** You've received orders to move to a location where you will be capable of engaging forces in support of the assaulting element. <br/>
 
 **Setting up:** The battery/section commander will look for a location which'll provide optimal engagement ranges - Closer the better due to shorter time of flight of rounds, an area which'll also provide ample cover and/or concealment, with escape routes out in-case of an emergency, and ideally flat enough ground.<br/>
 
@@ -134,7 +134,8 @@ The gunner should be either collecting ammo into their inventory or unload an am
 
 **Calculating:** Once a fire-mission has come through and the battery is ready to begin working.<br/>
 The battery commander should ideally have his fire mission come over the radio in a format like below, which'll provide everything the battery needs to know to not only conduct the fire-mission accurately, but also prevent blue on blue, and give the required affect on target.<br/>
-![enter image description here](https://i.imgur.com/U7IckYr.jpeg)
+
+![enter image description here](https://i.imgur.com/U7IckYr.jpeg)<br/>
 As the fire-mission is coming over the radio, the battery commander should have his map and map tools open, calculating the fire-mission, which should be the azimuth and range for the gunner.<br/>
 As the commander calculates these two, he should read/speak it out loud to the gunner, who should read-back the information, which makes sure it's correct.<br/>
 
