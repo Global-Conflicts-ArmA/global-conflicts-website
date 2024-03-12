@@ -56,6 +56,20 @@
       "type": "section"
    },
    {
+      "title": "Equipment guides",
+      "children": [
+         {
+            "title": "Launcher/Anti-tank",
+            "slug": "launcherGuide"
+         }.
+          {
+            "title": "60mm Mortar Guide",
+            "slug": "60mmGuide"
+         }
+      ],
+      "type": "section"
+   },
+   {
       "title": "Radios and communication",
       "children": [
          {
