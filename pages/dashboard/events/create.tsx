@@ -176,7 +176,7 @@ function EventsDashboardPage() {
 		},
 	});
 
- 
+
 	// a little function to help us with reordering the result
 	const reorder = (list, startIndex, endIndex) => {
 		const result = Array.from(list);
@@ -261,7 +261,7 @@ function EventsDashboardPage() {
 
 
 	return (
-        <CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
+		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
 				<title>Create Event</title>
 			</Head>
@@ -298,7 +298,7 @@ function EventsDashboardPage() {
 								className="input input-lg input-bordered"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventName.toString()}
+								<>{eventDataFormik.errors.eventName}</>
 							</span>
 						</div>
 
@@ -311,7 +311,7 @@ function EventsDashboardPage() {
 								Select Image, GIF or video Clip
 							</label>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventCoverMedia.toString()}
+								<>{eventDataFormik.errors.eventCoverMedia}</>
 							</span>
 						</div>
 					</div>
@@ -329,7 +329,7 @@ function EventsDashboardPage() {
 								className="h-24 textarea textarea-bordered"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventDescription.toString()}
+								<>{eventDataFormik.errors.eventDescription}</>
 							</span>
 						</div>
 					</div>
@@ -349,7 +349,7 @@ function EventsDashboardPage() {
 								Select a time and date
 							</button>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventStartDate.toString()}
+								<>{eventDataFormik.errors.eventStartDate}</>
 							</span>
 						</div>
 						<div className="form-control ">
@@ -371,7 +371,7 @@ function EventsDashboardPage() {
 								className="input input-bordered input-lg"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventSlotCount.toString()}
+								<>{eventDataFormik.errors.eventSlotCount}</>
 							</span>
 						</div>
 						<div className="form-control ">
@@ -388,7 +388,7 @@ function EventsDashboardPage() {
 								className="input input-bordered input-lg"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventOrganizer.toString()}
+								<>{eventDataFormik.errors.eventOrganizer}</>
 							</span>
 						</div>
 					</div>
@@ -420,7 +420,7 @@ function EventsDashboardPage() {
 							Select Image
 						</label>
 						<span className="text-red-500 label-text-alt">
-							{eventDataFormik.errors.eventCoverMediaSocial.toString()}
+							<>{eventDataFormik.errors.eventCoverMediaSocial}</>
 						</span>
 					</div>
 				</form>
@@ -851,7 +851,7 @@ function EventsDashboardPage() {
 				}}
 			></CreateSlotsModal>
 		</CredentialLockLayout>
-    );
+	);
 }
 
 export default EventsDashboardPage;

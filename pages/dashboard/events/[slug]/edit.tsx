@@ -157,7 +157,7 @@ export default function EditEvent({ event }) {
 
 		return result;
 	};
- 
+
 	function validateFields(values) {
 		let errors = {};
 		if (values.eventName.trim().length < 4) {
@@ -233,7 +233,7 @@ export default function EditEvent({ event }) {
 	const [eventMissionList, setEventMissionList] = useState(event.eventMissionList)
 	const [selectedMission, setSelectedMission] = useState(event.eventMissionList[0])
 	return (
-        <CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
+		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
 			<Head>
 				<title>Editing {event.name}</title>
 			</Head>
@@ -285,7 +285,7 @@ export default function EditEvent({ event }) {
 								className="input input-lg input-bordered"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventName.toString()}
+								<>{eventDataFormik.errors.eventName}</>
 							</span>
 						</div>
 
@@ -298,7 +298,7 @@ export default function EditEvent({ event }) {
 								Select Image, GIF or video Clip(8mb max)
 							</label>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventCoverMedia.toString()}
+								<>{eventDataFormik.errors.eventCoverMedia}</>
 							</span>
 						</div>
 					</div>
@@ -316,7 +316,7 @@ export default function EditEvent({ event }) {
 								className="h-24 textarea textarea-bordered"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventDescription.toString()}
+								<>{eventDataFormik.errors.eventDescription}</>
 							</span>
 						</div>
 					</div>
@@ -336,7 +336,7 @@ export default function EditEvent({ event }) {
 								Select a time and date
 							</button>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventStartDate.toString()}
+								<>{eventDataFormik.errors.eventStartDate}</>
 							</span>
 						</div>
 						<div className="form-control ">
@@ -358,7 +358,7 @@ export default function EditEvent({ event }) {
 								className="input input-bordered input-lg"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventSlotCount.toString()}
+								<>{eventDataFormik.errors.eventSlotCount}</>
 							</span>
 						</div>
 						<div className="form-control ">
@@ -375,7 +375,7 @@ export default function EditEvent({ event }) {
 								className="input input-bordered input-lg"
 							/>
 							<span className="text-red-500 label-text-alt">
-								{eventDataFormik.errors.eventOrganizer.toString()}
+								<>{eventDataFormik.errors.eventOrganizer}</>
 							</span>
 						</div>
 					</div>
@@ -823,7 +823,7 @@ export default function EditEvent({ event }) {
 				}}
 			></CreateSlotsModal>
 		</CredentialLockLayout>
-    );
+	);
 }
 
 export async function getServerSideProps(context) {
