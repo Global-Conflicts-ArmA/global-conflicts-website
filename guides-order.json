@@ -59,8 +59,8 @@
       "title": "Equipment guides",
       "children": [
          {
-            "title": "Launcher/Anti-tank",
-            "slug": "launcherGuide"
+            "title": "Anti tank/air launchers",
+            "slug": "launchers"
          },
           {
             "title": "60mm Mortar Guide",
