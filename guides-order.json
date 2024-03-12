@@ -44,10 +44,6 @@
             "title": "Infantry core",
             "slug": "infantry-core"
          },
-          {
-            "title": "60mm Mortar Guide",
-            "slug": "60mmGuide"
-         },
          {
             "title": "JTAC",
             "slug": "jtac"
@@ -63,8 +59,12 @@
             "slug": "launchers"
          },
           {
-            "title": "60mm Mortar Guide",
+            "title": "60mm mortar guide",
             "slug": "60mmGuide"
+         },
+          {
+            "title": "Vector guide",
+            "slug": "vector"
          }
       ],
       "type": "section"
