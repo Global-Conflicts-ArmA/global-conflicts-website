@@ -293,6 +293,11 @@ h3:hover .anchor-link {
 	align-items: center;
 	border-radius:  16px;
 	
+	
+}
+.event-card{
+	max-width: none !important;
+	
 }
 
 .event-media-safe-area {

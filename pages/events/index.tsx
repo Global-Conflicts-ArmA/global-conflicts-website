@@ -73,7 +73,7 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
                                 {upcomingEvents.map((event) => (
                                     (<Link key={event.name} href={`/events/${event.slug}`} passHref legacyBehavior>
                                         <a>
-                                            <EventCard event={event}></EventCard>
+                                            <EventCard contentHeight="auto" event={event}></EventCard>
                                         </a>
                                     </Link>)
                                 ))}
@@ -85,7 +85,7 @@ export default function EventHome({ upcomingEvents, pastEvents }) {
                                 {pastEvents.map((event) => (
                                     (<Link key={event.name} href={`/events/${event.slug}`} passHref legacyBehavior>
                                         <a>
-                                        <EventCard event={event}></EventCard>
+                                        <EventCard contentHeight="auto" event={event}></EventCard>
                                         </a>
 
                                     </Link>)

@@ -317,6 +317,7 @@ export default function EventHome({ event }) {
             <EventCard
                 event={event}
                 aspectRatio={"16/9"}
+                contentHeight={"100%"}
                 isViewOnly={true}
                 didSignUp={didSignUp}
             ></EventCard>
@@ -342,7 +343,7 @@ export default function EventHome({ event }) {
                     className="btn btn-md btn-outline-standard "
                     target="_blank"
                     legacyBehavior>
-                    <span>
+                    <span className="dark:text-white">
                         How it works{" "}<QuestionMarkCircleIcon height={25}></QuestionMarkCircleIcon>
 
                     </span>
