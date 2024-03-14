@@ -8,6 +8,7 @@ import card_placeholder from "../public/card_placeholder.png";
 export default function EventCard({
 	event,
 	aspectRatio = "16/6",
+	contentHeight="auto",
 	isViewOnly = false,
 	didSignUp = null,
 }) {
@@ -79,7 +80,7 @@ export default function EventCard({
 			<div className="relative drop-shadow-xl shadow-strong card ">
 				<figure className="card-figure" style={{ aspectRatio }}>
 					{event.imageLink?.includes("webm") || event.imageLink?.includes("mp4") ? (
-						<video loop key={event.imageLink} ref={videoRef}>
+						<video className="event-card" style={{ height:contentHeight, maxWidth:"none" }} loop key={event.imageLink} ref={videoRef}>
 							<source src={event.imageLink} />
 						</video>
 					) : (
@@ -104,7 +105,7 @@ export default function EventCard({
 					)}
 				</figure>
 
-				<div className="absolute flex flex-col justify-between w-full h-full p-5 text-white lg:p-10 scrim">
+				<div className="absolute rounded-[16px] flex flex-col justify-between w-full h-full p-5 text-white lg:p-10 scrim">
 					<div className="flex flex-row justify-between">
 						<div className="flex justify-between flex-1">
 							<div className="prose textshadow">
