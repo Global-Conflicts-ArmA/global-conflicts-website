@@ -99,6 +99,8 @@ async function callReserveSlot(
             onSuccess();
         })
         .catch((error) => {
+        
+            toast.error(error.response.data.error);
             onError();
         });
 }
