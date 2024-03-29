@@ -18,7 +18,7 @@ export default async function handler(
 	const session = await getServerSession(req, res, authOptions);
 
     if (!hasCredsAny(session, [CREDENTIAL.MEMBER])) {
-        return res.status(401).json({ error: `Not Authorized` });
+        return res.status(401).json({ error: `You must be a member in order to reserve slots` });
     }
 
 
