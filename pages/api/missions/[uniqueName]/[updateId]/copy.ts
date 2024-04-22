@@ -33,8 +33,8 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName, updateId } = req.query;
 
 	const session = await getServerSession(req, res, authOptions);
-	const canCopyToMain = hasCredsAny(session, [CREDENTIAL.ADMIN])
-	const canCopyToTest = hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_REVIEWER])
+	const canCopyToMain = hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_ADMINISTRATOR])
+	const canCopyToTest = hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_ADMINISTRATOR])
  
 	if (destination == "main" && !canCopyToMain) {
 		return res.status(401).json({ error: `Not allowed` });

@@ -4,7 +4,7 @@ import { copyFile } from "fs";
 import { useSession } from "next-auth/react";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-import hasCreds from "../../lib/credsChecker";
+import hasCreds, { hasCredsAny } from "../../lib/credsChecker";
 import { REVIEW_STATE_PENDING } from "../../lib/reviewStates";
 import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import MissionAuditModal from "./mission_audit_modal";
@@ -155,7 +155,7 @@ export default function ActionsModal({
 											)}
 
 										<div className="flex flex-col align-middle justify-evenly">
-											{hasCreds(session, CREDENTIAL.ADMIN) && (
+											{hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_ADMINISTRATOR]) && (
 												<button
 													className={
 														isLoadingCopy
