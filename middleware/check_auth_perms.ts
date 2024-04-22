@@ -7,6 +7,7 @@ export enum CREDENTIAL {
 	MEMBER = "Member",
 	MISSION_MAKER = "Mission Maker",
 	MISSION_REVIEWER = "Mission Review Team",
+	MISSION_ADMINISTRATOR = "Mission Administrator",
 	GM = "Arma GM",
 	ADMIN = "Admin",
 }
