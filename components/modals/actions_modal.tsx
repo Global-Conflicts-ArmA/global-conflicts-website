@@ -147,7 +147,7 @@ export default function ActionsModal({
 								<div className="mt-2 ">
 									<div>
 										{(mission.authorID == session?.user["discord_id"] ||
-											hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
+											hasCredsAny(session, [CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_ADMINISTRATOR])) && (
 												<p className="mb-0">
 													For adding missions the server must not be in the mission selection
 													screen, else it will crash.
