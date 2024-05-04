@@ -162,7 +162,7 @@ export default function MissionDetails({
 	function omitActions() {
 		return !(
 			mission.authorID == session?.user["discord_id"] ||
-			hasCreds(session, CREDENTIAL.MISSION_REVIEWER)
+			hasCredsAny(session, [CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_ADMINISTRATOR])
 		);
 	}
 	function omitDownload() {
@@ -1290,6 +1290,7 @@ export default function MissionDetails({
 						CREDENTIAL.NEW_GUY,
 						CREDENTIAL.MISSION_MAKER,
 						CREDENTIAL.MISSION_REVIEWER,
+						CREDENTIAL.MISSION_ADMINISTRATOR,
 					]) && (
 							<button
 								onClick={() => {
