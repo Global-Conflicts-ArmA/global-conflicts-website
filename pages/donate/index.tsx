@@ -9,7 +9,7 @@ import React, { useEffect, useState } from "react";
 
 import ProgressBar from "@ramonak/react-progress-bar";
 import gcSmallLogo from "../../public/logo-patch.webp";
-function Donate({ currentAmountNum, currentAmountString, donators, serverDonationGoalUsd, serverDonationGoalUsdString }) {
+function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDonationGoalUsd, serverDonationGoalUsdString }) {
 
 
 
@@ -56,7 +56,7 @@ function Donate({ currentAmountNum, currentAmountString, donators, serverDonatio
                                     className="grain-progress-bar"
                                     labelSize={".9em"}
 
-                                    completed={Math.round(currentAmountNum/serverDonationGoalUsd * 100)}
+                                    completed={Math.round(currentAmountNumUSD/serverDonationGoalUsd * 100)}
                                 />
                             </div>
                         </div>
@@ -108,28 +108,27 @@ function Donate({ currentAmountNum, currentAmountString, donators, serverDonatio
 export async function getServerSideProps(context) {
 
     const patreonResponse = await axios.get(
-        "https://www.patreon.com/globalconflicts"
+        "https://www.patreon.com/api/campaigns/5074062"
     );
 
     const body = patreonResponse.data;
-    const functionString = `<script id="__NEXT_DATA__" type="application/json">`;
-    const scriptStart = body.indexOf(functionString);
-    const lastIndex = scriptStart + body.substring(scriptStart).indexOf("</script>");
-    var mySubString = body.substring(
-        body.indexOf(functionString) + functionString.length,
-        lastIndex
-    );
+    console.log(body);
 
-    const json = JSON.parse(mySubString);
-
-    const currentAmount = json.props.pageProps.bootstrapEnvelope.bootstrap.campaign.data.attributes.campaign_pledge_sum;
+    const currentAmount = body.data.attributes.pledge_sum;
+    console.log(currentAmount);
     const currentAmountNum = currentAmount / 100;
-    const currentAmountString = currentAmountNum.toLocaleString("en-US", {
+    console.log(currentAmountNum);
+    const USDtoCADRate = await axios.get(
+        "https://cdn.jsdelivr.net/gh/ismartcoding/currency-api@main/latest/data.json"
+    );
+    console.log(USDtoCADRate.data.quotes.CAD);
+    const currentAmountNumUSD = currentAmountNum / USDtoCADRate.data.quotes.CAD;
+    console.log(currentAmountNumUSD);
+    const currentAmountString = currentAmountNumUSD.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
     });
-
-
+    console.log(currentAmountString);
 
     const botResponse = await axios.get("http://localhost:3001/users/donators");
     const donators = botResponse.data;
@@ -141,10 +140,8 @@ export async function getServerSideProps(context) {
         currency: "USD",
     });
 
-
-
     return {
-        props: { currentAmountNum, currentAmountString, donators, serverDonationGoalUsd,serverDonationGoalUsdString },
+        props: { currentAmountNumUSD, currentAmountString, donators, serverDonationGoalUsd,serverDonationGoalUsdString },
     };
 
 }
