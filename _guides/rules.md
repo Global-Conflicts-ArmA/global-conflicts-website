@@ -1,8 +1,7 @@
 # Rules and standards
-At Global conflicts, we do not condone or harbour any form of discrimination.
-We also expect mutual cooperation and a level of maturity.
+At Global conflicts, we expect mutual cooperation and a level of maturity.<br/>
+We do not condone or harbour any form of discrimination.<br/>
 This is a baseline expectation we have of all players to adhere to at all time.
-If you do not agree with the above, do not read the below.
 
 By joining Global Conflicts, you agree to the above and below while part of our community.  
 
@@ -10,8 +9,10 @@ By joining Global Conflicts, you agree to the above and below while part of our 
  
 **General**
 
- - Do not cause upset, annoyance, anger, resentment, or similar, to any users intentionally.
+ - Do not intentionally provoke users.
  - Do not \"poach\" players from other communities.
+ - Do not cheat/hack/exploit in any way.
+ - No unauthorised advertising - Ask permission from staff before posting.
  
 
 **In-game**
@@ -20,12 +21,11 @@ By joining Global Conflicts, you agree to the above and below while part of our 
  - Do not rambo/lonewolf.
  - Do not backseat command.
  - Listen to leadership and orders.
- - Do not cheat/hack/exploit in any way.
- - Do not spam drawings or map markers.
- - Do not use enemy equipment or assets, unless authorized or in a 'life of death' situation. 
- - Do not use vehicles and assets that would require specialized training that your current role does not have. Example: A rifleman crewing a tank.
+ - Do not spam drawings or map markers within the playable map - SFW drawings permitted outside of the playable map space.
+ - Do not use enemy equipment or assets, unless authorized or in a 'life of death' situation.
+   - Do not use vehicles and assets that would require specialized training that your current role does not have. Example: A rifleman crewing a tank.
  - Do not talk/speak/shout excessively loud.
-\t  - Do not use soundboards or memes during important moments. Keep it serious when it matters.
+ - Do not use soundboards or memes during important moments. Keep it serious when it matters.
  - Do not meme it up just because you are getting bored and ruin it for everyone else.
  
  **Discord**
@@ -35,13 +35,13 @@ By joining Global Conflicts, you agree to the above and below while part of our 
  - Not safe for work (NSFW) content is not permitted across all channels (This includes but not limited to, porn/suggestive, gore, human/animal suffering)
  - Do not intentionally interrupt other users. 
  - Do not shout excessively loud to disrupt users.
-\t - Do not mic spam audio clips loudly or often.
+ - Do not mic spam audio clips loudly or often.
  - Do not excessively or unnecessarily ping users.
   
  **Teamspeak**
 - Do not intentionally interrupt other users. 
 - Do not shout excessively loud to disrupt users.
-\t- Do not mic spam audio clips loudly or often.
+- Do not mic spam audio clips loudly or often.
 - If you have powers for a certain channel, do not abuse your permissions.
 
 ## Standards
