@@ -210,6 +210,33 @@ function MissionList({ missions }) {
 		setOnlyApproved(false)
 	}
 
+	function resetFilters() {
+		setAnythingFilterValue("")
+		setAuthorFilterValue("")
+		setTypeFilterValue("")
+		setMapFilterValue("")
+		setTagFilterValue([])
+		setEraFilterValue([])
+		setRespawnFilterValue(null)
+		setDenseMode(false)
+		setOnlyApproved(false)
+		setMainServer(false)
+		setOnlyPending(false)
+		setShowUnlistedMissions(false)
+		localStorage.removeItem("anythingFilter")
+		localStorage.removeItem("authorFilter")
+		localStorage.removeItem("typeFilter")
+		localStorage.removeItem("mapFilter")
+		localStorage.removeItem("tagFilter")
+		localStorage.removeItem("eraFilter")
+		localStorage.removeItem("respawnFilter")
+		localStorage.removeItem("denseMode")
+		localStorage.removeItem("onlyApproved")
+		localStorage.removeItem("onlyMain")
+		localStorage.removeItem("onlyPending")
+		localStorage.removeItem("showUnlisted")
+	}
+
 	useEffect(() => {
 		function filterMissions() {
 
@@ -505,6 +532,9 @@ function MissionList({ missions }) {
 						</div>
 					</>
 				)}
+				<div className = "mt-3">
+					<button className="primary-btn" onClick={resetFilters}>Reset Filters</button>
+				</div>
 				</div>
 			</>
 		);
