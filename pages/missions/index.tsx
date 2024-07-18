@@ -142,6 +142,17 @@ function MissionList({ missions }) {
 		return hasMatch;
 	}
 
+	
+	const [playerCountFilterValue, setPlayerCountFilterValue] = useState(localStorage.getItem("playerCountFilter"));
+	const playerCountFilter = (x) => {
+		let hasMatch = true
+		if (playerCountFilterValue != null) {
+			const playerCount = Number(playerCountFilterValue)
+			hasMatch = x.size.min <= playerCount && x.size.max >= playerCount
+		}
+		return hasMatch
+	}
+
 	const [tagFilterValue, setTagFilterValue] = useState(JSON.parse(localStorage.getItem("tagFilter")) || []);
 	const tagFilter = (x) => {
 		let hasMatch = true;
@@ -215,6 +226,7 @@ function MissionList({ missions }) {
 		setAuthorFilterValue("")
 		setTypeFilterValue("")
 		setMapFilterValue("")
+		setPlayerCountFilterValue(null)
 		setTagFilterValue([])
 		setEraFilterValue([])
 		setRespawnFilterValue(null)
@@ -227,6 +239,7 @@ function MissionList({ missions }) {
 		localStorage.removeItem("authorFilter")
 		localStorage.removeItem("typeFilter")
 		localStorage.removeItem("mapFilter")
+		localStorage.removeItem("playerCountFilter")
 		localStorage.removeItem("tagFilter")
 		localStorage.removeItem("eraFilter")
 		localStorage.removeItem("respawnFilter")
@@ -264,6 +277,7 @@ function MissionList({ missions }) {
 				.filter(eraFilter)
 				.filter(respawnFilter)
 				.filter(mapFilter)
+				.filter(playerCountFilter)
 				.filter(typeFilter)
 				.filter(authorFilter)
 				.filter(anythingFilter);
@@ -279,6 +293,7 @@ function MissionList({ missions }) {
 		respawnFilter,
 		authorFilter,
 		mapFilter,
+		playerCountFilter,
 		missions,
 		onlyPending,
 		onlyApproved,
@@ -343,6 +358,20 @@ function MissionList({ missions }) {
 						onChange={(event) => {
 							localStorage.setItem("mapFilter", event.target.value)
 							setMapFilterValue(event.target.value)
+						}}
+						className="input input-bordered input-sm"
+					/>
+				</div>
+				<div className="form-control">
+					<label className="label">
+						<span className="label-text">Player count</span>
+					</label>
+					<input
+						type="number"
+						placeholder="0"
+						onChange={(event) => {
+							localStorage.setItem("playerCountFilter", event.target.value)
+							setPlayerCountFilterValue(event.target.value)
 						}}
 						className="input input-bordered input-sm"
 					/>
