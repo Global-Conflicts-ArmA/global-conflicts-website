@@ -14,7 +14,7 @@ import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import { ChevronDownIcon } from "@heroicons/react/outline";
 import { MapItem } from "../../interfaces/mapitem";
 import Select from "react-select";
-import { eraOptions, respawnOptions, respawnOptionsFilter, tagsOptions } from "../../lib/missionSelectOptions";
+import { eraOptions, respawnOptionsFilter, tagsOptions } from "../../lib/missionSelectOptions";
 import { REVIEW_STATE_ACCEPTED, REVIEW_STATE_PENDING } from '../../lib/reviewStates';
 import fs from "fs"
 const columns = [
@@ -95,50 +95,122 @@ function cheapOnMainServerCheck(updates: { fileName: string; }[]) {
 }
 
 function MissionList({ missions }) {
-	const [denseMode, setDenseMode] = useState(false);
-	const [onlyPending, setOnlyPending] = useState(false);
-	const [onlyApproved, setOnlyApproved] = useState(false);
-	const [onlyMainServer, setMainServer] = useState(false);
-	const [showUnlistedMissions, setShowUnlistedMissions] = useState(false);
+	const [denseMode, setDenseMode] = useState(localStorage.getItem("denseMode") == "true")
+	const [onlyPending, setOnlyPending] = useState(localStorage.getItem("onlyPending") == "true")
+	const [onlyApproved, setOnlyApproved] = useState(localStorage.getItem("onlyApproved") == "true")
+	const [onlyMainServer, setMainServer] = useState(localStorage.getItem("onlyMain") == "true")
+	const [showUnlistedMissions, setShowUnlistedMissions] = useState(localStorage.getItem("showUnlisted") == "true")
 
-	const [missionsFiltred, setMissionsFiltred] = useState([]);
-	const [filterTags, setFilterTags] = useState([]);
-	const [filterEras, setFilterEras] = useState([]);
-	const [filterRespawn, setFilterRespawn] = useState([]);
+	const [missionsFiltred, setMissionsFiltred] = useState([])
 
-	const [anythingFilter, setAnythingFilter] = useState(() => (mission) => true);
-	const [authorFilter, setAuthorFilter] = useState(() => (mission) => true);
+	const [anythingFilterValue, setAnythingFilterValue] = useState(localStorage.getItem("anythingFilter") || "")
+	const anythingFilter = (x) => {
+		let hasMatch = false;
+		hasMatch =
+			x["name"].toLowerCase().includes(anythingFilterValue.toLowerCase()) ||
+			x["missionMaker"].toLowerCase().includes(anythingFilterValue.toLowerCase()) ||
+			x["era"].toLowerCase().includes(anythingFilterValue.toLowerCase()) ||
+			x["timeOfDay"].toLowerCase().includes(anythingFilterValue.toLowerCase()) ||
+			x["type"].toLowerCase().includes(anythingFilterValue.toLowerCase());
+		return hasMatch;
+	}
 
-	const [typeFilter, setTypeFilter] = useState(() => (mission) => true);
-	const [mapFilter, setMapFilter] = useState(() => (mission) => true);
-	const [tagFilter, setTagFilter] = useState(() => (mission) => true);
-	const [eraFilter, setEraFilter] = useState(() => (mission) => true);
-	const [respawnFilter, setRespawnFilter] = useState(() => (mission) => true);
+	const [authorFilterValue, setAuthorFilterValue] = useState(localStorage.getItem("authorFilter") || "");
+	const authorFilter = (x) => {
+		let hasMatch = false;
+		hasMatch = x["missionMaker"].toLowerCase().includes(authorFilterValue.toLowerCase());
+		return hasMatch;
+	}
+
+	const [typeFilterValue, setTypeFilterValue] = useState(localStorage.getItem("typeFilter") || "");
+	const typeFilter = (x) => {
+		let hasMatch = false;
+		hasMatch = x["type"].toLowerCase().includes(typeFilterValue.toLowerCase());
+		return hasMatch;
+	};
+
+	const [mapFilterValue, setMapFilterValue] = useState(localStorage.getItem("mapFilter") || "");
+	const mapFilter = (x) => {
+		let hasMatch = false;
+		if (x["terrainName"]) {
+			hasMatch =
+				x["terrainName"].toLowerCase().includes(mapFilterValue.toLowerCase()) ||
+				x["terrain"].toLowerCase().includes(mapFilterValue.toLowerCase());
+		} else {
+			hasMatch = x["terrain"].toLowerCase().includes(mapFilterValue.toLowerCase());
+		}
+		return hasMatch;
+	}
+
+	const [tagFilterValue, setTagFilterValue] = useState(JSON.parse(localStorage.getItem("tagFilter")) || []);
+	const tagFilter = (x) => {
+		let hasMatch = true;
+		if (tagFilterValue.length > 0) {
+			if (x["tags"]) {
+				hasMatch = tagFilterValue.every((r) => x["tags"].includes(r.value));
+			}
+		}
+		return hasMatch;
+	}
+
+
+	const [eraFilterValue, setEraFilterValue] = useState(JSON.parse(localStorage.getItem("eraFilter")) || []);
+	const eraFilter = (x) => {
+		let hasMatch = true;
+		if (eraFilterValue.length > 0) {
+			if (x["era"]) {
+				hasMatch = eraFilterValue.some((r) => x["era"].includes(r.value));
+			}
+		}
+		return hasMatch;
+	}
+
+	let respawnFilterPreset = null
+	if (localStorage.getItem("respawnFilter") == "true") {
+		respawnFilterPreset = true
+	} else if (localStorage.getItem("respawnFilter") == "false") {
+		respawnFilterPreset = false
+	} else if (localStorage.getItem("respawnFilter") == "Objective/gameplay based") {
+		respawnFilterPreset = "Objective/gameplay based"
+	}
+	const [respawnFilterValue, setRespawnFilterValue] = useState(respawnFilterPreset);
+	const respawnFilter = (x) => {
+		if (respawnFilterValue == null) {
+			return true;
+		}
+		return x["respawn"] == respawnFilterValue;
+	}
 
 	const { data: session } = useSession();
 
 	function onlyApprovedSwitch(arg: boolean) {
+		localStorage.setItem("onlyApproved", arg == true ? "true" : "false")
+		localStorage.removeItem("onlyMain")
+		localStorage.removeItem("onlyPending")
 		setOnlyPending(false)
 		setMainServer(false)
 		setOnlyApproved(arg)
 	}
 
 	function onlyMainSwitch(arg: boolean) {
+		localStorage.setItem("onlyMain", arg == true ? "true" : "false")
+		localStorage.removeItem("onlyApproved")
+		localStorage.removeItem("onlyPending")
 		setOnlyPending(false)
 		setMainServer(arg)
 		setOnlyApproved(false)
 	}
 
 	function onlyPendingSwitch(arg: boolean) {
+		localStorage.setItem("onlyPending", arg == true ? "true" : "false")
+		localStorage.removeItem("onlyApproved")
+		localStorage.removeItem("onlyMain")
 		setOnlyPending(arg)
 		setMainServer(false)
 		setOnlyApproved(false)
 	}
 
 	useEffect(() => {
-		const denseMode = localStorage.getItem("denseMode");
-		setDenseMode(denseMode == "true");
-
 		function filterMissions() {
 
 			const missionsFound = missions
@@ -200,17 +272,8 @@ function MissionList({ missions }) {
 						type="text"
 						placeholder="Type here"
 						onChange={(event) => {
-							const text = event.target.value;
-							setAnythingFilter(() => (x) => {
-								let hasMatch = false;
-								hasMatch =
-									x["name"].toLowerCase().includes(text.toLowerCase()) ||
-									x["missionMaker"].toLowerCase().includes(text.toLowerCase()) ||
-									x["era"].toLowerCase().includes(text.toLowerCase()) ||
-									x["timeOfDay"].toLowerCase().includes(text.toLowerCase()) ||
-									x["type"].toLowerCase().includes(text.toLowerCase());
-								return hasMatch;
-							});
+							localStorage.setItem("anythingFilter", event.target.value)
+							setAnythingFilterValue(event.target.value)
 						}}
 						className="input input-bordered input-sm"
 					/>
@@ -223,13 +286,8 @@ function MissionList({ missions }) {
 						type="text"
 						placeholder="Type here"
 						onChange={(event) => {
-							const text = event.target.value;
-							setAuthorFilter(() => (x) => {
-								let hasMatch = false;
-								hasMatch = x["missionMaker"].toLowerCase().includes(text.toLowerCase());
-
-								return hasMatch;
-							});
+							localStorage.setItem("authorFilter", event.target.value)
+							setAuthorFilterValue(event.target.value)
 						}}
 						className="input input-bordered input-sm"
 					/>
@@ -242,13 +300,8 @@ function MissionList({ missions }) {
 						type="text"
 						placeholder="Type here"
 						onChange={(event) => {
-							const text = event.target.value;
-							setTypeFilter(() => (x) => {
-								let hasMatch = false;
-								hasMatch = x["type"].toLowerCase().includes(text.toLowerCase());
-
-								return hasMatch;
-							});
+							localStorage.setItem("typeFilter", event.target.value)
+							setTypeFilterValue(event.target.value)
 						}}
 						className="input input-bordered input-sm"
 					/>
@@ -261,19 +314,8 @@ function MissionList({ missions }) {
 						type="text"
 						placeholder="Type here"
 						onChange={(event) => {
-							const text = event.target.value;
-							setMapFilter(() => (x) => {
-								let hasMatch = false;
-								if (x["terrainName"]) {
-									hasMatch =
-										x["terrainName"].toLowerCase().includes(text.toLowerCase()) ||
-										x["terrain"].toLowerCase().includes(text.toLowerCase());
-								} else {
-									hasMatch = x["terrain"].toLowerCase().includes(text.toLowerCase());
-								}
-
-								return hasMatch;
-							});
+							localStorage.setItem("mapFilter", event.target.value)
+							setMapFilterValue(event.target.value)
 						}}
 						className="input input-bordered input-sm"
 					/>
@@ -287,20 +329,10 @@ function MissionList({ missions }) {
 						classNamePrefix="select-input"
 						name="Tags"
 						styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-						value={filterTags}
+						value={tagFilterValue}
 						onChange={(e) => {
-							setFilterTags(e);
-
-							setTagFilter(() => (x) => {
-								let hasMatch = true;
-								if (e.length > 0) {
-									if (x["tags"]) {
-										
-										hasMatch = e.every((r) => x["tags"].includes(r.value));
-									}
-								}
-								return hasMatch;
-							});
+							localStorage.setItem("tagFilter", JSON.stringify(e))
+							setTagFilterValue(e)
 						}}
 						options={tagsOptions}
 						components={makeAnimated()}
@@ -315,20 +347,10 @@ function MissionList({ missions }) {
 						classNamePrefix="select-input"
 						name="Eras"
 						styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-						value={filterEras}
+						value={eraFilterValue}
 						onChange={(e) => {
-							setFilterEras(e);
-
-							setEraFilter(() => (x) => {
-								let hasMatch = true;
-
-								if (e.length > 0) {
-									if (x["era"]) {
-										hasMatch = e.some((r) => x["era"].includes(r.value));
-									}
-								}
-								return hasMatch;
-							});
+							localStorage.setItem("eraFilter", JSON.stringify(e))
+							setEraFilterValue(e)
 						}}
 						options={eraOptions}
 						components={makeAnimated()}
@@ -339,38 +361,13 @@ function MissionList({ missions }) {
 						<span className="label-text">Respawn</span>
 					</label>
 					<Select
-
 						classNamePrefix="select-input"
 						name="Respawn"
 						styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-						value={filterRespawn}
+						value={respawnFilterValue}
 						onChange={(e) => {
-							setFilterRespawn(e);
-
-							setRespawnFilter(() => (x) => {
-
-								if (e.value == null) {
-									console.log("null")
-									return true;
-								}
-								return x["respawn"] == e.value;
-
-								let hasMatch = true;
-								if (e.length > 0) {
-									if (x["respawn"]) {
-
-
-
-										if (typeof x["respawn"] == "boolean") {
-											hasMatch = e.every((r) => x["respawn"] == r.value);
-										} else {
-											hasMatch = e.some((r) => x["respawn"].includes(r.value));
-										}
-
-									}
-								}
-								return hasMatch;
-							});
+							localStorage.setItem("respawnFilter", e.value)
+							setRespawnFilterValue(e.value)
 						}}
 						options={respawnOptionsFilter}
 						components={makeAnimated()}
@@ -486,7 +483,10 @@ function MissionList({ missions }) {
 									<div>
 										<Switch
 											checked={showUnlistedMissions}
-											onChange={setShowUnlistedMissions}
+											onChange={e => {
+												localStorage.setItem("showUnlisted", e == true ? "true" : "false")
+												setShowUnlistedMissions(e)
+											}}
 											className={`${
 												showUnlistedMissions
 													? "bg-blue-600"
