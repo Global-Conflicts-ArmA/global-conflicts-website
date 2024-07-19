@@ -95,15 +95,15 @@ function cheapOnMainServerCheck(updates: { fileName: string; }[]) {
 }
 
 function MissionList({ missions }) {
-	const [denseMode, setDenseMode] = useState(localStorage.getItem("denseMode") == "true")
-	const [onlyPending, setOnlyPending] = useState(localStorage.getItem("onlyPending") == "true")
-	const [onlyApproved, setOnlyApproved] = useState(localStorage.getItem("onlyApproved") == "true")
-	const [onlyMainServer, setMainServer] = useState(localStorage.getItem("onlyMain") == "true")
-	const [showUnlistedMissions, setShowUnlistedMissions] = useState(localStorage.getItem("showUnlisted") == "true")
+	const [denseMode, setDenseMode] = useState(false)
+	const [onlyPending, setOnlyPending] = useState(false)
+	const [onlyApproved, setOnlyApproved] = useState(false)
+	const [onlyMainServer, setMainServer] = useState(false)
+	const [showUnlistedMissions, setShowUnlistedMissions] = useState(false)
 
 	const [missionsFiltred, setMissionsFiltred] = useState([])
 
-	const [anythingFilterValue, setAnythingFilterValue] = useState(localStorage.getItem("anythingFilter") || "")
+	const [anythingFilterValue, setAnythingFilterValue] = useState("")
 	const anythingFilter = (x) => {
 		let hasMatch = false;
 		hasMatch =
@@ -115,21 +115,21 @@ function MissionList({ missions }) {
 		return hasMatch;
 	}
 
-	const [authorFilterValue, setAuthorFilterValue] = useState(localStorage.getItem("authorFilter") || "");
+	const [authorFilterValue, setAuthorFilterValue] = useState("");
 	const authorFilter = (x) => {
 		let hasMatch = false;
 		hasMatch = x["missionMaker"].toLowerCase().includes(authorFilterValue.toLowerCase());
 		return hasMatch;
 	}
 
-	const [typeFilterValue, setTypeFilterValue] = useState(localStorage.getItem("typeFilter") || "");
+	const [typeFilterValue, setTypeFilterValue] = useState("");
 	const typeFilter = (x) => {
 		let hasMatch = false;
 		hasMatch = x["type"].toLowerCase().includes(typeFilterValue.toLowerCase());
 		return hasMatch;
 	};
 
-	const [mapFilterValue, setMapFilterValue] = useState(localStorage.getItem("mapFilter") || "");
+	const [mapFilterValue, setMapFilterValue] = useState("");
 	const mapFilter = (x) => {
 		let hasMatch = false;
 		if (x["terrainName"]) {
@@ -143,7 +143,7 @@ function MissionList({ missions }) {
 	}
 
 	
-	const [playerCountFilterValue, setPlayerCountFilterValue] = useState(localStorage.getItem("playerCountFilter"));
+	const [playerCountFilterValue, setPlayerCountFilterValue] = useState(null);
 	const playerCountFilter = (x) => {
 		let hasMatch = true
 		if (playerCountFilterValue != null) {
@@ -153,7 +153,7 @@ function MissionList({ missions }) {
 		return hasMatch
 	}
 
-	const [tagFilterValue, setTagFilterValue] = useState(JSON.parse(localStorage.getItem("tagFilter")) || []);
+	const [tagFilterValue, setTagFilterValue] = useState([]);
 	const tagFilter = (x) => {
 		let hasMatch = true;
 		if (tagFilterValue.length > 0) {
@@ -165,7 +165,7 @@ function MissionList({ missions }) {
 	}
 
 
-	const [eraFilterValue, setEraFilterValue] = useState(JSON.parse(localStorage.getItem("eraFilter")) || []);
+	const [eraFilterValue, setEraFilterValue] = useState([]);
 	const eraFilter = (x) => {
 		let hasMatch = true;
 		if (eraFilterValue.length > 0) {
@@ -176,15 +176,7 @@ function MissionList({ missions }) {
 		return hasMatch;
 	}
 
-	let respawnFilterPreset = null
-	if (localStorage.getItem("respawnFilter") == "true") {
-		respawnFilterPreset = true
-	} else if (localStorage.getItem("respawnFilter") == "false") {
-		respawnFilterPreset = false
-	} else if (localStorage.getItem("respawnFilter") == "Objective/gameplay based") {
-		respawnFilterPreset = "Objective/gameplay based"
-	}
-	const [respawnFilterValue, setRespawnFilterValue] = useState(respawnFilterPreset);
+	const [respawnFilterValue, setRespawnFilterValue] = useState(null);
 	const respawnFilter = (x) => {
 		if (respawnFilterValue == null) {
 			return true;
@@ -195,27 +187,18 @@ function MissionList({ missions }) {
 	const { data: session } = useSession();
 
 	function onlyApprovedSwitch(arg: boolean) {
-		localStorage.setItem("onlyApproved", arg == true ? "true" : "false")
-		localStorage.removeItem("onlyMain")
-		localStorage.removeItem("onlyPending")
 		setOnlyPending(false)
 		setMainServer(false)
 		setOnlyApproved(arg)
 	}
 
 	function onlyMainSwitch(arg: boolean) {
-		localStorage.setItem("onlyMain", arg == true ? "true" : "false")
-		localStorage.removeItem("onlyApproved")
-		localStorage.removeItem("onlyPending")
 		setOnlyPending(false)
 		setMainServer(arg)
 		setOnlyApproved(false)
 	}
 
 	function onlyPendingSwitch(arg: boolean) {
-		localStorage.setItem("onlyPending", arg == true ? "true" : "false")
-		localStorage.removeItem("onlyApproved")
-		localStorage.removeItem("onlyMain")
 		setOnlyPending(arg)
 		setMainServer(false)
 		setOnlyApproved(false)
@@ -235,24 +218,42 @@ function MissionList({ missions }) {
 		setMainServer(false)
 		setOnlyPending(false)
 		setShowUnlistedMissions(false)
-		localStorage.removeItem("anythingFilter")
-		localStorage.removeItem("authorFilter")
-		localStorage.removeItem("typeFilter")
-		localStorage.removeItem("mapFilter")
-		localStorage.removeItem("playerCountFilter")
-		localStorage.removeItem("tagFilter")
-		localStorage.removeItem("eraFilter")
-		localStorage.removeItem("respawnFilter")
-		localStorage.removeItem("denseMode")
-		localStorage.removeItem("onlyApproved")
-		localStorage.removeItem("onlyMain")
-		localStorage.removeItem("onlyPending")
-		localStorage.removeItem("showUnlisted")
 	}
 
 	useEffect(() => {
-		function filterMissions() {
+		setAnythingFilterValue(localStorage.getItem("anythingFilter") || "")
+		setAuthorFilterValue(localStorage.getItem("authorFilter") || "")
+		setTypeFilterValue(localStorage.getItem("typeFilter") || "")
+		setMapFilterValue(localStorage.getItem("mapFilter") || "")
+		setPlayerCountFilterValue(localStorage.getItem("playerCountFilter"))
 
+		const localTagFilter = localStorage.getItem("tagFilter")
+		if (localTagFilter != null) {
+			setTagFilterValue(JSON.parse(localTagFilter))
+		}
+
+		const localEraFilter = localStorage.getItem("eraFilter")
+		if (localEraFilter != null) {
+			setTagFilterValue(JSON.parse(localEraFilter))
+		}
+
+		let respawnFilterPreset = null
+		if (localStorage.getItem("respawnFilter") == "true") {
+			respawnFilterPreset = true
+		} else if (localStorage.getItem("respawnFilter") == "false") {
+			respawnFilterPreset = false
+		} else if (localStorage.getItem("respawnFilter") == "Objective/gameplay based") {
+			respawnFilterPreset = "Objective/gameplay based"
+		}
+		setRespawnFilterValue(respawnFilterPreset)
+
+		setDenseMode(localStorage.getItem("denseMode") == "true")
+		setOnlyApproved(localStorage.getItem("onlyApproved") == "true")
+		setMainServer(localStorage.getItem("onlyMain") == "true")
+		setOnlyPending(localStorage.getItem("onlyPending") == "true")
+		setShowUnlistedMissions(localStorage.getItem("showUnlisted") == "true")
+
+		function filterMissions() {
 			const missionsFound = missions
 				.filter((mission) => {
 					if (!showUnlistedMissions && mission.isUnlisted) {
@@ -462,7 +463,12 @@ function MissionList({ missions }) {
 							<div>
 								<Switch
 									checked={onlyApproved}
-									onChange={onlyApprovedSwitch}
+									onChange={c => {
+										localStorage.setItem("onlyApproved", c == true ? "true" : "false")
+										localStorage.removeItem("onlyMain")
+										localStorage.removeItem("onlyPending")
+										onlyApprovedSwitch(c)
+									}}
 									className={`${
 										onlyApproved ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
 									}  switch-standard`}
@@ -484,7 +490,12 @@ function MissionList({ missions }) {
 							<div>
 								<Switch
 									checked={onlyMainServer}
-									onChange={onlyMainSwitch}
+									onChange={c => {
+										localStorage.setItem("onlyMain", c == true ? "true" : "false")
+										localStorage.removeItem("onlyApproved")
+										localStorage.removeItem("onlyPending")
+										onlyMainSwitch(c)
+									}}
 									className={`${
 										onlyMainServer ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
 									}  switch-standard`}
@@ -514,7 +525,12 @@ function MissionList({ missions }) {
 									<div>
 										<Switch
 											checked={onlyPending}
-											onChange={onlyPendingSwitch}
+											onChange={c => {
+												localStorage.setItem("onlyPending", c == true ? "true" : "false")
+												localStorage.removeItem("onlyApproved")
+												localStorage.removeItem("onlyMain")
+												onlyPendingSwitch(c)
+											}}
 											className={`${
 												onlyPending ? "bg-blue-600" : "bg-gray-200 dark:bg-gray-500"
 											}  switch-standard`}
@@ -562,7 +578,22 @@ function MissionList({ missions }) {
 					</>
 				)}
 				<div className = "mt-3">
-					<button className="primary-btn" onClick={resetFilters}>Reset Filters</button>
+					<button className="primary-btn" onClick={() => {
+						localStorage.removeItem("anythingFilter")
+						localStorage.removeItem("authorFilter")
+						localStorage.removeItem("typeFilter")
+						localStorage.removeItem("mapFilter")
+						localStorage.removeItem("playerCountFilter")
+						localStorage.removeItem("tagFilter")
+						localStorage.removeItem("eraFilter")
+						localStorage.removeItem("respawnFilter")
+						localStorage.removeItem("denseMode")
+						localStorage.removeItem("onlyApproved")
+						localStorage.removeItem("onlyMain")
+						localStorage.removeItem("onlyPending")
+						localStorage.removeItem("showUnlisted")
+						resetFilters()
+					}}>Reset Filters</button>
 				</div>
 				</div>
 			</>
