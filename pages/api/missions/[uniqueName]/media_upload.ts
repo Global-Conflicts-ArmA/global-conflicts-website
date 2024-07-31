@@ -55,7 +55,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	let allLinks = []
 
 	for (const file of data["files"].files) {
-		const ext = mime.getExtension(file.mimetype)
+		const ext = mime.extension(file.mimetype)
 
 		let mimeType = "image/jpg";
 		var mediaObj = {
