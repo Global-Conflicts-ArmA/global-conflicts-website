@@ -95,6 +95,8 @@ function cheapOnMainServerCheck(updates: { fileName: string; }[]) {
 }
 
 function MissionList({ missions }) {
+	const [initialFiltersSet, setInitialFiltersSet] = useState(false)
+
 	const [denseMode, setDenseMode] = useState(false)
 	const [onlyPending, setOnlyPending] = useState(false)
 	const [onlyApproved, setOnlyApproved] = useState(false)
@@ -221,37 +223,40 @@ function MissionList({ missions }) {
 	}
 
 	useEffect(() => {
-		setAnythingFilterValue(localStorage.getItem("anythingFilter") || "")
-		setAuthorFilterValue(localStorage.getItem("authorFilter") || "")
-		setTypeFilterValue(localStorage.getItem("typeFilter") || "")
-		setMapFilterValue(localStorage.getItem("mapFilter") || "")
-		setPlayerCountFilterValue(localStorage.getItem("playerCountFilter"))
+		if (!initialFiltersSet) {
+			setInitialFiltersSet(true)
+			setAnythingFilterValue(localStorage.getItem("anythingFilter") || "")
+			setAuthorFilterValue(localStorage.getItem("authorFilter") || "")
+			setTypeFilterValue(localStorage.getItem("typeFilter") || "")
+			setMapFilterValue(localStorage.getItem("mapFilter") || "")
+			setPlayerCountFilterValue(localStorage.getItem("playerCountFilter"))
 
-		const localTagFilter = localStorage.getItem("tagFilter")
-		if (localTagFilter != null) {
-			setTagFilterValue(JSON.parse(localTagFilter))
+			const localTagFilter = localStorage.getItem("tagFilter")
+			if (localTagFilter != null) {
+				setTagFilterValue(JSON.parse(localTagFilter))
+			}
+
+			const localEraFilter = localStorage.getItem("eraFilter")
+			if (localEraFilter != null) {
+				setEraFilterValue(JSON.parse(localEraFilter))
+			}
+
+			let respawnFilterPreset = null
+			if (localStorage.getItem("respawnFilter") == "true") {
+				respawnFilterPreset = true
+			} else if (localStorage.getItem("respawnFilter") == "false") {
+				respawnFilterPreset = false
+			} else if (localStorage.getItem("respawnFilter") == "Objective/gameplay based") {
+				respawnFilterPreset = "Objective/gameplay based"
+			}
+			setRespawnFilterValue(respawnFilterPreset)
+
+			setDenseMode(localStorage.getItem("denseMode") == "true")
+			setOnlyApproved(localStorage.getItem("onlyApproved") == "true")
+			setMainServer(localStorage.getItem("onlyMain") == "true")
+			setOnlyPending(localStorage.getItem("onlyPending") == "true")
+			setShowUnlistedMissions(localStorage.getItem("showUnlisted") == "true")
 		}
-
-		const localEraFilter = localStorage.getItem("eraFilter")
-		if (localEraFilter != null) {
-			setTagFilterValue(JSON.parse(localEraFilter))
-		}
-
-		let respawnFilterPreset = null
-		if (localStorage.getItem("respawnFilter") == "true") {
-			respawnFilterPreset = true
-		} else if (localStorage.getItem("respawnFilter") == "false") {
-			respawnFilterPreset = false
-		} else if (localStorage.getItem("respawnFilter") == "Objective/gameplay based") {
-			respawnFilterPreset = "Objective/gameplay based"
-		}
-		setRespawnFilterValue(respawnFilterPreset)
-
-		setDenseMode(localStorage.getItem("denseMode") == "true")
-		setOnlyApproved(localStorage.getItem("onlyApproved") == "true")
-		setMainServer(localStorage.getItem("onlyMain") == "true")
-		setOnlyPending(localStorage.getItem("onlyPending") == "true")
-		setShowUnlistedMissions(localStorage.getItem("showUnlisted") == "true")
 
 		function filterMissions() {
 			const missionsFound = missions
@@ -288,19 +293,19 @@ function MissionList({ missions }) {
 
 		setMissionsFiltred(filterMissions());
 	}, [
-		anythingFilter,
-		tagFilter,
-		eraFilter,
-		respawnFilter,
-		authorFilter,
-		mapFilter,
-		playerCountFilter,
+		anythingFilterValue,
+		tagFilterValue,
+		eraFilterValue,
+		respawnFilterValue,
+		authorFilterValue,
+		mapFilterValue,
+		playerCountFilterValue,
 		missions,
 		onlyPending,
 		onlyApproved,
 		onlyMainServer,
 		showUnlistedMissions,
-		typeFilter,
+		typeFilterValue,
 	]);
 
 	function getFilterInputs() {
@@ -314,6 +319,7 @@ function MissionList({ missions }) {
 					<input
 						type="text"
 						placeholder="Type here"
+						value={anythingFilterValue}
 						onChange={(event) => {
 							localStorage.setItem("anythingFilter", event.target.value)
 							setAnythingFilterValue(event.target.value)
@@ -328,6 +334,7 @@ function MissionList({ missions }) {
 					<input
 						type="text"
 						placeholder="Type here"
+						value={authorFilterValue}
 						onChange={(event) => {
 							localStorage.setItem("authorFilter", event.target.value)
 							setAuthorFilterValue(event.target.value)
@@ -342,6 +349,7 @@ function MissionList({ missions }) {
 					<input
 						type="text"
 						placeholder="Type here"
+						value={typeFilterValue}
 						onChange={(event) => {
 							localStorage.setItem("typeFilter", event.target.value)
 							setTypeFilterValue(event.target.value)
@@ -356,6 +364,7 @@ function MissionList({ missions }) {
 					<input
 						type="text"
 						placeholder="Type here"
+						value={mapFilterValue}
 						onChange={(event) => {
 							localStorage.setItem("mapFilter", event.target.value)
 							setMapFilterValue(event.target.value)
@@ -370,6 +379,7 @@ function MissionList({ missions }) {
 					<input
 						type="number"
 						placeholder="0"
+						value={playerCountFilterValue}
 						onChange={(event) => {
 							localStorage.setItem("playerCountFilter", event.target.value)
 							setPlayerCountFilterValue(event.target.value)
@@ -421,8 +431,8 @@ function MissionList({ missions }) {
 						classNamePrefix="select-input"
 						name="Respawn"
 						styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
-						value={respawnFilterValue}
-						onChange={(e) => {
+						value={respawnOptionsFilter.find(o => o.value == respawnFilterValue)}
+						onChange={(e: any) => {
 							localStorage.setItem("respawnFilter", e.value)
 							setRespawnFilterValue(e.value)
 						}}
