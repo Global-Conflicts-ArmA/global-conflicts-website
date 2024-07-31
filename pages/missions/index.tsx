@@ -148,7 +148,7 @@ function MissionList({ missions }) {
 	const [playerCountFilterValue, setPlayerCountFilterValue] = useState(null);
 	const playerCountFilter = (x) => {
 		let hasMatch = true
-		if (playerCountFilterValue != null) {
+		if (playerCountFilterValue != null && playerCountFilterValue != "") {
 			const playerCount = Number(playerCountFilterValue)
 			hasMatch = x.size.min <= playerCount && x.size.max >= playerCount
 		}
