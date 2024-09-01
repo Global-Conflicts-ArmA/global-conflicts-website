@@ -5,10 +5,22 @@ This guide is intended for new players to our community and will cover everythin
 *By playing with us, you acknowledge you have read and understood the [Rules and Standards](https://globalconflicts.net/guides/rules)*
 
 ## Download our content
-Head over to our [download page](https://globalconflicts.net/downloads) and install both our launcher Swifty, and Teamspeak.
-You can follow the [Swifty written guide](https://globalconflicts.net/guides/swifty) to help you set up your launcher and also the [Teamspeak written guide](https://globalconflicts.net/guides/teamspeak), or watch the [Getting Started Video](https://www.youtube.com/watch?v=uA-LjcTup7E) which covers *everything* in this welcome guide.
+You have three options to download our mods:
+1. **Swifty**
 
-*If you cannot download our mods through Swifty, you can instead manually download them and add them to the launcher from [here](https://launcher.globalconflicts.net/mods/)*
+[Click here](https://getswifty.net/releases/Setup.exe) to download the Swifty mod launcher - [Click here](https://globalconflicts.net/guides/swifty) for a written setup guide | [Click here](https://www.youtube.com/watch?v=uA-LjcTup7E) for a video setup guide.
+
+2. **GC launcher**
+
+[Click here](https://launcher.globalconflicts.net/download) to download our custom made launcher | [Click here](https://youtu.be/MVCAs54aPCU?feature=shared&t=50) for a video setup guide - This is the secondary download option.
+<br/>While this method is simpler then Swifty, it's an unsigned program, meaning your anti-virus may flag and reject the download, or won't be allowed to run.
+Either disable your anti-virus or make an exepction.
+<br/>[View the source code here](https://github.com/Global-Conflicts-ArmA/Global-Conflicts-Launcher)
+
+3. **Manual torrents**
+
+[Click here](https://launcher.globalconflicts.net/torrents/) to go to our torrents page.
+From here you can download the metadata for each mod/addon, and download it manually through a torrent program of choice.
 
 Once you've done the above steps, carry on reading to understand your first mission with us.
 
@@ -20,8 +32,8 @@ We **don't** have any mandatory attendance for our sessions/operations/missions 
 Play as often or as little as you like!
 We cater for busy people with busy lives.
 
-Our sessions run every weekend, SAT+SUN 1900UTC.
-Missions will begin at this time, but you can join or leave anytime during the session you please, with most missions supporting join in progress (JIP)
+Every Friday and first Sunday of the month at 1900UTC we play Arma Reforger, while every Saturday and 3/4 Sundays we play Arma 3 also starting at 1900UTC.
+<br/>Missions will begin at this time, but you can join or leave anytime during the session you please, with most missions supporting join in progress (JIP)
 
 **Roles and ranks**
 
