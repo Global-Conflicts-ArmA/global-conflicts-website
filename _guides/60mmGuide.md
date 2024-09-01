@@ -110,8 +110,8 @@ We can also see that the last four rows of the last column are empty, we have no
 	 Using our example above, we have 24mils to either add or subtract for every 100 meters difference in altitude.<br/>
  	For this, our target is 100 meters higher then our location.<br/>
 	We already know our standard elevation of 1229, now we adjust for that 100 meter height difference.<br/>
- Because we are 100 meters **lower** then our target, we will add 24mils, making our final elevation to target 1253.<br/>
-	 If we was **above** our target by 100 meters, we'd deduct 24mils from 1229.<br/>
+ Because we are 100 meters **lower** then our target, we will subtract 24mils, making our final elevation to target 1253.<br/>
+	 If we was **above** our target by 100 meters, we'd add 24mils from 1229.<br/>
  	For every extra 100 meters, you'd continue to add or subtract the mils in the forth column.<br/>
 
 	 Using page up or down, adjust the elevation of your mortar until the dial on the left shows the same.<br/>
