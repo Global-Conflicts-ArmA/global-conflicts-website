@@ -20,4 +20,4 @@ Below you can find a list of all current staff and their links (if shared)
 |Sulo|[Link](https://steamcommunity.com/profiles/76561197974294846/)|sulo#9122| 
 |Riley|[Link](https://steamcommunity.com/profiles/76561198030089572)|dolphincoinslot|
 |Wade|[Link](https://steamcommunity.com/id/WadeP1999/)|wadep1999|
-|MasterBlaster|Private|masterblast3r| 
+|MasterBlaster|[Link](https://steamcommunity.com/profiles/76561198047737593/)|masterblast3r| 
