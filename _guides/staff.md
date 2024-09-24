@@ -17,7 +17,7 @@ Below you can find a list of all current staff and their links (if shared)
 |Reddish_Red|Private|dark_knight2016| 
 |Sovietpolarbear|[Link](https://steamcommunity.com/profiles/76561198005813406)|sovietpolarbear| 
 |Sticky|[Link](https://steamcommunity.com/id/StickyBujj/)|StickyBujj#0931| 
-|Haesten|Private|haesten_thorsen| 
 |Sulo|[Link](https://steamcommunity.com/profiles/76561197974294846/)|sulo#9122| 
 |Riley|[Link](https://steamcommunity.com/profiles/76561198030089572)|dolphincoinslot|
 |Wade|[Link](https://steamcommunity.com/id/WadeP1999/)|wadep1999|
+|MasterBlaster|Private|masterblast3r| 
