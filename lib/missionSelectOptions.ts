@@ -22,20 +22,42 @@ export const jipOptions = [
 ];
 
 export const tagsOptions = [
-	{ value: "Tanks", label: "Tanks" },
-	{ value: "IFVs", label: "IFVs" },
+	{ value: "Infantry Only", label: "Infantry Only" },
+	{ value: "Unarmoured vehicles", label: "Unarmoured vehicles" },
+	{ value: "Light skin cars", label: "Light skin cars" },
 	{ value: "APCs", label: "APCs" },
-	{ value: "Planes", label: "Planes" },
+	{ value: "IFVs", label: "IFVs" },
+	{ value: "Tanks", label: "Tanks" },
 	{ value: "Helicopters", label: "Helicopters" },
-	{ value: "Mines", label: "Mines" },
-	{ value: "No maps for grunts", label: "No maps for grunts" },
-	{ value: "No compass for grunts", label: "No compass for grunts" },
-	{ value: "Nobody has radios", label: "Nobody has radios" },
+	{ value: "Planes", label: "Planes" },
+	{ value: "Boats", label: "Boats" },
+	{ value: "Drones", label: "Drones" },
+	{ value: "Artillery/IDF", label: "Artillery/IDF" },
+	{ value: "Mines/IED", label: "Mines/IED" },
 	{ value: "Assault", label: "Assault" },
+	{ value: "Air assault", label: "Air assault" },
 	{ value: "Defense", label: "Defense" },
+	{ value: "Delay", label: "Delay" },
 	{ value: "Raid", label: "Raid" },
 	{ value: "Ambush", label: "Ambush" },
+	{ value: "Convoy", label: "Convoy" },
+	{ value: "Withdraw", label: "Withdraw" },
+	{ value: "Rescue", label: "Rescue" },
+	{ value: "Paradrop", label: "Paradrop" },
+	{ value: "Amphibious", label: "Amphibious" },
+	{ value: "Meeting Engagement", label: "Meeting Engagement" },
+	{ value: "Advance to Contact", label: "Advance to Contact" },
+	{ value: "Search & destroy", label: "Search & destroy" },
+	{ value: "Reconnaissance", label: "Reconnaissance" },
+	{ value: "CBRN/Chemical warfare", label: "CBRN/Chemical warfare" },
 	{ value: "Roleplay", label: "Roleplay" },
+	{ value: "Special forces", label: "Special forces" },
+	{ value: "Sub-terrain", label: "Sub-terrain" },
+	{ value: "Nobody has radios", label: "Nobody has radios" },
+	{ value: "No radios for grunts", label: "No radios for grunts" },
+	{ value: "No maps for grunts", label: "No maps for grunts" },
+	{ value: "No compass for grunts", label: "No compass for grunts" },
+	{ value: "Event", label: "Event" },
 ];
 
 export const typeOptions = [
@@ -44,6 +66,7 @@ export const typeOptions = [
 	{ value: "COTVT", label: "COTVT" },
 	{ value: "LOL", label: "LOL" },
 	{ value: "TRNG", label: "Training" },
+
 ];
 
 export const timeOfDayOptions = [
