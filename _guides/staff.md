@@ -14,7 +14,6 @@ Below you can find a list of all current staff and their links (if shared)
 |Name|Steam|Discord|
 |--|--|--|
 |TheLocalPub|[Link](https://steamcommunity.com/id/TheLocalPub/)|TheLocalPub|
-|Reddish_Red|Private|dark_knight2016| 
 |Sovietpolarbear|[Link](https://steamcommunity.com/profiles/76561198005813406)|sovietpolarbear| 
 |Sticky|[Link](https://steamcommunity.com/id/StickyBujj/)|StickyBujj#0931| 
 |Sulo|[Link](https://steamcommunity.com/profiles/76561197974294846/)|sulo#9122| 
