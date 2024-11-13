@@ -114,10 +114,11 @@ export default function MyApp({
 						</div>
 						<div>
 							<div className="grid grid-flow-col gap-4">
-								<Link
+								<a
                                     href="https://www.youtube.com/channel/UCgG8GzuD8ngIcC_ChOExUDw"
-                                    passHref={true}
-                                    legacyBehavior>
+									target="_blank"
+									rel="noopener noreferrer"
+                                >
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -129,11 +130,47 @@ export default function MyApp({
                                         <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"></path>
                                     </svg>
 
-                                </Link>
-								<Link
+                                </a>
+								<a
+                                    href="https://www.tiktok.com/@globalconflictsarma"
+									target="_blank"
+									rel="noopener noreferrer"
+                                >
+
+									<svg xmlns="http://www.w3.org/2000/svg" 
+										width="24" 
+										height="24" 
+										fill="currentColor" 
+										class="bi bi-tiktok" 
+										viewBox="0 0 16 16"
+									>
+										<path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/>
+									</svg>
+
+                                </a>
+								<a
+                                    href="https://x.com/globe_conflicts"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+
+									<svg 
+										xmlns="http://www.w3.org/2000/svg" 
+										width="24" 
+										height="24" 
+										fill="currentColor" 
+										class="bi bi-twitter-x" 
+										viewBox="0 0 16 16"
+									>
+										<path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/>
+									</svg>
+
+                                </a>
+								<a
                                     href="https://www.instagram.com/global.conflicts/"
-                                    passHref={true}
-                                    legacyBehavior>
+									target="_blank"
+									rel="noopener noreferrer"
+                                >
 
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +183,7 @@ export default function MyApp({
                                         <path d="M128 23c34.2 0 38.2.2 51.7.8 12.5.6 19.3 2.7 23.8 4.4 6 2.3 10.2 5.1 14.7 9.6s7.3 8.7 9.6 14.7a70.8 70.8 0 0 1 4.4 23.8c.6 13.5.7 17.5.7 51.7s0 38.2-.7 51.7a70.8 70.8 0 0 1-4.4 23.8c-2.3 6-5.1 10.2-9.6 14.7a39.7 39.7 0 0 1-14.7 9.6 70.8 70.8 0 0 1-23.8 4.4c-13.5.6-17.5.7-51.7.7s-38.2 0-51.7-.7a70.8 70.8 0 0 1-23.8-4.4c-6-2.3-10.2-5.1-14.7-9.6a39.7 39.7 0 0 1-9.6-14.7 70.8 70.8 0 0 1-4.4-23.8c-.6-13.5-.7-17.5-.7-51.7s0-38.2.7-51.7a70.8 70.8 0 0 1 4.4-23.8c2.3-6 5.1-10.2 9.6-14.7s8.7-7.3 14.7-9.6a70.8 70.8 0 0 1 23.8-4.4c13.5-.6 17.5-.7 51.7-.7M128 0a908 908 0 0 0-52.8.8 94 94 0 0 0-31 6 62.7 62.7 0 0 0-22.7 14.7A62.7 62.7 0 0 0 6.7 44.2a94 94 0 0 0-6 31C.2 89 0 93.2 0 128s.1 39.1.8 52.8a94 94 0 0 0 6 31 62.7 62.7 0 0 0 14.7 22.7 62.7 62.7 0 0 0 22.7 14.8 94 94 0 0 0 31 6c13.7.6 18 .7 52.8.7s39.1-.1 52.8-.8a94 94 0 0 0 31-6 62.7 62.7 0 0 0 22.7-14.7 62.7 62.7 0 0 0 14.8-22.7 94 94 0 0 0 6-31c.6-13.7.7-18 .7-52.8a908 908 0 0 0-.8-52.8 94 94 0 0 0-6-31 62.7 62.7 0 0 0-14.7-22.7 62.7 62.7 0 0 0-22.7-14.8 94 94 0 0 0-31-6A908 908 0 0 0 128 0Zm0 62.3a65.7 65.7 0 1 0 0 131.4 65.7 65.7 0 0 0 0-131.4Zm0 108.4a42.7 42.7 0 1 1 0-85.4 42.7 42.7 0 0 1 0 85.4Zm83.7-111a15.4 15.4 0 1 1-30.7 0 15.4 15.4 0 0 1 30.7 0Z" />
                                     </svg>
 
-                                </Link>
+                                </a>
 							</div>
 						</div>
 					</footer>
