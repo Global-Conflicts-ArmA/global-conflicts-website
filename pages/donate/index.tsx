@@ -107,6 +107,7 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
 // This function gets called at build time
 export async function getServerSideProps(context) {
 
+    /* disabled patreon fetch because they are retarded and captcha api calls now
     const patreonResponse = await axios.get(
         "https://www.patreon.com/api/campaigns/5074062",
         {
@@ -131,11 +132,16 @@ export async function getServerSideProps(context) {
     console.log(USDtoCADRate.data.quotes.CAD);
     const currentAmountNumUSD = currentAmountNum / USDtoCADRate.data.quotes.CAD;
     console.log(currentAmountNumUSD);
+    */
+    const currentAmountNumUSD = 90.29;
+    console.log(currentAmountNumUSD);
     const currentAmountString = currentAmountNumUSD.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
     });
     console.log(currentAmountString);
+    
+    
 
     const botResponse = await axios.get("http://localhost:3001/users/donators");
     const donators = botResponse.data;
