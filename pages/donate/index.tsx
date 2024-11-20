@@ -113,6 +113,7 @@ export async function getServerSideProps(context) {
             headers: {
                 Authorization: `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
                 'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'Global Conflicts - Website'
             },
         }
     ); 
@@ -120,7 +121,7 @@ export async function getServerSideProps(context) {
     const body = patreonResponse.data;
     console.log(body);
 
-    const currentAmount = body.data.attributes.campaign_pledge_sum;
+    const currentAmount = body.data.attributes.pledge_sum;
     console.log(currentAmount);
     const currentAmountNum = currentAmount / 100;
     console.log(currentAmountNum);
