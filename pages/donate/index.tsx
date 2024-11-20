@@ -112,8 +112,8 @@ export async function getServerSideProps(context) {
         {
             headers: {
                 Authorization: `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'User-Agent': 'Global Conflicts - Website'
+                'Connection': 'keep-alive',
+                'User-Agent': 'PostmanRuntime/7.42.0'
             },
         }
     ); 
