@@ -111,9 +111,9 @@ export async function getServerSideProps(context) {
         "https://www.patreon.com/api/campaigns/5074062",
         {
             headers: {
-                Authorization: `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
+                'Authorization': `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
                 'Connection': 'keep-alive',
-                'User-Agent': 'PostmanRuntime/7.42.0'
+                'User-Agent': 'Patreon/7.6.28 (Android; Android 11; Scale/2.10)'
             },
         }
     ); 
