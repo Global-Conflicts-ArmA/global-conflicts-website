@@ -107,18 +107,20 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
 // This function gets called at build time
 export async function getServerSideProps(context) {
 
-    const headers = {
-        'User-Agent': 'PostmanRuntime/7.39.0'
-    };
     const patreonResponse = await axios.get(
         "https://www.patreon.com/api/campaigns/5074062",
-        {headers}
-    );
-
+        {
+            headers: {
+                Authorization: `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        }
+    ); 
+    
     const body = patreonResponse.data;
     console.log(body);
 
-    const currentAmount = body.data.attributes.pledge_sum;
+    const currentAmount = body.data.attributes.campaign_pledge_sum;
     console.log(currentAmount);
     const currentAmountNum = currentAmount / 100;
     console.log(currentAmountNum);
