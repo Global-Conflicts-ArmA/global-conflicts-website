@@ -250,9 +250,9 @@ function Home() {
                             <div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300 ">
                                 <h2>Requirements </h2>
                                 <p>
-                                    We don't have any pre-requisites besides a working microphone and
-                                    a mature attitude. All we ask is that you follow our SOPs and make
-                                    friends, not enemies!
+                                    We don't have any pre-requisites besides a working microphone, 
+                                    a mature attitude, the ability to speak English.
+				    We ask that you follow our rules and standards.
                                 </p>
                                 <p>No attendence requirements or mandatory training.</p>
                             </div>
@@ -277,7 +277,7 @@ function Home() {
                             <div className="p-5 prose lg:prose-xl">
 
                                 <Link
-                                    href="https://github.com/Global-Conflicts-ArmA/Olsen-Framework-Arma-3"
+                                    href="https://github.com/Til-Weimann/tilw-mission-framework"
                                     passHref={true}
                                     className="no-underline-important underline-important-hover"
                                     legacyBehavior>
@@ -297,15 +297,14 @@ function Home() {
                                     legacyBehavior>
 
 
-                                    <h3 className="hover:cursor-pointer">Mission catalog and voting system</h3>
+                                    <h3 className="hover:cursor-pointer">Mission review team</h3>
 
                                 </Link>
                                 <p>
-                                    An in-house solution to keep tabs on the hundreds of missions we have.
-                                    We can track the mission's testing status and how many times it's been
-                                    played. Besides that, it allows for members to vote for missions they
-                                    want to play during sessions, leave a rating, and also leave reviews or bug reports for the
-                                    mission makers.
+                                    We have an experienced team of mission reviewers who managed all new 
+                                    missions created by our community for our session.
+                                    They provide a key role in making sure every mission you play is to 
+                                    of a good standard and workable, ensuring your enjoyment each mission.
                                 </p>
                                 <Link
                                     href="https://aar.globalconflicts.net/"
@@ -317,9 +316,9 @@ function Home() {
 
                                 </Link>
                                 <p>
-                                    The after action report(AAR) tool allows us to watch a replay of our missions and thus gives
-                                    an opportunity to see what worked and what didn't. With this tool
-                                    we can analyze and improve our tactics for future missions.
+                                    After each weekend session, an AAR thread is created on our Discord
+                                    in which all users can discuss everything that happens, from  to
+                                    mishaps, in a bid to better our gameplay.
                                 </p>
                             </div>
                         </div>
@@ -334,7 +333,7 @@ function Home() {
                                 <div className="p-5 prose lg:prose-xl">
                                     <h1>Interested?</h1>
                                     <p>
-                                        Join us on Discord and use our launcher to download the mods.
+                                        Join our Discord today and play!.
                                         <br />
                                         That's all you need to play with us.
                                     </p>
