@@ -20,53 +20,25 @@ export default function NavBar() {
 			name: "Guides",
 			href: "/guides",
 			current: router.pathname.includes("/guides"),
+			target: "_self"
 		},
 		{
 			name: "Missions",
-			hideAsMobile: true,
-			href: "#",
+			href: "https://docs.google.com/spreadsheets/d/18eCbua5ZKZ2fNomQIn5AkK8rFLs6E9x3lCx6oPRGOZo",
 			current: router.pathname.includes("/missions"),
-			submenus: [
-				{
-					name: "Mission List",
-					mobileName: "Mission List",
-					href: "/missions",
-					current: router.pathname == "/missions",
-				},
-				{
-					name: "Upload",
-					mobileName: "Upload Mission",
-					href: "/missions/upload",
-					current: router.pathname == "/missions/upload",
-				},
-				{
-					name: "Top Voted",
-					mobileName: "Top Voted Missions",
-					href: "/missions/top-voted",
-					current: router.pathname == "/missions/top-voted",
-				},
-			],
+			target: "_blank"
 		},
 		{
 			name: "Events",
 			href: "/events",
 			current: router.pathname.includes("/events"),
+			target: "_self"
 		},
-		{
-			name: "Media",
-			href: "/media",
-			current: router.pathname.includes("/media"),
-		},
-		{
-			name: "Downloads",
-			href: "/downloads",
-			current: router.pathname.includes("/downloads"),
-		},
-
 		{
 			name: "Donate",
 			href: "/donate",
 			current: router.pathname.includes("/donate"),
+			target: "_self"
 		},
 	];
 
@@ -200,6 +172,7 @@ export default function NavBar() {
 													>
 														<a
 															href={item.href}
+															target={item.target}
 															className={classNames(
 																item.current
 																	? "bg-gray-900 text-white"
@@ -230,6 +203,7 @@ export default function NavBar() {
 										<a
 											key={item.name}
 											href={item.href}
+											target={item.target}
 											className={classNames(
 												item.current
 													? "bg-gray-900 text-white"
