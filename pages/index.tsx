@@ -268,7 +268,7 @@ function Home() {
                 <div className="mx-2">
                     <div className="flex flex-col max-w-screen-lg mx-auto xl:max-w-screen-xl">
                         {WideCard(c10, 0)}
-                        <div className="flex flex-row items-center">
+                        <div className="flex flex-row items-center mt-10">
                             <div className="hidden mr-2 md:block">
                                 <DecorativeCard width={390} height={585} image={c11}></DecorativeCard>
                             </div>
