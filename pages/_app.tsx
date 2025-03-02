@@ -108,7 +108,7 @@ export default function MyApp({
                             </Link>
 
 							<div className="italic">
-								Tactical Arma 3 gameplay with no strings attached.
+								Tactical Arma gameplay with no strings attached.
 							</div>
 							<div className="italic">est. 2020</div>
 						</div>

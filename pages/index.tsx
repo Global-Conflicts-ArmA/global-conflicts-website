@@ -109,7 +109,7 @@ function Home() {
                         <h1
                             className={`max-h-full mb-8 ${getMottoSizeMargin()} font-bold leading-none tracking-tight text-transparent whitespace-pre-wrap header-gradient h-fill-avaliable bg-clip-text bg-gradient-to-br from-gray-800 to-gray-900 font-heading sm:mb-10 dark:text-white`}
                         >
-                            {`Tactical Arma 3 gameplay\nwith no strings attached.`}
+                            {`Tactical Arma gameplay\nwith no strings attached.`}
                         </h1>
                     </div>
                 </div>
@@ -122,8 +122,8 @@ function Home() {
                             <h1>Who we are</h1>
                             <p>
                                 Global Conflicts is an Arma community formed by people from different
-                                countries with more than 13 years of experience throughout the arma
-                                series. Teamwork, tactical play and good fun are our core values. We
+                                countries with more than 15 years of experience throughout the arma
+                                series. Teamwork, tactical play, and good fun are our core values. We
                                 achieve this by encouraging a culture of mutual improvement and
                                 enthusiasm for authentic scenarios in our missions. While our missions
                                 have a defined chain-of-command, such is not the same for our
@@ -156,8 +156,6 @@ function Home() {
                                 <p>
                                     In-game we try to do things using realistic procedures while 
                                     balancing gameplay without sacrificing our sanity and fun. 
-                                    Fun is the ultimate goal. The point is to have fun - in our case,
-                                    we strive for organized, semi-serious disciplined fun.
                                 </p>
                             </div>
                             <div>
@@ -236,7 +234,7 @@ function Home() {
                                     }}
                                 >
                                     <iframe
-                                        src="https://www.youtube.com/embed/KCVqelfpXoM"
+                                        src="https://www.youtube.com/embed/_SW1tEkcfRU"
                                         frameBorder="0"
                                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                                         allowFullScreen
@@ -257,11 +255,11 @@ function Home() {
                                 <p>No attendence requirements or mandatory training.</p>
                             </div>
                             <div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300">
-                                <h2>Sessions times</h2>
+                                <h2>Session times</h2>
                                 <div>Saturday and Sunday</div>
-                                <div>19:00 UTC</div>
+                                <div>20:00 UTC</div>
                                 <div className="italic font-bold">In your timezone:</div>
-                                <small>{new Date("6/29/2011 7:00:00 PM UTC").toTimeString()}</small>
+                                <small>{new Date("6/29/2011 8:00:00 PM UTC").toTimeString()}</small>
                             </div>
                         </div>
                     </div>
@@ -291,35 +289,17 @@ function Home() {
                                     without re-inventing common scripts (e.g. gear or a capture zone).
                                 </p>
                                 <Link
-                                    href="/missions/top-voted"
-                                    passHref={true}
-                                    className="no-underline-important underline-important-hover"
-                                    legacyBehavior>
-
-
-                                    <h3 className="hover:cursor-pointer">Mission catalog and voting system</h3>
-
-                                </Link>
-                                <p>
-                                    An in-house solution to keep tabs on the hundreds of missions we have.
-                                    We can track the mission's testing status and how many times it's been
-                                    played. Besides that, it allows for members to vote for missions they
-                                    want to play during sessions, leave a rating, and also leave reviews or bug reports for the
-                                    mission makers.
-                                </p>
-                                <Link
                                     href="https://aar.globalconflicts.net/"
                                     passHref={true}
                                     className="no-underline-important underline-important-hover"
                                     legacyBehavior>
 
-                                    <h3 className="hover:cursor-pointer">After Action Review</h3>
+                                    <h3 className="hover:cursor-pointer">After Action Reports</h3>
 
                                 </Link>
                                 <p>
-                                    The after action report(AAR) tool allows us to watch a replay of our missions and thus gives
-                                    an opportunity to see what worked and what didn't. With this tool
-                                    we can analyze and improve our tactics for future missions.
+                                    After each session, an After Action Report thread is created on Discord where players are 
+                                    encouraged to give feedback to eachother and discuss the session. 
                                 </p>
                             </div>
                         </div>
@@ -334,9 +314,11 @@ function Home() {
                                 <div className="p-5 prose lg:prose-xl">
                                     <h1>Interested?</h1>
                                     <p>
-                                        Join us on Discord and use our launcher to download the mods.
+                                        Search Global Conflicts in your server browser, and click join.
                                         <br />
                                         That's all you need to play with us.
+                                        <br />
+                                        We encourage you to join our Discord to stay up to date on any news!
                                     </p>
                                 </div>
                             </div>
