@@ -62,7 +62,7 @@ const HandbookPage = () => {
                   </ul>
                 </div>
               ),
-            buttonLabel: "Guide",
+            buttonLabel: "Policy",
           },
           {
             blockTitle: "HB/PB-09 - Administrators",
@@ -76,7 +76,7 @@ const HandbookPage = () => {
                   </ul>
                 </div>
               ),
-            buttonLabel: "Guide",
+            buttonLabel: "Policy",
           },
           {
             blockTitle: "HB/PB-10 - Game Moderators",
@@ -88,7 +88,7 @@ const HandbookPage = () => {
                     </ul>
                 </div>
             ),
-            buttonLabel: "Guide",
+            buttonLabel: "Policy",
           },
           {
             blockTitle: "HB/PB-11 - Observers",
@@ -99,7 +99,7 @@ const HandbookPage = () => {
                     </ul>
                 </div>
             ),
-            buttonLabel: "Guide",
+            buttonLabel: "Policy",
           },
           {
             blockTitle: "HB/PB-12 - Trainee",
@@ -119,7 +119,7 @@ const HandbookPage = () => {
                   />
                 </div>
               ),
-            buttonLabel: "Guide",
+            buttonLabel: "Policy",
           },
         ]}
       />

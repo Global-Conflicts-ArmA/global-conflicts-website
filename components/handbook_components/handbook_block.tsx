@@ -4,7 +4,7 @@ import HandbookButtons from "./handbook_buttons";
 
 type HandbookBlockProps = {
   title: string;
-  content: ReactNode;  // Changed from string to ReactNode for JSX support
+  content: ReactNode;
   buttonLabel: "Policy" | "Guide" | "Skill";
 };
 
@@ -15,7 +15,7 @@ const HandbookBlock = ({ title, content, buttonLabel }: HandbookBlockProps) => {
     setOpenContent(openContent === "block1" ? null : "block1");
   };
 
-  // Determine block background color with transparency
+  // Determine block background color with transparency (previous scheme)
   const blockBg =
     buttonLabel === "Policy"
       ? "bg-gray-700 bg-opacity-75"
@@ -24,7 +24,7 @@ const HandbookBlock = ({ title, content, buttonLabel }: HandbookBlockProps) => {
       : "bg-amber-800 bg-opacity-75";
 
   return (
-    <>
+    <div className="outline outline-1 outline-gray-600">
       <div
         className={`flex items-center justify-between w-full ${blockBg} py-2 px-4 cursor-pointer hover:bg-opacity-60`}
         onClick={toggleContent}
@@ -36,9 +36,9 @@ const HandbookBlock = ({ title, content, buttonLabel }: HandbookBlockProps) => {
         <HandbookButtons label={buttonLabel} />
       </div>
       {openContent === "block1" && (
-        <div className={`pt-2 pb-6 pl-8 pr-6 ${blockBg}`}>{content}</div> // Render content directly
+        <div className={`pt-2 pb-6 pl-8 pr-6 ${blockBg}`}>{content}</div>
       )}
-    </>
+    </div>
   );
 };
 
