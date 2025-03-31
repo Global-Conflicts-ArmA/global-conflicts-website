@@ -67,56 +67,6 @@ const Chapter2Subchapter1Page = () => {
           },
         ]}
       />
-      <HandbookSection
-        title="Section 2"
-        blocks={[
-          {
-            blockTitle: "Block D",
-            blockContent: "This is Block D with plain text.",
-            buttonLabel: "Policy",
-          },
-          {
-            blockTitle: "Block E - Bullet Points",
-            blockContent: (
-              <ul className="list-disc pl-5">
-                <li>E1: First item.</li>
-                <li>E2: Second item.</li>
-                <li>E3: Third item.</li>
-              </ul>
-            ),
-            buttonLabel: "Guide",
-          },
-          {
-            blockTitle: "Block F - Image",
-            blockContent: (
-              <img
-                src="https://via.placeholder.com/200"
-                alt="Larger Example"
-                className="rounded"
-              />
-            ),
-            buttonLabel: "Skill",
-          },
-          {
-            blockTitle: "Block G - Mixed",
-            blockContent: (
-              <div>
-                <p>Block G has both:</p>
-                <ul className="list-disc pl-5">
-                  <li>Item one.</li>
-                  <li>Item two.</li>
-                </ul>
-                <img
-                  src="https://via.placeholder.com/120"
-                  alt="Mixed Example"
-                  className="mt-2 rounded"
-                />
-              </div>
-            ),
-            buttonLabel: "Policy",
-          },
-        ]}
-      />
     </HandbookLayout>
   );
 };

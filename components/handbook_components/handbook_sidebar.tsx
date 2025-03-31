@@ -11,8 +11,9 @@ const CHAPTERS_DATA: ChaptersData = {
   chapter2: {
     name: "Introduction to GlobalConflicts",
     subchapters: [
-      { name: "Welcome to GlobalConflicts", path: "/handbook/IntroToGC/Welcome", blockCount: 7 },
-      { name: "Code of Conduct", path: "/handbook/chapter2/subchapter2", blockCount: 3 },
+      { name: "Welcome to GlobalConflicts", path: "/handbook/IntroToGC/Welcome", blockCount: 4 },
+      { name: "Code of Conduct", path: "/handbook/IntroToGC/CodeofConduct", blockCount: 5 },
+      { name: "Participation", path: "/handbook/IntroToGC/Participation", blockCount: 5 },
       { name: "GlobalConflicts Structure", path: "/handbook/chapter2/subchapter3", blockCount: 4 },
       { name: "Feedback", path: "/handbook/chapter2/subchapter4", blockCount: 4 },
     ],
