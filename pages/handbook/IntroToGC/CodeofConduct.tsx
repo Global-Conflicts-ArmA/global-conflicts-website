@@ -9,7 +9,7 @@ const Chapter1Subchapter2Page = () => {
         title="HB/S3 - The Code of Conduct"
         blocks={[
           {
-            blockTitle: "HB/PB-21 - Code of Conduct",
+            blockTitle: "HB/PB-20 - Code of Conduct",
             blockContent: (
             <div>
                 <p>In order to enjoy our time together, all members of GC must abide by this code of conduct. 
@@ -32,7 +32,7 @@ const Chapter1Subchapter2Page = () => {
             buttonLabel: "Policy",
           },
           {
-            blockTitle: "HB/PB-22 - Culture",
+            blockTitle: "HB/PB-21 - Culture",
             blockContent: (
               <div>
                 <p>GC is a diverse, multicultural and multinational organisation. 
@@ -46,7 +46,7 @@ const Chapter1Subchapter2Page = () => {
             buttonLabel: "Policy",
           },
           {
-            blockTitle: "HB/PB-23 - Standards",
+            blockTitle: "HB/PB-22 - Standards",
             blockContent: (
               <div>
                 <p>All members of GC must follow these basic standards;</p>
@@ -66,21 +66,19 @@ const Chapter1Subchapter2Page = () => {
             buttonLabel: "Policy",
           },
           {
-            blockTitle: "HB/PB-24 - Representing GC",
+            blockTitle: "HB/PB-23 - Representing GC",
             blockContent: (
               <div>
-                <p>GC is a diverse, multicultural and multinational organisation. 
-                    We have no intention to codify each and every aspect of interpersonal relations within our community. 
-                    Some members have been playing together for more than 15 years. Obviously their interactions between each other are going to be different from interactions between new members. 
-                    Taken out of context, those might seem disrespectful. 
-                    There is no quick and easy way to learn this, but if you are a new member and are unsure if something might be considered disrespectful, it is probably best to show restraint. 
-                    Observe and get used to our culture. It will come in due time.</p>
+                <p> 
+                GC is an open community, with no attendance requirements. 
+                Members are free to represent GC in any way they feel, and are free to play at other groups any time. 
+                The only prohibition is degrading the public image of GC with other communities. </p>
               </div>
             ),
             buttonLabel: "Policy",
           },
           {
-            blockTitle: "HB/PB-25 - Violations of the Code of Conduct",
+            blockTitle: "HB/PB-24 - Violations of the Code of Conduct",
             blockContent: (
               <div>
                 <p>Breaches of the Code of Conduct will be discussed among the staff team, and enforcement actions can be put up to community votes if applicable.</p>

@@ -1,110 +1,141 @@
 // components/handbook_components/handbook_buttons.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 type HandbookButtonsProps = {
   label: "Policy" | "Guide" | "Skill";
+  onPopupToggle?: (isOpen: boolean) => void;
 };
 
-const HandbookButtons = ({ label }: HandbookButtonsProps) => {
+const HandbookButtons = ({ label, onPopupToggle }: HandbookButtonsProps) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
-  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [isFading, setIsFading] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Original button colors
   const buttonBg =
     label === "Policy" ? "bg-black" : label === "Guide" ? "bg-green-700" : "bg-amber-700";
-
-  // Popup background colors to match block themes
   const popupBg =
-    label === "Policy"
-      ? "bg-black"
-      : label === "Guide"
-      ? "bg-green-800"
-      : "bg-amber-800";
+    label === "Policy" ? "bg-black" : label === "Guide" ? "bg-green-800" : "bg-amber-800";
 
-  // Define descriptions for each button type
   const descriptions = {
     Policy: "Policies are official rules and regulations that must be followed.",
     Guide: "Guides provide recommended steps and best practices for various tasks.",
     Skill: "Skills outline specific abilities and techniques to master.",
   };
 
-  // Unique identifier for this button instance
   const buttonId = `${label}-${Math.random().toString(36).substring(2)}`;
 
-  // Handle popup timeout and fade-out
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    if (isPopupOpen && !isFadingOut) {
-      timeoutId = setTimeout(() => {
-        setIsFadingOut(true);
-        setTimeout(() => {
-          setIsPopupOpen(false);
-          setIsFadingOut(false);
-        }, 500); // Match animation duration (0.5s)
-      }, 5000); // Popup visible for 5 seconds
+  const closePopup = (withFade: boolean = true) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
-    return () => clearTimeout(timeoutId);
-  }, [isPopupOpen, isFadingOut]);
+    if (withFade) {
+      setIsFading(true);
+      setTimeout(() => {
+        setIsPopupOpen(false);
+        setIsFading(false);
+        onPopupToggle?.(false);
+      }, 300); // Fade duration
+    } else {
+      setIsPopupOpen(false);
+      setIsFading(false);
+      onPopupToggle?.(false);
+    }
+  };
 
-  // Listen for other buttons opening their popups
+  useEffect(() => {
+    if (isPopupOpen && buttonRef.current) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      timeoutRef.current = setTimeout(() => {
+        closePopup(true); // Fade out after 3s
+      }, 3000); // 3-second delay
+    }
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isPopupOpen]);
+
   useEffect(() => {
     const handleOtherPopupOpen = (event: CustomEvent) => {
       if (event.detail !== buttonId && isPopupOpen) {
-        setIsPopupOpen(false);
+        closePopup(true); // Fade out when another popup opens
+      }
+    };
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        isPopupOpen &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        closePopup(false); // Instant close on any other click
       }
     };
 
     window.addEventListener("popupOpened", handleOtherPopupOpen as EventListener);
+    document.addEventListener("click", handleOutsideClick);
     return () => {
       window.removeEventListener("popupOpened", handleOtherPopupOpen as EventListener);
+      document.removeEventListener("click", handleOutsideClick);
     };
   }, [buttonId, isPopupOpen]);
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
+    if (!buttonRef.current) return;
     setIsPopupOpen((prev) => {
       const newState = !prev;
       if (newState) {
         window.dispatchEvent(new CustomEvent("popupOpened", { detail: buttonId }));
+        onPopupToggle?.(true);
+      } else {
+        closePopup(true); // Fade out on manual close
       }
       return newState;
     });
   };
 
-  const handlePopupClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.stopPropagation();
-    setIsFadingOut(true);
-    setTimeout(() => {
-      setIsPopupOpen(false);
-      setIsFadingOut(false);
-    }, 500); // Match animation duration
-  };
+  const position = buttonRef.current
+    ? {
+        top: buttonRef.current.getBoundingClientRect().top - 32, // Above button
+        left: Math.max(
+          0,
+          Math.min(
+            buttonRef.current.getBoundingClientRect().right - 256,
+            window.innerWidth - 256
+          )
+        ),
+      }
+    : { top: 0, left: 0 };
 
   return (
     <div className="relative inline-block">
       <button
+        ref={buttonRef}
         className={`w-16 h-6 flex items-center justify-center ${buttonBg} rounded text-sm font-semibold`}
         onClick={handleButtonClick}
       >
         {label}
       </button>
-
       {isPopupOpen && (
-        <div className="absolute bottom-full right-0 mb-2 z-50">
-          {/* Overlay to block clicks under the popup */}
-          <div
-            className="absolute inset-0 z-[-1] w-64 h-full"
-            onClick={(e) => e.stopPropagation()}
-          />
-          {/* Popup with fade animation, clickable to close */}
-          <div
-            className={`relative ${popupBg} p-4 rounded-lg shadow-lg max-w-sm w-64 transition-opacity duration-500 ${
-              isFadingOut ? "opacity-0" : "opacity-100"
-            }`}
-            onClick={handlePopupClick}
-          >
-            <p className="text-white text-sm">{descriptions[label]}</p>
-          </div>
+        <div
+          className={`fixed z-[99999] ${popupBg} p-4 rounded-lg shadow-lg max-w-sm w-64 transition-opacity duration-300 ${
+            isFading ? "opacity-0" : "opacity-100"
+          }`}
+          style={{
+            top: `${position.top}px`,
+            left: `${position.left}px`,
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            closePopup(true); // Fade out on popup click
+          }}
+        >
+          <p className="text-white text-sm">{descriptions[label]}</p>
         </div>
       )}
     </div>

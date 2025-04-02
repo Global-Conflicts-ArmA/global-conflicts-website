@@ -14,20 +14,94 @@ const CHAPTERS_DATA: ChaptersData = {
       { name: "Welcome to GlobalConflicts", path: "/handbook/IntroToGC/Welcome", blockCount: 4 },
       { name: "Code of Conduct", path: "/handbook/IntroToGC/CodeofConduct", blockCount: 5 },
       { name: "Participation", path: "/handbook/IntroToGC/Participation", blockCount: 5 },
-      { name: "GlobalConflicts Structure", path: "/handbook/chapter2/subchapter3", blockCount: 4 },
+      { name: "GlobalConflicts Structure", path: "/handbook/IntroToGC/Structure", blockCount: 4 },
       { name: "Feedback", path: "/handbook/chapter2/subchapter4", blockCount: 4 },
     ],
   },
-  // ... (other chapters unchanged)
+  chapter3: {
+    name: "Chapter 3",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter3/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter3/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter3/subchapter3", blockCount: 0 },
+    ],
+  },
+  chapter4: {
+    name: "Chapter 4",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter4/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter4/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter4/subchapter3", blockCount: 0 },
+    ],
+  },
+  chapter5: {
+    name: "Chapter 5",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter5/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter5/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter5/subchapter3", blockCount: 0 },
+    ],
+  },
+  chapter6: {
+    name: "Chapter 6",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter6/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter6/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter6/subchapter3", blockCount: 0 },
+    ],
+  },
+  chapter7: {
+    name: "Chapter 7",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter7/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter7/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter7/subchapter3", blockCount: 0 },
+    ],
+  },
+  chapter8: {
+    name: "Chapter 8",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter8/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter8/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter8/subchapter3", blockCount: 0 },
+    ],
+  },
+  chapter9: {
+    name: "Chapter 9",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter9/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter9/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter9/subchapter3", blockCount: 0 },
+    ],
+  },
+  chapter10: {
+    name: "Chapter 10",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter10/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter10/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter10/subchapter3", blockCount: 0 },
+    ],
+  },
+  chapter11: {
+    name: "Chapter 11",
+    subchapters: [
+      { name: "Example", path: "/handbook/chapter11/subchapter1", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter11/subchapter2", blockCount: 0 },
+      { name: "Example", path: "/handbook/chapter11/subchapter3", blockCount: 0 },
+    ],
+  },
 };
 
 const HandbookSidebar = () => {
   const router = useRouter();
   const [expandedChapters, setExpandedChapters] = useState<{ [key: string]: boolean }>({});
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     const savedState = localStorage.getItem("expandedChapters");
-    if (savedState) setExpandedChapters(JSON.parse(savedState));
+    if (savedState) {
+      setExpandedChapters(JSON.parse(savedState));
+    }
   }, []);
 
   useEffect(() => {
@@ -35,6 +109,7 @@ const HandbookSidebar = () => {
   }, [expandedChapters]);
 
   const toggleChapter = (chapterKey: string) => {
+    setIsAnimating(true);
     setExpandedChapters((prev) => ({ ...prev, [chapterKey]: !prev[chapterKey] }));
   };
 
@@ -54,7 +129,13 @@ const HandbookSidebar = () => {
           <span className="mr-2">{isExpanded ? "↓" : "→"}</span>
           <span>{chapter.name}</span>
         </div>
-        {isExpanded && (
+        <div
+          className={`overflow-hidden ${isAnimating ? "transition-all ease-in-out duration-500" : ""}`}
+          style={{
+            maxHeight: isExpanded ? "500px" : "0px",
+            transition: isAnimating ? undefined : "none", // Disable transition on initial render
+          }}
+        >
           <ul className="ml-4 mt-1">
             {chapter.subchapters.map((subchapter) => (
               <li key={subchapter.path}>
@@ -74,13 +155,13 @@ const HandbookSidebar = () => {
               </li>
             ))}
           </ul>
-        )}
+        </div>
       </li>
     );
   };
 
   return (
-    <aside className="w-80 bg-gray-900 p-4 rounded-lg"> {/* Added rounded-lg */}
+    <aside className="w-80 bg-gray-900 p-4 rounded-lg">
       <h2 className="text-sm font-bold text-white">Chapters</h2>
       <nav className="mt-4">
         <ul>

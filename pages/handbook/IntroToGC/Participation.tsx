@@ -9,18 +9,7 @@ const Chapter1Subchapter3Page = () => {
         title="HB/S4 - Activity, & Participation"
         blocks={[
           {
-            blockTitle: "HB/PB-26 - Membership Status",
-            blockContent: (
-              <ul className="list-disc pl-5">
-                <li>First point about Block A.</li>
-                <li>Second point with more details.</li>
-                <li>Third point for emphasis.</li>
-              </ul>
-            ),
-            buttonLabel: "Policy",
-          },
-          {
-            blockTitle: "HB/PB-27 - Being Present on Discord",
+            blockTitle: "HB/PB-26 - Being Present on Discord",
             blockContent: (
                 <div>
                   <p>
@@ -55,12 +44,12 @@ const Chapter1Subchapter3Page = () => {
             buttonLabel: "Guide",
           },
           {
-            blockTitle: "HB/PB-28 - New Guy Probaition",
+            blockTitle: "HB/PB-27 - New Guy Probaition",
             blockContent: (
               <div>
                 <div className="ml-10">
                 <ul className="list-disc pl-5">
-                  <li>When a new user joins Global Conflicts, they are assigned the “New Guy” role. To earn membership, the user must complete 4 weekends.</li>
+                  <li>When a new user joins Global Conflicts, they are assigned the “New Guy” role. To earn membership, the user must participate in 4 weeks of play sessions.</li>
                   <li>During a user's probation, they will be subject to review by the staff team.</li>
                   <li>If a user’s general character isn’t seen as an ideal fit for the community, whether that be due to poor attitude, poor general conduct, inability to follow the chain of command, etc, then the staff also reserve the right to fail a user’s probation. The user will receive a 3 month ban, after which they can rejoin if they wish.</li>
                   <li>Once a failed probation ban has expired, the user will be given the new-guy role and will be expected to adhere to the same standards, and probation period as before. For each ban relating to a failed probation, the next ban will double in length over the previous. 3🢚6🢚12</li>
@@ -71,7 +60,45 @@ const Chapter1Subchapter3Page = () => {
             buttonLabel: "Policy",
           },
           {
-            blockTitle: "HB/PB-29 - Inactivity",
+            blockTitle: "HB/PB-28 - Membership Status",
+            blockContent: (
+              <div>
+              <div className="ml-10">
+                  <ul className="list-disc pl-5">
+                      <li><strong>New Guy:</strong> Newly joined user, subject to a probation period. </li>
+                      
+                      <li><strong>Member:</strong> A user that has played 4 sessions with GC.</li>
+
+                      <li><strong>Staff:</strong> A member that holds a specific role on a community team. </li>
+
+                  </ul>
+              </div>
+            </div>
+          ),
+            buttonLabel: "Policy",
+          },
+          {
+            blockTitle: "HB/PB-29 - Voting",
+            blockContent: (
+                <div>
+                    <p>Policy changes, and Code of Conduct violations are voted on through polls. Polls tallied via a weighted system based on the voters role. Polls are decided with simple majority.
+                    </p>
+                <div className="mt-4 ml-10">
+                    <ul className="list-disc pl-5">
+                        <li><strong>Members:</strong> the collective majority of members count as 1 vote. </li>
+                        
+                        <li><strong>Game Moderators:</strong> the collective majority of Game moderators count as 1 vote.</li>
+
+                        <li><strong>Admins:</strong> each Admin's vote counts as 1 vote.</li>
+
+                    </ul>
+                </div>
+              </div>
+            ),
+            buttonLabel: "Policy",
+          },
+          {
+            blockTitle: "HB/PB-30 - Inactivity",
             blockContent: (
                 <div>
                 <div className="ml-10">
@@ -84,56 +111,6 @@ const Chapter1Subchapter3Page = () => {
 
                     </ul>
                 </div>
-              </div>
-            ),
-            buttonLabel: "Policy",
-          },
-        ]}
-      />
-      <HandbookSection
-        title="Section 2"
-        blocks={[
-          {
-            blockTitle: "Block D",
-            blockContent: "This is Block D with plain text.",
-            buttonLabel: "Policy",
-          },
-          {
-            blockTitle: "Block E - Bullet Points",
-            blockContent: (
-              <ul className="list-disc pl-5">
-                <li>E1: First item.</li>
-                <li>E2: Second item.</li>
-                <li>E3: Third item.</li>
-              </ul>
-            ),
-            buttonLabel: "Guide",
-          },
-          {
-            blockTitle: "Block F - Image",
-            blockContent: (
-              <img
-                src="https://via.placeholder.com/200"
-                alt="Larger Example"
-                className="rounded"
-              />
-            ),
-            buttonLabel: "Skill",
-          },
-          {
-            blockTitle: "Block G - Mixed",
-            blockContent: (
-              <div>
-                <p>Block G has both:</p>
-                <ul className="list-disc pl-5">
-                  <li>Item one.</li>
-                  <li>Item two.</li>
-                </ul>
-                <img
-                  src="https://via.placeholder.com/120"
-                  alt="Mixed Example"
-                  className="mt-2 rounded"
-                />
               </div>
             ),
             buttonLabel: "Policy",

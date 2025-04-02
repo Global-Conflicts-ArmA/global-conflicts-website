@@ -6,16 +6,21 @@ type HandbookBlockProps = {
   title: string;
   content: ReactNode;
   buttonLabel: "Policy" | "Guide" | "Skill";
+  onPopupToggle?: (isOpen: boolean) => void; // Simplified callback
 };
 
-const HandbookBlock = ({ title, content, buttonLabel }: HandbookBlockProps) => {
+const HandbookBlock = ({
+  title,
+  content,
+  buttonLabel,
+  onPopupToggle,
+}: HandbookBlockProps) => {
   const [openContent, setOpenContent] = useState<string | null>(null);
 
   const toggleContent = () => {
     setOpenContent(openContent === "block1" ? null : "block1");
   };
 
-  // Determine block background color with transparency (previous scheme)
   const blockBg =
     buttonLabel === "Policy"
       ? "bg-gray-700 bg-opacity-75"
@@ -33,11 +38,15 @@ const HandbookBlock = ({ title, content, buttonLabel }: HandbookBlockProps) => {
           <span className="mr-2">{openContent === "block1" ? "↓" : "→"}</span>
           <span className="text-left text-base font-semibold">{title}</span>
         </div>
-        <HandbookButtons label={buttonLabel} />
+        <HandbookButtons label={buttonLabel} onPopupToggle={onPopupToggle} />
       </div>
-      {openContent === "block1" && (
-        <div className={`pt-2 pb-6 pl-8 pr-6 ${blockBg}`}>{content}</div>
-      )}
+      <div
+        className={`transition-all ease-in-out overflow-hidden ${
+          openContent === "block1" ? "max-h-[1000px] duration-500" : "max-h-0 duration-200"
+        }`}
+      >
+        <div className={`pt-2 pb-4 pl-8 pr-6 ${blockBg}`}>{content}</div>
+      </div>
     </div>
   );
 };
