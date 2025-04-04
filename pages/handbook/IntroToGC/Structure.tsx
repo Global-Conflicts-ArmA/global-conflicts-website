@@ -11,27 +11,26 @@ const Chapter1Subchapter4Page = () => {
           {
             blockTitle: "HB/PB-29 - Understanding the GC Structure",
             blockContent: (
-              <ul className="list-disc pl-5">
-                <li>First point about Block A.</li>
-                <li>Second point with more details.</li>
-                <li>Third point for emphasis.</li>
-              </ul>
+              <p>The entire structure of Global Conflicts is voluntary, nobody is required to do anything above and beyond. 
+                However that does not mean there are no baseline expectations. 
+                If a role is volunteered for, it is expected a best effort is given, and if a role is no longer desired, it is expected the member steps down from that role. 
+                This is true for both in and out of the game.</p>
             ),
             buttonLabel: "Policy",
           },
           {
-            blockTitle: "Block B - With Image",
+            blockTitle: "HB/PB-30 - In Game Chain of Command",
             blockContent: (
               <div>
-                <p>This is Block B with an image below:</p>
-                <img
-                  src="https://via.placeholder.com/150"
-                  alt="Example Image"
-                  className="mt-2 rounded"
-                />
+              <p>The chain of command is set by the current mission that is being played, and is to be respected for the duration of the mission.  Any player is free to, and encouraged to take leadership, and anyone under their command is expected to follow orders no matter who they are out of game. Example: An Admin that is slotted as a rifleman is expected to follow orders of their squad leader even if the squad leader is a new player.
+              </p>
+              <br>
+              </br>
+              <p>This however does not mean subordinates are required to break rules if a new player orders them to, they are to be politely informed what they are doing is wrong and if conflict arises, a GM is to be notified to handle the situation.
+              </p>
               </div>
             ),
-            buttonLabel: "Guide",
+            buttonLabel: "Policy",
           },
           {
             blockTitle: "Block C - Mixed Content",
