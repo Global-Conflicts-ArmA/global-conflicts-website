@@ -8,8 +8,9 @@ type HandbookLayoutProps = {
 
 export default function HandbookLayout({ children }: HandbookLayoutProps) {
   return (
-    <div className="flex h-screen bg-gray-800 text-white">
-      <div className="flex w-[calc(100%-192px)] mx-24">
+    <div className="flex flex-col min-h-screen bg-gray-800 text-white">
+      {/* Main content area with sidebar */}
+      <div className="flex w-[calc(100%-192px)] mx-24 flex-1">
         <HandbookSidebar />
         <div className="flex-1">
           <main>
@@ -19,4 +20,4 @@ export default function HandbookLayout({ children }: HandbookLayoutProps) {
       </div>
     </div>
   );
-};
+}

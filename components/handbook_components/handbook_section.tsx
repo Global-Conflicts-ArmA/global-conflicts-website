@@ -4,7 +4,7 @@ import HandbookBlock from "./handbook_block";
 
 type BlockData = {
   blockTitle: string;
-  blockContent: ReactNode;  // Changed from string to ReactNode
+  blockContent: ReactNode;
   buttonLabel: "Policy" | "Guide" | "Skill";
 };
 
@@ -21,16 +21,22 @@ const HandbookSection = ({ title, blocks }: HandbookSectionProps) => {
   };
 
   return (
-    <section className="outline outline-2 outline-gray-600 w-full">
+    <section className="border-2 border-gray-600 w-full rounded-lg overflow-hidden relative">
       <div
-        className="w-full text-left text-lg font-semibold py-2 px-4 bg-slate-500 cursor-pointer flex items-center hover:bg-slate-600"
+        className={`w-full text-left text-lg font-semibold py-2 px-4 cursor-pointer flex items-center ${
+          isExpanded ? "bg-slate-600 hover:bg-slate-700" : "bg-slate-500 hover:bg-slate-600"
+        }`}
         onClick={toggleSection}
       >
         <span className="mr-2">{isExpanded ? "↓" : "→"}</span>
         <span>{title}</span>
       </div>
-      {isExpanded && (
-        <div className="ml-2">
+      <div
+        className={`transition-all ease-in-out overflow-hidden ${
+          isExpanded ? "max-h-[1000px] duration-500" : "max-h-0 duration-200"
+        }`}
+      >
+        <div>
           {blocks.map((block, index) => (
             <HandbookBlock
               key={index}
@@ -40,7 +46,7 @@ const HandbookSection = ({ title, blocks }: HandbookSectionProps) => {
             />
           ))}
         </div>
-      )}
+      </div>
     </section>
   );
 };
