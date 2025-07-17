@@ -17,9 +17,9 @@ export default function NavBar() {
 
 	const navigation = [
 		{
-			name: "Handbook",
-			href: "/handbook",
-			current: router.pathname.includes("/handbook"),
+			name: "Guides",
+			href: "/guides",
+			current: router.pathname.includes("/guides"),
 			target: "_self"
 		},
 		{
