@@ -25,6 +25,7 @@ By joining Global Conflicts, you agree to the above and below while part of our 
  - Do not use enemy equipment or assets, unless authorized or in a 'life of death' situation.
    - Do not use vehicles and assets that would require specialized training that your current role does not have. Example: A rifleman crewing a tank.
  - Do not talk/speak/shout excessively loud.
+ - Do not mute other players in-game.
  - Do not use soundboards or memes during important moments. Keep it serious when it matters.
  - Do not meme it up just because you are getting bored and ruin it for everyone else.
  
