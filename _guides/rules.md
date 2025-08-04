@@ -56,7 +56,7 @@ By joining Global Conflicts, you agree to the above and below while part of our 
  - Have fun!
 
 ## Documented SOPs:  
-[**Player infraction-punishment SOPs**](https://docs.google.com/document/d/e/2PACX-1vRUmZifP9i5xdPb5fRrD9Ux4QAB21DoWkaOqhpf4tKnO-Ill5paItpTM-FkUW-QN3qEZ-cljmOJeGmd/pub)  
+[**Player infraction-punishment SOPs**](https://docs.google.com/document/d/e/2PACX-1vSv0bY-QgW-NtYV5bWGmhwcJboFxis30n92rk0TfxxeGrd_adgjCnu3PapW4hyU6njK_r_YXJGS8Xxe/pub)  
 [**Player blacklisting SOPs**](https://docs.google.com/document/d/e/2PACX-1vQpQlC8JYQYtHst2L-tbYPBahQvHmKtrF4mcfQN7GQKAqudG3_8u-QyaEISsow2d4jsZhNfWrTtOODr/pub)  
 [**Staff and role Structure**](https://docs.google.com/document/d/e/2PACX-1vS9rngvC1tT7X1QSl3Jy-WQ7fa1O3yvPyzSkF-PezMbfHP00hBACLd0drrW9WFKRFGciO6KSFR0upip/pub)  
 [**About the New Guy Probation Period**](https://docs.google.com/document/d/e/2PACX-1vTuljLxk7IU9C0Vcl58EkeMaMKjULXcbZeNm0JRfzUURa2g330uUaC-aLPysTM5GLG-7eGDf4_pt7Ii/pub)  
