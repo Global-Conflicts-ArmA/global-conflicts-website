@@ -3,6 +3,7 @@ module.exports = async (phase, { defaultConfig }) => {
 	 * @type {import('next').NextConfig}
 	 */
 	const nextConfig = {
+		staticPageGenerationTimeout: 600, // Timeout after 10 minutes (600 seconds)
 		swcMinify: true,
 		 
 		eslint: {
