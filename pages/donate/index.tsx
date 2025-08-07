@@ -10,8 +10,33 @@ import React, { useEffect, useState } from "react";
 import gcSmallLogo from "../../public/logo-patch.webp";
 function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDonationGoalUsd, serverDonationGoalUsdString }) {
 
+    function displayDonators(): React.ReactNode {
+        if (donators == undefined) {
+            return ""
+        } else {
+            donators.map((donator) => (
+                <div
+                    key={donator.userId}
+                    className="flex flex-col items-center content-center justify-center"
+                >
+                    <div className="avatar">
+                        <div className="w-24 h-24">
+                            <Image
+                                alt={"donator avatar"}
+                                className="rounded-full "
+                                src={donator.displayAvatarURL}
+                                layout={"fill"}
+                            ></Image>
+                        </div>
+                    </div>
 
-
+                    <div className="text-lg font-bold dark:text-gray-200 ">
+                        {donator.nickname ?? donator.displayName}
+                    </div>
+                </div>
+            ))
+        }
+    }
 
     return <>
         <Head>
@@ -67,29 +92,8 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
                         <div className="prose">
                             <h2>Members who are contributing:</h2>
                         </div>
-
                         <div className="grid grid-cols-2 mt-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-5">
-                            {donators.map((donator) => (
-                                <div
-                                    key={donator.userId}
-                                    className="flex flex-col items-center content-center justify-center"
-                                >
-                                    <div className="avatar">
-                                        <div className="w-24 h-24">
-                                            <Image
-                                                alt={"donator avatar"}
-                                                className="rounded-full "
-                                                src={donator.displayAvatarURL}
-                                                layout={"fill"}
-                                            ></Image>
-                                        </div>
-                                    </div>
-
-                                    <div className="text-lg font-bold dark:text-gray-200 ">
-                                        {donator.nickname ?? donator.displayName}
-                                    </div>
-                                </div>
-                            ))}
+                            { displayDonators() }
                         </div>
                     </div>
                 </div>
@@ -101,7 +105,7 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
 // This function gets called at build time
 export async function getServerSideProps(context) {
 
-    /* disabled patreon fetch because they are retarded and captcha api calls now
+    /* Patreon pledge sum should be directly exposed to any API call now, changing back to fetch */
     const patreonResponse = await axios.get(
         "https://www.patreon.com/api/campaigns/5074062",
         {
@@ -111,11 +115,8 @@ export async function getServerSideProps(context) {
                 'User-Agent': 'Patreon/7.6.28 (Android; Android 11; Scale/2.10)'
             },
         }
-    ); 
-    
+    );
     const body = patreonResponse.data;
-    console.log(body);
-
     const currentAmount = body.data.attributes.pledge_sum;
     console.log(currentAmount);
     const currentAmountNum = currentAmount / 100;
@@ -126,17 +127,12 @@ export async function getServerSideProps(context) {
     console.log(USDtoCADRate.data.quotes.CAD);
     const currentAmountNumUSD = currentAmountNum / USDtoCADRate.data.quotes.CAD;
     console.log(currentAmountNumUSD);
-    */
-    const currentAmountNumUSD = 90.29;
-    console.log(currentAmountNumUSD);
     const currentAmountString = currentAmountNumUSD.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
     });
     console.log(currentAmountString);
     
-    
-
     const botResponse = await axios.get("http://localhost:3001/users/donators");
     const donators = botResponse.data;
 
@@ -146,9 +142,16 @@ export async function getServerSideProps(context) {
         style: "currency",
         currency: "USD",
     });
+    
 
     return {
-        props: { currentAmountNumUSD, currentAmountString, donators, serverDonationGoalUsd,serverDonationGoalUsdString },
+        props: { 
+            currentAmountNumUSD, 
+            currentAmountString, 
+            donators, 
+            serverDonationGoalUsd,
+            serverDonationGoalUsdString
+        },
     };
 
 }
