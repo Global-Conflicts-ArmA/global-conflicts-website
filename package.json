@@ -8,16 +8,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@babel/traverse": "7.23.9",
     "@dnd-kit/core": "^4.0.1",
     "@dnd-kit/sortable": "^5.0.0",
-    "@emotion/styled": "^11.8.1",
     "@google-cloud/local-auth": "^1.0.1",
     "@googleapis/youtube": "^4.2.0",
     "@headlessui/react": "^1.5.0",
     "@heroicons/react": "^1.0.6",
     "@mapbox/rehype-prism": "^0.8.0",
     "@next-auth/mongodb-adapter": "0.0.2-pr.193-1fc34f1e.284",
-    "@ramonak/react-progress-bar": "^4.4.0",
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/forms": "^0.4.0",
     "@tailwindcss/line-clamp": "^0.3.1",
@@ -100,8 +99,11 @@
     "youtube-api": "^3.0.1"
   },
   "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/eslint": "^9.6.1",
+    "@types/node": "^24.2.0",
     "autoprefixer": "^10.4.14",
-    "eslint": "7.32.0",
+    "eslint": "8.x",
     "eslint-config-next": "^13.3.0",
     "eslint-config-prettier": "^8.4.0",
     "postcss": "^8.4.5",

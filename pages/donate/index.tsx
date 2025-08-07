@@ -7,7 +7,6 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-import ProgressBar from "@ramonak/react-progress-bar";
 import gcSmallLogo from "../../public/logo-patch.webp";
 function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDonationGoalUsd, serverDonationGoalUsdString }) {
 
@@ -49,14 +48,9 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
                                     </span>
                                     per month
                                 </div>
-                                <ProgressBar
-                                    transitionDuration={"2s"}
-                                    height={"50px"}
-                                    borderRadius={"10px"}
-                                    className="grain-progress-bar"
-                                    labelSize={".9em"}
-
-                                    completed={Math.round(currentAmountNumUSD/serverDonationGoalUsd * 100)}
+                                <progress 
+                                    value={Math.round(currentAmountNumUSD/serverDonationGoalUsd * 100)}
+                                    max={serverDonationGoalUsd * 100}
                                 />
                             </div>
                         </div>
