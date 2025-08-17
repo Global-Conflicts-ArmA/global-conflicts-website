@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { Fragment, useEffect, useState } from "react";
 import { FileDrop } from "react-file-drop";
 
-import Image from "next/image";
+import Image from "next/legacy/image";
  
 import Select from "react-select";
 import { Flip, toast } from "react-toastify";
@@ -230,8 +230,8 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 	}, []);
 
 	return (
-		<Transition appear show={isOpen} as={Fragment}>
-			<Dialog
+        <Transition appear show={isOpen} as={Fragment}>
+            <Dialog
 				as="div"
 				className="fixed inset-0 z-20 overflow-y-auto"
 				onClose={onClose}
@@ -375,11 +375,11 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 										<div className="grid grid-cols-2 gap-0">
 											{displayingFiles.map((linkObj) => {
 												return (
-													<div
+                                                    <div
 														key={linkObj.date.getTime()}
 														className="relative aspect-video"
 													>
-														<button
+                                                        <button
 															className="absolute z-30 p-0 m-3 btn btn-info btn-xs btn-outline btn-square"
 															onClick={() => {
 																setDisplayingLinks(
@@ -393,9 +393,9 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 														>
 															<TrashIcon width={15}></TrashIcon>
 														</button>
-														{linkObj.type.includes("video") ? (
+                                                        {linkObj.type.includes("video") ? (
 															// @ts-ignore /
-															<ReactPlayer 
+															(<ReactPlayer 
 																playing={true}
 																muted={true}
 																controls={true}
@@ -403,7 +403,7 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 																width={"100%"}
 																height={"100%"}
 																url={linkObj.cdnLink ?? linkObj.link}
-															/>
+															/>)
 														) : (
 															<Image
 																className="custom-img "
@@ -415,8 +415,8 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 																alt={"User uploaded image from this mission"}
 															/>
 														)}
-													</div>
-												);
+                                                    </div>
+                                                );
 											})}
 										</div>
 										<div>
@@ -506,6 +506,6 @@ export default function MediaHomeUploadModal({ isOpen, onClose }) {
 					</Transition.Child>
 				</div>
 			</Dialog>
-		</Transition>
-	);
+        </Transition>
+    );
 }

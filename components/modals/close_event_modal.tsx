@@ -7,7 +7,7 @@ export default function CloseEventModal({ isOpen, onClose, onCloseEvent }) {
 
 	return (
         <Transition appear show={isOpen} as={Fragment}>
-			<Dialog
+            <Dialog
 				as="div"
 				className="fixed inset-0 z-10 overflow-y-auto"
 				onClose={onClose}
@@ -110,6 +110,6 @@ export default function CloseEventModal({ isOpen, onClose, onCloseEvent }) {
 					</Transition.Child>
 				</div>
 			</Dialog>
-		</Transition>
+        </Transition>
     );
 }

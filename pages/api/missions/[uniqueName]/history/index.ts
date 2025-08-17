@@ -50,7 +50,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 			for (let leader of history.leaders) {
 				try {
 					const botResponse = await axios.get(
-						`http://localhost:3001/users/${leader.discordID}`
+						`http://globalconflicts.net:3001/users/${leader.discordID}`
 					);
 
 					leader.name = botResponse.data.nickname ?? botResponse.data.displayName;
@@ -89,7 +89,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		uniqueName: uniqueName,
 	});
 	const botResponse = await axios.get(
-		`http://localhost:3001/users/${mission.authorID}`
+		`http://globalconflicts.net:3001/users/${mission.authorID}`
 	);
 
 	postNewMissionHistory({
@@ -130,7 +130,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		uniqueName: uniqueName,
 	});
 	const botResponse = await axios.get(
-		`http://localhost:3001/users/${mission.authorID}`
+		`http://globalconflicts.net:3001/users/${mission.authorID}`
 	);
 
 	postNewMissionHistory({

@@ -233,12 +233,11 @@ export default function EditEvent({ event }) {
 	const [eventMissionList, setEventMissionList] = useState(event.eventMissionList)
 	const [selectedMission, setSelectedMission] = useState(event.eventMissionList[0])
 	return (
-		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
-			<Head>
+        <CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
+            <Head>
 				<title>Editing {event.name}</title>
 			</Head>
-
-			<div className="max-w-screen-xl px-5 mx-auto mt-24">
+            <div className="max-w-screen-xl px-5 mx-auto mt-24">
 				<form onSubmit={eventDataFormik.handleSubmit} className="mb-10">
 					<div className="flex flex-row justify-between">
 						<div className="prose">
@@ -792,8 +791,7 @@ export default function EditEvent({ event }) {
 					</Tab.Group>
 				</div>
 			</div>
-
-			<CloseEventModal
+            <CloseEventModal
 				isOpen={closeModalOpen}
 				onCloseEvent={(closeReason, numberOfParticipants) => {
 					setCloseModalOpen(false);
@@ -804,8 +802,7 @@ export default function EditEvent({ event }) {
 					setCloseModalOpen(false);
 				}}
 			></CloseEventModal>
-
-			<EventDatePickerModal
+            <EventDatePickerModal
 				initialDate={eventDataFormik.values.eventStartDate}
 				onDateSelect={(date) => {
 					eventDataFormik.setFieldValue("eventStartDate", date);
@@ -815,15 +812,14 @@ export default function EditEvent({ event }) {
 					setDatePickerModalOpen(false);
 				}}
 			></EventDatePickerModal>
-
-			<CreateSlotsModal
+            <CreateSlotsModal
 				isOpen={createSlotsModalOpen}
 				onClose={() => {
 					setCreateSlotsModalOpen(false);
 				}}
 			></CreateSlotsModal>
-		</CredentialLockLayout>
-	);
+        </CredentialLockLayout>
+    );
 }
 
 export async function getServerSideProps(context) {

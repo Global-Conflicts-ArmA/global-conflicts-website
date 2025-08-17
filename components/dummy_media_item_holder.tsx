@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
  
-import Image from "next/image";
+import Image from "next/legacy/image";
 import Shimmer from "react-shimmer-effect";
 import { InView } from 'react-intersection-observer';
 
@@ -25,8 +25,8 @@ function generateThumbnailLink(link: String): String | any {
 
 const InViewComp = (item) => (
 	/* @ts-ignore */
-	<InView>
-		{({ inView, ref, entry }) => (
+	(<InView>
+        {({ inView, ref, entry }) => (
 			<div ref={ref} className="w-full h-full" >
 		{/* @ts-ignore */}
 				<ReactPlayer
@@ -41,7 +41,7 @@ const InViewComp = (item) => (
 				/>
 			</div>
 		)}
-	</InView>
+    </InView>)
 
 );
 

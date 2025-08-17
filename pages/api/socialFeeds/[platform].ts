@@ -20,7 +20,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		return res.status(401).send({});
 	}
 
-	await axios.post(`http://localhost:3001/socialFeeds/${platform}`, {
+	await axios.post(`http://globalconflicts.net:3001/socialFeeds/${platform}`, {
 		link: body.link,
 	});
 	return res.status(204).send({});

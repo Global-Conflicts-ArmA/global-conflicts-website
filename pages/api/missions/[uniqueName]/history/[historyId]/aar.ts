@@ -50,7 +50,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		.then(async (result) => {
 			const mission = result.value;
 			const aarAuthor = await axios.get(
-				`http://localhost:3001/users/${session.user["discord_id"]}`
+				`http://globalconflicts.net:3001/users/${session.user["discord_id"]}`
 			);
 
 			postNewAAR({

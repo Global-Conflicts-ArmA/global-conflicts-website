@@ -1,6 +1,6 @@
 import Head from "next/head";
 
-import Image from "next/image";
+import Image from "next/legacy/image";
 import ProfileLayout from "../../layouts/profile-layout";
 import underConstrucitonImg from "../../public/under_construction.jpg";
 function LeaderShipHistory() {

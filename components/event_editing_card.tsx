@@ -1,5 +1,5 @@
 import card_placeholder from "../public/card_placeholder.png";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import React, { useEffect, useRef, useState } from "react";
 
 import moment from "moment";

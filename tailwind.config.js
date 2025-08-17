@@ -57,7 +57,6 @@ module.exports = {
 	plugins: [
 		require("@tailwindcss/typography"),
 		require("daisyui"),
-		require("@tailwindcss/line-clamp"),
 		plugin(function ({ addComponents }) {
 			addComponents({
 				".btn-dark": {

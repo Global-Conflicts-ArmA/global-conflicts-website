@@ -14,7 +14,7 @@ import MissionMediaCard from "../../../components/mission_media_card";
 
 import Shimmer from "react-shimmer-effect";
 import Head from "next/head";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 import Link from "next/link";
 
@@ -1820,7 +1820,7 @@ export async function getServerSideProps(context) {
 
 	let discordUsers = [];
 	if (hasCreds(session, CREDENTIAL.ADMIN)) {
-		const botResponse = await axios.get(`http://localhost:3001/users`);
+		const botResponse = await axios.get(`http://globalconflicts.net:3001/users`);
 		discordUsers = botResponse.data;
 	}
 

@@ -3,7 +3,7 @@ import "../styles/global.css";
 import { SessionProvider } from "next-auth/react";
 import { MainLayout } from "../layouts/main-layout";
 import React, { useEffect, useState } from "react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import "react-toastify/dist/ReactToastify.min.css";
 import { ToastContainer } from "react-toastify";
 import { useHotkeys } from "react-hotkeys-hook";

@@ -59,7 +59,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	});
 
 	const reportAuthor = await axios.get(
-		`http://localhost:3001/users/${session.user["discord_id"]}`
+		`http://globalconflicts.net:3001/users/${session.user["discord_id"]}`
 	);
 
 	postNewBugReport({

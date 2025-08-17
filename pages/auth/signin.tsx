@@ -1,5 +1,5 @@
 import { getProviders, getSession, signIn } from "next-auth/react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import background from "../../public/login-bg.jpg";
 import logo from "../../public/logo-patch.webp";
 export default function SignIn({ providers }) {

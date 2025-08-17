@@ -261,12 +261,11 @@ function EventsDashboardPage() {
 
 
 	return (
-		<CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
-			<Head>
+        <CredentialLockLayout session={session} cred={CREDENTIAL.ADMIN}>
+            <Head>
 				<title>Create Event</title>
 			</Head>
-
-			<div className="max-w-screen-xl px-5 mx-auto mt-24">
+            <div className="max-w-screen-xl px-5 mx-auto mt-24">
 				<form onSubmit={eventDataFormik.handleSubmit} className="mb-10">
 					<div className="flex flex-row justify-between">
 						<div className="prose">
@@ -832,8 +831,7 @@ function EventsDashboardPage() {
 					</Tab.Group>
 				</div>
 			</div>
-
-			<EventDatePickerModal
+            <EventDatePickerModal
 				initialDate={eventDataFormik.values.eventStartDate}
 				onDateSelect={(date) => {
 					eventDataFormik.setFieldValue("eventStartDate", date);
@@ -843,15 +841,14 @@ function EventsDashboardPage() {
 					setDatePickerModalOpen(false);
 				}}
 			></EventDatePickerModal>
-
-			<CreateSlotsModal
+            <CreateSlotsModal
 				isOpen={createSlotsModalOpen}
 				onClose={() => {
 					setCreateSlotsModalOpen(false);
 				}}
 			></CreateSlotsModal>
-		</CredentialLockLayout>
-	);
+        </CredentialLockLayout>
+    );
 }
 
 export default EventsDashboardPage;

@@ -26,7 +26,7 @@ export const authOptions: NextAuthOptions = {
 				}
 
 				const botResponse = await axios.get(
-					`http://localhost:3001/users/${profile["id"]}`
+					`http://globalconflicts.net:3001/users/${profile["id"]}`
 				);
 
 				const member = botResponse.data;
@@ -49,7 +49,7 @@ export const authOptions: NextAuthOptions = {
 	callbacks: {
 		async session({ session, user, token }) {
 			const botResponse = await axios.get(
-				`http://localhost:3001/users/${user["discord_id"]}`
+				`http://globalconflicts.net:3001/users/${user["discord_id"]}`
 			);
 			const member = botResponse.data;
 			if (session.user && user) {
@@ -71,7 +71,7 @@ export const authOptions: NextAuthOptions = {
 		async signIn({ user, account, profile, email, credentials }) {
 
 			const botResponse = await axios.get(
-				`http://localhost:3001/users/${user["discord_id"]}`
+				`http://globalconflicts.net:3001/users/${user["discord_id"]}`
 			);
 			const member = botResponse.data;
 

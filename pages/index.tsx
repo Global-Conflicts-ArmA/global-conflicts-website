@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/legacy/image";
 import background from "../public/login-bg.jpg";
 import soldier1 from "../public/solider-1v6.png";
 import soldier2 from "../public/solider-2.webp";

@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 
 export default function DecorativeCard({image, width, height}) {

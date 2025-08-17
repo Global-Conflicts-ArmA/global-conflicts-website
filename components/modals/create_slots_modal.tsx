@@ -55,7 +55,7 @@ export default function CreateSlotsModal({ isOpen, onClose }) {
 
 	return (
         <Transition appear show={isOpen} as={Fragment}>
-			<Dialog
+            <Dialog
 				as="div"
 				initialFocus={refDiv}
 				className="fixed inset-0 z-10 "
@@ -216,7 +216,7 @@ export default function CreateSlotsModal({ isOpen, onClose }) {
 					</Transition.Child>
 				</div>
 			</Dialog>
-		</Transition>
+        </Transition>
     );
 }
 

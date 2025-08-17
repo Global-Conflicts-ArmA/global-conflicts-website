@@ -3,7 +3,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { BellIcon, MenuIcon, XIcon } from "@heroicons/react/outline";
 import { useSession, signIn, signOut } from "next-auth/react";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import SignInBtn from "./sigin_btn";
 import SignOutBtn from "./signout_btn";
 import { useRouter } from "next/router";

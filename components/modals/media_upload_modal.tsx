@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { Fragment, useState } from "react";
 import { FileDrop } from "react-file-drop";
 
-import Image from "next/image";
+import Image from "next/legacy/image";
  
 
 import { Flip, toast } from "react-toastify";

@@ -645,7 +645,7 @@ export async function getStaticProps({ params }: Params) {
         await Promise.all(
             event.signups.map(async (element): Promise<any> => {
                 const discordUserResponse = await axios.get(
-                    `http://localhost:3001/users/${element["discord_id"]}`
+                    `http://globalconflicts.net:3001/users/${element["discord_id"]}`
                 )
                 element["image"] = discordUserResponse.data["displayAvatarURL"];
             })
