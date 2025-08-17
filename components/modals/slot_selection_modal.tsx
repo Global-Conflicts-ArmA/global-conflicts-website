@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { Fragment, useEffect, useRef, useState } from "react";
 import classNames from "../../lib/classnames";
+import { getRadioOptionClasses, getSelectedMission, getSelectedSlotNameForMission, getSlottedCount, hasOneReservedSlot } from '../../lib/eventhelpers';
 
 export default function SlotSelectionModal({
 	isOpen,
@@ -55,49 +56,6 @@ export default function SlotSelectionModal({
 	]);
 
 
-	function getSelectedSlotNameForMission(mission) {
-
-		if (!mission.reservedSlot) {
-			return "No reserved slot"
-		}
-		return mission.reservedFactionName + " > " + mission.reservedSlot.name;
-	}
-
-	function getSlottedCount(missionId, factionId, slotId) {
-		if (!roster) {
-			return 0;
-		};
-		return roster.filter(mission => mission._id == missionId)[0].factions.filter(faction => faction._id == factionId)[0].slots.filter(slot => slot._id == slotId)[0].players?.length
-	}
-
-	function hasOneReservedSlot() {
-		if (!workingEvent.eventMissionList) {
-			return false;
-		}
-		for (const mission of workingEvent.eventMissionList) {
-			if (mission.reservedSlot) {
-				return true;
-			}
-		}
-	}
-
-	function getSelectedMission() {
-		return workingEvent.eventMissionList.filter((mission => { return mission._id == selectedMission._id }))[0]
-	}
-	function getRadioOptionClasses(checked, isFull) {
-		if (checked && isFull) {
-			return "bg-primary cursor-pointer"
-		}
-		if (isFull && !checked) {
-			return "dark:bg-gray-500 bg-gray-300 text-gray-500  dark:text-gray-300 cursor-not-allowed"
-		}
-		if (checked && !isFull) {
-			return "bg-primary cursor-pointer"
-		}
-		if (!checked && !isFull) {
-			return "dark:bg-gray-700 cursor-pointer" 
-		}
-	}
 
 
 	return (
@@ -159,7 +117,7 @@ export default function SlotSelectionModal({
 													<Listbox.Button
 
 														className="relative  h-full w-full cursor-default rounded-lg  dark:text-white dark:bg-gray-700  py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-														<span className="block truncate">{selectedMission.name}  <span className="text-xs italic">({getSelectedSlotNameForMission(getSelectedMission())})</span> </span>
+														<span className="block truncate">{selectedMission.name}  <span className="text-xs italic">({getSelectedSlotNameForMission(getSelectedMission(workingEvent, selectedMission))})</span> </span>
 														<span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
 															<ChevronDoubleDownIcon
 																className="h-5 w-5 text-gray-400"
@@ -174,31 +132,17 @@ export default function SlotSelectionModal({
 														leaveTo="opacity-0"
 													>
 														<Listbox.Options className="absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white  dark:text-white dark:bg-gray-700 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-															{workingEvent.eventMissionList.filter(item => item.name !== "Default Mission").map((mission, personIdx) => (
-																<Listbox.Option
-																	key={personIdx}
-																	className={({ active }) =>
-																		`relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'hover:bg-white/[0.12]' : 'dark:text-white'
-																		}`
-																	}
-																	value={mission}
-																>
-																	{({ selected }) => (
-																		<>
-																			<div
-																				className={`block truncate ${selected ? 'font-medium' : 'font-normal'}`}
-																			>
-																				{mission.name} <span className="text-xs italic">({getSelectedSlotNameForMission(mission)})</span>
-																			</div>
-																			{selected ? (
-																				<span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
-																					<CheckIcon className="h-5 w-5" aria-hidden="true" />
-																				</span>
-																			) : null}
-																		</>
-																	)}
-																</Listbox.Option>
-															))}
+														{workingEvent.eventMissionList.filter(item => item.name !== "Default Mission").map((mission) => (
+														  <Listbox.Option
+														    key={mission._id}  // Use the unique identifier
+														    className={({ active }) =>
+														      `relative cursor-default select-none py-2 pl-10 pr-4 ${active ? 'hover:bg-white/[0.12]' : 'dark:text-white'}`
+														    }
+														    value={mission}
+														  >
+														    ...
+														  </Listbox.Option>
+														))}
 														</Listbox.Options>
 													</Transition>
 												</div>
@@ -209,30 +153,27 @@ export default function SlotSelectionModal({
 
 										<p className="prose prose-lg mt-5">Factions:</p>
 										<Tab.Group>
-											<Tab.List
-												className={`flex p-1 mt-0 space-x-1  rounded-xl ${selectedMission.factions.length == 1 ? "hidden" : "block"
-													}`}
-											>
-												{getSelectedMission().factions.map((faction) => {
-													return (
-														<Tab
-															key={faction.title}
-															className={({ selected }) =>
-																classNames(
-																	`transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium  rounded-lg `,
-																	selected
-																		? "bg-primary text-white shadow"
-																		: "  hover:bg-primary/[0.5] hover:text-white dark:text-gray-400 "
-																)
-															}
-														>
-															{faction.name}
-														</Tab>
-													);
-												})}
-											</Tab.List>
+										<Tab.List
+										  className={`flex p-1 mt-0 space-x-1 rounded-xl ${selectedMission.factions.length === 1 ? "hidden" : "block"}`}
+										>
+										  {getSelectedMission(workingEvent, selectedMission).factions.map((faction) => {
+										    return (
+										      <Tab
+										        key={faction._id}  // <-- Use a unique identifier for the key
+										        className={({ selected }) =>
+										          classNames(
+										            `transition-all outline-none duration-300 w-full py-2.5 text-sm leading-5 font-medium rounded-lg`,
+										            selected ? "bg-primary text-white shadow" : "hover:bg-primary/[0.5] hover:text-white dark:text-gray-400 "
+										          )
+										        }
+										      >
+										        {faction.name}
+										      </Tab>
+										    );
+										  })}
+										</Tab.List>
 											<Tab.Panels className="mt-2 ">
-												{getSelectedMission().factions.map((faction) => {
+												{getSelectedMission(workingEvent, selectedMission).factions.map((faction) => {
 
 													return (
 														<Tab.Panel key={faction.title + "_panel"}>
@@ -241,7 +182,7 @@ export default function SlotSelectionModal({
 
 															>
 																<RadioGroup
-																	value={getSelectedMission()?.reservedSlot}
+																	value={getSelectedMission(workingEvent, selectedMission)?.reservedSlot}
 																	onChange={(val) => {
 																		for (const mission of workingEvent.eventMissionList) {
 																			if (mission._id == selectedMission._id) {
@@ -261,11 +202,11 @@ export default function SlotSelectionModal({
 																		{faction.slots.map((slot) => (
 																			<RadioGroup.Option
 																				key={slot.name}
-																				disabled={getSlottedCount(getSelectedMission()._id, faction._id, slot._id) >= parseInt(slot.count)}
+																				disabled={getSlottedCount(getSelectedMission(workingEvent, selectedMission)._id, faction._id, slot._id, roster) >= parseInt(slot.count)}
 																				value={slot}
 																				className={({ active, checked }) =>
-																					`m-1 mt-5 mb transition-all outline-none ${getRadioOptionClasses(checked, getSlottedCount(getSelectedMission()._id, faction._id, slot._id) >= parseInt(slot.count))}  
-																				${checked || slot._id == getSelectedMission().reservedSlot?._id ? "bg-primary text-white " : ""}
+																					`m-1 mt-5 mb transition-all outline-none ${getRadioOptionClasses(checked, getSlottedCount(getSelectedMission(workingEvent, selectedMission)._id, faction._id, slot._id, roster) >= parseInt(slot.count))}  
+																				${checked || slot._id == getSelectedMission(workingEvent, selectedMission).reservedSlot?._id ? "bg-primary text-white " : ""}
 																					relative rounded-lg shadow-md px-5 py-4  flex focus:outline-none`
 																				}
 																			>
@@ -295,8 +236,8 @@ export default function SlotSelectionModal({
 																									<div className="flex flex-1">{slot.description}</div>
 																									<div>
 																										{checked
-																											? (getSlottedCount(getSelectedMission()._id, faction._id, slot._id) ?? 0) + 1
-																											: getSlottedCount(getSelectedMission()._id, faction._id, slot._id) ?? 0}
+																											? (getSlottedCount(getSelectedMission(workingEvent, selectedMission)._id, faction._id, slot._id, roster) ?? 0) + 1
+																											: getSlottedCount(getSelectedMission(workingEvent, selectedMission)._id, faction._id, slot._id, roster) ?? 0}
 																										/{slot.count}
 																									</div>
 																								</RadioGroup.Description>
@@ -333,7 +274,7 @@ export default function SlotSelectionModal({
 										Close
 									</button>
 									<button
-										disabled={!hasOneReservedSlot()}
+										disabled={!hasOneReservedSlot(workingEvent)}
 										className="btn btn-primary btn-wide"
 										onClick={() => {
 											onReserve(workingEvent.eventMissionList);

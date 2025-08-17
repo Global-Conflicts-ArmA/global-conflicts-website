@@ -43,7 +43,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
         }
     }
 
-    const result = await MyMongo.collection("missions").updateOne(
+    const result = await (await MyMongo).db("prod").collection("missions").updateOne(
         query, {
         $set: {
             "reports.$.isClosed": body["action"] == "close",

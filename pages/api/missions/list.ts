@@ -3,7 +3,7 @@ import MyMongo from "../../../lib/mongodb";
 export default async function handler(req, res) {
 	const { slug } = req.query;
 
-	const missions = MyMongo.collection("missions").aggregate([
+	const missions = (await MyMongo).db("prod").collection("missions").aggregate([
 		{
 			$lookup: {
 				from: "comments",

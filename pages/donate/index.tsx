@@ -118,7 +118,7 @@ export async function getServerSideProps() {
     let currentAmountNum = 0
     let currentAmountNumUSD = 0
     let currentAmountString = "0"
-    const configs = await MyMongo.collection("configs").findOne({});
+    const configs = await (await MyMongo).db("prod").collection("configs").findOne({});
     const serverDonationGoalUsd = configs.server_donation_goal_usd;
     const serverDonationGoalUsdString = serverDonationGoalUsd.toLocaleString("en-US", {
         style: "currency",
@@ -145,8 +145,8 @@ export async function getServerSideProps() {
             "https://cdn.jsdelivr.net/gh/ismartcoding/currency-api@main/latest/data.json"
         );
         currentAmountNumUSD = currentAmountNum / USDtoCADRate.data.quotes.CAD;
-        console.log("Successful Patreon API call, storing in DB")
-        MyMongo.collection("configs").findOneAndUpdate(
+        console.log("Successful Patreon API call, storing in DB");
+        (await MyMongo).db("prod").collection("configs").findOneAndUpdate(
             {},
             {
                 $set: {

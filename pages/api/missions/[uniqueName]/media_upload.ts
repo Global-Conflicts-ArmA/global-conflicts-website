@@ -65,7 +65,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			date: new Date(),
 			discord_id: session.user["discord_id"],
 		}
-		const result = await MyMongo.collection<{}>("missions").findOneAndUpdate({ uniqueName: uniqueName }, {
+		const result = await (await MyMongo).db("prod").collection<{}>("missions").findOneAndUpdate({ uniqueName: uniqueName }, {
 			$addToSet: { "media": mediaObj }
 		}, { returnDocument: ReturnDocument.AFTER })
 
@@ -98,7 +98,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			"media.$.type": mimeType
 		}
 
-		const result2 = await MyMongo.collection<{}>("missions").findOneAndUpdate({ uniqueName: uniqueName, "media._id": insertedId }, {
+		const result2 = await (await MyMongo).db("prod").collection<{}>("missions").findOneAndUpdate({ uniqueName: uniqueName, "media._id": insertedId }, {
 			$set: update_set
 		})
 		mediaObj["_id"] = insertedId
@@ -123,7 +123,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 				discord_id: session.user["discord_id"],
 			});
 		}
-		const updateResult = await MyMongo.collection<{}>(
+		const updateResult = await (await MyMongo).db("prod").collection<{}>(
 			"missions"
 		).findOneAndUpdate(
 			{
@@ -146,7 +146,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		`http://globalconflicts.net:3001/users/${session.user["discord_id"]}`
 	);
 
-	const missionFound = await MyMongo.collection<{}>("missions").findOne({ uniqueName: uniqueName })
+	const missionFound = await (await MyMongo).db("prod").collection<{}>("missions").findOne({ uniqueName: uniqueName })
 
 	postNewMedia({
 		name: missionFound["name"],

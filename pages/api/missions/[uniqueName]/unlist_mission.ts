@@ -38,7 +38,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	if (isMissionReviewer || req["isAdmin"]) {
-		await MyMongo.collection("missions").updateOne(
+		await (await MyMongo).db("prod").collection("missions").updateOne(
 			{ uniqueName: uniqueName },
 			{
 				$set: {
@@ -47,12 +47,12 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			}
 		);
 	} else {
-		const missionFromDb = await MyMongo.collection("missions").findOne(
+		const missionFromDb = await (await MyMongo).db("prod").collection("missions").findOne(
 			{ uniqueName: uniqueName },
 			{ projection: { authorID: 1 } }
 		);
 		if (missionFromDb.authorID == session.user["discord_id"]) {
-			await MyMongo.collection("missions").updateOne(
+			await (await MyMongo).db("prod").collection("missions").updateOne(
 				{ uniqueName: uniqueName },
 				{
 					$set: {

@@ -54,7 +54,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		};
 	}
 
-	const missionFound = await MyMongo.collection("missions").findOne(query, {
+	const missionFound = await (await MyMongo).db("prod").collection("missions").findOne(query, {
 		projection: {
 			"updates.$": 1,
 		},

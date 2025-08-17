@@ -678,7 +678,7 @@ function MissionList({ missions }) {
 }
 
 export async function getServerSideProps() {
-	const configs = await MyMongo.collection("configs").findOne(
+	const configs = await (await MyMongo).db("prod").collection("configs").findOne(
 		{},
 		{ projection: { allowed_terrains: 1 } }
 	);
@@ -688,7 +688,7 @@ export async function getServerSideProps() {
 		return RegExp(item.class.toLowerCase(), "i");
 	});
 
-	const missions = await MyMongo.collection("missions")
+	const missions = await (await MyMongo).db("prod").collection("missions")
 		.aggregate([
 			{
 				$match: {

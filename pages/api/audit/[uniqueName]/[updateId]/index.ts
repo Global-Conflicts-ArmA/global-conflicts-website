@@ -36,7 +36,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	const reviewerNotes = body["reviewerNotes"];
 	const reviewChecklist = body["reviewChecklist"];
 
-	const updateResult = await MyMongo.collection("missions").findOneAndUpdate(
+	const updateResult = await (await MyMongo).db("prod").collection("missions").findOneAndUpdate(
 		query,
 		{
 			$set: {

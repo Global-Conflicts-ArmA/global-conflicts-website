@@ -33,7 +33,7 @@ export default async function handler(
 	let pullResult: UpdateResult;
 
 	if (doSignup) {
-		addResult = await MyMongo.collection("users").updateOne(
+		addResult = await (await MyMongo).db("prod").collection("users").updateOne(
 			{
 				discord_id: session.user["discord_id"],
 			},
@@ -52,7 +52,7 @@ export default async function handler(
 			}
 		);
 		if (addResult.modifiedCount > 0) {
-			await MyMongo.collection("events").updateOne(
+			await (await MyMongo).db("prod").collection("events").updateOne(
 				{ _id: eventObjectId },
 				{
 					$addToSet: {
@@ -63,7 +63,7 @@ export default async function handler(
 			return res.status(200).send("");
 		}
 	} else {
-		pullResult = await MyMongo.collection("users").updateOne(
+		pullResult = await (await MyMongo).db("prod").collection("users").updateOne(
 			{
 				discord_id: session.user["discord_id"],
 			},
@@ -76,7 +76,7 @@ export default async function handler(
 			}
 		);
 		if (pullResult.modifiedCount > 0) {
-			await MyMongo.collection("events").updateOne(
+			await (await MyMongo).db("prod").collection("events").updateOne(
 				{ _id: eventObjectId },
 				{
 					$pull: {

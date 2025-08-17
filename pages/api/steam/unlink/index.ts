@@ -13,7 +13,7 @@ export default async function handler(
     return res.redirect('/user');
 
   }
-  const mongoResult = await MyMongo.collection("users").updateOne({ discord_id: session.user["discord_id"] }, {
+  const mongoResult = await (await MyMongo).db("prod").collection("users").updateOne({ discord_id: session.user["discord_id"] }, {
     $unset: { steam: "" }
   });
   return res.redirect('/user');

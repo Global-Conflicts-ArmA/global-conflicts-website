@@ -25,7 +25,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: `Not Authorized` });
 	}
 
-	const mission = await MyMongo.collection("missions").findOne(
+	const mission = await (await MyMongo).db("prod").collection("missions").findOne(
 		{
 			uniqueName: uniqueName,
 		},

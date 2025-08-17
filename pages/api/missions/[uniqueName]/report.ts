@@ -45,7 +45,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		text: text,
 	};
 
-	const updateResult = await MyMongo.collection("missions").updateOne(
+	const updateResult = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
 		},
@@ -54,7 +54,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		}
 	);
 
-	const mission = await MyMongo.collection("missions").findOne({
+	const mission = await (await MyMongo).db("prod").collection("missions").findOne({
 		uniqueName: uniqueName,
 	});
 
@@ -87,7 +87,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		date: new Date(),
 		text: text,
 	};
-	const updateResult = await MyMongo.collection("missions").updateOne(
+	const updateResult = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
 			"reports._id": review._id,
@@ -106,7 +106,7 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { id } = req.body;
 	const session = await getServerSession(req, res, authOptions);
 
-	const updateResult = await MyMongo.collection("missions").updateOne(
+	const updateResult = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
 		},

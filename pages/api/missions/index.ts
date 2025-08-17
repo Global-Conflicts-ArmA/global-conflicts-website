@@ -94,7 +94,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	let name = body["name"];
 	const safeName = makeSafeName(name);
 
-	const found = await MyMongo.collection("missions").findOne(
+	const found = await (await MyMongo).db("prod").collection("missions").findOne(
 		{ uniqueName: safeName },
 		{ projection: { _id: 1 } }
 	);
@@ -118,7 +118,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const descriptionNoMarkdown = await remark().use(strip).process(description);
 
-	const configs = await MyMongo.collection("configs").findOne(
+	const configs = await (await MyMongo).db("prod").collection("configs").findOne(
 		{},
 		{ projection: { allowed_terrains: 1 } }
 	);
@@ -134,7 +134,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	).display_name;
 
 	const tagsArray = tags.map((item) => item.value);
-	await MyMongo.collection("missions").insertOne({
+	await (await MyMongo).db("prod").collection("missions").insertOne({
 		uniqueName: safeName,
 		name: name,
 		authorID: session.user["discord_id"],

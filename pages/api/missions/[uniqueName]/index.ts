@@ -106,7 +106,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		updateBody["mediaFileName"] = req["mediaName"];
 	}
 
-	await MyMongo.collection("missions").updateOne(
+	await (await MyMongo).db("prod").collection("missions").updateOne(
 		{ uniqueName: uniqueName },
 		{
 			$set: updateBody,
@@ -160,7 +160,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		updateBody["mediaFileName"] = req["mediaName"];
 	}
 
-	await MyMongo.collection("missions").updateOne(
+	await (await MyMongo).db("prod").collection("missions").updateOne(
 		{ uniqueName: uniqueName },
 		{
 			$set: updateBody,

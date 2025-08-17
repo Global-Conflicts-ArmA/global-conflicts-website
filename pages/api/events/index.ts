@@ -96,7 +96,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			});
 		});
 	});
-	await MyMongo.collection("events").insertOne({
+	await (await MyMongo).db("prod").collection("events").insertOne({
 		name: body["eventName"],
 		slots: body["eventSlotCount"],
 		description: body["eventDescription"],
@@ -150,7 +150,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		setData["imageLink"] = process.env.EVENT_MEDIA_FOLDER + filename;
 	}
 
-	await MyMongo.collection("events").updateOne(
+	await (await MyMongo).db("prod").collection("events").updateOne(
 		{ _id: new ObjectId(body["_id"]) },
 		{
 			$set: setData,

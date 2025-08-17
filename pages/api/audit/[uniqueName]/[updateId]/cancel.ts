@@ -61,7 +61,7 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 		};
 	}
 
-	const result = await MyMongo.collection("missions").findOne(query, {
+	const result = await (await MyMongo).db("prod").collection("missions").findOne(query, {
 		projection: { _id: 1, updates: 1, uniqueName: 1, name: 1 },
 	});
 
@@ -71,7 +71,7 @@ apiRoute.post(async (req: NextApiRequest, res) => {
 			.json({ error: "You can't cancel the audit request for this version." });
 	}
 
-	const updateResult = await MyMongo.collection("missions").updateOne(query, {
+	const updateResult = await (await MyMongo).db("prod").collection("missions").updateOne(query, {
 		$set: {
 			"updates.$.testingAudit.reviewState": null,
 		},

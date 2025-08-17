@@ -39,7 +39,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     };
 
 
-    const hasRating = await MyMongo.collection("missions").findOne(
+    const hasRating = await (await MyMongo).db("prod").collection("missions").findOne(
         {
             uniqueName: uniqueName,
             "ratings.ratingAuthorId": session.user["discord_id"]
@@ -47,7 +47,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     );
 
     if (hasRating) {
-        await MyMongo.collection("missions").updateOne(
+        await (await MyMongo).db("prod").collection("missions").updateOne(
             {
                 uniqueName: uniqueName,
                 "ratings.ratingAuthorId": session.user["discord_id"]
@@ -59,7 +59,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
         }
         );
     } else {
-        await MyMongo.collection("missions").updateOne(
+        await (await MyMongo).db("prod").collection("missions").updateOne(
             {
                 uniqueName: uniqueName
             }, {

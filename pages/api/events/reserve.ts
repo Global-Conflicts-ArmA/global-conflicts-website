@@ -28,7 +28,7 @@ export default async function handler(
 	const eventId = req.body.eventId;
 	const eventObjectId = new ObjectId(eventId);
 
-	const eventFound = await MyMongo.collection("events").findOne({
+	const eventFound = await (await MyMongo).db("prod").collection("events").findOne({
 		_id: eventObjectId,
 	});
 	if (!eventFound) {
@@ -78,7 +78,7 @@ export default async function handler(
 
 
 
-	addResult = await MyMongo.collection("users").findOneAndUpdate(
+	addResult = await (await MyMongo).db("prod").collection("users").findOneAndUpdate(
 		{
 			discord_id:  session.user["discord_id"],
 			"eventsSignedUp.eventId": eventObjectId,

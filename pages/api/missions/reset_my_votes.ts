@@ -26,7 +26,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: `Not Authorized` });
 	}
 
-	const updateResult = MyMongo.collection<{}>("missions").updateMany(
+	const updateResult = (await MyMongo).db("prod").collection<{}>("missions").updateMany(
 		{ votes: session.user["discord_id"] },
 		{
 			$pull: {

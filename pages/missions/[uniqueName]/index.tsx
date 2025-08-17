@@ -1568,7 +1568,7 @@ export async function getServerSideProps(context) {
 	}
 
 	const mission = (
-		await MyMongo.collection("missions")
+		await (await MyMongo).db("prod").collection("missions")
 			.aggregate([
 				{
 					$match: { uniqueName: context.params.uniqueName },
@@ -1668,7 +1668,7 @@ export async function getServerSideProps(context) {
 		mission["reports"] = mission["reports"].reverse();
 		await Promise.all(
 			mission["reports"].map(async (report): Promise<any> => {
-				var user = await MyMongo.collection("users").findOne(
+				var user = await (await MyMongo).db("prod").collection("users").findOne(
 					{ discord_id: report["authorID"] },
 					{ projection: { username: 1, nickname: 1, image: 1 } }
 				);
@@ -1686,7 +1686,7 @@ export async function getServerSideProps(context) {
 		mission["reviews"] = mission["reviews"].reverse();
 		await Promise.all(
 			mission["reviews"].map(async (review): Promise<any> => {
-				var user = await MyMongo.collection("users").findOne(
+				var user = await (await MyMongo).db("prod").collection("users").findOne(
 					{ discord_id: review["authorID"] },
 					{ projection: { username: 1, nickname: 1, image: 1 } }
 				);
@@ -1703,7 +1703,7 @@ export async function getServerSideProps(context) {
 	if (mission["ratings"]) {
 		await Promise.all(
 			mission["ratings"].map(async (rating): Promise<any> => {
-				var user = await MyMongo.collection("users").findOne(
+				var user = await (await MyMongo).db("prod").collection("users").findOne(
 					{ discord_id: rating["ratingAuthorId"] },
 					{ projection: { username: 1, nickname: 1, image: 1 } }
 				);
@@ -1726,7 +1726,7 @@ export async function getServerSideProps(context) {
 				await Promise.all(
 					history["leaders"]?.map(async (leader) => {
 						delete leader["_id"];
-						var user = await MyMongo.collection("users").findOne(
+						var user = await (await MyMongo).db("prod").collection("users").findOne(
 							{ discord_id: leader["discordID"] },
 							{ projection: { username: 1, nickname: 1 } }
 						);
@@ -1799,14 +1799,14 @@ export async function getServerSideProps(context) {
 	const isMissionReviewer = hasCreds(session, CREDENTIAL.MISSION_REVIEWER);
 	let missionTestingQuestions = null;
 	if (isMissionReviewer) {
-		const configs = await MyMongo.collection("configs").findOne(
+		const configs = await (await MyMongo).db("prod").collection("configs").findOne(
 			{},
 			{ projection: { mission_review_questions: 1 } }
 		);
 		missionTestingQuestions = configs["mission_review_questions"];
 	}
 
-	const configs = await MyMongo.collection("configs").findOne(
+	const configs = await (await MyMongo).db("prod").collection("configs").findOne(
 		{},
 		{ projection: { allowed_terrains: 1 } }
 	);

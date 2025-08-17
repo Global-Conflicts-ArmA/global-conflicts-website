@@ -315,14 +315,14 @@ function TopVoted({ missions, maxVotes }) {
 }
 
 export async function getServerSideProps(context) {
-	const configs = await MyMongo.collection("configs").findOne(
+	const configs = await (await MyMongo).db("prod").collection("configs").findOne(
 		{},
 		{ projection: { allowed_terrains: 1 } }
 	);
 
 	const terrainsMap: MapItem[] = configs["allowed_terrains"];
 
-	const missions = await MyMongo.collection("missions")
+	const missions = await (await MyMongo).db("prod").collection("missions")
 		.aggregate([
 			{
 				$match: { votes: { $exists: true, $type: "array", $ne: [] } },
@@ -359,7 +359,7 @@ export async function getServerSideProps(context) {
 
 	const session = await getSession(context);
 	const maxVotes = (
-		await MyMongo.collection("configs").findOne(
+		await (await MyMongo).db("prod").collection("configs").findOne(
 			{},
 			{ projection: { max_votes: 1 } }
 		)

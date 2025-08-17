@@ -44,7 +44,7 @@ export const authOptions: NextAuthOptions = {
 	],
 
 	adapter: MongoDBAdapter({
-		db: MyMongo,
+		db: await (await MyMongo).db("prod"),
 	}),
 	callbacks: {
 		async session({ session, user, token }) {

@@ -824,7 +824,7 @@ export default function EditEvent({ event }) {
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-	const event = await MyMongo.collection("events").findOne({
+	const event = await (await MyMongo).db("prod").collection("events").findOne({
 		slug: context.params.slug,
 	});
 

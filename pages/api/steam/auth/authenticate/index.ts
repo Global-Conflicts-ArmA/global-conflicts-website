@@ -26,7 +26,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   const steamUser = await steamAuthClient.authenticate(req);
-  const mongoResult = await MyMongo.collection("users").updateOne({ discord_id: session.user["discord_id"] }, {
+  const mongoResult = await (await MyMongo).db("prod").collection("users").updateOne({ discord_id: session.user["discord_id"] }, {
     $set: {
       steam: {
         "steam_username": steamUser["username"],

@@ -51,46 +51,53 @@ export default function EventRosterModal({ isOpen, onClose, roster, event }) {
 								<div className="prose italic">These are the reservations for the important slots:</div>
 
 								{roster?.map((mission, index) => {
-									return <div key={mission.name} className="p-4 mb-2  border-2 rounded-lg bg-white dark:bg-gray-800 dark:drop-shadow-2xl dark:shadow-md  dark:border-slate-500/[0.1] border-slate-500/[0.2] drop-shadow-md">
-										{
-											roster.length > 1 ? <div className="flex flex-row justify-between">
-												<div className="text-3xl font-bold mb-2">{mission.name}:</div>
-												<h6 className="text-xs text-right">Mission #{index + 1}</h6>
-											</div> : <></>
-
-										}
-										{mission.factions?.map(faction => {
-											return <div key={faction.name}>
-												{mission.factions.length > 1 ? <div className="text-2xl font-bold mt-2">{faction.name}:</div>
-													: <></>}
-
-												{faction.slots?.map(slot => {
-													return <div key={slot.name} className="flex flex-row flex-wrap">
-														<div className="mr-2  font-bold">{slot.name}: </div>
-														<div className="list-comma">
-															{slot.players?.map(player => {
-																return <span key={player} className="comma">{player}</span>
-															})}
-															{!slot.players ? <>No takers yet</> : <></>}
-														</div>
-													</div>
-												})}
-											</div>
-										})}
-									</div>
+								  return (
+								    <div key={`${mission.name}-${index}`} className="p-4 mb-2  border-2 rounded-lg bg-white dark:bg-gray-800 dark:drop-shadow-2xl dark:shadow-md dark:border-slate-500/[0.1] border-slate-500/[0.2] drop-shadow-md">
+								      {roster.length > 1 && (
+								        <div className="flex flex-row justify-between">
+								          <div className="text-3xl font-bold mb-2">{mission.name}:</div>
+								          <h6 className="text-xs text-right">Mission #{index + 1}</h6>
+								        </div>
+								      )}
+								      {mission.factions?.map((faction, factionIndex) => {
+								        return (
+								          <div key={`${faction.name}-${factionIndex}`}>
+								            {mission.factions.length > 1 && <div className="text-2xl font-bold mt-2">{faction.name}:</div>}
+								            {faction.slots?.map((slot, slotIndex) => {
+								              return (
+								                <div key={`${slot.name}-${slotIndex}`} className="flex flex-row flex-wrap">
+								                  <div className="mr-2 font-bold">{slot.name}: </div>
+								                  <div className="list-comma">
+								                    {slot.players?.map((player, playerIndex) => {
+								                      return (
+								                        <span key={`${player}-${playerIndex}`} className="comma">
+								                          {player}
+								                        </span>
+								                      );
+								                    })}
+								                    {!slot.players && <>No takers yet</>}
+								                  </div>
+								                </div>
+								              );
+								            })}
+								          </div>
+								        );
+								      })}
+								    </div>
+								  );
 								})}
 								<div className="prose italic">Full list of sign ups:</div>
-								<div className=" flex flex-row flex-wrap ">
-									{event.signups.map((user) =>
-										<div className=" badge  h-14 m-1">
-
-											<div className="avatar">
-												<div className="w-10 rounded-full mr-2 ">
-													{user.image ? <img src={user.image} />:<></>} 
-												</div>
-											</div>
-											<div className="prose self-center mr-1">{user.username}</div>
-										</div>)}
+								<div className="flex flex-row flex-wrap">
+								  {event.signups.map((user, userIndex) => (
+								    <div key={`${user.username}-${userIndex}`} className="badge h-14 m-1">
+								      <div className="avatar">
+								        <div className="w-10 rounded-full mr-2">
+								          {user.image ? <img src={user.image} alt={user.username} /> : <></>}
+								        </div>
+								      </div>
+								      <div className="prose self-center mr-1">{user.username}</div>
+								    </div>
+								  ))}
 								</div>
 							</div>
 							<div className="flex flex-row justify-between mt-4">

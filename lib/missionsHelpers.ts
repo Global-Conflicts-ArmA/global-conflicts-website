@@ -41,7 +41,7 @@ export async function filterMissionFile(req, file, cb, isUpdate = false) {
 			let maxPlayers = body["maxPlayers"];
 			const safeName = makeSafeName(name);
 
-			const found = await MyMongo.collection("missions").findOne(
+			const found = await (await MyMongo).db("prod").collection("missions").findOne(
 				{ uniqueName: safeName },
 				{ projection: { _id: 1 } }
 			);

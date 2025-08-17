@@ -101,7 +101,7 @@ function MyMissions({ missions }) {
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-	const missions = await MyMongo.collection("missions")
+	const missions = await (await MyMongo).db("prod").collection("missions")
 		.find(
 			{
 				authorID: session.user["discord_id"],

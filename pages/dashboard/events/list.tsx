@@ -114,12 +114,12 @@ export default function DashboardEventList({ events }) {
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
-	const events = await MyMongo.collection("events")
+	const events = await (await MyMongo).db("prod").collection("events")
 		.find({}, { projection: { contentPages: 0 } })
 		.toArray();
 
 	for (const event of events) {
-		const cantMakeItCount = await MyMongo.collection("users")
+		const cantMakeItCount = await (await MyMongo).db("prod").collection("users")
 			.find({
 				cantMakeIt: { $in: [{ eventId: event._id.toString() }] },
 			})

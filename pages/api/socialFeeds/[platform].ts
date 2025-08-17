@@ -15,7 +15,7 @@ const apiRoute = nextConnect({
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { platform } = req.query;
 	const body = req.body;
-	const tokenObj = await MyMongo.collection("socialFeedTokens").findOne({});
+	const tokenObj = await (await MyMongo).db("prod").collection("socialFeedTokens").findOne({});
 	if (req.headers.token != tokenObj.token) {
 		return res.status(401).send({});
 	}

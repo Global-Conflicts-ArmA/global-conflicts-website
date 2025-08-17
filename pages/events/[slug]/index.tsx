@@ -1,16 +1,14 @@
 import Head from "next/head";
-
 import Countdown from "react-countdown";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-
 import MyMongo from "../../../lib/mongodb";
-
+import clientPromise from "../../../lib/mongodb";
 import SlotSelectionModal from "../../../components/modals/slot_selection_modal";
-import axios, { Axios } from "axios";
+import axios from "axios";
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
-import QuestionMarkCircleIcon from "@heroicons/react/outline/QuestionMarkCircleIcon";
+import { QuestionMarkCircleIcon } from "@heroicons/react/outline";
 import AboutSignUpModal from "../../../components/modals/about_sign_ups_modal";
 import NavBarItem from "../../../components/navbar_item";
 import EventCard from "../../../components/event_list_card";
@@ -21,16 +19,12 @@ import {
 import EventRosterModal from "../../../components/modals/event_roster_modal";
 import useSWR from "swr";
 import fetcher from "../../../lib/fetcher";
-
 import { generateMarkdown } from "../../../lib/markdownToHtml";
-
 import prism from "prismjs";
 require("prismjs/components/prism-sqf");
-
 import "prismjs/themes/prism-okaidia.css";
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
-
-
+import { GetStaticPropsContext } from 'next/types';
+import { callCantMakeIt, callReserveSlot, callSignUp, hasReservableSlots } from '../../../lib/eventhelpers';
 const Completionist = () => (
     <div className="my-10 prose">
         <h1>It has begun!</h1>
@@ -84,76 +78,18 @@ const renderer = ({ days, hours, minutes, seconds, completed }) => {
     }
 };
 
-async function callReserveSlot(
-    event,
-    onSuccess,
-    onError,
-    eventMissionList
-) {
-    axios
-        .post("/api/events/reserve", {
-            eventId: event._id,
-            eventMissionList
-        })
-        .then((response) => {
-            onSuccess();
-        })
-        .catch((error) => {
-        
-            toast.error(error.response.data.error);
-            onError();
-        });
-}
-
-async function callCantMakeIt(event, onSuccess, onError, cantMakeIt) {
-    axios
-        .post("/api/events/cant_make_it", {
-            eventId: event._id,
-
-            cantMakeIt: cantMakeIt,
-        })
-        .then((response) => {
-            onSuccess();
-        })
-        .catch((error) => {
-            onError();
-        });
-}
-
-async function callSignUp(event, onSuccess, onError, doSignup) {
-    axios
-        .post("/api/events/sign_up", {
-            eventId: event._id,
-            doSignup: doSignup,
-        })
-        .then((response) => {
-            onSuccess();
-        })
-        .catch((error) => {
-            onError();
-        });
-}
-
 export default function EventHome({ event }) {
-
-
-
-
     const [currentContentPage, setCurrentContentPage] = useState(
         event.contentPages[0]
     );
-
     let [slotsModalOpen, setSlotsModalOpen] = useState(false);
     let [rosterModalOpen, setRosterModalOpen] = useState(false);
     let [aboutSignUpModalOpen, setAboutSignUpModalOpen] = useState(false);
     const { data: session, status } = useSession();
-
     let [isSignedUp, setIsSignedUp] = useState(false);
     let [didSignUp, setDidSignUp] = useState(null);
     let [hasReservedSlot, setHasReservedSlot] = useState(false);
-
     let [cantMakeIt, setCantMakeIt] = useState(false);
-
     const reloadSession = () => {
         const event = new Event("visibilitychange");
         document.dispatchEvent(event);
@@ -170,9 +106,6 @@ export default function EventHome({ event }) {
     useEffect(() => {
         prism.highlightAll();
     }, [currentContentPage]);
-
-
-
 
     useEffect(() => {
         if (session != null) {
@@ -196,36 +129,6 @@ export default function EventHome({ event }) {
             }
         }
     }, [event, session]);
-
-
-
-    function hasReservableSlots() {
-        var has = false;
-        if (!event.eventMissionList) {
-            return false;
-        }
-        for (let index = 0; index < event.eventMissionList.length; index++) {
-            const mission = event.eventMissionList[index];
-            for (let index = 0; index < mission.factions.length; index++) {
-                const faction = mission.factions[index];
-                if (faction.slots.length >= 1) {
-                    has = true;
-                }
-            }
-        }
-        return has;
-    }
-
-    function getPreviewImage(where: string) {
-        if (event.imageLink.includes(".webm") || event.imageLink.includes(".mp4")) {
-            if (where == "twitter") {
-                return "https://gc-next-website.vercel.app/twitterimage.jpg";
-            }
-            return "https://gc-next-website.vercel.app/twitterimage.jpg";
-        } else {
-            return `https://gc-next-website.vercel.app${event.imageLink}`;
-        }
-    }
 
     return <>
         <Head>
@@ -325,10 +228,10 @@ export default function EventHome({ event }) {
             ></EventCard>
 
             <div
-                className={`flex  my-5 ${hasReservableSlots() ? "justify-between" : "justify-end"
+                className={`flex  my-5 ${hasReservableSlots(event) ? "justify-between" : "justify-end"
                     }`}
             >
-                {hasReservableSlots() && (
+                {hasReservableSlots(event) && (
                     <button
                         className="primary-btn"
                         onClick={() => {
@@ -398,15 +301,15 @@ export default function EventHome({ event }) {
                         ) : (
                             <div className="flex flex-1 space-x-2">
                                 <button
-                                    className={`flex-1 flex-grow btn btn-lg  ${hasReservableSlots() ? "btn-primary" : "btn-disabled"
+                                    className={`flex-1 flex-grow btn btn-lg  ${hasReservableSlots(event) ? "btn-primary" : "btn-disabled"
                                         }`}
                                     onClick={() => {
-                                        if (hasReservableSlots()) {
+                                        if (hasReservableSlots(event)) {
                                             setSlotsModalOpen(true);
                                         }
                                     }}
                                 >
-                                    {hasReservableSlots()
+                                    {hasReservableSlots(event)
                                         ? "Reserve a Slot (Optional)"
                                         : "This event has no reservable slots"}
                                 </button>
@@ -577,63 +480,56 @@ export default function EventHome({ event }) {
     </>;
 }
 
-export async function getStaticProps({ params }: Params) {
+export async function getStaticProps(context: GetStaticPropsContext) {
+    const { params } = context;
+    const slug = params?.slug;
 
-    const events = await MyMongo.collection("events").aggregate(
-        [
-            {
-                $match: { slug: params.slug }
-
+    const events = await (await MyMongo).db("prod").collection("events").aggregate([
+        { $match: { slug } },
+        {
+            $lookup: {
+                from: "users",
+                localField: "signups",
+                foreignField: "discord_id",
+                as: "signups",
             },
-            {
-                $lookup:
-                {
-                    from: "users",
-                    localField: "signups",
-                    foreignField: "discord_id",
-                    as: "signups",
-
-
-                }
+        },
+        {
+            $project: {
+                "signups._id": 0,
+                "signups.roles": 0,
+                "signups.nickname": 0,
+                "signups.email": 0,
+                "signups.emailVerified": 0,
+                "signups.eventsSignedUp": 0,
             },
-            {
-                $project: {
-                    "signups._id": 0,
-                    "signups.roles": 0,
-                    "signups.nickname": 0,
-                    "signups.email": 0,
-                    "signups.emailVerified": 0,
-                    "signups.eventsSignedUp": 0,
+        },
+    ]).toArray();
 
-                },
+    const event = events[0];
 
-            }
-        ]
-
-    ).toArray()
-    const event = events[0]
-
-
-    async function iterateContentPages(contentPages) {
-        await Promise.all(
-            contentPages.map(async (contentPage) => {
-                if (contentPage.markdownContent) {
-
-                    contentPage.parsedMarkdownContent = generateMarkdown(
-                        contentPage.markdownContent, false
-                    );
-                }
-            })
-        );
+    if (!event) {
+        return {
+            notFound: true,
+        };
     }
 
-    await iterateContentPages(event?.contentPages ?? []);
+    if (event.contentPages) {
+        await Promise.all(event.contentPages.map(async (contentPage) => {
+            if (contentPage.markdownContent) {
+                contentPage.parsedMarkdownContent = await generateMarkdown(
+                    contentPage.markdownContent,
+                    false
+                );
+            }
+        }));
+    }
 
     if (event.eventMissionList) {
         event.eventMissionList.forEach(mission => {
-            mission._id = mission._id.toString();
+            mission._id = mission._id?.toString();
             mission.factions.forEach(faction => {
-                faction._id = faction._id.toString();
+                faction._id = faction._id?.toString();
                 faction.slots.forEach(slot => {
                     slot._id = slot._id?.toString();
                 });
@@ -642,45 +538,40 @@ export async function getStaticProps({ params }: Params) {
     }
 
     if (event.signups) {
-        await Promise.all(
-            event.signups.map(async (element): Promise<any> => {
-                const discordUserResponse = await axios.get(
-                    `http://globalconflicts.net:3001/users/${element["discord_id"]}`
-                )
-                element["image"] = discordUserResponse.data["displayAvatarURL"];
-            })
-        );
+        await Promise.all(event.signups.map(async (element) => {
+            const res = await axios.get(
+                `http://globalconflicts.net:3001/users/${element["discord_id"]}`
+            );
+            element["image"] = res.data["displayAvatarURL"];
+        }));
     }
 
-
-
-    return { props: { event: { ...event, _id: event["_id"].toString() } }, revalidate: 10, };
+    return {
+        props: {
+            event: {
+                ...event,
+                _id: event._id.toString(),
+            },
+        },
+        revalidate: true,
+    };
 }
 
-// This function gets called at build time on server-side.
-// It may be called again, on a serverless function, if
-// the path has not been generated.
 export async function getStaticPaths() {
-    const events = await MyMongo.collection("events")
-        .find(
-            {},
-            {
-                projection: {
-                    _id: 0,
-                    name: 1,
-                    slug: 1,
-                },
-            }
-        )
-        .toArray();
-
-    // Get the paths we want to pre-render based on posts
+    const client = await clientPromise;
+    const db = client.db();
+  
+    const events = await db
+      .collection("events")
+      .find({}, { projection: { slug: 1 } })
+      .toArray();
+  
     const paths = events.map((event) => ({
-        params: { slug: event.slug },
+      params: { slug: event.slug },
     }));
-
-    // We'll pre-render only these paths at build time.
-    // { fallback: blocking } will server-render pages
-    // on-demand if the path doesn't exist.
-    return { paths, fallback: "blocking", };
-}
+  
+    return {
+      paths,
+      fallback: 'blocking',
+    };
+  }

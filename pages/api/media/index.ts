@@ -129,7 +129,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 			}
 			allLinks = [...allLinks, ...directLinksObjs];
 		}
-		const insertResult = await MyMongo.collection("mediaWithtoutAssignedMissions").insertMany(allLinks);
+		const insertResult = await (await MyMongo).db("prod").collection("mediaWithtoutAssignedMissions").insertMany(allLinks);
 		if (insertResult.acknowledged) {
 			const botResponse = await axios.get(
 				`http://globalconflicts.net:3001/users/${session.user["discord_id"]}`

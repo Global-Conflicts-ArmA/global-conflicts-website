@@ -35,7 +35,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const historyIdObjId = new ObjectId(historyId as string);
 
-	MyMongo.collection("missions")
+	(await MyMongo).db("prod").collection("missions")
 		.findOneAndUpdate(
 			{ uniqueName: uniqueName },
 			{ $set: { "history.$[historyArray].leaders.$[leadersArray].aar": arrText } },

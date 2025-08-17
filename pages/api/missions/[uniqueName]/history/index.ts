@@ -34,7 +34,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: `Not Authorized` });
 	}		
 	
-	const result = await MyMongo.collection("missions").findOne(
+	const result = await (await MyMongo).db("prod").collection("missions").findOne(
 		{
 			uniqueName: uniqueName,
 		},
@@ -79,13 +79,13 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		return res.status(401).json({ error: `Not Authorized` });
 	}		
 
-	const updateResult = await MyMongo.collection("missions").updateOne(
+	const updateResult = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
 		},
 		{ $set: { lastPlayed: history["date"] }, $addToSet: { history: history } }
 	);
-	const mission = await MyMongo.collection("missions").findOne({
+	const mission = await (await MyMongo).db("prod").collection("missions").findOne({
 		uniqueName: uniqueName,
 	});
 	const botResponse = await axios.get(
@@ -114,7 +114,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 	history["_id"] = new ObjectId(history["_id"]);
 	history["date"] = new Date(history["date"]);
 
-	const updateResult = await MyMongo.collection("missions").updateOne(
+	const updateResult = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
 			"history._id": history["_id"],
@@ -126,7 +126,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 			},
 		}
 	);
-	const mission = await MyMongo.collection("missions").findOne({
+	const mission = await (await MyMongo).db("prod").collection("missions").findOne({
 		uniqueName: uniqueName,
 	});
 	const botResponse = await axios.get(
@@ -153,7 +153,7 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const history = req.body;
 
-	const updateResult = await MyMongo.collection("missions").updateOne(
+	const updateResult = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
 			"history._id": history["_id"],

@@ -82,7 +82,7 @@ export async function getServerSideProps(context) {
 	if(!session){
 		return { props: { ...{}} };
 	}
-	const steamDataMongo = await MyMongo.collection("users")
+	const steamDataMongo = await (await MyMongo).db("prod").collection("users")
 		.findOne(
 			{
 				discord_id: session.user["discord_id"],

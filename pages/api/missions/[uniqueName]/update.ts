@@ -87,7 +87,7 @@ const missionUpload = multer({
 
 				const isMajorVersion = body["isMajorVersion"];
 
-				const missionFound = await MyMongo.collection("missions").findOne(query, {
+				const missionFound = await (await MyMongo).db("prod").collection("missions").findOne(query, {
 					projection: {
 						type: 1,
 						size: 1,
@@ -172,7 +172,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		fileName: missionFileName,
 	};
 
-	const updateResult = await MyMongo.collection<{}>("missions").findOneAndUpdate(
+	const updateResult = await (await MyMongo).db("prod").collection<{}>("missions").findOneAndUpdate(
 		query,
 		{
 			$set: {

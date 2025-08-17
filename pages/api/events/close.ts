@@ -27,7 +27,7 @@ export default async function handler(
 	const numberOfParticipants = parseInt(req.body.numberOfParticipants);
 	const eventObjectId = new ObjectId(eventId);
 
-	const eventFound = await MyMongo.collection("events").updateOne(
+	const eventFound = await (await MyMongo).db("prod").collection("events").updateOne(
 		{
 			_id: eventObjectId,
 		},

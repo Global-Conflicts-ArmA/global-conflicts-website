@@ -681,7 +681,7 @@ function EditMission({ mission }) {
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
 
-	const mission = await MyMongo.collection("missions").findOne(
+	const mission = await (await MyMongo).db("prod").collection("missions").findOne(
 		{
 			uniqueName: context.params.uniqueName,
 		},

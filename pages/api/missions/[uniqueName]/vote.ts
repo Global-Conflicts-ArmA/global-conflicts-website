@@ -22,11 +22,11 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		res.status(401).json({ error: "You must be logged in to vote!" });
 	}
 
-	const voteCountResult = await MyMongo.collection("missions").count({
+	const voteCountResult = await (await MyMongo).db("prod").collection("missions").count({
 		votes: session.user["discord_id"],
 	});
 
-	const maxvotesResult = await MyMongo.collection("configs").findOne(
+	const maxvotesResult = await (await MyMongo).db("prod").collection("configs").findOne(
 		{},
 		{ projection: { max_votes: 1 } }
 	);
@@ -36,7 +36,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		});
 	}
 
-	const mission = await MyMongo.collection("missions").findOne({
+	const mission = await (await MyMongo).db("prod").collection("missions").findOne({
 		uniqueName: uniqueName,
 	});
 
@@ -59,13 +59,13 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		});
 	}
 
-	const result = await MyMongo.collection("missions").updateOne(
+	const result = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{ uniqueName: uniqueName },
 		{ $addToSet: { votes: session.user["discord_id"] } }
 	);
 
 	if (result.modifiedCount > 0) {
-		const mission = await MyMongo.collection("missions").findOne({
+		const mission = await (await MyMongo).db("prod").collection("missions").findOne({
 			uniqueName: uniqueName,
 		});
 		const botResponse = await axios.get(
@@ -95,7 +95,7 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 	const session = await getSession({ req });
 
-	const result = await MyMongo.collection("missions").updateOne(
+	const result = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{ uniqueName: uniqueName },
 		{ $pull: { votes: session.user["discord_id"] } }
 	);
@@ -111,7 +111,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 	const session = await getSession({ req });
 
-	const result = await MyMongo.collection("missions").findOne({
+	const result = await (await MyMongo).db("prod").collection("missions").findOne({
 		uniqueName: uniqueName,
 		votes: session.user["discord_id"],
 	});
