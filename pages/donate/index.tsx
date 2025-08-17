@@ -1,20 +1,23 @@
 import MyMongo from "../../lib/mongodb";
-
 import axios from "axios";
-
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
-
+import React from "react";
 import gcSmallLogo from "../../public/logo-patch.webp";
+import { Progress } from 'flowbite-react'
+
+function checkIfArray(variable: any): boolean {
+    return Array.isArray(variable);
+}
+
 function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDonationGoalUsd, serverDonationGoalUsdString }) {
 
     function displayDonators(): React.ReactNode {
-        if (donators == undefined) {
+        if (!checkIfArray(donators)) {
             return ""
         } else {
-            donators.map((donator) => (
+            const savedDonators = donators.map((donator) => (
                 <div
                     key={donator.userId}
                     className="flex flex-col items-center content-center justify-center"
@@ -35,6 +38,7 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
                     </div>
                 </div>
             ))
+            return savedDonators
         }
     }
 
@@ -53,8 +57,8 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
                     <div className="flex flex-col lg:flex-row justify-evenly ">
                         <Image
                             quality="100"
-                            height={"340"}
-                            width={"340"}
+                            height={"200"}
+                            width={"200"}
                             objectFit="contain"
                             alt={"Mission cover image"}
                             src={gcSmallLogo}
@@ -62,7 +66,7 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
 
                         <div className="flex-1 flex-grow mt-5 space-y-5 lg:ml-10 lg:mt-0">
                             <div >
-                                <h2 className="dark:text-white">Server costs</h2>
+                                <h2 className="dark:text-white">Monthly Donations and Server Costs</h2>
                                 <div className="dark:text-gray-200">
                                     <span data-tip="🇨🇦" className="tooltip ">
                                         {currentAmountString}&nbsp;
@@ -73,19 +77,24 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
                                     </span>
                                     per month
                                 </div>
-                                <progress 
-                                    value={Math.round(currentAmountNumUSD/serverDonationGoalUsd * 100)}
-                                    max={serverDonationGoalUsd * 100}
-                                />
+                                <div className='mt-5 dark:text-white'>
+                                    <Progress 
+                                        progress={Math.round(currentAmountNumUSD/serverDonationGoalUsd * 100)}
+                                        color="green"
+                                        size="xl"
+                                        labelProgress
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div className="flex flex-col items-center mt-5 sm:flex-row sm:justify-end">
-                        <div className="mr-5 dark:text-gray-200">By helping us you gain our sincere thank you.</div>
-                        <Link href="https://www.patreon.com/globalconflicts" className="primary-btn">
-
-                            Become a patreon
-
+                        <div className="mr-5 dark:text-gray-200">By helping us you gain our sincere thank you. Monthly donations go through Patreon to a PayPal which is used solely for the server and website upkeep. Donations can be made directly to Paypal using a Paypal account. Any extra gets saved as a balance on the PayPal account.</div>
+                        <Link href="https://www.patreon.com/globalconflicts" className="primary-btn ml-2">
+                            Become a Patreon
+                        </Link>
+                        <Link href="https://paypal.me/GlobalConflictsArmA" className="primary-btn ml-2">
+                            Donate directly to PayPal
                         </Link>
                     </div>
                     <div>
@@ -103,45 +112,60 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
 }
 
 // This function gets called at build time
-export async function getServerSideProps(context) {
+export async function getServerSideProps() {
 
-    /* Patreon pledge sum should be directly exposed to any API call now, changing back to fetch */
-    const patreonResponse = await axios.get(
-        "https://www.patreon.com/api/campaigns/5074062",
-        {
-            headers: {
-                'Authorization': `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
-                'Connection': 'keep-alive',
-                'User-Agent': 'Patreon/7.6.28 (Android; Android 11; Scale/2.10)'
-            },
-        }
-    );
-    const body = patreonResponse.data;
-    const currentAmount = body.data.attributes.pledge_sum;
-    console.log(currentAmount);
-    const currentAmountNum = currentAmount / 100;
-    console.log(currentAmountNum);
-    const USDtoCADRate = await axios.get(
-        "https://cdn.jsdelivr.net/gh/ismartcoding/currency-api@main/latest/data.json"
-    );
-    console.log(USDtoCADRate.data.quotes.CAD);
-    const currentAmountNumUSD = currentAmountNum / USDtoCADRate.data.quotes.CAD;
-    console.log(currentAmountNumUSD);
-    const currentAmountString = currentAmountNumUSD.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-    });
-    console.log(currentAmountString);
-    
-    const botResponse = await axios.get("http://localhost:3001/users/donators");
-    const donators = botResponse.data;
-
+    let currentAmount = 0
+    let currentAmountNum = 0
+    let currentAmountNumUSD = 0
+    let currentAmountString = "0"
     const configs = await MyMongo.collection("configs").findOne({});
     const serverDonationGoalUsd = configs.server_donation_goal_usd;
     const serverDonationGoalUsdString = serverDonationGoalUsd.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
+        maximumFractionDigits: 2
     });
+    const botResponse = await axios.get("http://globalconflicts.net:3001/users/donators");
+    const donators = botResponse.data;
+
+    try {
+        const patreonResponse = await axios.get(
+            "https://www.patreon.com/api/campaigns/50740621",
+            {
+                headers: {
+                    'Authorization': `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
+                    'User-Agent': 'PostmanRuntime/7.39.0',
+                },
+            }
+        )
+        const body = patreonResponse.data;
+        currentAmount = body.data.attributes.pledge_sum;
+        currentAmountNum = currentAmount / 100;
+        const USDtoCADRate = await axios.get(
+            "https://cdn.jsdelivr.net/gh/ismartcoding/currency-api@main/latest/data.json"
+        );
+        currentAmountNumUSD = currentAmountNum / USDtoCADRate.data.quotes.CAD;
+        console.log("Successful Patreon API call, storing in DB")
+        MyMongo.collection("configs").findOneAndUpdate(
+            {},
+            {
+                $set: {
+                    currentAmountNumUSD: currentAmountNumUSD,
+                }
+            }
+        )
+    } catch (error) {
+        console.log("Unable to fetch Patreon Data, gathering from DB")
+        currentAmountNumUSD = configs.currentAmountNumUSD
+    }
+
+    currentAmountString = currentAmountNumUSD.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2
+    });
+    console.log(currentAmountString);
+    if (currentAmountNumUSD > serverDonationGoalUsd) {currentAmountNumUSD = serverDonationGoalUsd}
     
 
     return {
@@ -153,7 +177,6 @@ export async function getServerSideProps(context) {
             serverDonationGoalUsdString
         },
     };
-
 }
 
 export default Donate;
