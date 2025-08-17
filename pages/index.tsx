@@ -257,9 +257,9 @@ function Home() {
                             <div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300">
                                 <h2>Session times</h2>
                                 <div>Saturday and Sunday</div>
-                                <div>20:00 UTC</div>
+                                <div>19:00 UTC</div>
                                 <div className="italic font-bold">In your timezone:</div>
-                                <small>{new Date("6/29/2011 8:00:00 PM UTC").toTimeString()}</small>
+                                <small>{new Date("6/29/2011 7:00:00 PM UTC").toTimeString()}</small>
                             </div>
                         </div>
                     </div>

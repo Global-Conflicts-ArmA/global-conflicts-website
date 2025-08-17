@@ -10,6 +10,10 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 import gcWhiteBanner from "../public/small-banner.png";
 import gcSmallLogo from "../public/logo-patch.webp";
+import moment from 'moment';
+
+const timeString = new Date("6/29/2011 7:00 PM UTC").toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+console.log(timeString)
 
 export default function NavBar() {
 	const { data: session } = useSession();
@@ -38,6 +42,10 @@ export default function NavBar() {
 			name: "Donate",
 			href: "/donate",
 			current: router.pathname.includes("/donate"),
+			target: "_self"
+		},
+		{
+			name: 'Local Session Start Time: ' + timeString + ' Sat and Sunday',
 			target: "_self"
 		},
 	];
