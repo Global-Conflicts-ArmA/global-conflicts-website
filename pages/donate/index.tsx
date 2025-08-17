@@ -130,7 +130,7 @@ export async function getServerSideProps() {
 
     try {
         const patreonResponse = await axios.get(
-            "https://www.patreon.com/api/campaigns/50740621",
+            "https://www.patreon.com/api/campaigns/5074062",
             {
                 headers: {
                     'Authorization': `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
