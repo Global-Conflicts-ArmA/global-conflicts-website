@@ -41,10 +41,11 @@ export default function EventHome({ upcomingEvents, pastEvents }: Props) {
                 <div className="mx-4 mt-10 prose lg:prose-xl" style={{ maxWidth: "none" }}>
                     <h1>Events</h1>
                     <p>
-                        Events are organized sessions with a specific theme. The missions played
-                        are made in advance and are more intricate and detailed. <br /> Usually
-                        leadership is pre-selected and given time in advance to come up with a
-                        plan.
+                        In addition to our regularly scheduled sessions every Saturday and Sunday, we also run events - larger scale sessions with a specific theme.
+                        <br/>
+                        The missions played are made in advance specifically for the event and are more intricate and detailed.
+                        <br />
+                        Usually leadership is pre-selected and given time in advance to come up with a plan.
                         <br />
                         An event takes place in a single day and can last up to 4 hours.
                         <br />
