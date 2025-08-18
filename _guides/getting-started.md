@@ -22,10 +22,14 @@ Your rank/level of power will be determined by the role you take in the mission 
 
 We recommend taking an entry role or a basic command role like Team leader/2IC for your first few missions.
 
-### Your first time playing
+## Your first time playing
 
 It's the weekend, meaning it's Arma time! 
 But how? Where do I go? What role do I take? Who do I talk to?  
-Well... Let's explain.
+Watch the following video for a quick run down on your first session.
 
 [![Global Conflicts Reforger Guide](https://img.youtube.com/vi/_SW1tEkcfRU/0.jpg)](https://www.youtube.com/watch?v=_SW1tEkcfRU)
+
+## Technical Support
+
+If you have any issues getting set up or connected to our server, join [our discord](http://discord.globalconflicts.net/) and use the #tech-support channel to receive help from our members.

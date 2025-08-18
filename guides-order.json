@@ -19,20 +19,6 @@
       "type": "section"
    },
    {
-      "title": "Technical Support",
-      "children": [
-         {
-            "title": "Swifty launcher guide",
-            "slug": "swifty"
-         },
-         {
-            "title": "Teamspeak guide",
-            "slug": "teamspeak"
-         }
-      ],
-      "type": "section"
-   },
-   {
       "slug": "events",
       "title": "Events",
       "type": "single"

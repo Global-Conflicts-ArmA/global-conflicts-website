@@ -1,6 +1,6 @@
 # Events
 
-Events are large organized sessions with a specific theme. The missions played are made in advance and are more intricate and detailed.  
+In addition to our regularly scheduled sessions every Saturday and Sunday, we run events - larger-scale sessions with a specific theme. The missions played are made in advance and are more intricate and detailed.  
 Leadership is usually pre-selected and given time in advance to come up with a plan.  
 An event takes place in a single day and can last up to 4 hours.
 People from outside the community are free to join!
