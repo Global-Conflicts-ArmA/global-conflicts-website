@@ -48,10 +48,41 @@ export const authOptions: NextAuthOptions = {
 	}),
 	callbacks: {
 		async session({ session, user, token }) {
-			const botResponse = await axios.get(
-				`http://globalconflicts.net:3001/users/${user["discord_id"]}`
-			);
-			const member = botResponse.data;
+			// Lazy role refresh: if it's been more than 1 hour since the last
+			// bot API check, fetch fresh roles/nickname for this user and persist
+			// to the users table. All other visits use the cached DB record.
+			const REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours
+			const lastRefresh = user["lastRoleRefresh"] ? new Date(user["lastRoleRefresh"]).getTime() : 0;
+			const needsRefresh = Date.now() - lastRefresh > REFRESH_INTERVAL_MS;
+
+			let roles = user["roles"];
+			let username = user["username"];
+			let nickname = user["nickname"];
+
+			if (needsRefresh && user["discord_id"]) {
+				try {
+					const botResponse = await axios.get(
+						`http://globalconflicts.net:3001/users/${user["discord_id"]}`,
+						{ timeout: 3000 }
+					);
+					const member = botResponse.data;
+					if (member?.rolesMap) {
+						roles = member.rolesMap;
+						username = member.displayName ?? username;
+						nickname = member.nickname ?? nickname;
+
+						// Persist to users table so subsequent visits are instant
+						const db = (await MyMongo).db("prod");
+						await db.collection("users").updateOne(
+							{ discord_id: user["discord_id"] },
+							{ $set: { roles, username, nickname, lastRoleRefresh: new Date() } }
+						);
+					}
+				} catch {
+					// Bot unavailable — use cached data, try again next visit
+				}
+			}
+
 			if (session.user && user) {
 				session.user = {
 					...session.user,
@@ -59,9 +90,9 @@ export const authOptions: NextAuthOptions = {
 						id: user["id"],
 						eventsSignedUp: user["eventsSignedUp"],
 						discord_id: user["discord_id"],
-						roles: member.rolesMap,
-						username: member.displayName,
-						nickname: member.nickname,
+						roles,
+						username,
+						nickname,
 						image: user["image"],
 					},
 				};
@@ -69,18 +100,22 @@ export const authOptions: NextAuthOptions = {
 			return session;
 		},
 		async signIn({ user, account, profile, email, credentials }) {
+			try {
+				const botResponse = await axios.get(
+					`http://globalconflicts.net:3001/users/${user["discord_id"]}`,
+					{ timeout: 3000 }
+				);
+				const member = botResponse.data;
 
-			const botResponse = await axios.get(
-				`http://globalconflicts.net:3001/users/${user["discord_id"]}`
-			);
-			const member = botResponse.data;
-
-			if (member.rolesMap) {
-				return true;
-			} else {
+				if (member.rolesMap) {
+					return true;
+				} else {
+					return "/auth/not-on-discord";
+				}
+			} catch (error) {
+				console.error("Discord bot API not accessible during sign-in:", error.message);
 				return "/auth/not-on-discord";
 			}
-
 		},
 	},
 

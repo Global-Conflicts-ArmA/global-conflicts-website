@@ -12,6 +12,8 @@ export default function MissionMediaCard({
 }) {
 	const videoRef = useRef(null);
 	const [videoMuted, setVideoMuted] = useState(true);
+	const [imageSrc, setImageSrc] = useState(createObjectURL);
+	const [imageError, setImageError] = useState(false);
 
 	useEffect(() => {
 		setVideoMuted(true);
@@ -24,6 +26,18 @@ export default function MissionMediaCard({
 			}
 		}, 20);
 	}, [createObjectURL]);
+
+	useEffect(() => {
+		setImageSrc(createObjectURL);
+		setImageError(false);
+	}, [createObjectURL]);
+
+	const handleImageError = () => {
+		if (!imageError) {
+			setImageError(true);
+			setImageSrc("/terrain_pics/reforger/default.jpg");
+		}
+	};
 
 	return (
 		<div className="relative flex justify-center shadow-xl card">
@@ -39,8 +53,9 @@ export default function MissionMediaCard({
 						layout="fill"
 						objectFit="cover"
 						unoptimized={true}
-						src={createObjectURL}
+						src={imageSrc}
 						alt={"Mission cover image"}
+						onError={handleImageError}
 					/>
 				)}
 			</figure>

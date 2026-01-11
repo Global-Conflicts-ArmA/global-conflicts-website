@@ -1,8 +1,6 @@
 import DataTable, { Media } from "react-data-table-component";
 import MyMongo from "../../../lib/mongodb";
 import moment from "moment";
-import DownloadIcon from "../../../components/icons/download";
-import fs from "fs";
 import React, { Fragment, useEffect, useState } from "react";
 import CommentBox from "../../../components/comments_box";
 import ActionsIcon from "../../../components/icons/actions";
@@ -19,7 +17,9 @@ import Image from "next/legacy/image";
 import Link from "next/link";
 
 import axios from "axios";
-import { getSession, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../api/auth/[...nextauth]";
 import { toast } from "react-toastify";
 
 import rehypeSanitize from "rehype-sanitize";
@@ -56,6 +56,7 @@ import SubmitAARModal from "../../../components/modals/submit_aar_modal";
 import { generateMarkdown } from "../../../lib/markdownToHtml";
 import SimpleTextViewModal from "../../../components/modals/simple_text_view_modal";
 import MediaUploadModal from "../../../components/modals/media_upload_modal";
+import EditMetadataModal from "../../../components/modals/edit_metadata_modal";
 import dynamic from 'next/dynamic'
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 import { imageKitLoader } from "../../../lib/imagekitloader";
@@ -70,6 +71,7 @@ export default function MissionDetails({
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
 	let [newVersionModalOpen, setNewVersionModalOpen] = useState(false);
 	let [simpleTextModalOPen, setSimpleTextModalOpen] = useState(false);
+    let [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false);
 	let [actionsModalData, setActionsModalData] = useState(null);
 	let [isLoadingVote, setIsLoadingVote] = useState(false);
 	let [isLoadingListing, setIsLoadingListing] = useState(false);
@@ -140,9 +142,9 @@ export default function MissionDetails({
 				</div>
 			);
 		}
-		if (reviewState == "review_reproved") {
+		if (reviewState == "review_reproved" || reviewState == "review_major_issues") {
 			return (
-				<div data-tip="Rejected" className="tooltip">
+				<div data-tip="Major Issues / Rejected" className="tooltip">
 					<ExclamationCircleIcon
 						color={"#ff2d0b"}
 						className="w-6 h-6"
@@ -154,6 +156,20 @@ export default function MissionDetails({
 			return (
 				<div data-tip="Accepted" className="tooltip">
 					<CheckCircleIcon color={"#2ced4c"} className="w-6 h-6"></CheckCircleIcon>
+				</div>
+			);
+		}
+		if (reviewState == "review_minor_issues") {
+			return (
+				<div data-tip="Accepted with Minor Issues" className="tooltip">
+					<ExclamationCircleIcon color={"#FFA500"} className="w-6 h-6"></ExclamationCircleIcon>
+				</div>
+			);
+		}
+		if (reviewState == "review_unavailable") {
+			return (
+				<div data-tip="Unavailable" className="tooltip">
+					<BanIcon color={"#808080"} className="w-6 h-6"></BanIcon>
 				</div>
 			);
 		}
@@ -187,10 +203,15 @@ export default function MissionDetails({
 	const columns = [
 		{
 			name: "Date",
+			cell: (row) => (
+				<div title={row.dateRaw || row.date} className="tooltip">
+					{row.date}
+				</div>
+			),
 			selector: (row) => row.date,
 			sortable: true,
 			hide: Media.MD,
-			width: "115px",
+			width: "100px",
 		},
 		{
 			name: "Version",
@@ -199,23 +220,25 @@ export default function MissionDetails({
 			},
 			sortable: true,
 			width: "88px",
+			omit: true, // Hidden - Version column
 		},
 		{
 			name: "Author",
 			selector: (row) => row.authorName,
 			hide: Media.SM,
+			omit: true, // Hidden - Author column
 		},
 
 		{
-			name: "Archived",
+			name: "GitHub",
 			// eslint-disable-next-line react/display-name
 			cell: (row) => {
-				return row.archive ? (
-					<div data-tip="Mission archived" className="tooltip">
+				return row.githubUrl ? (
+					<div data-tip="View on GitHub" className="tooltip">
 						<CheckCircleIcon color={"#2ced4c"} className="w-6 h-6 "></CheckCircleIcon>
 					</div>
 				) : (
-					<div data-tip="Mission not archived" className="tooltip">
+					<div data-tip="No GitHub link" className="tooltip">
 						<BanIcon className="w-6 h-6 "></BanIcon>
 					</div>
 				);
@@ -223,112 +246,53 @@ export default function MissionDetails({
 			compact: true,
 			center: true,
 			width: windowSize.width <= 700 ? "50px" : "70px",
-		},
-
-		{
-			name: "Main",
-			// eslint-disable-next-line react/display-name
-			cell: (row) => {
-				return row.main ? (
-					<div data-tip="Present on Main Server" className="tooltip">
-						<CheckCircleIcon color={"#2ced4c"} className="w-6 h-6 "></CheckCircleIcon>
-					</div>
-				) : (
-					<div data-tip="Not present" className="tooltip">
-						<BanIcon className="w-6 h-6 "></BanIcon>
-					</div>
-				);
-			},
-			compact: true,
-			center: true,
-			width: windowSize.width <= 700 ? "50px" : "70px",
-		},
-
-		{
-			name: "Test",
-			// eslint-disable-next-line react/display-name
-			cell: (row) => {
-				return row.test ? (
-					<div data-tip="Present on the Test Server" className="tooltip">
-						<CheckCircleIcon color={"#2ced4c"} className="w-6 h-6 "></CheckCircleIcon>
-					</div>
-				) : (
-					<div data-tip="Not present" className="tooltip">
-						<BanIcon className="w-6 h-6 "></BanIcon>
-					</div>
-				);
-			},
-			compact: true,
-			center: true,
-			width: windowSize.width <= 700 ? "50px" : "70px",
+			omit: true, // Hidden - GitHub checkmark column
 		},
 		{
-			name: "Validated",
+			name: "Description",
 			// eslint-disable-next-line react/display-name
 			cell: (row) => {
-				return getAuditIcon(row.testingAudit?.reviewState ?? row.reviewState);
-			},
-			compact: true,
-			center: true,
-			width: windowSize.width <= 700 ? "53px" : "70px",
-		},
-
-		{
-			minWidth: "0px",
-			grow: 1,
-			compact: true,
-			// eslint-disable-next-line react/display-name
-			cell: (row) => {
-				return <></>;
-			},
-		},
-		{
-			name: "Changelog",
-			// eslint-disable-next-line react/display-name
-			cell: (row) => {
+				const changeLog = row.changeLog || "";
 				return (
-					<button
+					<div
+						data-tag="allowRowEvents"
+						className="w-full truncate cursor-pointer hover:underline"
+						title={changeLog.replaceAll("\n", " ")}
 						onClick={() => {
-							setSimpleTextViewing(row.changeLog);
+							setSimpleTextViewing(changeLog);
 							setSimpleTextHeaderViewing(
-								`Changelog for V${row.version.major + (row.version.minor ?? "")}:`
+								`PR Details for V${row.version.major + (row.version.minor ?? "")}:`
 							);
 							setSimpleTextModalOpen(true);
 						}}
-						className="btn btn-sm dark:btn-ghost"
 					>
-						<PencilAltIcon height={24}></PencilAltIcon>
-					</button>
+						{changeLog.replaceAll("\n", " ")}
+					</div>
 				);
 			},
-			omit: session == null,
-			center: true,
-			grow: 1,
-			width: "95px",
+			width: "1000px",
 		},
 		{
-			name: "Download",
+			name: "GitHub PR",
 			// eslint-disable-next-line react/display-name
 			cell: (row) => {
-				const link = getMissionDownloadLink(row);
+				const link = getMissionGitHubLink(row);
 				if (link) {
 					return (
-						<a href={link} download className="btn btn-sm dark:btn-ghost">
-							<DownloadIcon></DownloadIcon>
+						<a href={link} target="_blank" rel="noopener noreferrer" className="btn btn-sm dark:btn-ghost">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
 						</a>
 					);
 				} else {
 					return (
-						<button disabled className="btn btn-sm dark:btn-ghost">
-							<DownloadIcon></DownloadIcon>
+						<button disabled className="btn btn-sm dark:btn-ghost" title="No GitHub link available">
+							<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
 						</button>
 					);
 				}
 			},
-			omit: session == null,
 			center: true,
-			grow: 1,
-			width: "88px",
+			width: "80px",
 		},
 		{
 			name: "Actions",
@@ -346,7 +310,7 @@ export default function MissionDetails({
 					</button>
 				);
 			},
-			omit: omitActions(),
+			omit: true, // Hidden - Actions column
 			center: true,
 			width: "88px",
 		},
@@ -367,7 +331,7 @@ export default function MissionDetails({
 
 		setIsLoadingVote(true);
 		axios
-			.put(`/api/missions/${mission.uniqueName}/vote`)
+			.put(`/api/reforger-missions/${mission.uniqueName}/vote`)
 			.then((response) => {
 				setHasVoted(true);
 				toast.success("Vote submited!");
@@ -390,7 +354,7 @@ export default function MissionDetails({
 		}
 
 		axios
-			.post(`/api/missions/${mission.uniqueName}/unlist_mission`)
+			.post(`/api/reforger-missions/${mission.uniqueName}/unlist_mission`)
 			.then((response) => {
 				setIsMissionUnlisted(true);
 				toast.success("Mission unlisted");
@@ -413,7 +377,7 @@ export default function MissionDetails({
 		}
 
 		axios
-			.post(`/api/missions/${mission.uniqueName}/list_mission`)
+			.post(`/api/reforger-missions/${mission.uniqueName}/list_mission`)
 			.then((response) => {
 				setIsMissionUnlisted(false);
 				toast.success("Mission added to the list");
@@ -431,7 +395,7 @@ export default function MissionDetails({
 	function retractVote(event) {
 		setIsLoadingVote(true);
 		axios
-			.delete(`/api/missions/${mission.uniqueName}/vote`)
+			.delete(`/api/reforger-missions/${mission.uniqueName}/vote`)
 			.then((response) => {
 				setHasVoted(false);
 				toast.info("Vote retracted");
@@ -477,15 +441,20 @@ export default function MissionDetails({
 		if (mission.mediaFileName) {
 			return `https://launcher.globalconflicts.net/media/missions/${mission.mediaFileName}`;
 		} else {
-			return `https://launcher.globalconflicts.net/media/terrain_pics/${mission.terrain.toLowerCase()}.jpg`;
+			// Use local terrain_pics folder, with fallback handled by onError in Image component
+			return `/terrain_pics/reforger/${mission.terrain.toLowerCase()}.jpg`;
 		}
+	}
+
+	function getDefaultMediaPath() {
+		return `/terrain_pics/reforger/default.jpg`;
 	}
 
 	const {
 		data: history,
 		mutate: historyMutate,
 		error: historyError,
-	} = useSWR(`/api/missions/${mission.uniqueName}/history`, fetcher, {
+	} = useSWR(`/api/reforger-missions/${mission.uniqueName}/history`, fetcher, {
 		revalidateOnFocus: false,
 	});
 	function getHistory() {
@@ -503,7 +472,7 @@ export default function MissionDetails({
 		data: media,
 		mutate: mediaMutate,
 		error: mediaError,
-	} = useSWR(`/api/missions/${mission.uniqueName}/media`, fetcher, {
+	} = useSWR(`/api/reforger-missions/${mission.uniqueName}/media`, fetcher, {
 		revalidateOnFocus: false,
 	});
 	function getMedia() {
@@ -552,6 +521,7 @@ export default function MissionDetails({
 	}
 
 	function getOutcomeClass(outcomeText: string) {
+		if (!outcomeText) return "";
 		const outcomeTextLC = outcomeText.toLowerCase();
 		if (outcomeTextLC.includes("blufor")) {
 			return "text-blufor";
@@ -570,7 +540,7 @@ export default function MissionDetails({
 	function deleteImage(linkObj) {
 		try {
 			axios
-				.post(`/api/missions/${mission.uniqueName}/media_delete`, {
+				.post(`/api/reforger-missions/${mission.uniqueName}/media_delete`, {
 					data: { mediaToDelete: linkObj },
 				})
 				.then((response) => {
@@ -698,10 +668,6 @@ export default function MissionDetails({
 
 
 	function getRatings() {
-		if (!session) {
-			return <></>
-		}
-
 		const element = <div className="ml-5 flex flex-row text-sm items-center">
 			<div>
 				👍{mission.ratings?.filter((rating) => rating.value == "positive")?.length ?? 0}
@@ -727,6 +693,13 @@ export default function MissionDetails({
 			return <></>
 		}
 
+		if (!hasCredsAny(session, [CREDENTIAL.MEMBER, CREDENTIAL.MISSION_MAKER, CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_ADMINISTRATOR, CREDENTIAL.GM])) {
+			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
+				<span className="flex-1 p-2 text-sm">You must be a member to rate missions.</span>
+				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 rotate-0 `} />
+			</div>
+		}
+
 		if (!mission.history) {
 			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
 				<span className="flex-1 p-2 text-sm">You can't rate a mission that hasn't been played yet.</span>
@@ -744,7 +717,7 @@ export default function MissionDetails({
 		return <Listbox value={selectedRating} onChange={(val) => {
 			setSelectedRating(val);
 			axios
-				.post(`/api/missions/${mission.uniqueName}/rate_mission`, val).then((response) => {
+				.post(`/api/reforger-missions/${mission.uniqueName}/rate_mission`, val).then((response) => {
 					if (val.value == "negative") {
 						toast.success("Rating submited! 📝 If you didn't enjoy this mission, consider writing a constructive review for the mission maker.", { autoClose: 10000 });
 					} else {
@@ -804,7 +777,7 @@ export default function MissionDetails({
 			axios
 				.request({
 					method: "PUT",
-					url: `/api/missions/${mission.uniqueName}/reports/${item._id}`,
+					url: `/api/reforger-missions/${mission.uniqueName}/reports/${item._id}`,
 					data: payload,
 				})
 				.then((response) => {
@@ -851,6 +824,34 @@ export default function MissionDetails({
 			possibleRatings.find((possibleRating) => possibleRating.value == mission?.myRating?.value)
 			: null
 	)
+
+    function getStatusIcon(status, notes) {
+        let icon = <QuestionMarkCircleIcon className="w-6 h-6 text-gray-400" />;
+        
+        switch(status) {
+            case "No issues":
+                icon = <CheckCircleIcon className="w-6 h-6 text-green-500" />;
+                break;
+            case "New":
+                icon = <div className="badge badge-info badge-sm">NEW</div>;
+                break;
+            case "Minor issues":
+                icon = <ExclamationCircleIcon className="w-6 h-6 text-orange-500" />;
+                break;
+            case "Major issues":
+                icon = <ExclamationCircleIcon className="w-6 h-6 text-red-600" />;
+                break;
+            case "Unavailable":
+                icon = <BanIcon className="w-6 h-6 text-gray-500" />;
+                break;
+        }
+    
+        return (
+            <div className="tooltip" data-tip={notes || status || "No status info"}>
+                {icon}
+            </div>
+        );
+    }
 
 	return <>
 		<Head>
@@ -904,7 +905,16 @@ export default function MissionDetails({
 			<div className="mx-2">
 				<div className="mt-10 mb-5">
 					<div className="mb-1 font-bold prose">
-						<h1>{mission.name}</h1>
+						<h1>
+                            {mission.name}
+                            <span className="ml-4 align-middle inline-block cursor-pointer" onClick={() => {
+                                if (hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER])) {
+                                    setEditMetadataModalOpen(true);
+                                }
+                            }}>
+                                {getStatusIcon(mission.status, mission.statusNotes)}
+                            </span>
+                        </h1>
 					</div>
 
 					<div className="flex flex-row items-center">
@@ -916,7 +926,7 @@ export default function MissionDetails({
 								data-tip={
 									hasVotedLocal ? "Retract vote" : " Vote for this mission to be played"
 								}
-								className="z-10 tooltip tooltip-bottom tooltip-primary"
+								className="z-10 tooltip tooltip-bottom tooltip-primary hidden"
 							>
 								<button
 									className={`btn  primary-btn-sm min-w-187 ${isLoadingVote ? "loading" : ""
@@ -928,20 +938,22 @@ export default function MissionDetails({
 							</div>
 						)}
 
+						{/* Edit details button hidden for Reforger missions as they are synced from GitHub
 						{canEdit() && (
 							<div
 								data-tip="Edit the details of your mission"
 								className="z-10 tooltip tooltip-bottom"
 							>
 								<Link
-									href={`/missions/${mission.uniqueName}/edit`}
+									href={`/reforger-missions/${mission.uniqueName}/edit`}
 									className="ml-5 text-white btn btn-sm">
 									Edit details
 								</Link>
 							</div>
-						)}
+						)} 
+						*/}
 
-						{canUnlist() && (
+						{/* {canUnlist() && (
 							<div
 								data-tip={
 									isMissionUnlisted
@@ -965,7 +977,7 @@ export default function MissionDetails({
 									{isMissionUnlisted ? "LIST MISSION" : "UNLIST MISSION"}
 								</button>
 							</div>
-						)}
+						)} */}
 
 					</div>
 
@@ -1050,7 +1062,7 @@ export default function MissionDetails({
 					</div>
 				</div>
 				<div className="mt-4">
-					{mission.tags.map((role) => (
+					{mission.tags?.map((role) => (
 						<span
 							style={{ color: role.color }}
 							className="box-content my-1 mr-1 border-2 select-text btn btn-disabled no-animation btn-sm btn-outline rounded-box bg-white dark:bg-slate-800 text-black dark:text-white/[0.7]"
@@ -1068,35 +1080,10 @@ export default function MissionDetails({
 						{getRatingListBox()}
 					</div>
 				</div>}
-				
-
-				<h2 className="flex flex-row justify-between  py-2 font-bold dark:text-gray-100">
-					Versions{" "}
-					{(mission.authorID == session?.user["discord_id"] ||
-						hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
-							<button
-								onClick={() => {
-									setNewVersionModalOpen(true);
-								}}
-								className="btn btn-sm btn-outline-standard"
-							>
-								<AddIcon></AddIcon> Upload new version
-							</button>
-						)}
-				</h2>
-
-
-				<DataTable
-					className="ease-in-out"
-					highlightOnHover={true}
-					striped={true}
-					columns={columns}
-					data={mission.updates}
-				></DataTable>
 
 				<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
 					Gameplay History{" "}
-					{hasCreds(session, CREDENTIAL.ADMIN) && (
+					{hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM]) && (
 						<button
 							onClick={() => {
 								setgameplayHistoryModalOpen(true);
@@ -1117,15 +1104,17 @@ export default function MissionDetails({
 											<div className="dark:text-gray-100">
 												{moment(historyItem.date).format("LL")}
 											</div>
-											<div className="dark:text-gray-100">
-												Outcome:{" "}
-												<span className={getOutcomeClass(historyItem.outcome)}>
-													{historyItem.outcome}
-												</span>
-											</div>
+											{historyItem.outcome && (
+												<div className="dark:text-gray-100">
+													Outcome:{" "}
+													<span className={getOutcomeClass(historyItem.outcome)}>
+														{historyItem.outcome}
+													</span>
+												</div>
+											)}
 										</div>
 										<div className="flex flex-row items-center space-x-1">
-											{hasCreds(session, CREDENTIAL.ADMIN) && (
+											{hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM]) && (
 												<button
 													className="btn btn-xs dark:text-white dark:btn-ghost"
 													onClick={() => {
@@ -1137,14 +1126,16 @@ export default function MissionDetails({
 												</button>
 											)}
 
-											<a
-												className="btn btn-xs dark:text-white dark:btn-ghost"
-												href={historyItem.aarReplayLink}
-												target="_blank"
-												rel="noreferrer"
-											>
-												AAR Replay
-											</a>
+											{historyItem.aarReplayLink && (
+												<a
+													className="btn btn-xs dark:text-white dark:btn-ghost"
+													href={historyItem.aarReplayLink}
+													target="_blank"
+													rel="noreferrer"
+												>
+													AAR Replay
+												</a>
+											)}
 											{historyItem.gmNote && (
 												<button
 													className="btn btn-xs dark:text-white dark:btn-ghost"
@@ -1286,8 +1277,7 @@ export default function MissionDetails({
 					{hasCredsAny(session, [
 						CREDENTIAL.ADMIN,
 						CREDENTIAL.GM,
-						CREDENTIAL.MEMBER,
-						CREDENTIAL.NEW_GUY,
+						CREDENTIAL.MEMBER, 
 						CREDENTIAL.MISSION_MAKER,
 						CREDENTIAL.MISSION_REVIEWER,
 						CREDENTIAL.MISSION_ADMINISTRATOR,
@@ -1304,64 +1294,91 @@ export default function MissionDetails({
 				</h2>
 				{getMediaGallery()}
 
+				<h2 className="flex flex-row justify-between  py-2 font-bold dark:text-gray-100">
+					PR History{" "}
+					{(mission.authorID == session?.user["discord_id"] ||
+						hasCreds(session, CREDENTIAL.MISSION_REVIEWER)) && (
+							<button
+								onClick={() => {
+									setNewVersionModalOpen(true);
+								}}
+								className="btn btn-sm btn-outline-standard hidden"
+							>
+								<AddIcon></AddIcon> Upload new version
+							</button>
+						)}
+				</h2>
 
-				<div className="flex flex-wrap w-full mb-16">
-					<div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
-						<CommentBox
-							title="Bug Reports"
-							isMissionMaker={session?.user["discord_id"] == mission.authorID}
-							btnText="Submit Report"
-							updateBugReport={(item, action) => {
-								updateBugReport(item, action);
-							}}
-							onSubmitClick={() => {
-								setCommentModalIsOpen(true);
-								setCommentModalData({
-									title: "Submit Bug Report",
-									type: "report",
-									placeholder: "Enter the description of the bug here",
-								});
-							}}
-							onEditClick={(comment) => {
-								setCommentModalIsOpen(true);
-								setCommentModalData({
-									title: "Edit Bug Report",
-									type: "report",
-									placeholder: "Enter the description of the bug here",
-									comment: comment,
-								});
-							}}
-							comments={mission["reports"]}
-						></CommentBox>
+				<div style={{ overflow: "hidden", width: "100%", maxWidth: "100%" }}>
+				<DataTable
+					className="ease-in-out"
+					highlightOnHover={true}
+					striped={true}
+					responsive={true}
+					columns={columns}
+					data={mission.updates}
+				></DataTable>
+			</div>
+
+				{false && (
+					<div className="flex flex-wrap w-full mb-16">
+						<div className="flex-1 min-w-full mr-0 sm:min-w-300 sm:mr-5">
+							<CommentBox
+								title="Bug Reports"
+								isMissionMaker={session?.user["discord_id"] == mission.authorID}
+								btnText="Submit Report"
+								updateBugReport={(item, action) => {
+									updateBugReport(item, action);
+								}}
+								onSubmitClick={() => {
+									setCommentModalIsOpen(true);
+									setCommentModalData({
+										title: "Submit Bug Report",
+										type: "report",
+										placeholder: "Enter the description of the bug here",
+									});
+								}}
+								onEditClick={(comment) => {
+									setCommentModalIsOpen(true);
+									setCommentModalData({
+										title: "Edit Bug Report",
+										type: "report",
+										placeholder: "Enter the description of the bug here",
+										comment: comment,
+									});
+								}}
+								comments={mission["reports"]}
+							></CommentBox>
+						</div>
+
+						<div className="flex-1 min-w-full sm:min-w-300">
+							<CommentBox
+
+								comments={mission["reviews"]}
+								isMissionMaker={session?.user["discord_id"] == mission.authorID}
+								onSubmitClick={() => {
+									setCommentModalIsOpen(true);
+									setCommentModalData({
+										title: "Submit review",
+										type: "review",
+										placeholder: "Enter your review of this mission here",
+									});
+								}}
+								onEditClick={(comment) => {
+									setCommentModalIsOpen(true);
+									setCommentModalData({
+										title: "Edit review",
+										type: "review",
+										placeholder: "Enter your review of this mission here",
+										comment: comment,
+									});
+								}}
+								title="Reviews"
+								btnText="Submit Review"
+							></CommentBox>
+						</div>
 					</div>
-
-					<div className="flex-1 min-w-full sm:min-w-300">
-						<CommentBox
-
-							comments={mission["reviews"]}
-							isMissionMaker={session?.user["discord_id"] == mission.authorID}
-							onSubmitClick={() => {
-								setCommentModalIsOpen(true);
-								setCommentModalData({
-									title: "Submit review",
-									type: "review",
-									placeholder: "Enter your review of this mission here",
-								});
-							}}
-							onEditClick={(comment) => {
-								setCommentModalIsOpen(true);
-								setCommentModalData({
-									title: "Edit review",
-									type: "review",
-									placeholder: "Enter your review of this mission here",
-									comment: comment,
-								});
-							}}
-							title="Reviews"
-							btnText="Submit Review"
-						></CommentBox>
-					</div>
-				</div>
+				)}
 			</div>
 
 			<SubmitAARModal
@@ -1487,6 +1504,7 @@ export default function MissionDetails({
 			></NewVersionModal>
 
 			<GameplayHistoryModal
+                isReforger={true}
 				discordUsers={discordUsers}
 				mission={mission}
 				isOpen={gameplayHistoryModalOpen}
@@ -1502,9 +1520,15 @@ export default function MissionDetails({
 					const currentHistory = history ?? [];
 					let newHistory = [];
 					if (isUpdate) {
-						let itemIndex = currentHistory.findIndex((item) => item._id == data._id);
-						currentHistory[itemIndex] = data;
-						newHistory = [...currentHistory];
+						if (data.deleted) {
+							// Handle deletion
+							newHistory = currentHistory.filter((item) => item._id !== data._id);
+						} else {
+							// Handle update
+							let itemIndex = currentHistory.findIndex((item) => item._id == data._id);
+							currentHistory[itemIndex] = data;
+							newHistory = [...currentHistory];
+						}
 					} else {
 						newHistory = [data, ...currentHistory];
 					}
@@ -1536,6 +1560,7 @@ export default function MissionDetails({
 			<MediaUploadModal
 				isOpen={mediaUploadModalOpen}
 				mission={mission}
+                isReforger={true}
 				onClose={(links) => {
 
 					if (links) {
@@ -1550,6 +1575,22 @@ export default function MissionDetails({
 					setMediaUploadModalOpen(false);
 				}}
 			></MediaUploadModal>
+
+            <EditMetadataModal 
+                isOpen={editMetadataModalOpen}
+                onClose={() => setEditMetadataModalOpen(false)}
+                mission={mission}
+                onUpdate={(data) => {
+                    setMission({
+                        ...mission,
+                        status: data.status,
+                        statusNotes: data.statusNotes,
+                        era: data.era,
+                        tags: data.tag ? [...mission.tags, data.tag] : mission.tags,
+                        missionGroup: data.missionGroup,
+                    });
+                }}
+            />
 		</div>
 	</>;
 }
@@ -1559,97 +1600,103 @@ export default function MissionDetails({
 // revalidation is enabled and a new request comes in
 
 export async function getServerSideProps(context) {
+	const _t0 = Date.now();
+	const _timings: string[] = [];
+	const _mark = (label: string) => _timings.push(`${label}: ${Date.now() - _t0}ms`);
 
-
-	const session = await getSession(context);
+	const session = await getServerSession(context.req, context.res, authOptions);
+	_mark("getServerSession");
 
 	if (context.params.uniqueName == "<no source>") {
 		return { prop: {} };
 	}
+    const db = (await MyMongo).db("prod");
+	_mark("db connect");
 
 	const mission = (
-		await (await MyMongo).db("prod").collection("missions")
+		await db.collection("reforger_missions")
 			.aggregate([
 				{
 					$match: { uniqueName: context.params.uniqueName },
-				},
-
-				{
-					$unwind: {
-						path: "$updates",
-						preserveNullAndEmptyArrays: true,
-					},
-				},
-				{
-					$lookup: {
-						from: "users",
-						localField: "updates.authorID",
-						foreignField: "discord_id",
-						as: "author",
-					},
-				},
-				{
-					$addFields: {
-						"updates.author": {
-							$cond: [
-								{
-									$ne: ["$author", []],
-								},
-								{
-									$arrayElemAt: ["$author", 0],
-								},
-								"$updates.author",
-							],
-						},
-					},
-				},
-				{
-					$group: {
-						_id: "$_id",
-						data: {
-							$first: "$$ROOT",
-						},
-						updates: {
-							$push: "$updates",
-						},
-					},
-				},
-				{
-					$addFields: {
-						"data.updates": "$updates",
-					},
-				},
-				{
-					$project: {
-						"data.author": 0,
-					},
-				},
-				{
-					$replaceRoot: {
-						newRoot: "$data",
-					},
 				},
 				{
 					$lookup: {
 						from: "users",
 						localField: "authorID",
 						foreignField: "discord_id",
-						as: "missionMaker",
+						as: "missionMakerUser",
 					},
 				},
-				{
-					$project: {
-						"updates.author._id": 0,
-						"updates.author.image": 0,
-						"updates.author.roles": 0,
-						"updates.author.email": 0,
-						"updates.author.discord_id": 0,
-						"updates.author.emailVerified": 0,
-					},
-				},
+                // Add lookup for reforger_mission_metadata
+                {
+                    $lookup: {
+                        from: "reforger_mission_metadata",
+                        localField: "missionId", // Use missionId to link
+                        foreignField: "missionId",
+                        as: "_metadata",
+                    },
+                },
+                // Add a field for the first metadata document (if found)
+                {
+                    $addFields: {
+                        _metadata: { $arrayElemAt: ["$_metadata", 0] },
+                    },
+                },
 			])
 			.toArray()
 	)[0];
+	_mark("aggregation");
+
+	if (!mission) {
+		return {
+			notFound: true,
+		}
+	}
+
+	// Fetch metadata (user-generated data lives in separate collection)
+
+	if (mission._metadata) {
+        mission._metadata._id = mission._metadata._id.toString(); // Convert ObjectId to string
+		mission.status = mission._metadata.status || "New";
+		mission.statusNotes = mission._metadata.statusNotes || "";
+		mission.era = mission._metadata.era || "";
+		mission.tags = mission._metadata.tags || [];
+		mission.isUnlisted = mission._metadata.isUnlisted || false;
+		mission.votes = mission._metadata.votes || [];
+		mission.ratings = mission._metadata.ratings || [];
+		mission.reports = mission._metadata.reports || [];
+		mission.reviews = mission._metadata.reviews || [];
+		mission.history = mission._metadata.history || [];
+		mission.media = mission._metadata.media || [];
+		mission.lastPlayed = mission._metadata.lastPlayed;
+		mission.manualPlayCount = mission._metadata.manualPlayCount || 0;
+		mission.missionGroup = mission._metadata.missionGroup || null;
+	} else {
+		mission.status = mission.status || "New";
+		mission.votes = [];
+		mission.ratings = [];
+		mission.reports = [];
+		mission.reviews = [];
+		mission.history = [];
+		mission.media = [];
+		mission.tags = mission.tags || [];
+	}
+
+    // Performance Optimization: Gather all user IDs to fetch in a single query
+    const userIdsToFetch = new Set<string>();
+    userIdsToFetch.add(mission.authorID);
+    mission.reports?.forEach(r => userIdsToFetch.add(r.authorID));
+    mission.reviews?.forEach(r => userIdsToFetch.add(r.authorID));
+    mission.ratings?.forEach(r => userIdsToFetch.add(r.ratingAuthorId));
+    mission.history?.forEach(h => h.leaders?.forEach(l => userIdsToFetch.add(l.discordID)));
+
+    const users = await db.collection("users").find(
+        { discord_id: { $in: Array.from(userIdsToFetch) } },
+        { projection: { username: 1, nickname: 1, image: 1, discord_id: 1 } }
+    ).toArray();
+
+    const userMap = new Map(users.map(u => [u.discord_id, u]));
+	_mark("batch user fetch");
 
 	try {
 		mission["uploadDate"] = mission["uploadDate"]?.getTime();
@@ -1659,127 +1706,95 @@ export async function getServerSideProps(context) {
 
 	mission["lastPlayed"] = mission["lastPlayed"]?.getTime();
 
+    const missionMakerUser = userMap.get(mission.authorID);
 	mission["missionMaker"] =
-		mission["missionMaker"][0]?.nickname ??
-		mission["missionMaker"][0]?.username ??
+		missionMakerUser?.nickname ??
+		missionMakerUser?.username ??
+		mission["missionMaker"] ??
 		"Unknown";
 
 	if (mission["reports"]) {
 		mission["reports"] = mission["reports"].reverse();
-		await Promise.all(
-			mission["reports"].map(async (report): Promise<any> => {
-				var user = await (await MyMongo).db("prod").collection("users").findOne(
-					{ discord_id: report["authorID"] },
-					{ projection: { username: 1, nickname: 1, image: 1 } }
-				);
-
-				report["_id"] = report["_id"].toString();
-				report["authorID"] = user?.discord_id;
-				report["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
-				report["authorAvatar"] = user?.image;
-				report["text"] = report["report"] ?? report["text"]; // backwards compat
-			})
-		);
+		mission["reports"].forEach(report => {
+            const user = userMap.get(report.authorID);
+            report["_id"] = report["_id"].toString();
+            report["authorID"] = user?.discord_id;
+            report["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
+            report["authorAvatar"] = user?.image;
+            report["text"] = report["report"] ?? report["text"];
+        });
 	}
 
 	if (mission["reviews"]) {
 		mission["reviews"] = mission["reviews"].reverse();
-		await Promise.all(
-			mission["reviews"].map(async (review): Promise<any> => {
-				var user = await (await MyMongo).db("prod").collection("users").findOne(
-					{ discord_id: review["authorID"] },
-					{ projection: { username: 1, nickname: 1, image: 1 } }
-				);
-
-				review["_id"] = review["_id"].toString();
-				review["discord_id"] = user?.discord_id;
-				review["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
-				review["authorAvatar"] = user?.image;
-				review["text"] = review["review"] ?? review["text"]; // backwards compat
-			})
-		);
+		mission["reviews"].forEach(review => {
+            const user = userMap.get(review.authorID);
+            review["_id"] = review["_id"].toString();
+            review["discord_id"] = user?.discord_id;
+            review["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
+            review["authorAvatar"] = user?.image;
+            review["text"] = review["review"] ?? review["text"];
+        });
 	}
 
 	if (mission["ratings"]) {
-		await Promise.all(
-			mission["ratings"].map(async (rating): Promise<any> => {
-				var user = await (await MyMongo).db("prod").collection("users").findOne(
-					{ discord_id: rating["ratingAuthorId"] },
-					{ projection: { username: 1, nickname: 1, image: 1 } }
-				);
-
-				rating["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
-
-
-				if (rating["ratingAuthorId"] == session?.user["discord_id"]) {
-					mission["myRating"] = rating;
-				}
-			})
-		);
+		mission["ratings"].forEach(rating => {
+            const user = userMap.get(rating.ratingAuthorId);
+            rating["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
+            if (rating["ratingAuthorId"] == session?.user["discord_id"]) {
+                mission["myRating"] = rating;
+            }
+        });
 	}
 
 	if (mission["history"]) {
-		await Promise.all(
-			mission["history"]?.map(async (history) => {
-				history["_id"] = history["_id"].toString();
-
-				await Promise.all(
-					history["leaders"]?.map(async (leader) => {
-						delete leader["_id"];
-						var user = await (await MyMongo).db("prod").collection("users").findOne(
-							{ discord_id: leader["discordID"] },
-							{ projection: { username: 1, nickname: 1 } }
-						);
-						if (user) {
-							leader["name"] = user?.nickname ?? user?.username ?? "Unknown";
-							leader["discordID"] = leader["discordID"].toString();
-						}
-						leader["aar"] = leader["aar"];
-					})
-				);
-			})
-		);
+		mission["history"].forEach(history => {
+            if(history["_id"]) {
+			    history["_id"] = history["_id"].toString();
+            }
+			history.leaders?.forEach(leader => {
+                const user = userMap.get(leader.discordID);
+				delete leader["_id"];
+				if (user) {
+					leader["name"] = user?.nickname ?? user?.username ?? "Unknown";
+					leader["discordID"] = leader["discordID"].toString();
+				}
+			});
+		});
 		mission["history"].sort((a, b) => {
-			return b.date.getTime() - a.date.getTime();
+			return new Date(b.date).getTime() - new Date(a.date).getTime();
 		});
 	}
 
-
-
 	mission["updates"]?.map((update) => {
-		update.main = fs.existsSync(
-			`${process.env.ROOT_FOLDER}/${process.env.MAIN_SERVER_MPMissions}/${update.fileName}`
-		);
-
-		update.test = fs.existsSync(
-			`${process.env.ROOT_FOLDER}/${process.env.TEST_SERVER_MPMissions}/${update.fileName}`
-		);
-
-		update.archive = fs.existsSync(
-			`${process.env.ROOT_FOLDER}/${process.env.ARCHIVE_FOLDER}/${update.fileName}`
-		);
-		update["_id"] = update["_id"].toString();
+		if (update["_id"]) {
+			update["_id"] = update["_id"].toString();
+		}
+		// Preserve raw date for tooltip, then format for display
+		update["dateRaw"] = moment(update["date"]).format("LLLL"); // Full date and time
 		update["date"] = moment(update["date"]).format("ll");
-		update["authorName"] =
-			update["author"]?.nickname ?? update["author"]?.username ?? "Unknown";
-		delete update["author"];
+
+		// Fetch author details from userMap
+		const updateAuthor = userMap.get(update.authorID);
+		update["authorName"] = updateAuthor?.nickname ?? updateAuthor?.username ?? "Unknown";
 	});
 
 	if (mission["media"]) {
 		mission["media"]?.map((media) => {
-			media["_id"] = media["_id"].toString();
+			if (media["_id"]) {
+				media["_id"] = media["_id"].toString();
+			}
 		});
 		if (mission?.media) {
 			mission.media.sort((a, b) => {
-				return b.date - a.date;
+				return new Date(b.date).getTime() - new Date(a.date).getTime();
 			});
 		}
 	}
 
-
-
-	mission["_id"] = mission["_id"].toString();
-	mission["_id"] = mission["_id"].toString();
+	if (mission["_id"]) {
+		mission["_id"] = mission["_id"].toString();
+	}
 
 	try {
 		const thing = await unified()
@@ -1793,52 +1808,90 @@ export async function getServerSideProps(context) {
 
 		mission["descriptionMarkdown"] = thing.value.toString();
 	} catch (error) { }
-
-
+	_mark("markdown parse");
 
 	const isMissionReviewer = hasCreds(session, CREDENTIAL.MISSION_REVIEWER);
 	let missionTestingQuestions = null;
+
+	const configs = await db.collection("configs").findOne({});
 	if (isMissionReviewer) {
-		const configs = await (await MyMongo).db("prod").collection("configs").findOne(
-			{},
-			{ projection: { mission_review_questions: 1 } }
-		);
-		missionTestingQuestions = configs["mission_review_questions"];
+		missionTestingQuestions = configs?.mission_review_questions;
 	}
 
-	const configs = await (await MyMongo).db("prod").collection("configs").findOne(
-		{},
-		{ projection: { allowed_terrains: 1 } }
-	);
-	const terrainsMap = configs["allowed_terrains"];
-
-	if (!mission.terrainName) {
+	const terrainsMap = configs?.reforger_allowed_terrains || [];
+	if (!mission.terrainName && mission.terrain) {
 		mission.terrainName = terrainsMap.find(
-			(item) => item.class.toLowerCase() == mission.terrain.toLowerCase()
-		).display_name;
+			(item) => item.id.toLowerCase() == mission.terrain.toLowerCase()
+		)?.display_name ?? mission.terrain;
 	}
 
-	let discordUsers = [];
-	if (hasCreds(session, CREDENTIAL.ADMIN)) {
-		const botResponse = await axios.get(`http://globalconflicts.net:3001/users`);
-		discordUsers = botResponse.data;
-	}
+    if (!mission.tags) {
+        mission.tags = [];
+    }
 
 	let hasAcceptedVersion = false;
-	// checks if it has an approved version
 	for (const update of mission.updates) {
-		console.log("update")
-		//the reviewState on the update object is an legacy thing
 		if ( update?.testingAudit?.reviewState == "review_accepted" || update?.reviewState == 'review_accepted') {
 			hasAcceptedVersion = true;
 			break;
 		}
 	}
 
+	_mark("configs + terrain");
+
+	let discordUsers = [];
+	if (hasCredsAny(session, [CREDENTIAL.GM, CREDENTIAL.ADMIN])) {
+		try {
+			const db = (await MyMongo).db("prod");
+			const cachedUsers = await db.collection("discord_users").find({}).toArray();
+			discordUsers = cachedUsers.map((u) => ({
+				userId: u.userId,
+				username: u.username,
+				nickname: u.nickname,
+				displayName: u.displayName,
+				displayAvatarURL: u.displayAvatarURL,
+			}));
+
+			const leaderCounts = await db.collection("reforger_mission_metadata").aggregate([
+				{ $match: { "history.leaders.discordID": { $exists: true, $ne: null } } },
+				{ $unwind: "$history" },
+				{ $unwind: "$history.leaders" },
+				{
+					$group: {
+						_id: "$history.leaders.discordID",
+						count: { $sum: 1 },
+					},
+				},
+			]).toArray();
+
+			const leaderCountMap = new Map(leaderCounts.map(item => [item._id, item.count]));
+
+			discordUsers.forEach(user => {
+				user.leaderCount = leaderCountMap.get(user.userId) || 0;
+			});
+
+			discordUsers.sort((a, b) => {
+				if (b.leaderCount !== a.leaderCount) {
+					return b.leaderCount - a.leaderCount;
+				}
+				const nameA = a.displayName || a.username;
+				const nameB = b.displayName || b.username;
+				return nameA.localeCompare(nameB);
+			});
+
+
+		} catch (error) {
+			console.log("Failed to read cached discord users from database", error);
+		}
+	}
+	_mark("discord users");
+
+	console.log(`[PERF] getServerSideProps for "${context.params.uniqueName}" — ${_timings.join(" | ")} | TOTAL: ${Date.now() - _t0}ms`);
+
 	return {
 		props: {
 			_mission: mission,
-			discordUsers: discordUsers,
+			discordUsers,
 			hasVoted: session
 				? mission.votes?.includes(session?.user["discord_id"])
 				: false,
@@ -1847,15 +1900,8 @@ export async function getServerSideProps(context) {
 		},
 	};
 }
-function getMissionDownloadLink(row: any): string {
-	if (row.archive) {
-		return `https://arma.globalconflicts.net/archive/${row.fileName}`;
-	}
-	if (row.main) {
-		return `https://arma.globalconflicts.net/Main%20Server/MPMissions/${row.fileName}`;
-	}
-	if (row.test) {
-		return `https://arma.globalconflicts.net/Test%20Server/MPMissions/${row.fileName}`;
-	}
-	return null;
+
+function getMissionGitHubLink(row: any): string {
+	// For Reforger, return the GitHub URL instead of download link
+	return row.githubUrl || null;
 }

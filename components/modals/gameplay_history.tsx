@@ -25,6 +25,7 @@ export default function GameplayHistoryModal({
 	onClose,
 	mission,
 	historyToLoad,
+    isReforger = false,
 }) {
 	const [gmNote, setGmNote] = React.useState("");
 	const [selectedNoteTab, setSelectedNoteTab] = React.useState<
@@ -32,6 +33,14 @@ export default function GameplayHistoryModal({
 	>("write");
 
 	let [selectedDiscordUser, setSelectedDiscordUser] = useState(null);
+
+	const notOnDiscordUser = {
+		userId: "NOT_ON_DISCORD",
+		displayName: "User not on Discord",
+		nickname: "User not on Discord",
+		displayAvatarURL: null,
+		name: "User not on Discord"
+	};
 
 	let [listOfLeaders, setListOfLeaders] = useState([]);
 	let [outcome, setOutcome] = useState(null);
@@ -57,19 +66,24 @@ export default function GameplayHistoryModal({
 					return {
 						aar: leader.aar,
 						displayAvatarURL: leader.displayAvatarURL,
-						name: leader.name ?? leader.nickname ?? leader.displayName,
-						discordID: leader.userId,
+						name: leader.userId === "NOT_ON_DISCORD" ? "User not on Discord" : (leader.name ?? leader.nickname ?? leader.displayName),
+						discordID: leader.userId === "NOT_ON_DISCORD" ? null : leader.userId,
 						role: leader.role?.value,
 						side: leader.side?.value,
 					};
 				}),
 
-				outcome: outcome.value,
+				outcome: outcome?.value || null,
 			};
+            
+            const endpoint = isReforger 
+                ? `/api/reforger-missions/${mission.uniqueName}/history`
+                : `/api/missions/${mission.uniqueName}/history`;
+
 			axios
 				.request({
 					method: historyToLoad ? "PUT" : "POST",
-					url: `/api/missions/${mission.uniqueName}/history`,
+					url: endpoint,
 					data: data,
 				})
 
@@ -95,6 +109,45 @@ export default function GameplayHistoryModal({
 			toast.error("Error submiting history");
 			setIsLoading(false);
 		}
+	}
+
+	function deleteHistory() {
+		if (!historyToLoad) return;
+
+		if (!confirm("Are you sure you want to delete this gameplay history entry?")) {
+			return;
+		}
+
+		setIsLoading(true);
+		const endpoint = isReforger
+			? `/api/reforger-missions/${mission.uniqueName}/history`
+			: `/api/missions/${mission.uniqueName}/history`;
+
+		const idToDelete = typeof historyToLoad._id === 'string'
+			? historyToLoad._id
+			: historyToLoad._id.toString();
+
+		console.log("Deleting history with _id:", idToDelete, "Type:", typeof idToDelete);
+
+		axios({
+			method: 'delete',
+			url: endpoint,
+			params: { _id: idToDelete }
+		})
+			.then((response) => {
+				toast.success("History deleted successfully");
+				clear();
+				onClose({ _id: historyToLoad._id, deleted: true }, true);
+			})
+			.catch((error) => {
+				console.error("Delete error:", error);
+				console.error("Error response:", error?.response?.data);
+				console.error("Request data was:", { _id: idToDelete });
+				toast.error(error?.response?.data?.error || "Error deleting history");
+			})
+			.finally(() => {
+				setIsLoading(false);
+			});
 	}
 
 	useEffect(() => {
@@ -134,7 +187,7 @@ export default function GameplayHistoryModal({
 	const [_document, set_document] = React.useState(null);
 
 	React.useEffect(() => {
-		set_document(document.querySelector("#missionPage"));
+		set_document(document.body);
 	}, []);
 
 	return (
@@ -270,7 +323,7 @@ export default function GameplayHistoryModal({
 								/>
 
 								<Select
-									options={discordUsers}
+									options={[notOnDiscordUser, ...discordUsers]}
 									classNamePrefix="select-input"
 									placeholder="Select a leader..."
 									blurInputOnSelect={true}
@@ -285,6 +338,8 @@ export default function GameplayHistoryModal({
 									}}
 									isSearchable={true}
 									value={selectedDiscordUser}
+                                    isLoading={!discordUsers}
+                                    loadingMessage={() => "Loading users..."}
 									getOptionLabel={(option) => {
 										return option.nickname ?? option.displayName;
 									}}
@@ -364,6 +419,21 @@ export default function GameplayHistoryModal({
 									Close
 								</button>
 								<div className="flex flex-row space-x-2">
+									{historyToLoad && (
+										<button
+											type="button"
+											className={
+												isLoading
+													? "btn btn-sm btn-error loading"
+													: "btn btn-sm btn-error"
+											}
+											onClick={() => {
+												deleteHistory();
+											}}
+										>
+											DELETE
+										</button>
+									)}
 									<button
 										type="button"
 										className={
