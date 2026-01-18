@@ -1,29 +1,129 @@
-# Next.js + Tailwind CSS Example
+# 🌍 Global Conflicts Website
 
-This example shows how to use [Tailwind CSS](https://tailwindcss.com/) [(v2.2)](https://blog.tailwindcss.com/tailwindcss-2-2) with Next.js. It follows the steps outlined in the official [Tailwind docs](https://tailwindcss.com/docs/guides/nextjs).
+A modern web application built with [Next.js](https://nextjs.org/) and [Tailwind CSS](https://tailwindcss.com/) for managing global conflict information, events, missions, and community content.
 
-It uses the new [`Just-in-Time Mode`](https://tailwindcss.com/docs/just-in-time-mode) for Tailwind CSS.
+## 🚀 Tech Stack
 
-## Preview
+- **Frontend**: Next.js 13, React 18, TypeScript
+- **Styling**: Tailwind CSS, DaisyUI, Flowbite
+- **Backend**: Node.js, Express
+- **Database**: MongoDB
+- **Authentication**: NextAuth.js
+- **Media**: YouTube Integration, Imgur API
 
-Preview the example live on [StackBlitz](http://stackblitz.com/):
+## 📋 Prerequisites
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-tailwindcss)
+Before you get started, make sure you have the following installed on your system:
 
-## Deploy your own
+- **Node.js** and **npm** (Download from [nodejs.org](https://nodejs.org/))
+- **MongoDB Community Edition** (Download from [mongodb.com](https://www.mongodb.com/try/download/community))
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+## 🔧 Installation & Setup
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-tailwindcss&project-name=with-tailwindcss&repository-name=with-tailwindcss)
+### 1️⃣ Install Yarn Globally
 
-## How to use
-
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
+We recommend using Yarn as the package manager for this project. Install it globally using npm:
 
 ```bash
-npx create-next-app --example with-tailwindcss with-tailwindcss-app
-# or
-yarn create next-app --example with-tailwindcss with-tailwindcss-app
+npm install -g yarn
 ```
 
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+### 2️⃣ Install Dependencies
+
+Navigate to the project directory and install all dependencies:
+
+```bash
+yarn install
+```
+
+### 3️⃣ Set Up MongoDB
+
+Make sure MongoDB Community Edition is installed and running on your system. Then, set the `MONGO_HOST` environment variable:
+
+**On Windows (PowerShell):**
+```powershell
+$env:MONGO_HOST="mongodb://localhost:27017"
+```
+
+**On Windows (Command Prompt):**
+```cmd
+set MONGO_HOST=mongodb://localhost:27017
+```
+
+**On macOS/Linux:**
+```bash
+export MONGO_HOST="mongodb://localhost:27017"
+```
+
+Or create a `.env.local` file in the project root:
+```
+MONGO_HOST=mongodb://localhost:27017
+```
+
+## 📦 Available Scripts
+
+The following npm scripts are available in this project:
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | 🏃 Start the development server at http://localhost:3000 |
+| `npm run build` | 🔨 Build the application for production |
+| `npm run start` | ⚡ Start the production server |
+| `npm run startCustom` | 🎯 Start using custom server configuration |
+| `npm run lint` | ✅ Run ESLint to check code quality |
+
+## 🏁 Getting Started
+
+### Development
+
+To start the development server:
+
+```bash
+npm run dev
+```
+
+The application will be available at [http://localhost:3000](http://localhost:3000). The page will hot-reload when you make changes.
+
+### Production
+
+To build and run the application in production mode:
+
+```bash
+npm run build
+npm run start
+```
+
+### Custom Server
+
+For a custom server setup, use:
+
+```bash
+npm run startCustom
+```
+
+## 📝 Project Structure
+
+```
+├── _guides/              # Guide documentation files
+├── components/           # Reusable React components
+├── interfaces/           # TypeScript interfaces
+├── layouts/              # Page layout components
+├── lib/                  # Utility functions and helpers
+├── middleware/           # Authentication and custom middleware
+├── pages/                # Next.js pages and API routes
+├── public/               # Static assets
+├── styles/               # Global stylesheets
+├── package.json          # Project dependencies
+└── tsconfig.json         # TypeScript configuration
+```
+
+## 🤝 Contributing
+
+When contributing to this project, please ensure that:
+- Your code follows the project's ESLint configuration
+- You test your changes locally before submitting
+- You update relevant documentation
+
+## 📄 License
+
+This project is private and proprietary.
