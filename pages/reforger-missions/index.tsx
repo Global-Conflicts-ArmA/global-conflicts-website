@@ -11,18 +11,19 @@ import { hasCredsAny } from "../../lib/credsChecker";
 
 import { useSession } from "next-auth/react";
 import { CREDENTIAL } from "../../middleware/check_auth_perms";
-import { 
+import {
     BanIcon,
 	CheckCircleIcon,
 	ClockIcon,
 	ExclamationCircleIcon,
     QuestionMarkCircleIcon,
-	ChevronDownIcon, 
+	ChevronDownIcon,
     RefreshIcon,
     CalendarIcon,
     CogIcon,
     InformationCircleIcon,
-    UserGroupIcon
+    UserGroupIcon,
+    ChartBarIcon,
 } from "@heroicons/react/outline";
 import { MapItem } from "../../interfaces/mapitem";
 import Select from "react-select";
@@ -35,7 +36,54 @@ import AdminControlsModal from "../../components/modals/admin_controls_modal";
 import GmControlsModal from "../../components/modals/gm_controls_modal";
 import { calculateMissionScore, DEFAULT_SMART_CONFIG, SmartScoreConfig } from "../../lib/missionSmartScoring";
 
-// ... (rest of imports)
+import dynamic from "next/dynamic";
+import type { ApexOptions } from "apexcharts";
+
+const ApexChart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
+// Normalise legacy type prefixes that the sync now converts server-side
+function normalizeType(raw: string | undefined): string {
+    const t = raw?.toUpperCase() ?? "OTHER";
+    if (t === "SD" || t === "AAS") return "SEED";
+    return t;
+}
+
+const TYPE_COLOR_CLASSES: Record<string, string> = {
+    COOP: "bg-green-500",
+    TVT: "bg-red-800",
+    COTVT: "bg-yellow-400",
+    LOL: "bg-purple-500",
+    OTHER: "bg-gray-500",
+    SEED: "bg-blue-500",
+};
+
+const TYPE_HEX_COLORS: Record<string, string> = {
+    COOP: "#22c55e",
+    TVT: "#991b1b",
+    COTVT: "#facc15",
+    LOL: "#a855f7",
+    OTHER: "#6b7280",
+    SEED: "#3b82f6",
+};
+
+function StatBar({ label, value, max, colorClass, onClick, isActive, isDimmed }: {
+    label: string; value: number; max: number; colorClass: string;
+    onClick?: () => void; isActive?: boolean; isDimmed?: boolean;
+}) {
+    const pct = max > 0 ? Math.max(3, (value / max) * 100) : 0;
+    return (
+        <div
+            className={`flex items-center gap-2 transition-opacity duration-150 ${onClick ? "cursor-pointer hover:opacity-90" : ""} ${isDimmed ? "opacity-25" : ""}`}
+            onClick={onClick}
+        >
+            <span className={`w-24 text-xs truncate text-right shrink-0 ${isActive ? "font-bold opacity-100 dark:text-white" : "opacity-60 dark:text-gray-400"}`}>{label}</span>
+            <div className="flex-1 bg-base-300 dark:bg-gray-700 rounded-full h-2">
+                <div className={`${colorClass} h-2 rounded-full transition-all duration-300 ${isActive ? "ring-1 ring-white/40" : ""}`} style={{ width: `${pct}%` }} />
+            </div>
+            <span className="w-6 text-xs opacity-60 dark:text-gray-400 text-right shrink-0">{value}</span>
+        </div>
+    );
+}
 
 function getStatusIcon(status, notes) {
     let icon = <QuestionMarkCircleIcon className="w-6 h-6 text-gray-400" />;
@@ -162,6 +210,8 @@ function ReforgerMissionList({ missions }) {
     const [isSmartSortEnabled, setIsSmartSortEnabled] = useState(false);
     const [smartConfig, setSmartConfig] = useState<SmartScoreConfig>(DEFAULT_SMART_CONFIG);
     const [isSmartConfigOpen, setIsSmartConfigOpen] = useState(false);
+    const [isDashboardOpen, setIsDashboardOpen] = useState(false);
+    const [dashboardTypeFilter, setDashboardTypeFilter] = useState<string | null>(null);
 
     // Detect last played mission for Variety Penalty
     useEffect(() => {
@@ -506,6 +556,399 @@ function ReforgerMissionList({ missions }) {
 
 
 
+    // --- Stats Dashboard data ---
+
+    // Missions filtered by the dashboard's own type-filter (independent of page filters)
+    const dashboardMissions = useMemo(() =>
+        dashboardTypeFilter
+            ? missions.filter(m => normalizeType(m.type) === dashboardTypeFilter)
+            : missions,
+    [missions, dashboardTypeFilter]);
+
+    const statsTypeData = useMemo(() => {
+        const counts: Record<string, number> = {};
+        missions.forEach(m => {
+            const t = normalizeType(m.type);
+            counts[t] = (counts[t] || 0) + 1;
+        });
+        return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    }, [missions]);
+
+    const statsTerrainData = useMemo(() => {
+        const counts: Record<string, number> = {};
+        dashboardMissions.forEach(m => {
+            if (m.terrainName) counts[m.terrainName] = (counts[m.terrainName] || 0) + 1;
+        });
+        return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    }, [dashboardMissions]);
+
+    const statsTerrainCount = useMemo(() =>
+        new Set(dashboardMissions.map(m => m.terrainName).filter(Boolean)).size,
+    [dashboardMissions]);
+
+    const statsEraData = useMemo(() => {
+        const counts: Record<string, number> = {};
+        dashboardMissions.forEach(m => {
+            if (m.era) counts[m.era] = (counts[m.era] || 0) + 1;
+        });
+        return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    }, [dashboardMissions]);
+
+    const statsTagData = useMemo(() => {
+        const counts: Record<string, number> = {};
+        dashboardMissions.forEach(m => {
+            if (Array.isArray(m.tags)) {
+                m.tags.forEach((t: string) => {
+                    if (t) counts[t] = (counts[t] || 0) + 1;
+                });
+            }
+        });
+        return Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+    }, [dashboardMissions]);
+
+    const statsTotalPlays = useMemo(() =>
+        dashboardMissions.reduce((s, m) => s + (m.playCount || 0), 0),
+    [dashboardMissions]);
+
+    const statsMostPlayed = useMemo(() =>
+        [...dashboardMissions].sort((a, b) => (b.playCount || 0) - (a.playCount || 0))[0],
+    [dashboardMissions]);
+
+    // Mission type donut chart
+    const missionTypeDonutSeries = useMemo(() =>
+        statsTypeData.map(([, count]) => count),
+    [statsTypeData]);
+
+    const missionTypeDonutOptions = useMemo((): ApexOptions => ({
+        chart: {
+            type: "donut",
+            background: "transparent",
+            animations: { enabled: false },
+            events: {
+                dataPointSelection: (_event, _chartContext, config) => {
+                    const type = statsTypeData[config.dataPointIndex]?.[0];
+                    if (type) setDashboardTypeFilter(prev => prev === type ? null : type);
+                },
+            },
+        },
+        labels: statsTypeData.map(([type]) => type),
+        colors: statsTypeData.map(([type]) => TYPE_HEX_COLORS[type] || "#6b7280"),
+        legend: { position: "bottom", labels: { colors: "#9ca3af" }, fontSize: "11px", itemMargin: { horizontal: 4, vertical: 2 } },
+        dataLabels: { enabled: false },
+        plotOptions: { pie: { expandOnClick: false, donut: { size: "60%" } } },
+        stroke: { width: 2, colors: ["#1f2937"] },
+        tooltip: { theme: "dark", y: { formatter: (v) => `${v} missions` } },
+    }), [statsTypeData]);
+
+    // --- ApexCharts data ---
+
+    // Stacked area: how many missions support each player count (excludes Unavailable)
+    const playerCountCoverageSeries = useMemo(() => {
+        const available = missions.filter(m => m.status !== "Unavailable");
+        const cap = available.reduce((acc, m) => Math.max(acc, m.size?.max || 0), 0);
+        const maxCount = Math.min(cap, 130);
+        const coop: [number, number][] = [], tvt: [number, number][] = [], cotvt: [number, number][] = [];
+        for (let n = 2; n <= maxCount; n++) {
+            const matching = available.filter(m => (m.size?.min ?? 0) <= n && (m.size?.max ?? 0) >= n);
+            coop.push([n, matching.filter(m => normalizeType(m.type) === "COOP").length]);
+            tvt.push([n, matching.filter(m => normalizeType(m.type) === "TVT").length]);
+            cotvt.push([n, matching.filter(m => normalizeType(m.type) === "COTVT").length]);
+        }
+        return [
+            { name: "TVT",   data: tvt },
+            { name: "COTVT", data: cotvt },
+            { name: "COOP",  data: coop },
+        ];
+    }, [missions]);
+
+    // Scatter: last played date vs max player count (capped at 128)
+    const scatterSeries = useMemo(() => {
+        const data = missions
+            .filter(m => m.lastPlayed && m.size?.max)
+            .map(m => ({ x: Math.min(m.size.max, 128), y: m.lastPlayed, name: m.name }));
+        return [{ name: "Mission", data }];
+    }, [missions]);
+
+    // Floating bar: min–max player count per mission (sorted by min, capped at 128)
+    const rangeBarSeries = useMemo(() => {
+        const sorted = [...missions]
+            .filter(m => m.size?.min && m.size?.max)
+            .sort((a, b) => a.size.min - b.size.min);
+        return [
+            { name: "Min",   data: sorted.map(m => m.size.min) },
+            { name: "Range", data: sorted.map(m => Math.min(m.size.max, 128) - m.size.min) },
+        ];
+    }, [missions]);
+
+    // Shared chart style helpers
+    const apexAxisLabel = { style: { colors: "#9ca3af", fontSize: "11px" } };
+    const apexTitleStyle = { color: "#9ca3af", fontSize: "11px" };
+    const apexGrid: ApexOptions["grid"] = { borderColor: "#374151", strokeDashArray: 3 };
+
+    const playerCountAreaOptions = useMemo((): ApexOptions => ({
+        chart: { type: "area", stacked: true, background: "transparent", toolbar: { show: false }, zoom: { enabled: false }, animations: { enabled: false } },
+        colors: ["#991b1b", "#facc15", "#22c55e"],
+        dataLabels: { enabled: false },
+        stroke: { curve: "smooth", width: 0 },
+        fill: { opacity: [0.8, 0.7, 0.6] },
+        xaxis: { type: "numeric", title: { text: "Player Count", style: apexTitleStyle }, labels: apexAxisLabel, tickAmount: 10 },
+        yaxis: { title: { text: "Missions", style: apexTitleStyle }, labels: apexAxisLabel },
+        legend: { position: "top", labels: { colors: "#9ca3af" } },
+        grid: apexGrid,
+        tooltip: { theme: "dark", x: { formatter: (v) => `${v} players` } },
+    }), []);
+
+    const scatterOptions = useMemo((): ApexOptions => ({
+        chart: { type: "scatter", background: "transparent", toolbar: { show: false }, zoom: { enabled: true }, animations: { enabled: false } },
+        colors: ["#6b7280"],
+        markers: { size: 5, strokeWidth: 0 },
+        xaxis: { type: "numeric", title: { text: "Max Player Count", style: apexTitleStyle }, labels: apexAxisLabel, tickAmount: 8, max: 128 },
+        yaxis: { type: "datetime", title: { text: "Last Played", style: apexTitleStyle }, labels: { ...apexAxisLabel, formatter: (v) => new Date(v).toLocaleDateString("en-GB", { month: "short", year: "2-digit" }) } },
+        grid: apexGrid,
+        tooltip: {
+            theme: "dark",
+            custom: ({ seriesIndex, dataPointIndex, w }) => {
+                const d = w.config.series[seriesIndex].data[dataPointIndex];
+                return `<div style="padding:8px;font-size:12px;background:#1f2937;border-radius:6px;border:1px solid #374151;color:#e5e7eb"><strong>${d.name}</strong><br/>Max: ${d.x} players<br/>Last played: ${new Date(d.y).toLocaleDateString()}</div>`;
+            },
+        },
+    }), []);
+
+    const rangeBarOptions = useMemo((): ApexOptions => ({
+        chart: { type: "bar", stacked: true, background: "transparent", toolbar: { show: false }, animations: { enabled: false } },
+        colors: ["transparent", "#4b5563"],
+        plotOptions: { bar: { columnWidth: "90%", borderRadius: 0 } },
+        dataLabels: { enabled: false },
+        legend: { show: false },
+        xaxis: { labels: { show: false }, axisTicks: { show: false }, axisBorder: { show: false }, tooltip: { enabled: false } },
+        yaxis: { title: { text: "Player Count", style: apexTitleStyle }, labels: apexAxisLabel },
+        grid: apexGrid,
+        tooltip: {
+            theme: "dark",
+            custom: ({ seriesIndex, dataPointIndex, w }) => {
+                const min = w.config.series[0].data[dataPointIndex];
+                const range = w.config.series[1].data[dataPointIndex];
+                const sorted = [...missions].filter(m => m.size?.min && m.size?.max).sort((a, b) => a.size.min - b.size.min);
+                const mission = sorted[dataPointIndex];
+                return `<div style="padding:8px;font-size:12px;background:#1f2937;border-radius:6px;border:1px solid #374151;color:#e5e7eb"><strong>${mission?.name ?? ""}</strong><br/>${min}–${min + range} players</div>`;
+            },
+        },
+    }), [missions]);
+
+    // Heatmap: player count buckets (x) × year last played (series/rows)
+    const heatmapSeries = useMemo(() => {
+        const bucketSize = 10;
+        const maxCap = 128;
+        const buckets: string[] = [];
+        for (let start = 1; start <= maxCap; start += bucketSize) {
+            const end = Math.min(start + bucketSize - 1, maxCap);
+            buckets.push(`${start}-${end}`);
+        }
+        const played = missions.filter(m => m.lastPlayed && m.size?.max);
+        if (played.length === 0) return [];
+        const minYear = new Date(Math.min(...played.map(m => m.lastPlayed))).getFullYear();
+        const maxYear = new Date(Math.max(...played.map(m => m.lastPlayed))).getFullYear();
+        const years: number[] = [];
+        for (let y = minYear; y <= maxYear; y++) years.push(y);
+        return years.map(year => ({
+            name: String(year),
+            data: buckets.map(bucket => {
+                const [low, high] = bucket.split("-").map(Number);
+                const count = played.filter(m => {
+                    const maxSlots = Math.min(m.size.max, maxCap);
+                    return maxSlots >= low && maxSlots <= high && new Date(m.lastPlayed).getFullYear() === year;
+                }).length;
+                return { x: bucket, y: count };
+            }),
+        }));
+    }, [missions]);
+
+    const heatmapOptions = useMemo((): ApexOptions => ({
+        chart: { type: "heatmap", background: "transparent", toolbar: { show: false }, animations: { enabled: false } },
+        colors: ["#22c55e"],
+        dataLabels: { enabled: true, style: { colors: ["#fff"], fontSize: "10px" } },
+        xaxis: { title: { text: "Max Player Count (capped at 128)", style: apexTitleStyle }, labels: apexAxisLabel },
+        yaxis: { title: { text: "Year Last Played", style: apexTitleStyle }, labels: apexAxisLabel },
+        grid: apexGrid,
+        legend: { show: false },
+        plotOptions: { heatmap: { shadeIntensity: 0.6, colorScale: { ranges: [{ from: 0, to: 0, color: "#1f2937", name: "Never" }] } } },
+        tooltip: {
+            theme: "dark",
+            y: { formatter: (v) => `${v} mission${v !== 1 ? "s" : ""}` },
+        },
+    }), []);
+
+    // Author celebration chart
+    const authorStatsData = useMemo(() => {
+        const map: Record<string, { missions: number; plays: number }> = {};
+        dashboardMissions.forEach(m => {
+            const name = m.missionMaker || "Unknown";
+            if (!map[name]) map[name] = { missions: 0, plays: 0 };
+            map[name].missions += 1;
+            map[name].plays += (m.playCount || 0);
+        });
+        return Object.entries(map)
+            .sort((a, b) => b[1].missions - a[1].missions);
+    }, [dashboardMissions]);
+
+    const authorPodiumData = useMemo(() => authorStatsData.slice(0, 3), [authorStatsData]);
+    const authorChartData  = useMemo(() => authorStatsData.slice(3),  [authorStatsData]);
+
+    const authorBarSeries = useMemo(() => [
+        { name: "Missions Made", type: "bar",  data: authorChartData.map(([, d]) => d.missions) },
+        { name: "Total Plays",   type: "line", data: authorChartData.map(([, d]) => d.plays) },
+    ], [authorChartData]);
+
+    const authorBarOptions = useMemo((): ApexOptions => ({
+        chart: { type: "line", background: "transparent", toolbar: { show: false }, animations: { enabled: false } },
+        plotOptions: { bar: { columnWidth: "60%" } },
+        colors: ["#6366f1", "#f59e0b"],
+        dataLabels: { enabled: false },
+        stroke: { width: [0, 3], curve: "smooth" },
+        markers: { size: [0, 4] },
+        xaxis: {
+            categories: authorChartData.map(([name]) => name),
+            labels: { rotate: -45, rotateAlways: true, style: { colors: "#9ca3af", fontSize: "10px" } },
+        },
+        yaxis: [
+            {
+                seriesName: "Missions Made",
+                title: { text: "Missions", style: apexTitleStyle },
+                labels: apexAxisLabel,
+            },
+            {
+                seriesName: "Total Plays",
+                opposite: true,
+                title: { text: "Plays", style: apexTitleStyle },
+                labels: apexAxisLabel,
+            },
+        ],
+        grid: apexGrid,
+        legend: { position: "top", labels: { colors: "#9ca3af" } },
+        tooltip: { theme: "dark", shared: true, intersect: false },
+    }), [authorChartData]);
+
+    // Missions added over time (stacked bar by type, using uploadDate)
+    const uploadTimelineData = useMemo(() => {
+        const typeOrder: string[] = ["TVT", "COTVT", "COOP", "LOL", "SEED", "OTHER"];
+        const monthMap: Record<string, Record<string, number>> = {};
+        missions.forEach(m => {
+            if (!m.uploadDate) return;
+            const d = new Date(m.uploadDate);
+            const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+            if (!monthMap[key]) monthMap[key] = {};
+            const raw = normalizeType(m.type);
+            const t = typeOrder.includes(raw) ? raw : "OTHER";
+            monthMap[key][t] = (monthMap[key][t] || 0) + 1;
+        });
+        const sortedKeys = Object.keys(monthMap).sort();
+        return {
+            series: typeOrder.map(type => ({
+                name: type,
+                data: sortedKeys.map(k => monthMap[k][type] || 0),
+            })),
+            categories: sortedKeys.map(k => {
+                const [y, mo] = k.split("-");
+                return new Date(Number(y), Number(mo) - 1).toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
+            }),
+        };
+    }, [missions]);
+
+    const uploadTimelineOptions = useMemo((): ApexOptions => ({
+        chart: { type: "bar", stacked: true, background: "transparent", toolbar: { show: false }, animations: { enabled: false } },
+        colors: ["#991b1b", "#facc15", "#22c55e", "#a855f7", "#3b82f6", "#6b7280"],
+        plotOptions: { bar: { columnWidth: "85%" } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: uploadTimelineData.categories, labels: { rotate: -45, rotateAlways: true, style: { colors: "#9ca3af", fontSize: "10px" } } },
+        yaxis: { title: { text: "Missions Added", style: apexTitleStyle }, labels: { ...apexAxisLabel, formatter: (v) => String(Math.round(v)) } },
+        grid: apexGrid,
+        legend: { position: "top", labels: { colors: "#9ca3af" }, fontSize: "11px", itemMargin: { horizontal: 4 } },
+        tooltip: { theme: "dark", shared: true, intersect: false },
+    }), [uploadTimelineData]);
+
+    // Play activity by week — last 10 weeks, Tuesday-anchored (Tue→Mon covers Fri/Sat/Sun/Mon sessions)
+    const playActivityData = useMemo(() => {
+        const typeOrder: string[] = ["TVT", "COTVT", "COOP", "LOL"];
+
+        // Build a map of tuesday-key → type counts from all data
+        const weekMap: Record<string, Record<string, number>> = {};
+        dashboardMissions.forEach(m => {
+            if (!m.lastPlayed) return;
+            const d = new Date(m.lastPlayed);
+            const daysSinceTue = (d.getDay() - 2 + 7) % 7;
+            const tue = new Date(d);
+            tue.setDate(d.getDate() - daysSinceTue);
+            tue.setHours(0, 0, 0, 0);
+            const key = tue.toISOString().slice(0, 10);
+            if (!weekMap[key]) weekMap[key] = {};
+            const raw = normalizeType(m.type);
+            const t = typeOrder.includes(raw) ? raw : "OTHER";
+            weekMap[key][t] = (weekMap[key][t] || 0) + 1;
+        });
+
+        // Generate exactly the last 10 Tuesday-anchored weeks (newest last)
+        const now = new Date();
+        const daysSinceThisTue = (now.getDay() - 2 + 7) % 7;
+        const thisTue = new Date(now);
+        thisTue.setDate(now.getDate() - daysSinceThisTue);
+        thisTue.setHours(0, 0, 0, 0);
+        const weeks: string[] = [];
+        for (let i = 9; i >= 0; i--) {
+            const w = new Date(thisTue);
+            w.setDate(thisTue.getDate() - i * 7);
+            weeks.push(w.toISOString().slice(0, 10));
+        }
+
+        // ISO week number
+        function isoWeek(date: Date): number {
+            const d = new Date(date);
+            d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+            const y = new Date(d.getFullYear(), 0, 1);
+            return Math.ceil((((d.getTime() - y.getTime()) / 86400000) + 1) / 7);
+        }
+
+        const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "2-digit", month: "short" });
+
+        return {
+            series: typeOrder.map(type => ({
+                name: type,
+                data: weeks.map(k => weekMap[k]?.[type] || 0),
+            })),
+            // Encode "W7|11 Feb–17 Feb" — label formatter shows W7, tooltip shows date range
+            categories: weeks.map(k => {
+                const tue = new Date(k);
+                const mon = new Date(tue);
+                mon.setDate(tue.getDate() + 6);
+                return `W${isoWeek(tue)}|${fmt(tue)}–${fmt(mon)}`;
+            }),
+        };
+    }, [dashboardMissions]);
+
+    const playActivityOptions = useMemo((): ApexOptions => ({
+        chart: { type: "bar", stacked: true, background: "transparent", toolbar: { show: false }, animations: { enabled: false } },
+        colors: ["#991b1b", "#facc15", "#22c55e", "#a855f7"],
+        plotOptions: { bar: { columnWidth: "60%" } },
+        dataLabels: { enabled: false },
+        xaxis: {
+            categories: playActivityData.categories,
+            labels: {
+                formatter: (val: string) => val.split("|")[0],
+                style: { colors: "#9ca3af", fontSize: "11px" },
+            },
+        },
+        yaxis: { title: { text: "Missions", style: apexTitleStyle }, labels: { ...apexAxisLabel, formatter: (v) => String(Math.round(v)) } },
+        grid: apexGrid,
+        legend: { position: "top", labels: { colors: "#9ca3af" }, fontSize: "11px", itemMargin: { horizontal: 4 } },
+        tooltip: {
+            theme: "dark",
+            shared: true,
+            intersect: false,
+            x: { formatter: (val: any) => String(val).split("|")[1] ?? String(val) },
+        },
+    }), [playActivityData]);
+
+    // --- End ApexCharts data ---
+
 	async function runSync(fullSync = false, sinceDate = null) {
 		setIsSyncing(true);
 		try {
@@ -549,7 +992,7 @@ function ReforgerMissionList({ missions }) {
 		let hasMatch = true;
 		if (typeFilterValue.length > 0) {
 			hasMatch = typeFilterValue.some((r) => {
-                const missionType = x["type"]?.toUpperCase();
+                const missionType = normalizeType(x["type"]);
                 const filterValue = r.value.toUpperCase();
                 if (filterValue === "CO" && missionType === "COOP") return true;
                 return missionType === filterValue;
@@ -792,7 +1235,7 @@ function ReforgerMissionList({ missions }) {
 									localStorage.setItem("reforger_typeFilter", JSON.stringify(e))
 									setTypeFilterValue(e)
 								}}
-								options={[...typeOptions, { value: "OTHER", label: "OTHER" }] as any}
+								options={[...typeOptions, { value: "SEED", label: "SEED" }, { value: "OTHER", label: "OTHER" }] as any}
 								components={makeAnimated()}
 							/>
 						</div>
@@ -1129,6 +1572,14 @@ function ReforgerMissionList({ missions }) {
 									<h1 className="text-3xl font-bold dark:text-gray-100">Reforger Missions</h1>
 								</div>
 								<div className="flex flex-row items-center space-x-2"> {/* Changed to flex-row and added space-x-2 */}
+									<button
+										onClick={() => setIsDashboardOpen(v => !v)}
+										className={`btn btn-sm ${isDashboardOpen ? "btn-neutral" : ""}`}
+										title="Mission Library Stats"
+									>
+										<ChartBarIcon className="w-4 h-4 mr-2" />
+										Stats
+									</button>
 									{hasCredsAny(session, [CREDENTIAL.GM, CREDENTIAL.ADMIN]) && (
 										<button
 											onClick={() => setGmModalOpen(true)}
@@ -1247,6 +1698,201 @@ function ReforgerMissionList({ missions }) {
 											</label>
 											<span className="label-text-alt px-1 opacity-60 dark:text-gray-400">Prefers missions closer to max slots. Requires Players filter.</span>
 										</div>
+									</div>
+								</div>
+							)}
+
+							{/* Stats Dashboard Panel */}
+							{isDashboardOpen && (
+								<div className="flex flex-col gap-4 mb-4 py-4 px-4 bg-base-200 dark:bg-gray-800 rounded-lg shadow-sm border border-base-300 dark:border-gray-700 dark:text-gray-100 w-full">
+									{/* Stat pills */}
+									<div className="flex flex-wrap gap-3">
+										<div className="bg-base-100 dark:bg-gray-900 border border-base-300 dark:border-gray-700 rounded-lg px-4 py-2 min-w-[120px] flex flex-col justify-between h-20">
+											<div className="text-xs opacity-50 uppercase tracking-widest">Missions</div>
+											<div className="text-2xl font-bold">{dashboardMissions.length}</div>
+											<div className="text-xs opacity-40 h-4">{dashboardTypeFilter ? `of ${missions.length} total` : ""}</div>
+										</div>
+										<div className="bg-base-100 dark:bg-gray-900 border border-base-300 dark:border-gray-700 rounded-lg px-4 py-2 min-w-[120px] flex flex-col justify-between h-20">
+											<div className="text-xs opacity-50 uppercase tracking-widest">Total Plays</div>
+											<div className="text-2xl font-bold">{statsTotalPlays}</div>
+											<div className="h-4" />
+										</div>
+										<div className="bg-base-100 dark:bg-gray-900 border border-base-300 dark:border-gray-700 rounded-lg px-4 py-2 min-w-[160px] flex flex-col justify-between h-20">
+											<div className="text-xs opacity-50 uppercase tracking-widest">Most Played</div>
+											<div className="text-sm font-bold truncate">{statsMostPlayed?.name}</div>
+											<div className="text-xs opacity-50">{statsMostPlayed?.playCount}x</div>
+										</div>
+										<div className="bg-base-100 dark:bg-gray-900 border border-base-300 dark:border-gray-700 rounded-lg px-4 py-2 min-w-[120px] flex flex-col justify-between h-20">
+											<div className="text-xs opacity-50 uppercase tracking-widest">Terrains</div>
+											<div className="text-2xl font-bold">{statsTerrainCount}</div>
+											<div className="h-4" />
+										</div>
+										<div className="bg-base-100 dark:bg-gray-900 border border-base-300 dark:border-gray-700 rounded-lg px-4 py-2 min-w-[120px] flex flex-col justify-between h-20">
+											<div className="text-xs opacity-50 uppercase tracking-widest">Authors</div>
+											<div className="text-2xl font-bold">{[...new Set(dashboardMissions.map(m => m.missionMaker))].length}</div>
+											<div className="h-4" />
+										</div>
+									</div>
+
+									{/* Charts */}
+									<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+										{/* Mission Type donut */}
+										<div className="flex flex-col gap-1">
+											<div className="flex items-center justify-between">
+												<div className="text-xs uppercase tracking-widest opacity-50">Mission Type</div>
+												{dashboardTypeFilter ? (
+													<button
+														className="text-xs text-primary underline opacity-70 hover:opacity-100"
+														onClick={() => setDashboardTypeFilter(null)}
+													>
+														clear
+													</button>
+												) : (
+													<div className="text-xs opacity-30 italic">click to filter</div>
+												)}
+											</div>
+											<div className="text-xs font-semibold opacity-70 h-4">
+												{dashboardTypeFilter && <>Filtering: <span style={{ color: TYPE_HEX_COLORS[dashboardTypeFilter] ?? "#fff" }}>{dashboardTypeFilter}</span></>}
+											</div>
+											<ApexChart
+												type="donut"
+												height={220}
+												options={missionTypeDonutOptions}
+												series={missionTypeDonutSeries}
+											/>
+										</div>
+
+										{/* Top Terrains */}
+										<div className="flex flex-col gap-2">
+											<div className="text-xs uppercase tracking-widest opacity-50 mb-1">Top Terrains</div>
+											{statsTerrainData.map(([terrain, count]) => (
+												<StatBar
+													key={terrain}
+													label={terrain}
+													value={count}
+													max={statsTerrainData[0]?.[1] || 1}
+													colorClass="bg-primary"
+												/>
+											))}
+										</div>
+
+										{/* Era */}
+										<div className="flex flex-col gap-2">
+											<div className="text-xs uppercase tracking-widest opacity-50 mb-1">Era</div>
+											{statsEraData.map(([era, count]) => (
+												<StatBar
+													key={era}
+													label={era}
+													value={count}
+													max={statsEraData[0]?.[1] || 1}
+													colorClass="bg-secondary"
+												/>
+											))}
+										</div>
+
+										{/* Mission Tags */}
+										<div className="flex flex-col gap-2">
+											<div className="text-xs uppercase tracking-widest opacity-50 mb-1">Mission Tags</div>
+											{statsTagData.length > 0 ? statsTagData.map(([tag, count]) => (
+												<StatBar
+													key={tag}
+													label={tag}
+													value={count}
+													max={statsTagData[0]?.[1] || 1}
+													colorClass="bg-accent"
+												/>
+											)) : (
+												<span className="text-xs opacity-40">No tags found</span>
+											)}
+										</div>
+									</div>
+
+									<div className="divider my-0 before:bg-base-300 after:bg-base-300 dark:before:bg-gray-700 dark:after:bg-gray-700" />
+
+									{/* Stacked area: missions supporting each player count */}
+									<div>
+										<div className="text-xs uppercase tracking-widest opacity-50 mb-0.5">Missions Supporting Each Player Count</div>
+										<div className="text-xs opacity-30 mb-1">Excludes unavailable missions · TVT / COTVT / COOP</div>
+										<ApexChart type="area" height={220} options={playerCountAreaOptions} series={playerCountCoverageSeries} />
+									</div>
+
+									{/* Scatter + Floating range bar */}
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+										<div>
+											<div className="text-xs uppercase tracking-widest opacity-50 mb-0.5">Last Played by Max Player Count</div>
+											<div className="text-xs opacity-30 mb-1">Indicates where coverage gaps exist</div>
+											<ApexChart type="scatter" height={240} options={scatterOptions} series={scatterSeries} />
+										</div>
+										<div>
+											<div className="text-xs uppercase tracking-widest opacity-50 mb-0.5">Player Count Ranges</div>
+											<div className="text-xs opacity-30 mb-1">Each bar = one mission (min → max), sorted by min, capped at 128</div>
+											<ApexChart type="bar" height={240} options={rangeBarOptions} series={rangeBarSeries} />
+										</div>
+									</div>
+
+									{/* Heatmap: player count bucket × year */}
+									<div>
+										<div className="text-xs uppercase tracking-widest opacity-50 mb-0.5">Last Played Heatmap by Player Count &amp; Year</div>
+										<div className="text-xs opacity-30 mb-1">Each cell = missions last played in that year with max slots in that range</div>
+										<ApexChart type="heatmap" height={220} options={heatmapOptions} series={heatmapSeries} />
+									</div>
+
+									<div className="divider my-0 before:bg-base-300 after:bg-base-300 dark:before:bg-gray-700 dark:after:bg-gray-700" />
+
+									{/* Timeline charts */}
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+										<div>
+											<div className="text-xs uppercase tracking-widest opacity-50 mb-0.5">Missions Added Over Time</div>
+											<div className="text-xs opacity-30 mb-1">Monthly additions by type · all missions</div>
+											<ApexChart type="bar" height={280} options={uploadTimelineOptions} series={uploadTimelineData.series} />
+										</div>
+										<div>
+											<div className="text-xs uppercase tracking-widest opacity-50 mb-0.5">Play Activity by Week</div>
+											<div className="text-xs opacity-30 mb-1">Last 10 weeks · Tue–Mon · hover for date range</div>
+											<ApexChart type="bar" height={280} options={playActivityOptions} series={playActivityData.series} />
+										</div>
+									</div>
+
+									<div className="divider my-0 before:bg-base-300 after:bg-base-300 dark:before:bg-gray-700 dark:after:bg-gray-700" />
+
+									{/* Author contributions */}
+									<div>
+										<div className="text-xs uppercase tracking-widest opacity-50 mb-0.5">Author Contributions</div>
+										<div className="text-xs opacity-30 mb-1">Missions made &amp; total plays per author{dashboardTypeFilter ? ` · filtered to ${dashboardTypeFilter}` : ""}</div>
+										{authorPodiumData.length > 0 && (
+											<div className="flex items-end justify-center gap-6 py-4">
+												{([1, 0, 2] as const).map(idx => {
+													const entry = authorPodiumData[idx];
+													if (!entry) return null;
+													const [name, d] = entry;
+													const podiumStyles = [
+														{ block: "bg-yellow-400", text: "text-yellow-400", h: "h-20" },
+														{ block: "bg-gray-500",   text: "text-gray-300",   h: "h-14" },
+														{ block: "bg-amber-700",  text: "text-amber-600",  h: "h-10" },
+													];
+													const s = podiumStyles[idx];
+													return (
+														<div key={name} className="flex flex-col items-center w-36">
+															<div className={`text-xs font-bold mb-0.5 ${s.text}`}>#{idx + 1}</div>
+															<div className="text-sm font-semibold text-center truncate w-full px-1">{name}</div>
+															<div className="text-xs opacity-50 mt-0.5">{d.missions} missions</div>
+															<div className="text-xs opacity-35">{d.plays} plays</div>
+															<div className={`${s.block} ${s.h} w-full rounded-t mt-2 flex items-center justify-center font-black text-black/20 text-3xl`}>
+																{idx + 1}
+															</div>
+														</div>
+													);
+												}).filter(Boolean)}
+											</div>
+										)}
+										{authorChartData.length > 0 && (
+											<ApexChart
+												type="line"
+												height={360}
+												options={authorBarOptions}
+												series={authorBarSeries}
+											/>
+										)}
 									</div>
 								</div>
 							)}
