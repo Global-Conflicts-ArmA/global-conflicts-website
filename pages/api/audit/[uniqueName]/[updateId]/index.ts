@@ -57,7 +57,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		const versionStr = buildVersionStr(updateFound.version);
 
 		const botResponse = await axios.get(
-			`http://globalconflicts.net:3001/users/${updateFound.authorID}`
+			`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${updateFound.authorID}`
 		);
 
 		postDiscordAuditSubmit({

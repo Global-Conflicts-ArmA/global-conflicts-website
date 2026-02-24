@@ -122,6 +122,45 @@ function getAllMissionFiles(tree: GitHubTreeItem[]) {
     return files;
 }
 
+function getAllConfMetaFiles(tree: GitHubTreeItem[]) {
+    const files = tree
+        .filter(item => item.type === 'blob' && item.path.startsWith('Missions/') && item.path.endsWith('.conf.meta'))
+        .map(item => ({
+            path: item.path,
+            download_url: `${GITHUB_RAW_BASE}/${item.path}`,
+        }));
+    console.log(`[Tree API] Found ${files.length} .conf.meta files.`);
+    return files;
+}
+
+async function buildConfPathToScenarioGuidMap(tree: GitHubTreeItem[]) {
+    console.log("[ScenarioGuid Map] Building .conf path to scenario GUID map from .conf.meta files...");
+    const confMetaFiles = getAllConfMetaFiles(tree);
+    const headers = process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {};
+
+    const confPathToGuidMap = new Map<string, string>();
+    for (const metaFile of confMetaFiles) {
+        try {
+            apiCallCount++;
+            const response = await axios.get(metaFile.download_url, { headers });
+            // Content may be parsed as object by axios if it looks like JSON — stringify to be safe
+            const rawContent = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+            const guid = rawContent.match(/{([a-fA-F0-9]+)}/)?.[1];
+            if (guid) {
+                // Key is the .conf path (strip the trailing .meta)
+                const confPath = metaFile.path.slice(0, -'.meta'.length);
+                confPathToGuidMap.set(confPath, guid.toUpperCase());
+            } else {
+                console.warn(`[ScenarioGuid Map] No GUID found in ${metaFile.path}`);
+            }
+        } catch (error) {
+            console.warn(`[ScenarioGuid Map] Could not fetch or parse ${metaFile.path}: ${error.message}`);
+        }
+    }
+    console.log(`[ScenarioGuid Map] Done. Found ${confPathToGuidMap.size} scenario GUIDs.`);
+    return confPathToGuidMap;
+}
+
 async function buildGuidToEntPathMap(tree: GitHubTreeItem[]) {
     console.log("[Terrain Map] Building GUID to .ent path map...");
     const entMetaFiles = getAllEntMetaFiles(tree);
@@ -155,7 +194,10 @@ async function buildGuidToEntPathMap(tree: GitHubTreeItem[]) {
 async function runFullSync(db) {
     const tree = await getFullRepoTree();
     const missionConfigs = getAllMissionFiles(tree);
-    const guidToEntPathMap = await buildGuidToEntPathMap(tree);
+    const [guidToEntPathMap, confPathToScenarioGuidMap] = await Promise.all([
+        buildGuidToEntPathMap(tree),
+        buildConfPathToScenarioGuidMap(tree),
+    ]);
     console.log(`[DEBUG] Found ${missionConfigs.length} .conf files.`);
     
     const results = { 
@@ -168,7 +210,7 @@ async function runFullSync(db) {
     };
 
     for (const item of missionConfigs) {
-        const res = await syncSingleMission(db, item.path, item.sha, null, guidToEntPathMap);
+        const res = await syncSingleMission(db, item.path, item.sha, null, guidToEntPathMap, confPathToScenarioGuidMap);
         if (res.error) results.errors.push(res);
         else if (res.type === 'added') {
             results.added++;
@@ -211,7 +253,10 @@ async function runIncrementalSync(db, since: Date) {
     }
 
     const tree = await getFullRepoTree();
-    const guidToEntPathMap = await buildGuidToEntPathMap(tree);
+    const [guidToEntPathMap, confPathToScenarioGuidMap] = await Promise.all([
+        buildGuidToEntPathMap(tree),
+        buildConfPathToScenarioGuidMap(tree),
+    ]);
 
     console.log("[Daily Sync] Processing PRs...");
     for (const pr of prs) {
@@ -229,7 +274,7 @@ async function runIncrementalSync(db, since: Date) {
                     if (file.status === "removed") continue;
                     
                     console.log(`[Daily Sync]     -> Syncing file: ${file.filename}`);
-                    const res = await syncSingleMission(db, file.filename, file.sha, pr, guidToEntPathMap);
+                    const res = await syncSingleMission(db, file.filename, file.sha, pr, guidToEntPathMap, confPathToScenarioGuidMap);
                     if (res.error) results.errors.push(res);
                     else if (res.type === 'added') {
                         results.added++;
@@ -249,7 +294,7 @@ async function runIncrementalSync(db, since: Date) {
     return results;
 }
 
-async function syncSingleMission(db, path, sha, pr: any = null, guidToEntPathMap: Map<string, string> = null) {
+async function syncSingleMission(db, path, sha, pr: any = null, guidToEntPathMap: Map<string, string> = null, confPathToScenarioGuidMap: Map<string, string> = null) {
     console.log(`[Sync] Processing mission: ${path}`);
     try {
         const rawUrl = `${GITHUB_RAW_BASE}/${path}`;
@@ -304,8 +349,18 @@ async function syncSingleMission(db, path, sha, pr: any = null, guidToEntPathMap
         
         const safeName = makeSafeName(metadata.name);
         
-        // Extract Mission GUID (The new Unique Identifier)
+        // Extract World GUID from .conf — used to resolve the terrain .ent file
         const missionGuid = confData.World?.match(/\{([a-fA-F0-9]+)\}/)?.[1];
+
+        // Extract Scenario GUID from the sidecar .conf.meta file.
+        // This is the GUID of the .conf file itself, needed to construct the server scenarioId:
+        //   scenarioId = "{scenarioGuid}" + githubPath  e.g. "{E6674307434031A8}Missions/arc/DustyDrive.conf"
+        // Note: the path stored inside the .conf.meta can be stale/wrong, so we ignore it
+        // and always use the actual githubPath when constructing the scenarioId at load time.
+        const scenarioGuid = confPathToScenarioGuidMap?.get(path) ?? null;
+        if (!scenarioGuid) {
+            console.warn(`[ScenarioGuid] No .conf.meta GUID found for ${path} — mission cannot be server-loaded until resolved.`);
+        }
         
         // World GUID parsing & Terrain Resolution
         let terrainId = "Unknown";
@@ -351,8 +406,9 @@ async function syncSingleMission(db, path, sha, pr: any = null, guidToEntPathMap
             size: { min: metadata.min, max: metadata.max },
             type: metadata.type,
             githubRepo: "Global-Conflicts-ArmA/gc-reforger-missions",
-            githubPath: path,
-            missionId: missionGuid,
+            githubPath: path,          // Path to .conf — used as the path component of scenarioId
+            missionId: missionGuid,    // GUID from World field in .conf — used for terrain/ent resolution
+            scenarioGuid: scenarioGuid, // GUID from .conf.meta — combined with githubPath to form scenarioId
         };
 
         // Identification Logic

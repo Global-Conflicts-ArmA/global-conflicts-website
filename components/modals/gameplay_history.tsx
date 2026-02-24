@@ -54,6 +54,99 @@ export default function GameplayHistoryModal({
 	const [isLoading, setIsLoading] = useState(false);
 	const [aarReplayLink, setAARReplayLink] = useState("");
 
+	// Session selector + timestamps (Reforger only)
+	const [sessionHistory, setSessionHistory] = useState<any[]>([]);
+	const [selectedSession, setSelectedSession] = useState<any>(null);
+	const [sessionStartedAt, setSessionStartedAt] = useState("");
+	const [sessionEndedAt, setSessionEndedAt] = useState("");
+	const [isCreatingDiscordMessage, setIsCreatingDiscordMessage] = useState(false);
+
+	function toDatetimeLocal(date: Date): string {
+		const pad = (n: number) => String(n).padStart(2, "0");
+		return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+	}
+
+	async function createDiscordMessage() {
+		setIsCreatingDiscordMessage(true);
+		try {
+			const res = await axios.post(
+				`/api/reforger-missions/${mission.uniqueName}/create-discord-message`
+			);
+			const entry = res.data;
+			if (entry.alreadyExists) {
+				// A post already exists for this mission in today's session — just select it
+				const existing = sessionHistory.find((s: any) => s.messageId === entry.messageId);
+				if (existing) {
+					setSelectedSession(existing);
+				}
+				toast.info("A Discord post already exists for this mission — selected it for you.");
+			} else {
+				// New post created — add to local history and select it
+				const newEntry = { ...entry, loadedAt: new Date(entry.loadedAt) };
+				setSessionHistory((prev) => [...prev, newEntry]);
+				setSelectedSession(newEntry);
+				toast.success("Discord post created successfully.");
+			}
+		} catch (err: any) {
+			const msg = err?.response?.data?.error ?? "Failed to create Discord post.";
+			toast.error(msg);
+		} finally {
+			setIsCreatingDiscordMessage(false);
+		}
+	}
+
+	// Fetch session history when this modal opens (Reforger missions only)
+	useEffect(() => {
+		if (!isOpen || !isReforger) return;
+		axios
+			.get("/api/active-session")
+			.then((res) => {
+				const { activeSession, sessionHistory: sh } = res.data ?? {};
+				const history = sh ?? [];
+				setSessionHistory(history);
+				if (!historyToLoad) {
+					// Auto-select the session matching the active session message (most recent load)
+					const match = activeSession?.messageId
+						? history.find((s: any) => s.messageId === activeSession.messageId) ?? null
+						: null;
+					setSelectedSession(match);
+					if (activeSession?.startedAt) {
+						setSessionStartedAt(toDatetimeLocal(new Date(activeSession.startedAt)));
+					}
+				}
+			})
+			.catch(() => setSessionHistory([]));
+	}, [isOpen, isReforger]);
+
+	// When editing an existing entry, match its stored discordMessageId to session history
+	useEffect(() => {
+		if (!isReforger || !historyToLoad) return;
+		if (historyToLoad.discordMessageId) {
+			const match = sessionHistory.find((s: any) => s.messageId === historyToLoad.discordMessageId);
+			if (match) {
+				setSelectedSession(match);
+			} else {
+				// Entry has a linked message not in current session history — show as synthetic option
+				setSelectedSession({
+					messageId: historyToLoad.discordMessageId,
+					threadId: historyToLoad.discordThreadId ?? null,
+					discordMessageUrl: historyToLoad.discordMessageUrl ?? null,
+					missionName: mission?.name ?? "Previous session",
+					loadedAt: historyToLoad.date,
+					_synthetic: true,
+				});
+			}
+		} else {
+			setSelectedSession(null);
+		}
+	}, [historyToLoad, sessionHistory, isReforger]);
+
+	// Auto-fill session end time when outcome is first set (new or existing entry)
+	useEffect(() => {
+		if (!isReforger || sessionEndedAt) return;
+		if (outcome?.value) setSessionEndedAt(toDatetimeLocal(new Date()));
+	}, [outcome]);
+
 	function addHistory() {
 		setIsLoading(true);
 		try {
@@ -74,9 +167,18 @@ export default function GameplayHistoryModal({
 				}),
 
 				outcome: outcome?.value || null,
+				...(isReforger && selectedSession && {
+					discordMessageId: selectedSession.messageId,
+					discordThreadId: selectedSession.threadId,
+					discordMessageUrl: selectedSession.discordMessageUrl ?? null,
+				}),
+				...(isReforger && {
+					sessionStartedAt: sessionStartedAt ? new Date(sessionStartedAt) : null,
+					sessionEndedAt: sessionEndedAt ? new Date(sessionEndedAt) : null,
+				}),
 			};
-            
-            const endpoint = isReforger 
+
+            const endpoint = isReforger
                 ? `/api/reforger-missions/${mission.uniqueName}/history`
                 : `/api/missions/${mission.uniqueName}/history`;
 
@@ -170,6 +272,8 @@ export default function GameplayHistoryModal({
 			setDateObj(date.toDate());
 			setDateString(date.format("DD/MM/YYYY"));
 			setAARReplayLink(historyToLoad.aarReplayLink);
+			setSessionStartedAt(historyToLoad.sessionStartedAt ? toDatetimeLocal(new Date(historyToLoad.sessionStartedAt)) : "");
+			setSessionEndedAt(historyToLoad.sessionEndedAt ? toDatetimeLocal(new Date(historyToLoad.sessionEndedAt)) : "");
 		} else {
 			clear();
 		}
@@ -182,6 +286,9 @@ export default function GameplayHistoryModal({
 		setDateString(moment().format("DD/MM/YYYY"));
 		setDateError("");
 		setAARReplayLink("");
+		setSessionStartedAt("");
+		setSessionEndedAt("");
+		setSelectedSession(null);
 	}
 
 	const [_document, set_document] = React.useState(null);
@@ -406,6 +513,92 @@ export default function GameplayHistoryModal({
 										</div>
 									))}
 								</div>
+
+								{/* Session timestamps (Reforger only) */}
+								{isReforger && (
+									<div className="grid grid-cols-2 gap-2">
+										<div>
+											<label className="label pb-0"><span className="label-text text-xs">Mission started</span></label>
+											<input
+												type="datetime-local"
+												className="w-full rounded-lg input input-bordered input-sm"
+												value={sessionStartedAt}
+												onChange={(e) => setSessionStartedAt(e.target.value)}
+											/>
+										</div>
+										<div>
+											<label className="label pb-0"><span className="label-text text-xs">Mission ended</span></label>
+											<input
+												type="datetime-local"
+												className="w-full rounded-lg input input-bordered input-sm"
+												value={sessionEndedAt}
+												onChange={(e) => setSessionEndedAt(e.target.value)}
+											/>
+										</div>
+									</div>
+								)}
+
+								{/* Session Discord message selector (Reforger only) */}
+								{isReforger && (
+									<div>
+										<label className="label pb-1">
+											<span className="label-text text-xs">Session Discord message</span>
+											{selectedSession?.discordMessageUrl && (
+												<a
+													href={selectedSession.discordMessageUrl}
+													target="_blank"
+													rel="noreferrer"
+													className="label-text-alt text-primary text-xs"
+												>
+													View in Discord
+												</a>
+											)}
+										</label>
+										<Select
+											classNamePrefix="select-input"
+											menuPortalTarget={_document}
+											styles={{ menuPortal: (base) => ({ ...base, zIndex: 9999 }) }}
+											isClearable
+											placeholder="None — don't update Discord"
+											options={[
+												{ _createNew: true, messageId: "__create_new__", missionName: "" },
+												...[...sessionHistory].reverse(),
+											]}
+											value={selectedSession}
+											onChange={(val: any) => {
+												if (val?._createNew) { createDiscordMessage(); return; }
+												setSelectedSession(val ?? null);
+											}}
+											isOptionDisabled={(o: any) => o._createNew && isCreatingDiscordMessage}
+											getOptionValue={(o: any) => o.messageId}
+											getOptionLabel={(o: any) => {
+												if (o._createNew) return isCreatingDiscordMessage ? "Creating…" : "+ Create Discord message";
+												const time = o.loadedAt ? moment(o.loadedAt).format("HH:mm") : "";
+												const tag = o._synthetic ? " (linked)" : "";
+												return `${o.missionName}${time ? ` - ${time}` : ""}${tag}`;
+											}}
+											formatOptionLabel={(o: any, { context }: any) => {
+												if (o._createNew) {
+													return (
+														<div>
+															<span className={isCreatingDiscordMessage ? "opacity-50" : "text-primary font-medium"}>
+																{isCreatingDiscordMessage ? "Creating…" : "+ Create Discord message"}
+															</span>
+															{context === "menu" && (
+																<div className="text-xs text-gray-400 mt-0.5 whitespace-normal">
+																	Use if the mission was started without Load Mission and no Discord post was created yet.
+																</div>
+															)}
+														</div>
+													);
+												}
+												const time = o.loadedAt ? moment(o.loadedAt).format("HH:mm") : "";
+												const tag = o._synthetic ? " (linked)" : "";
+												return `${o.missionName}${time ? ` - ${time}` : ""}${tag}`;
+											}}
+										/>
+									</div>
+								)}
 							</div>
 
 							<div className="flex flex-row justify-between mt-4">

@@ -4,11 +4,79 @@ import MyMongo from "../../../../../lib/mongodb";
 import { CREDENTIAL } from "../../../../../middleware/check_auth_perms";
 import { ObjectId } from "bson";
 import axios from "axios";
-import { postNewMissionHistory } from "../../../../../lib/discordPoster";
+import { postNewMissionHistory, callBotEditMessage } from "../../../../../lib/discordPoster";
 import { hasCredsAny } from "../../../../../lib/credsChecker";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../auth/[...nextauth]";
 import { logReforgerAction, LOG_ACTION } from "../../../../../lib/logging";
+
+/** Build a Discord embed for the live-session message based on the history entry. */
+function buildSessionEmbed(
+    mission: { name: string; type?: string; size?: { min: number; max: number }; uniqueName?: string; authorName?: string; shortDesc?: string },
+    history: {
+        outcome?: string;
+        leaders?: { discordID?: string; name?: string; side?: string }[];
+        sessionStartedAt?: Date | string;
+        sessionEndedAt?: Date | string;
+    },
+    activeSession: { loadedBy?: string; startedAt?: Date | string }
+) {
+    const missionLabel = mission.type && mission.size
+        ? `${mission.type} (${mission.size.min}-${mission.size.max}) ${mission.name}`
+        : mission.name;
+
+    // Group leaders by side
+    const leadersBySide = new Map<string, string[]>();
+    for (const l of (history.leaders ?? [])) {
+        const side = l.side || "Leader";
+        const mention = l.discordID ? `<@${l.discordID}>` : (l.name ?? "Unknown");
+        if (!leadersBySide.has(side)) leadersBySide.set(side, []);
+        leadersBySide.get(side).push(mention);
+    }
+    const leadersLines = Array.from(leadersBySide.entries())
+        .map(([side, mentions]) => `**${side}:** ${mentions.join(", ")}`)
+        .join("\n");
+
+    const hasOutcome = !!history.outcome;
+    const header = hasOutcome ? "Played mission:" : "Playing mission:";
+    const missionTitle = mission.authorName
+        ? `**${missionLabel}** by ${mission.authorName}`
+        : `**${missionLabel}**`;
+    const topSection = `${header}\n${missionTitle}`;
+    const bottomParts: string[] = [];
+    if (history.outcome) bottomParts.push(`**${history.outcome}**`);
+    if (leadersLines) bottomParts.push(leadersLines);
+    const websiteUrl = process.env.WEBSITE_URL ?? "https://globalconflicts.net";
+    if (mission.uniqueName) bottomParts.push(`[View on website](${websiteUrl}/reforger-missions/${mission.uniqueName})`);
+    const sections: string[] = [topSection];
+    if (mission.shortDesc) sections.push(mission.shortDesc);
+    if (bottomParts.length > 0) sections.push(bottomParts.join("\n"));
+
+    const outcomeLC = (history.outcome ?? "").toLowerCase();
+    let color = "#00aa00"; // green = in-progress
+    if (outcomeLC.includes("blufor")) color = "#0070ff";
+    else if (outcomeLC.includes("opfor")) color = "#ff2020";
+    else if (outcomeLC.includes("indfor")) color = "#00c000";
+    else if (outcomeLC.includes("draw") || outcomeLC.includes("neutral") || outcomeLC.includes("failed")) color = "#888888";
+
+    // Footer: show duration when outcome is set and both timestamps exist; otherwise show start time
+    let footer = "";
+    const startedAt = history.sessionStartedAt ?? activeSession.startedAt;
+    const endedAt = history.sessionEndedAt;
+    if (hasOutcome && startedAt && endedAt) {
+        const durationMs = new Date(endedAt).getTime() - new Date(startedAt).getTime();
+        const totalMin = Math.round(durationMs / 60000);
+        const hours = Math.floor(totalMin / 60);
+        const mins = totalMin % 60;
+        const durationStr = hours > 0 ? `${hours}h ${mins}min` : `${mins} min`;
+        footer = `Session duration: ${durationStr}`;
+    } else if (startedAt) {
+        const startTime = new Date(startedAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+        footer = `Session started  ${startTime}`;
+    }
+
+    return { description: sections.join("\n\n"), color, footer };
+}
 
 const apiRoute = nextConnect({
 	onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -67,7 +135,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 			for (const leader of history.leaders) {
 				const cached = userMap.get(leader.discordID);
 				if (cached) {
-					leader.name = cached.nickname ?? cached.displayName;
+					leader.name = cached.nickname ?? cached.globalName ?? cached.displayName;
 					leader.displayAvatarURL = cached.displayAvatarURL;
 				}
 			}
@@ -83,7 +151,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const history = req.body;
-	history["_id"] = new ObjectId();
+	history["_id"] = new ObjectId(history["_id"]);
 	history["date"] = new Date(history["date"]);
 	const session = await getServerSession(req, res, authOptions);
 	const isAdmin = hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM])
@@ -101,6 +169,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	const missionId = mission.missionId || mission.uniqueName;
+
 	const updateResult = await db.collection("reforger_mission_metadata").updateOne(
 		{ missionId: missionId },
 		{
@@ -124,7 +193,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     if (process.env.NODE_ENV !== 'development') {
         try {
             const botResponse = await axios.get(
-                `http://globalconflicts.net:3001/users/${mission.authorID}`,
+                `${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${mission.authorID}`,
                 { timeout: 5000 }
             );
 
@@ -142,6 +211,46 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
             });
         } catch (error) {
             console.error("Error posting history to Discord:", error);
+        }
+    }
+
+    // ── Update Discord live-session message if the client provided explicit IDs ──
+    // discordMessageId/threadId come from the session selector in the UI.
+    if (history.discordMessageId && history.discordThreadId) {
+        try {
+            const missionFull = await db.collection("reforger_missions").findOne(
+                { uniqueName: uniqueName },
+                { projection: { name: 1, type: 1, size: 1, uniqueName: 1, descriptionNoMarkdown: 1, description: 1, authorID: 1, missionMaker: 1 } }
+            );
+            const authorUser = missionFull?.authorID
+                ? await db.collection("users").findOne(
+                    { discord_id: missionFull.authorID },
+                    { projection: { nickname: 1, globalName: 1, username: 1 } }
+                )
+                : null;
+            const rawDesc = (missionFull?.descriptionNoMarkdown ?? missionFull?.description ?? "") as string;
+            const missionForEmbed = {
+                ...(missionFull ?? mission),
+                authorName: await (async () => {
+                    let n = authorUser?.nickname ?? authorUser?.globalName ?? authorUser?.username ?? null;
+                    if (!n && missionFull?.missionMaker) {
+                        const cfg = await db.collection("configs").findOne({}, { projection: { author_mappings: 1 } });
+                        const m = (cfg?.author_mappings ?? []).find((x: any) => x.name === missionFull.missionMaker);
+                        n = m?.discordId ? `<@${m.discordId}>` : missionFull.missionMaker as string;
+                    }
+                    return n;
+                })(),
+                shortDesc: rawDesc.length > 200 ? rawDesc.slice(0, 197) + "…" : rawDesc || null,
+            };
+            const embed = buildSessionEmbed(missionForEmbed, history, {});
+            await callBotEditMessage({
+                messageId: history.discordMessageId,
+                threadId: history.discordThreadId,
+                embed,
+                ...(history.outcome ? { addReactions: true, uniqueName: uniqueName as string, historyEntryId: history._id.toString() } : {}),
+            } as any);
+        } catch (err) {
+            console.error("Discord edit-message error:", err);
         }
     }
 
@@ -193,7 +302,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
     if (process.env.NODE_ENV !== 'development') {
         try {
             const botResponse = await axios.get(
-                `http://globalconflicts.net:3001/users/${mission.authorID}`,
+                `${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${mission.authorID}`,
                 { timeout: 5000 }
             );
 
@@ -211,6 +320,45 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
             });
         } catch (error) {
             console.error("Error posting history update to Discord:", error);
+        }
+    }
+
+    // ── Update Discord live-session message if the client provided explicit IDs ──
+    if (history.discordMessageId && history.discordThreadId) {
+        try {
+            const missionFull = await db.collection("reforger_missions").findOne(
+                { uniqueName: uniqueName },
+                { projection: { name: 1, type: 1, size: 1, uniqueName: 1, descriptionNoMarkdown: 1, description: 1, authorID: 1, missionMaker: 1 } }
+            );
+            const authorUser = missionFull?.authorID
+                ? await db.collection("users").findOne(
+                    { discord_id: missionFull.authorID },
+                    { projection: { nickname: 1, globalName: 1, username: 1 } }
+                )
+                : null;
+            const rawDesc = (missionFull?.descriptionNoMarkdown ?? missionFull?.description ?? "") as string;
+            const missionForEmbed = {
+                ...(missionFull ?? mission),
+                authorName: await (async () => {
+                    let n = authorUser?.nickname ?? authorUser?.globalName ?? authorUser?.username ?? null;
+                    if (!n && missionFull?.missionMaker) {
+                        const cfg = await db.collection("configs").findOne({}, { projection: { author_mappings: 1 } });
+                        const m = (cfg?.author_mappings ?? []).find((x: any) => x.name === missionFull.missionMaker);
+                        n = m?.discordId ? `<@${m.discordId}>` : missionFull.missionMaker as string;
+                    }
+                    return n;
+                })(),
+                shortDesc: rawDesc.length > 200 ? rawDesc.slice(0, 197) + "…" : rawDesc || null,
+            };
+            const embed = buildSessionEmbed(missionForEmbed, history, {});
+            await callBotEditMessage({
+                messageId: history.discordMessageId,
+                threadId: history.discordThreadId,
+                embed,
+                ...(history.outcome ? { addReactions: true, uniqueName: uniqueName as string, historyEntryId: history._id.toString() } : {}),
+            } as any);
+        } catch (err) {
+            console.error("Discord edit-message error:", err);
         }
     }
 

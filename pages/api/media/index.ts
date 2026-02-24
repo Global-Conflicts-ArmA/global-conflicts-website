@@ -132,7 +132,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		const insertResult = await (await MyMongo).db("prod").collection("mediaWithtoutAssignedMissions").insertMany(allLinks);
 		if (insertResult.acknowledged) {
 			const botResponse = await axios.get(
-				`http://globalconflicts.net:3001/users/${session.user["discord_id"]}`
+				`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${session.user["discord_id"]}`
 			);
 
 			postNewMedia({

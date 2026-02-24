@@ -143,7 +143,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 
 	const botResponse = await axios.get(
-		`http://globalconflicts.net:3001/users/${session.user["discord_id"]}`
+		`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${session.user["discord_id"]}`
 	);
 
 	const missionFound = await (await MyMongo).db("prod").collection<{}>("missions").findOne({ uniqueName: uniqueName })

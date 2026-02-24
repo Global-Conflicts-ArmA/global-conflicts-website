@@ -477,6 +477,23 @@ function ReforgerMissionList({ missions }) {
                 width: "220px",
                 center: true,
             },
+            {
+                name: "Scenario GUID",
+                selector: (row) => row.scenarioGuid,
+                cell: (row) => (
+                    <div
+                        data-tag="allowRowEvents"
+                        className="truncate font-mono text-xs"
+                        title={row.scenarioGuid ? `{${row.scenarioGuid}}${row.githubPath}` : "Not synced yet"}
+                    >
+                        {row.scenarioGuid ?? "—"}
+                    </div>
+                ),
+                sortable: true,
+                compact: true,
+                width: "220px",
+                center: true,
+            },
         ]
         if (showAllData) {
             return allDataColumns;

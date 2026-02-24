@@ -57,6 +57,7 @@ import { generateMarkdown } from "../../../lib/markdownToHtml";
 import SimpleTextViewModal from "../../../components/modals/simple_text_view_modal";
 import MediaUploadModal from "../../../components/modals/media_upload_modal";
 import EditMetadataModal from "../../../components/modals/edit_metadata_modal";
+import LoadMissionModal from "../../../components/modals/load_mission_modal";
 import dynamic from 'next/dynamic'
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 import { imageKitLoader } from "../../../lib/imagekitloader";
@@ -83,6 +84,8 @@ export default function MissionDetails({
 	let [submitAARModalOpen, setSubmitAARModalOpen] = useState(false);
 	let [aarTextToLoad, setAarTextToLoad] = useState("");
 	let [historyIdToLoadForAAR, setHistoryIdToLoadForAAR] = useState("");
+	let [aarSessionDate, setAarSessionDate] = useState<string | null>(null);
+	let [aarDiscordMessageId, setAarDiscordMessageId] = useState<string | null>(null);
 	let [simpleTextViewing, setSimpleTextViewing] = useState("");
 	let [simpleTextHeaderViewing, setSimpleTextHeaderViewing] = useState("");
 	let [commentModalData, setCommentModalData] = useState(null);
@@ -91,6 +94,7 @@ export default function MissionDetails({
 	let [mediaUploadModalOpen, setMediaUploadModalOpen] = useState(false);
 	let [gameplayHistoryModalHistoryToLoad, setGameplayHistoryModalHistoryToLoad] =
 		useState(null);
+	let [loadMissionModalOpen, setLoadMissionModalOpen] = useState(false);
 
 	const [windowSize, setWindowSize] = useState({
 		width: undefined,
@@ -475,6 +479,16 @@ export default function MissionDetails({
 	} = useSWR(`/api/reforger-missions/${mission.uniqueName}/media`, fetcher, {
 		revalidateOnFocus: false,
 	});
+
+	// Poll server load lock every 10 s — only for GM/Admin
+	const { data: lockData } = useSWR(
+		hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM])
+			? "/api/server-lock"
+			: null,
+		fetcher,
+		{ refreshInterval: 10000, revalidateOnFocus: false }
+	);
+	const lockState = lockData ?? { locked: false };
 	function getMedia() {
 		if (mediaError) {
 			return mission.media
@@ -668,103 +682,50 @@ export default function MissionDetails({
 
 
 	function getRatings() {
-		const element = <div className="ml-5 flex flex-row text-sm items-center">
-			<div>
-				👍{mission.ratings?.filter((rating) => rating.value == "positive")?.length ?? 0}
-			</div>
-			<div>/</div>
-			<div>
-				🆗{mission.ratings?.filter((rating) => rating.value == "neutral").length ?? 0}
-			</div>
-			<div>/</div>
-			<div>
-				👎{mission.ratings?.filter((rating) => rating.value == "negative").length ?? 0}
-			</div>
-
+		const allRatings = (mission.history ?? []).flatMap((h: any) => h.ratings ?? []);
+		const positive = allRatings.filter((r: any) => r.value === "positive").length;
+		const neutral = allRatings.filter((r: any) => r.value === "neutral").length;
+		const negative = allRatings.filter((r: any) => r.value === "negative").length;
+		if (positive + neutral + negative === 0) return null;
+		const element = <div className="ml-5 flex flex-row text-sm items-center gap-2">
+			<span>👍{positive}</span>
+			<span>🆗{neutral}</span>
+			<span>👎{negative}</span>
 		</div>;
-
-		return <h2 className="flex flex-row  py-2 font-bold dark:text-gray-100">
-			Mission Rating{" "} {element}
-		</h2>
+		return <h2 className="flex flex-row py-2 font-bold dark:text-gray-100">
+			Mission Rating{" "}{element}
+		</h2>;
 	}
 
-	function getRatingListBox() {
-		if (!session) {
-			return <></>
+	// Per-session rating state: historyEntryId → value the current user submitted
+	const [sessionRatings, setSessionRatings] = useState<Record<string, string>>(() => {
+		const initial: Record<string, string> = {};
+		for (const h of (mission.history ?? [])) {
+			if (h.myRating) initial[h._id] = h.myRating;
 		}
+		return initial;
+	});
 
-		if (!hasCredsAny(session, [CREDENTIAL.MEMBER, CREDENTIAL.MISSION_MAKER, CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_ADMINISTRATOR, CREDENTIAL.GM])) {
-			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
-				<span className="flex-1 p-2 text-sm">You must be a member to rate missions.</span>
-				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 rotate-0 `} />
-			</div>
-		}
+	function isWithin48h(date: string | Date): boolean {
+		return (Date.now() - new Date(date).getTime()) < 48 * 3_600_000;
+	}
 
-		if (!mission.history) {
-			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
-				<span className="flex-1 p-2 text-sm">You can't rate a mission that hasn't been played yet.</span>
-				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150    rotate-0 `} />
-			</div>
-		}
-
-		if (session?.user["discord_id"] == mission.authorID) {
-			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
-				<span className="flex-1 p-2 text-sm">You can't rate your own mission</span>
-				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 rotate-0 `} />
-			</div>
-		}
-
-		return <Listbox value={selectedRating} onChange={(val) => {
-			setSelectedRating(val);
-			axios
-				.post(`/api/reforger-missions/${mission.uniqueName}/rate_mission`, val).then((response) => {
-					if (val.value == "negative") {
-						toast.success("Rating submited! 📝 If you didn't enjoy this mission, consider writing a constructive review for the mission maker.", { autoClose: 10000 });
-					} else {
-						toast.success("Rating submited!");
-					}
-				}).catch((error) => {
-					setSelectedRating(null);
-					toast.error("Error submiting rating!")
-				})
-		}}>
-
-			{({ open }) => (
-				<>
-					<Listbox.Button style={{ width: 340 }} className=" dark:bg-white bg-slate-600 dark:text-gray-700 text-white 
-			rounded-md  flex flex-row justify-center items-center"><span
-
-
-							style={{ paddingTop: 1, paddingBottom: 5 }}
-							className="text-2xl">{selectedRating?.emoji} </span> <span className="flex-1 p-2 text-sm">{selectedRating?.name ?? "Rate this mission"} </span>
-						<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 ${open ? 'rotate-180' : 'rotate-0'}`} /></Listbox.Button>
-					<Transition
-						show={open}
-
-					>
-						<Listbox.Options style={{ width: 340 }} className="absolute z-30 dark:bg-white bg-slate-600 dark:text-gray-700 text-white rounded-md mt-2 text-sm">
-							{possibleRatings.map((rating,) => (
-								<Listbox.Option
-									key={rating.value}
-									value={rating}
-									as={Fragment}
-								>
-									{({ selected }) => (
-										<div
-											className={`m-2 z-50 flex flex-row items-center p-1  ${selectedRating?.value == rating.value ? ' text-white/[.44] dark:text-transparent/20 cursor-not-allowed' : 'cursor-pointer'
-												}`}
-										>
-											<span className="text-2xl">{rating.emoji} </span> <span className="whitespace-nowrap pr-1">{rating.name} </span>{selectedRating?.value == rating.value && <CheckIcon spacing={0} height={15} />}
-
-										</div>
-									)}
-								</Listbox.Option>
-							))}
-						</Listbox.Options>
-					</Transition>
-				</>
-			)}
-		</Listbox>
+	function submitSessionRating(historyEntryId: string, value: string) {
+		axios.post(`/api/reforger-missions/${mission.uniqueName}/rate_mission`, { value, historyEntryId })
+			.then(() => {
+				setSessionRatings((prev) => ({ ...prev, [historyEntryId]: value }));
+				const toastMsg =
+					value === "positive"
+						? "Thumbs up! We're glad you enjoyed the mission."
+						: value === "negative"
+						? "Thumbs down noted. Please share feedback in the #feedback channel on Discord so we can improve!"
+						: "Neutral noted. Thanks for the feedback!";
+				toast.success(toastMsg, { duration: value === "negative" ? 6000 : 3000 });
+			})
+			.catch((err) => {
+				const msg = err?.response?.data?.error ?? "Error submitting rating";
+				toast.error(msg);
+			});
 	}
 
 	function updateBugReport(item, action) {
@@ -813,17 +774,6 @@ export default function MissionDetails({
 	}
 
 
-	const possibleRatings = [
-		{ value: "positive", emoji: "👍", name: 'The mission is well made and interesting' },
-		{ value: "neutral", emoji: "🆗", name: 'It\'s alright ' },
-		{ value: "negative", emoji: "👎", name: 'The mission has concept issues' }
-	]
-
-	const [selectedRating, setSelectedRating] = useState<any>(
-		mission.myRating ?
-			possibleRatings.find((possibleRating) => possibleRating.value == mission?.myRating?.value)
-			: null
-	)
 
     function getStatusIcon(status, notes) {
         let icon = <QuestionMarkCircleIcon className="w-6 h-6 text-gray-400" />;
@@ -981,7 +931,34 @@ export default function MissionDetails({
 
 					</div>
 
-					{isMissionUnlisted && (
+					{/* ── Server load lock warning (shown to GMs/Admins on all mission pages) ── */}
+				{lockState.locked && hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM]) && (
+					<div className="mt-2 p-3 rounded-lg border border-warning bg-warning/10 text-sm flex items-start gap-2">
+						<ExclamationCircleIcon className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+						<div>
+							<span className="font-semibold text-warning">Mission loading in progress</span>
+							<div className="mt-0.5">
+								&ldquo;{lockState.missionName}&rdquo; is being loaded by{" "}
+								<span className="font-bold">{lockState.lockedBy}</span>.
+								Communicate with other GMs before loading a new mission.
+							</div>
+						</div>
+					</div>
+				)}
+
+				{/* ── Load Mission button (GM/Admin/Mission Reviewer only) ── */}
+				{hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER]) && mission.scenarioGuid && (
+					<div className="mt-2">
+						<button
+							className="btn btn-sm btn-primary"
+							onClick={() => setLoadMissionModalOpen(true)}
+						>
+							Load Mission
+						</button>
+					</div>
+				)}
+
+				{isMissionUnlisted && (
 						<div className="mr-5 text-sm dark:text-gray-100">
 							This mission is unlisted
 						</div>
@@ -1074,12 +1051,6 @@ export default function MissionDetails({
 				</div>
 
 				{getRatings()}
-				{session && <div className=" flex flex-col md:flex-row  items-center  md:justify-between ">
-					<div className="prose prose-sm max-w-none mr-3 self-start text-xs ">If you played this mission, consider rating it. Rate the mission, not the leadership! You can change your rating at any time.</div>
-					<div className="relative mt-5  md:mt-0">
-						{getRatingListBox()}
-					</div>
-				</div>}
 
 				<h2 className="flex flex-row justify-between py-2 font-bold dark:text-gray-100">
 					Gameplay History{" "}
@@ -1126,6 +1097,17 @@ export default function MissionDetails({
 												</button>
 											)}
 
+											{historyItem.discordMessageUrl && (
+												<a
+													className="btn btn-xs dark:text-white dark:btn-ghost"
+													href={historyItem.discordMessageUrl}
+													target="_blank"
+													rel="noreferrer"
+												>
+													Discord
+												</a>
+											)}
+
 											{historyItem.aarReplayLink && (
 												<a
 													className="btn btn-xs dark:text-white dark:btn-ghost"
@@ -1150,6 +1132,43 @@ export default function MissionDetails({
 											)}
 										</div>
 									</div>
+							{/* Per-session ratings */}
+							{historyItem.outcome && (() => {
+								const ratings = historyItem.ratings ?? [];
+								const pos = ratings.filter((r: any) => r.value === "positive").length;
+								const neu = ratings.filter((r: any) => r.value === "neutral").length;
+								const neg = ratings.filter((r: any) => r.value === "negative").length;
+								const canRate = session && hasCredsAny(session, [CREDENTIAL.MEMBER, CREDENTIAL.MISSION_MAKER, CREDENTIAL.MISSION_REVIEWER, CREDENTIAL.MISSION_ADMINISTRATOR, CREDENTIAL.GM]) && session.user["discord_id"] !== mission.authorID;
+								const withinWindow = isWithin48h(historyItem.date);
+								const myRating = sessionRatings[historyItem._id];
+								return (
+									<div className="flex items-center gap-1 mt-1 mb-2 text-sm">
+										{(["positive", "neutral", "negative"] as const).map((v) => {
+											const emoji = v === "positive" ? "👍" : v === "neutral" ? "🆗" : "👎";
+											const label = v === "positive" ? "Good session" : v === "neutral" ? "Average session" : "Poor session";
+											const count = v === "positive" ? pos : v === "neutral" ? neu : neg;
+											if (canRate && withinWindow) {
+												return (
+													<button
+														key={v}
+														title={label}
+														className={`btn btn-xs gap-1 ${myRating === v ? "btn-primary" : "btn-ghost dark:text-white"}`}
+														onClick={() => submitSessionRating(historyItem._id, v)}
+													>
+														{emoji} {count}
+													</button>
+												);
+											}
+											return (
+												<span key={v} title={label} className="dark:text-gray-400 text-gray-500 mr-2">
+													{emoji} {count}
+												</span>
+											);
+										})}
+									</div>
+								);
+							})()}
+
 
 									{historyItem.leaders.map((leader) => {
 										return (
@@ -1231,7 +1250,8 @@ export default function MissionDetails({
 																				onClick={() => {
 																					setAarTextToLoad(leader.aar);
 																					setHistoryIdToLoadForAAR(historyItem._id);
-
+																					setAarSessionDate(historyItem.date ?? null);
+																					setAarDiscordMessageId(leader.aarDiscordMessageId ?? null);
 																					setSubmitAARModalOpen(true);
 																				}}
 																			>
@@ -1248,6 +1268,8 @@ export default function MissionDetails({
 																				onClick={() => {
 																					setAarTextToLoad(leader.aar);
 																					setHistoryIdToLoadForAAR(historyItem._id);
+																					setAarSessionDate(historyItem.date ?? null);
+																					setAarDiscordMessageId(leader.aarDiscordMessageId ?? null);
 																					setSubmitAARModalOpen(true);
 																				}}
 																			>
@@ -1385,12 +1407,17 @@ export default function MissionDetails({
 				isOpen={submitAARModalOpen}
 				aarText={aarTextToLoad == "" ? null : aarTextToLoad}
 				mission={mission}
+				apiBase="reforger-missions"
+				sessionDate={aarSessionDate}
+				aarDiscordMessageId={aarDiscordMessageId}
 				historyIdToLoadForAAR={historyIdToLoadForAAR}
-				onClose={(aar) => {
+				onClose={(aar, newDiscordMessageId?) => {
 					setSubmitAARModalOpen(false);
 					setTimeout(() => {
 						setAarTextToLoad("");
 						setHistoryIdToLoadForAAR("");
+						setAarSessionDate(null);
+						setAarDiscordMessageId(null);
 					}, 200);
 					const currentHistory = history ?? [];
 					let newHistory = [];
@@ -1402,6 +1429,9 @@ export default function MissionDetails({
 						(leader) => leader.discordID == session.user["discord_id"]
 					);
 					currentHistory[historyIndex].leaders[leaderIndex].aar = aar;
+					if (newDiscordMessageId !== undefined) {
+						currentHistory[historyIndex].leaders[leaderIndex].aarDiscordMessageId = newDiscordMessageId;
+					}
 					newHistory = [...currentHistory];
 					historyMutate(newHistory, false);
 				}}
@@ -1576,7 +1606,7 @@ export default function MissionDetails({
 				}}
 			></MediaUploadModal>
 
-            <EditMetadataModal 
+            <EditMetadataModal
                 isOpen={editMetadataModalOpen}
                 onClose={() => setEditMetadataModalOpen(false)}
                 mission={mission}
@@ -1590,6 +1620,13 @@ export default function MissionDetails({
                         missionGroup: data.missionGroup,
                     });
                 }}
+            />
+
+            <LoadMissionModal
+                isOpen={loadMissionModalOpen}
+                onClose={() => setLoadMissionModalOpen(false)}
+                mission={mission}
+                lockState={lockState}
             />
 		</div>
 	</>;
@@ -1737,15 +1774,6 @@ export async function getServerSideProps(context) {
         });
 	}
 
-	if (mission["ratings"]) {
-		mission["ratings"].forEach(rating => {
-            const user = userMap.get(rating.ratingAuthorId);
-            rating["authorName"] = user?.nickname ?? user?.username ?? "Unknown";
-            if (rating["ratingAuthorId"] == session?.user["discord_id"]) {
-                mission["myRating"] = rating;
-            }
-        });
-	}
 
 	if (mission["history"]) {
 		mission["history"].forEach(history => {
@@ -1760,12 +1788,17 @@ export async function getServerSideProps(context) {
 					leader["discordID"] = leader["discordID"].toString();
 				}
 			});
+			// Mark the current user's rating on this history entry
+			const userDiscordId = session?.user?.["discord_id"];
+			const myRating = (history.ratings ?? []).find(
+				(r: any) => r.ratingAuthorId === userDiscordId
+			);
+			history.myRating = myRating?.value ?? null;
 		});
 		mission["history"].sort((a, b) => {
 			return new Date(b.date).getTime() - new Date(a.date).getTime();
 		});
 	}
-
 	mission["updates"]?.map((update) => {
 		if (update["_id"]) {
 			update["_id"] = update["_id"].toString();

@@ -9,6 +9,120 @@ import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import hasCreds, { hasCredsAny } from "../../lib/credsChecker";
 import Spinner from "../spinner";
 import { MapItem } from "../../interfaces/mapitem";
+import Select from "react-select";
+
+interface DiscordUserOption {
+    userId: string;
+    nickname?: string;
+    displayName?: string;
+    username?: string;
+}
+
+function AuthorMapper() {
+    const [isLoading, setIsLoading] = useState(true);
+    const [authors, setAuthors] = useState<string[]>([]);
+    const [discordUsers, setDiscordUsers] = useState<DiscordUserOption[]>([]);
+    // selectedUser per author name: the chosen DiscordUserOption (or null = cleared)
+    const [editStates, setEditStates] = useState<Record<string, DiscordUserOption | null>>({});
+    const [savedIds, setSavedIds] = useState<Record<string, string>>({});
+
+    async function fetchData() {
+        setIsLoading(true);
+        try {
+            const [authorsRes, usersRes] = await Promise.all([
+                axios.get("/api/reforger-missions/authors"),
+                axios.get("/api/discord-users"),
+            ]);
+            const { authors: authorNames, mappings } = authorsRes.data;
+            const users: DiscordUserOption[] = usersRes.data;
+
+            setAuthors(authorNames);
+            setDiscordUsers(users);
+
+            const savedMap: Record<string, string> = {};
+            const editMap: Record<string, DiscordUserOption | null> = {};
+            mappings.forEach((m: { name: string; discordId: string }) => {
+                savedMap[m.name] = m.discordId;
+                editMap[m.name] = users.find(u => u.userId === m.discordId) ?? null;
+            });
+            setSavedIds(savedMap);
+            setEditStates(editMap);
+        } catch (error) {
+            toast.error("Failed to fetch author data.");
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    useEffect(() => { fetchData(); }, []);
+
+    const handleSave = async (name: string) => {
+        const selected = editStates[name] ?? null;
+        const discordId = selected?.userId ?? "";
+        try {
+            await axios.post("/api/reforger-missions/authors", { name, discordId });
+            setSavedIds(prev => ({ ...prev, [name]: discordId }));
+            toast.success(`Mapping for "${name}" saved.`);
+        } catch (error) {
+            toast.error("Failed to save mapping.");
+            console.error(error);
+        }
+    };
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center h-24"><Spinner /></div>;
+    }
+
+    return (
+        <div className="mt-4 pt-4 border-t dark:border-gray-700">
+            <h4 className="font-semibold text-sm mb-3 uppercase tracking-wide text-gray-600 dark:text-gray-300">Author → Discord User</h4>
+            <div className="max-h-96 overflow-y-auto pr-2 space-y-3">
+                {authors.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center">No mission authors found.</p>
+                ) : (
+                    authors.map(name => {
+                        const selected = editStates[name] ?? null;
+                        const savedId = savedIds[name] ?? "";
+                        const currentId = selected?.userId ?? "";
+                        const hasChanged = currentId !== savedId;
+                        return (
+                            <div key={name} className="p-3 border rounded-md bg-gray-100 dark:bg-gray-900/50 dark:border-gray-700">
+                                <div className="font-mono text-xs truncate text-gray-500 dark:text-gray-400" title={name}>{name}</div>
+                                <div className="flex gap-2 items-center">
+                                    <div className="flex-1">
+                                        <Select
+                                            options={discordUsers}
+                                            isClearable
+                                            isSearchable
+                                            classNamePrefix="select-input"
+                                            placeholder="Select Discord user..."
+                                            value={selected}
+                                            onChange={val => setEditStates(prev => ({ ...prev, [name]: val as DiscordUserOption | null }))}
+                                            getOptionLabel={u => u.nickname ?? u.displayName ?? u.username ?? u.userId}
+                                            getOptionValue={u => u.userId}
+                                        />
+                                    </div>
+                                    <button
+                                        className="btn btn-sm btn-primary"
+                                        onClick={() => handleSave(name)}
+                                        disabled={!hasChanged}
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+            </div>
+            <button className="btn btn-xs btn-ghost mt-2" onClick={fetchData}>
+                <RefreshIcon className="w-4 h-4 mr-1" />
+                Refresh List
+            </button>
+        </div>
+    );
+}
 
 function TerrainMapper() {
     const [isLoading, setIsLoading] = useState(true);
@@ -149,6 +263,7 @@ export default function AdminControlsModal({
     const [dateModalOpen, setDateModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [showTerrainMapper, setShowTerrainMapper] = useState(false);
+    const [showAuthorMapper, setShowAuthorMapper] = useState(false);
 
     const handleDeleteAll = async () => {
         if (!confirm("CRITICAL ACTION: This will delete ALL Reforger missions from the database. This cannot be undone (until you sync again). Proceed?")) {
@@ -201,10 +316,14 @@ export default function AdminControlsModal({
 						<div className="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl dark:bg-gray-800">
 							<Dialog.Title
 								as="h3"
-								className="mb-6 text-xl font-bold leading-6 text-gray-900 dark:text-gray-100 border-b pb-2 dark:border-gray-700"
+								className="text-xl font-bold leading-6 text-gray-900 dark:text-gray-100"
 							>
 								Admin Controls
 							</Dialog.Title>
+							<div className="flex gap-1 mt-1 mb-5 pb-3 border-b dark:border-gray-700">
+								<span className="badge badge-sm badge-neutral">Admin</span>
+								<span className="badge badge-sm badge-neutral">Mission Review Team</span>
+							</div>
 							
 							<div className="flex flex-col space-y-4">
 
@@ -242,7 +361,7 @@ export default function AdminControlsModal({
                                 {hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_REVIEWER]) && (
                                 <div className="pt-4 border-t dark:border-gray-700">
                                      <h4 className="font-semibold text-sm mb-2 uppercase tracking-wide opacity-70">Terrain Management</h4>
-                                    <button 
+                                    <button
                                         className="btn btn-block btn-secondary justify-between"
                                         onClick={() => setShowTerrainMapper(!showTerrainMapper)}
                                     >
@@ -250,6 +369,14 @@ export default function AdminControlsModal({
                                         {showTerrainMapper ? <ChevronUpIcon className="w-5 h-5"/> : <ChevronDownIcon className="w-5 h-5"/>}
                                     </button>
                                     {showTerrainMapper && <TerrainMapper />}
+                                    <button
+                                        className="btn btn-block btn-secondary justify-between mt-2"
+                                        onClick={() => setShowAuthorMapper(!showAuthorMapper)}
+                                    >
+                                        Author Mapper
+                                        {showAuthorMapper ? <ChevronUpIcon className="w-5 h-5"/> : <ChevronDownIcon className="w-5 h-5"/>}
+                                    </button>
+                                    {showAuthorMapper && <AuthorMapper />}
                                 </div>
                                 )}
 

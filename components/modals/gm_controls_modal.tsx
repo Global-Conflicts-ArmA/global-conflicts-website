@@ -65,10 +65,14 @@ export default function GmControlsModal({ isOpen, onClose }) {
 						<div className="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl dark:bg-gray-800">
 							<Dialog.Title
 								as="h3"
-								className="mb-6 text-xl font-bold leading-6 text-gray-900 dark:text-gray-100 border-b pb-2 dark:border-gray-700"
+								className="text-xl font-bold leading-6 text-gray-900 dark:text-gray-100"
 							>
 								GM Controls
 							</Dialog.Title>
+							<div className="flex gap-1 mt-1 mb-5 pb-3 border-b dark:border-gray-700">
+								<span className="badge badge-sm badge-neutral">GM</span>
+								<span className="badge badge-sm badge-neutral">Admin</span>
+							</div>
 
 							<div className="flex flex-col space-y-4">
 								{/* Discord User Cache */}

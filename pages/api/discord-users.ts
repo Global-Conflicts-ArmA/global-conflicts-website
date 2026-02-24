@@ -20,7 +20,7 @@ const apiRoute = nextConnect({
 // GET: Read cached discord users from database
 apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 	const session = await getServerSession(req, res, authOptions);
-	if (!hasCredsAny(session, [CREDENTIAL.GM])) {
+	if (!hasCredsAny(session, [CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER])) {
 		return res.status(401).json({ error: "Not Authorized" });
 	}
 
@@ -37,7 +37,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	}
 
 	try {
-		const botResponse = await axios.get("http://globalconflicts.net:3001/users", {
+		const botResponse = await axios.get(`${process.env.BOT_URL}/users`, {
 			timeout: 10000,
 		});
 		const botUsers = botResponse.data;
@@ -54,6 +54,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 					$set: {
 						userId: user.userId || user.id,
 						username: user.username,
+						globalName: user.globalName || null,
 						nickname: user.nickname || null,
 						displayName: user.displayName || null,
 						displayAvatarURL: user.displayAvatarURL || null,

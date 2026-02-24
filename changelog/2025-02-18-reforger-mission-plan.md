@@ -281,17 +281,6 @@ Note: We might want an option for admins to force a user to be logged out. If a 
 ### Migration
 No data migration needed. The collection starts empty and is populated on first refresh.
 
-### Known Issue: Guild-Specific Nicknames Not Returned
-The Discord bot's `/users` endpoint (`discord-bot/src/users/users.controller.ts`) calls `gcGuild.members.fetch()` and returns the raw Discord.js `GuildMember` collection. When serialized, the `nickname` field (guild-specific server nickname) is often `null` even when the user has one set on the server. Only `displayName` (global Discord display name) comes through reliably.
-
-**Example:** `http://globalconflicts.net:3001/users/106033743344451584` returns `"nickname": null` and `displayName: "bluebedouin"`, but the user's guild nickname is "Blue".
-
-**Root cause:** Likely a Discord.js serialization issue — the raw `GuildMember` collection doesn't cleanly serialize `nickname` to JSON. The `/users` endpoint needs to explicitly map each member's fields (e.g., `member.nickname`, `member.displayName`, `member.displayAvatarURL()`) instead of returning the raw collection.
-
-**Fix location:** `\discord-bot\src\users\users.controller.ts` — the `findAll()` method should map members to plain objects with explicit field extraction before returning.
-
----
-
 ## Temporary Files (Delete After Migration)
 
 The following files and database collection were added for the one-time spreadsheet-to-database migration. They should be removed once the migration is complete.

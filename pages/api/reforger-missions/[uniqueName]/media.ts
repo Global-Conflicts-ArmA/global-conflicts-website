@@ -37,7 +37,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 		for (let mediaObj of metadata.media) {
 			try {
 				const botResponse = await axios.get(
-					`http://globalconflicts.net:3001/users/${mediaObj.discord_id}`
+					`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${mediaObj.discord_id}`
 				);
 
 				mediaObj.name = botResponse.data.nickname ?? botResponse.data.displayName;

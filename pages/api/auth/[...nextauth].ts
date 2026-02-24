@@ -4,6 +4,7 @@ import DiscordProvider from "next-auth/providers/discord";
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import MyMongo from "../../../lib/mongodb";
 import axios from "axios";
+import { ObjectId } from "bson";
 
 export const authOptions: NextAuthOptions = {
 	// Configure one or more authentication providers A
@@ -26,7 +27,7 @@ export const authOptions: NextAuthOptions = {
 				}
 
 				const botResponse = await axios.get(
-					`http://globalconflicts.net:3001/users/${profile["id"]}`
+					`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${profile["id"]}`
 				);
 
 				const member = botResponse.data;
@@ -62,7 +63,7 @@ export const authOptions: NextAuthOptions = {
 			if (needsRefresh && user["discord_id"]) {
 				try {
 					const botResponse = await axios.get(
-						`http://globalconflicts.net:3001/users/${user["discord_id"]}`,
+						`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${user["discord_id"]}`,
 						{ timeout: 3000 }
 					);
 					const member = botResponse.data;
@@ -100,9 +101,29 @@ export const authOptions: NextAuthOptions = {
 			return session;
 		},
 		async signIn({ user, account, profile, email, credentials }) {
+			if (process.env.NODE_ENV === 'development' && account.provider === 'discord') {
+                const db = (await MyMongo).db("prod");
+                const devUser = await db.collection("users").findOne({ _id: new ObjectId("696394f0fb7f4ffc98d82fb4") });
+
+                if (devUser) {
+                    // Mutate the user object that will be saved in the database
+                    user.id = devUser._id.toString();
+                    user.email = devUser.email;
+                    user.name = devUser.name;
+                    user.image = devUser.image;
+                    // @ts-ignore
+                    user.discord_id = devUser.discord_id;
+                    // @ts-ignore
+                    user.roles = devUser.roles;
+                }
+                // In dev mode, always allow sign-in after hijacking
+                return true;
+            }
+
+            // Original production logic
 			try {
 				const botResponse = await axios.get(
-					`http://globalconflicts.net:3001/users/${user["discord_id"]}`,
+					`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${user["discord_id"]}`,
 					{ timeout: 3000 }
 				);
 				const member = botResponse.data;

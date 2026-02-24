@@ -76,7 +76,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 
 		try {
 			const botResponse = await axios.get(
-				`http://globalconflicts.net:3001/users/${mission.authorID}`
+				`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${mission.authorID}`
 			);
 
 			if (updatedMetadata?.votes?.length === 1) {
