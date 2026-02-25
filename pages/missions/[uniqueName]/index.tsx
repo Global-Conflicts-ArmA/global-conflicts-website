@@ -664,7 +664,7 @@ export default function MissionDetails({
 							</div>
 							{linkObj.type.includes("video") ? (
 								<ReactPlayer
-									playing={true}
+									playing={false}
 									muted={true}
 									controls={true}
 									loop={true}

@@ -26,6 +26,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 
 	const body = req.body;
 	const arrText = body["aarText"];
+	const postToDiscord = !!body["postToDiscord"];
 
 	const session = await getServerSession(req, res, authOptions);
 
@@ -49,18 +50,19 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		)
 		.then(async (result) => {
 			const mission = result.value;
-			const aarAuthor = await axios.get(
-				`http://globalconflicts.net:3001/users/${session.user["discord_id"]}`
-			);
-
-			postNewAAR({
-				name: mission.name,
-				uniqueName: uniqueName,
-				aar: arrText,
-				aarAuthor: aarAuthor.data.nickname ?? aarAuthor.data.displayName,
-				aarDisplayAvatarURL: aarAuthor.data.displayAvatarURL,
-				authorId: mission.authorID,
-			});
+			if (postToDiscord) {
+				const aarAuthor = await axios.get(
+					`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${session.user["discord_id"]}`
+				);
+				postNewAAR({
+					name: mission.name,
+					uniqueName: uniqueName,
+					aar: arrText,
+					aarAuthor: aarAuthor.data.nickname ?? aarAuthor.data.displayName,
+					aarDisplayAvatarURL: aarAuthor.data.displayAvatarURL,
+					authorId: mission.authorID,
+				});
+			}
 			res.send({ ok: true });
 		})
 		.catch((error) => {

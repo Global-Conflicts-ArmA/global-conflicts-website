@@ -55,7 +55,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 	});
 
 	const reviewAuthor = await axios.get(
-		`http://globalconflicts.net:3001/users/${session.user["discord_id"]}`
+		`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${session.user["discord_id"]}`
 	);
 
  

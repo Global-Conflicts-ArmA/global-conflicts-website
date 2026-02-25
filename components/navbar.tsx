@@ -12,8 +12,8 @@ import gcWhiteBanner from "../public/small-banner.png";
 import gcSmallLogo from "../public/logo-patch.webp";
 import moment from 'moment';
 
-const timeString = new Date("6/29/2011 7:00 PM UTC").toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-console.log(timeString)
+// Use moment for consistent server/client rendering
+const timeString = moment.utc("6/29/2011 7:00 PM", "M/D/YYYY h:mm A").local().format("hh:mm A")
 
 export default function NavBar() {
 	const { data: session } = useSession();
@@ -28,9 +28,9 @@ export default function NavBar() {
 		},
 		{
 			name: "Missions",
-			href: "https://docs.google.com/spreadsheets/d/18eCbua5ZKZ2fNomQIn5AkK8rFLs6E9x3lCx6oPRGOZo",
-			current: router.pathname.includes("/missions"),
-			target: "_blank"
+			href: "/reforger-missions",
+			current: router.pathname.includes("/reforger-missions"),
+			target: "_self"
 		},
 		{
 			name: "Events",

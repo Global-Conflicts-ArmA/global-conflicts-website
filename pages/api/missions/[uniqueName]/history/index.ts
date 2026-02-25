@@ -50,7 +50,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 			for (let leader of history.leaders) {
 				try {
 					const botResponse = await axios.get(
-						`http://globalconflicts.net:3001/users/${leader.discordID}`
+						`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${leader.discordID}`
 					);
 
 					leader.name = botResponse.data.nickname ?? botResponse.data.displayName;
@@ -89,7 +89,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
 		uniqueName: uniqueName,
 	});
 	const botResponse = await axios.get(
-		`http://globalconflicts.net:3001/users/${mission.authorID}`
+		`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${mission.authorID}`
 	);
 
 	postNewMissionHistory({
@@ -130,7 +130,7 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
 		uniqueName: uniqueName,
 	});
 	const botResponse = await axios.get(
-		`http://globalconflicts.net:3001/users/${mission.authorID}`
+		`${process.env.BOT_URL ?? "http://globalconflicts.net:3001"}/users/${mission.authorID}`
 	);
 
 	postNewMissionHistory({
@@ -152,16 +152,28 @@ apiRoute.delete(async (req: NextApiRequest, res: NextApiResponse) => {
 	const { uniqueName } = req.query;
 
 	const history = req.body;
+	const session = await getServerSession(req, res, authOptions);
+	const isAdmin = hasCredsAny(session, [CREDENTIAL.ADMIN])
+	if(!isAdmin){
+		return res.status(401).json({ error: `Not Authorized` });
+	}
+
+	if (!history || !history._id) {
+		return res.status(400).json({ error: "Missing _id in request body" });
+	}
 
 	const updateResult = await (await MyMongo).db("prod").collection("missions").updateOne(
 		{
 			uniqueName: uniqueName,
-			"history._id": history["_id"],
 		},
 		{
-			$pull: { "history._id": history["_id"] },
+			$pull: { history: { _id: new ObjectId(history["_id"]) } },
 		}
 	);
+
+	if (updateResult.modifiedCount === 0) {
+		return res.status(404).json({ error: "History entry not found" });
+	}
 
 	return res.status(200).json({ ok: true });
 });

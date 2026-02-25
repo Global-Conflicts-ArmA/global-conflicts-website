@@ -16,7 +16,7 @@ import dynamic from "next/dynamic";
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
 
 
-export default function MediaUploadModal({ isOpen, onClose, mission }) {
+export default function MediaUploadModal({ isOpen, onClose, mission, isReforger = false }) {
 	let [displayingFiles, setDisplayingLinks] = useState([]);
 	const { data: session } = useSession();
 	const [directLink, setDirectLink] = useState("");
@@ -86,9 +86,11 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 			}
 		}
 
+		const apiBase = isReforger ? "reforger-missions" : "missions";
+
 		axios({
 			method: "POST",
-			url: `/api/missions/${mission.uniqueName}/media_upload`,
+			url: `/api/${apiBase}/${mission.uniqueName}/media_upload`,
 			headers: { "content-type": "multipart/form-data" },
 			onUploadProgress: (p) => {
 				const progress = p.loaded / p.total;
@@ -140,9 +142,11 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 		data.append("file", youtubeFile, youtubeFile.name);
 		data.append("title", youtubeVideoTitle);
 
+		const apiBase = isReforger ? "reforger-missions" : "missions";
+
 		axios({
 			method: "POST",
-			url: `/api/missions/${mission.uniqueName}/youtube_upload`,
+			url: `/api/${apiBase}/${mission.uniqueName}/youtube_upload`,
 			headers: { "content-type": "multipart/form-data" },
 
 			onUploadProgress: (p) => {
@@ -352,7 +356,7 @@ export default function MediaUploadModal({ isOpen, onClose, mission }) {
 														</button>
 														{linkObj.type.includes("video") ? (
 															<ReactPlayer
-																playing={true}
+																playing={false}
 																muted={true}
 																controls={true}
 																loop={true}

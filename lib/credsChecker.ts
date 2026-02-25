@@ -1,45 +1,35 @@
 import { CREDENTIAL } from "../middleware/check_auth_perms";
 
-export default function hasCreds(session, cred: CREDENTIAL) {
-	if (!session) {
-		return false;
-	}
+export default function hasCreds(session, cred: CREDENTIAL): boolean {
+    if (!session?.user?.roles) {
+        return false;
+    }
 
-	for (var i = 0; i < session.user["roles"].length; i++) {
-		if (session.user["roles"][i].name == "Admin") {
-			return true;
-		}
-	}
+    const userRoles: string[] = session.user.roles.map(role => role.name);
 
-	for (var i = 0; i < session.user["roles"].length; i++) {
-		if (session.user["roles"][i].name == cred) {
-			return true;
-		}
-	}
+    // Admins have all credentials
+    if (userRoles.includes(CREDENTIAL.ADMIN)) {
+        return true;
+    }
 
-	return false;
+    return userRoles.includes(cred);
 }
-export function hasCredsAny(session, credList: Array<CREDENTIAL>) {
-	if (!session) {
-		return false;
 
-	}
-	
-	if (credList.includes(CREDENTIAL.ANY)) {
-		return true;
-	}
+export function hasCredsAny(session, credList: Array<CREDENTIAL>): boolean {
+    if (!session?.user?.roles) {
+        return false;
+    }
 
-	for (var i = 0; i < session.user["roles"].length; i++) {
-		if (session.user["roles"][i].name == "Admin") {
-			return true;
-		}
-	}
+    if (credList.includes(CREDENTIAL.ANY)) {
+        return true;
+    }
 
-	for (var i = 0; i < session.user["roles"].length; i++) {
-		if (credList.includes(session.user["roles"][i].name)) {
-			return true;
-		}
-	}
+    const userRoles: string[] = session.user.roles.map(role => role.name);
 
-	return false;
+    // Admins have all credentials
+    if (userRoles.includes(CREDENTIAL.ADMIN)) {
+        return true;
+    }
+
+    return credList.some(cred => userRoles.includes(cred));
 }
