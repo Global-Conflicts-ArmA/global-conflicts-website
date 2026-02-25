@@ -205,6 +205,7 @@ async function runFullSync(db) {
         updated: 0, 
         skipped: 0, 
         errors: [],
+        apiCalls: 0,
         addedMissions: [],
         updatedMissions: []
     };
@@ -244,6 +245,7 @@ async function runIncrementalSync(db, since: Date) {
         skipped: 0, 
         prsProcessed: 0, 
         errors: [],
+        apiCalls: 0,
         addedMissions: [],
         updatedMissions: []
     };
