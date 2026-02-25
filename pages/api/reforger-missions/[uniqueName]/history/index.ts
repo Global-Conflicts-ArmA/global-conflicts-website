@@ -230,7 +230,10 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
                 : null;
             const rawDesc = (missionFull?.descriptionNoMarkdown ?? missionFull?.description ?? "") as string;
             const missionForEmbed = {
-                ...(missionFull ?? mission),
+                name: (missionFull ?? mission).name,
+                type: missionFull?.type,
+                size: missionFull?.size,
+                uniqueName: missionFull?.uniqueName,
                 authorName: await (async () => {
                     let n = authorUser?.nickname ?? authorUser?.globalName ?? authorUser?.username ?? null;
                     if (!n && missionFull?.missionMaker) {
@@ -338,7 +341,10 @@ apiRoute.put(async (req: NextApiRequest, res: NextApiResponse) => {
                 : null;
             const rawDesc = (missionFull?.descriptionNoMarkdown ?? missionFull?.description ?? "") as string;
             const missionForEmbed = {
-                ...(missionFull ?? mission),
+                name: (missionFull ?? mission).name,
+                type: missionFull?.type,
+                size: missionFull?.size,
+                uniqueName: missionFull?.uniqueName,
                 authorName: await (async () => {
                     let n = authorUser?.nickname ?? authorUser?.globalName ?? authorUser?.username ?? null;
                     if (!n && missionFull?.missionMaker) {

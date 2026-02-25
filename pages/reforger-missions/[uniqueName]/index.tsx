@@ -720,7 +720,7 @@ export default function MissionDetails({
 						: value === "negative"
 						? "Thumbs down noted. Please share feedback in the #feedback channel on Discord so we can improve!"
 						: "Neutral noted. Thanks for the feedback!";
-				toast.success(toastMsg, { duration: value === "negative" ? 6000 : 3000 });
+				toast.success(toastMsg, { autoClose: value === "negative" ? 6000 : 3000 });
 			})
 			.catch((err) => {
 				const msg = err?.response?.data?.error ?? "Error submitting rating";

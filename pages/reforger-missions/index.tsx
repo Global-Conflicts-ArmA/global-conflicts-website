@@ -715,21 +715,21 @@ function ReforgerMissionList({ missions }) {
         tooltip: { theme: "dark", x: { formatter: (v) => `${v} players` } },
     }), []);
 
-    const scatterOptions = useMemo((): ApexOptions => ({
-        chart: { type: "scatter", background: "transparent", toolbar: { show: false }, zoom: { enabled: true }, animations: { enabled: false } },
-        colors: ["#6b7280"],
-        markers: { size: 5, strokeWidth: 0 },
-        xaxis: { type: "numeric", title: { text: "Max Player Count", style: apexTitleStyle }, labels: apexAxisLabel, tickAmount: 8, max: 128 },
-        yaxis: { type: "datetime", title: { text: "Last Played", style: apexTitleStyle }, labels: { ...apexAxisLabel, formatter: (v) => new Date(v).toLocaleDateString("en-GB", { month: "short", year: "2-digit" }) } },
-        grid: apexGrid,
-        tooltip: {
-            theme: "dark",
-            custom: ({ seriesIndex, dataPointIndex, w }) => {
-                const d = w.config.series[seriesIndex].data[dataPointIndex];
-                return `<div style="padding:8px;font-size:12px;background:#1f2937;border-radius:6px;border:1px solid #374151;color:#e5e7eb"><strong>${d.name}</strong><br/>Max: ${d.x} players<br/>Last played: ${new Date(d.y).toLocaleDateString()}</div>`;
-            },
-        },
-    }), []);
+	const scatterOptions = useMemo((): ApexOptions => ({
+		chart: { type: "scatter", background: "transparent", toolbar: { show: false }, zoom: { enabled: true }, animations: { enabled: false } },
+		colors: ["#6b7280"],
+		markers: { size: 5, strokeWidth: 0 },
+		xaxis: { type: "numeric", title: { text: "Max Player Count", style: apexTitleStyle }, labels: apexAxisLabel, tickAmount: 8, max: 128 },
+		yaxis: { title: { text: "Last Played", style: apexTitleStyle }, labels: { ...apexAxisLabel, formatter: (v) => new Date(v).toLocaleDateString("en-GB", { month: "short", year: "2-digit" }) } },
+		grid: apexGrid,
+		tooltip: {
+			theme: "dark",
+			custom: ({ seriesIndex, dataPointIndex, w }) => {
+				const d = w.config.series[seriesIndex].data[dataPointIndex];
+				return `<div style="padding:8px;font-size:12px;background:#1f2937;border-radius:6px;border:1px solid #374151;color:#e5e7eb"><strong>${d.name}</strong><br/>Max: ${d.x} players<br/>Last played: ${new Date(d.y).toLocaleDateString()}</div>`;
+			},
+		},
+	}), []);
 
     const rangeBarOptions = useMemo((): ApexOptions => ({
         chart: { type: "bar", stacked: true, background: "transparent", toolbar: { show: false }, animations: { enabled: false } },
@@ -1270,7 +1270,7 @@ function ReforgerMissionList({ missions }) {
 									localStorage.setItem("reforger_mapFilter", JSON.stringify(e))
 									setMapFilterValue(e)
 								}}
-								options={[...new Set(missions.map(m => m.terrainName))].map(name => ({ value: name, label: name }))}
+								options={Array.from(new Set<string>(missions.map(m => m.terrainName))).map(name => ({ value: name, label: name }))}
 								components={makeAnimated()}
 							/>
 						</div>
@@ -1746,7 +1746,7 @@ function ReforgerMissionList({ missions }) {
 										</div>
 										<div className="bg-base-100 dark:bg-gray-900 border border-base-300 dark:border-gray-700 rounded-lg px-4 py-2 min-w-[120px] flex flex-col justify-between h-20">
 											<div className="text-xs opacity-50 uppercase tracking-widest">Authors</div>
-											<div className="text-2xl font-bold">{[...new Set(dashboardMissions.map(m => m.missionMaker))].length}</div>
+											<div className="text-2xl font-bold">{Array.from(new Set<string>(dashboardMissions.map(m => m.missionMaker))).length}</div>
 											<div className="h-4" />
 										</div>
 									</div>
