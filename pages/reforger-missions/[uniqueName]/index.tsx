@@ -68,6 +68,7 @@ export default function MissionDetails({
 	hasVoted,
 	missionTestingQuestions,
 	hasAcceptedVersion,
+	groupMissions = [],
 }) {
 	let [actionsModalOpen, setActionsModalIsOpen] = useState(false);
 	let [newVersionModalOpen, setNewVersionModalOpen] = useState(false);
@@ -888,10 +889,9 @@ export default function MissionDetails({
 							</div>
 						)}
 
-						{/* Edit details button hidden for Reforger missions as they are synced from GitHub
-						{canEdit() && (
+						{hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER]) && (
 							<div
-								data-tip="Edit the details of your mission"
+								data-tip="Edit mission details"
 								className="z-10 tooltip tooltip-bottom"
 							>
 								<Link
@@ -900,8 +900,18 @@ export default function MissionDetails({
 									Edit details
 								</Link>
 							</div>
-						)} 
-						*/}
+						)}
+
+						{hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER]) && mission.scenarioGuid && (
+							<div data-tip="Load this mission on the server" className="z-10 ml-2 tooltip tooltip-bottom">
+								<button
+									className="btn btn-sm btn-primary"
+									onClick={() => setLoadMissionModalOpen(true)}
+								>
+									Load Mission
+								</button>
+							</div>
+						)}
 
 						{/* {canUnlist() && (
 							<div
@@ -931,6 +941,23 @@ export default function MissionDetails({
 
 					</div>
 
+					{mission.missionGroup && groupMissions.length > 1 && (
+						<div className="flex flex-wrap items-center gap-1 mt-1 text-sm text-gray-400 dark:text-gray-500">
+							{groupMissions.map((m, i) => (
+								<span key={m.uniqueName} className="flex items-center gap-1">
+									{i > 0 && <span className="select-none">/</span>}
+									{m.uniqueName === mission.uniqueName ? (
+										<span className="text-gray-600 dark:text-gray-300 font-medium">{m.name}</span>
+									) : (
+										<a href={`/reforger-missions/${m.uniqueName}`} className="hover:text-gray-700 dark:hover:text-gray-200 hover:underline transition-colors">
+											{m.name}
+										</a>
+									)}
+								</span>
+							))}
+						</div>
+					)}
+
 					{/* ── Server load lock warning (shown to GMs/Admins on all mission pages) ── */}
 				{lockState.locked && hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM]) && (
 					<div className="mt-2 p-3 rounded-lg border border-warning bg-warning/10 text-sm flex items-start gap-2">
@@ -946,17 +973,7 @@ export default function MissionDetails({
 					</div>
 				)}
 
-				{/* ── Load Mission button (GM/Admin/Mission Reviewer only) ── */}
-				{hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER]) && mission.scenarioGuid && (
-					<div className="mt-2">
-						<button
-							className="btn btn-sm btn-primary"
-							onClick={() => setLoadMissionModalOpen(true)}
-						>
-							Load Mission
-						</button>
-					</div>
-				)}
+
 
 				{isMissionUnlisted && (
 						<div className="mr-5 text-sm dark:text-gray-100">
@@ -1049,6 +1066,7 @@ export default function MissionDetails({
 						</span>
 					))}
 				</div>
+
 
 				{getRatings()}
 
@@ -1919,6 +1937,20 @@ export async function getServerSideProps(context) {
 	}
 	_mark("discord users");
 
+	// Fetch sibling missions in the same group for the "Part of" display
+	let groupMissions = [];
+	if (mission.missionGroup) {
+		const groupMetaDocs = await db.collection("reforger_mission_metadata")
+			.find({ missionGroup: mission.missionGroup })
+			.project({ _id: 0, missionId: 1 })
+			.toArray();
+		const groupMissionIds = groupMetaDocs.map((d) => d.missionId).filter(Boolean);
+		groupMissions = await db.collection("reforger_missions")
+			.find({ missionId: { $in: groupMissionIds } })
+			.project({ _id: 0, uniqueName: 1, name: 1 })
+			.toArray();
+	}
+
 	console.log(`[PERF] getServerSideProps for "${context.params.uniqueName}" — ${_timings.join(" | ")} | TOTAL: ${Date.now() - _t0}ms`);
 
 	return {
@@ -1930,6 +1962,7 @@ export async function getServerSideProps(context) {
 				: false,
 			missionTestingQuestions,
 			hasAcceptedVersion: hasAcceptedVersion,
+			groupMissions,
 		},
 	};
 }

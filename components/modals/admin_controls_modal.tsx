@@ -262,6 +262,7 @@ export default function AdminControlsModal({
     const { data: session } = useSession();
     const [dateModalOpen, setDateModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isFixingDates, setIsFixingDates] = useState(false);
     const [showTerrainMapper, setShowTerrainMapper] = useState(false);
     const [showAuthorMapper, setShowAuthorMapper] = useState(false);
 
@@ -278,6 +279,28 @@ export default function AdminControlsModal({
             toast.error("Delete failed: " + (error.response?.data?.error || error.message));
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleFixUploadDates = async () => {
+        if (!confirm("This will re-derive the upload date for every mission from its GitHub commit history. Run a dry run first to preview changes?")) {
+            return;
+        }
+        setIsFixingDates(true);
+        try {
+            const dryRes = await axios.post("/api/reforger-missions/fix-upload-dates", { dryRun: true });
+            const { results } = dryRes.data;
+            const preview = results.details.slice(0, 5).map(d => `• ${d.name}: ${d.oldDate ? new Date(d.oldDate).toLocaleDateString() : "none"} → ${new Date(d.newDate).toLocaleDateString()}`).join("\n");
+            const more = results.updated > 5 ? `\n...and ${results.updated - 5} more` : "";
+            if (!confirm(`Dry run complete.\n\nWould update ${results.updated} missions, skip ${results.skipped}, fail ${results.failed}.\n\n${preview}${more}\n\nApply changes?`)) {
+                return;
+            }
+            const applyRes = await axios.post("/api/reforger-missions/fix-upload-dates", { dryRun: false });
+            toast.success(`Fixed upload dates: ${applyRes.data.results.updated} updated, ${applyRes.data.results.skipped} already correct, ${applyRes.data.results.failed} failed.`);
+        } catch (error) {
+            toast.error("Fix upload dates failed: " + (error.response?.data?.error || error.message));
+        } finally {
+            setIsFixingDates(false);
         }
     };
 
@@ -385,7 +408,14 @@ export default function AdminControlsModal({
                                     <div className="pt-4 border-t dark:border-gray-700">
                                         <h4 className="font-semibold text-sm mb-2 uppercase tracking-wide text-red-500 opacity-80">Initial Setup & Destructive Actions</h4>
                                         <div className="space-y-3">
-                                            <button 
+                                            <button
+                                                disabled={isFixingDates || isSyncing}
+                                                onClick={handleFixUploadDates}
+                                                className={`btn btn-warning btn-outline w-full ${isFixingDates ? 'loading' : ''}`}
+                                            >
+                                                Fix Mission Upload Dates
+                                            </button>
+                                            <button
                                                 disabled={isSyncing}
                                                 onClick={() => {
                                                     if(confirm("Full sync will re-crawl the entire repository. This should only be done for initial setup or major resets. Proceed?")) {
