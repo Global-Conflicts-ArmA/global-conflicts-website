@@ -24,7 +24,6 @@ export default function LoadMissionModal({
     lockState: LockState;
 }) {
     const [step, setStep] = useState<1 | 2>(1);
-    const [postToDiscord, setPostToDiscord] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [isCheckingLock, setIsCheckingLock] = useState(false);
     const [currentLock, setCurrentLock] = useState<LockState>(initialLockState ?? { locked: false });
@@ -46,7 +45,6 @@ export default function LoadMissionModal({
 
     function reset() {
         setStep(1);
-        setPostToDiscord(true);
         setIsLoading(false);
         setIsCheckingLock(false);
         setCurrentLock(initialLockState ?? { locked: false });
@@ -70,7 +68,7 @@ export default function LoadMissionModal({
         setStep(2);
     }
 
-    async function confirmLoad() {
+    async function confirmLoad(postToDiscord: boolean) {
         setIsLoading(true);
         try {
             await axios.post(
@@ -191,28 +189,38 @@ export default function LoadMissionModal({
                                             A log of this action will be recorded.
                                         </p>
 
-                                        <label className="flex items-center gap-3 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                className="checkbox checkbox-sm"
-                                                checked={postToDiscord}
-                                                onChange={(e) => setPostToDiscord(e.target.checked)}
-                                            />
-                                            <span className="text-sm">Post to Discord (#after-action-reports)</span>
-                                        </label>
                                     </div>
 
-                                    <div className="flex justify-between mt-6">
-                                        <button className="btn btn-sm" onClick={() => setStep(1)}>
+                                    <div className="flex justify-between items-end mt-6">
+                                        <button className="btn btn-sm" onClick={() => setStep(1)} disabled={isLoading}>
                                             Back
                                         </button>
-                                        <button
-                                            className={`btn btn-sm btn-error ${isLoading ? "loading" : ""}`}
-                                            onClick={confirmLoad}
-                                            disabled={isLoading}
-                                        >
-                                            Confirm &amp; Restart Server
-                                        </button>
+                                        <div className="flex flex-col gap-2 items-end">
+                                            <div className="relative group">
+                                                <button
+                                                    className={`btn btn-sm btn-success ${isLoading ? "loading" : ""}`}
+                                                    onClick={() => confirmLoad(true)}
+                                                    disabled={isLoading}
+                                                >
+                                                    Confirm, Restart &amp; Post to Discord
+                                                </button>
+                                                <div className="absolute bottom-full left-0 mb-2 w-72 p-3 rounded-lg bg-base-300 text-xs text-base-content shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                                    Use this for <span className="font-semibold">active sessions with players online</span>. Posts a message to Discord and opens an AAR thread for reactions and feedback.
+                                                </div>
+                                            </div>
+                                            <div className="relative group">
+                                                <button
+                                                    className={`btn btn-sm btn-error ${isLoading ? "loading" : ""}`}
+                                                    onClick={() => confirmLoad(false)}
+                                                    disabled={isLoading}
+                                                >
+                                                    Confirm &amp; Restart (no Discord post)
+                                                </button>
+                                                <div className="absolute bottom-full left-0 mb-2 w-72 p-3 rounded-lg bg-base-300 text-xs text-base-content shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                                                    Use this for <span className="font-semibold">testing or seeder missions</span>. Restarts the server without posting anything to Discord.
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </>
                             )}

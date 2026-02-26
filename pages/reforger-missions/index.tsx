@@ -241,7 +241,7 @@ function ReforgerMissionList({ missions }) {
             localStorage.setItem("isSmartSortEnabled_Reforger", String(isSmartSortEnabled));
             localStorage.setItem("smartConfig_Reforger", JSON.stringify(smartConfig));
         } else {
-             setIsSmartSortEnabled(localStorage.getItem("isSmartSortEnabled_Reforger") === "true");
+             setIsSmartSortEnabled(localStorage.getItem("isSmartSortEnabled_Reforger") !== "false");
             const localSmartConfig = localStorage.getItem("smartConfig_Reforger");
             if (localSmartConfig) {
                 try {
@@ -2012,7 +2012,12 @@ export async function getServerSideProps() {
 				tags: { $ifNull: ["$_meta.tags", []] },
 				isUnlisted: { $ifNull: ["$_meta.isUnlisted", false] },
 				votes: { $ifNull: ["$_meta.votes", []] },
-				lastPlayed: "$_meta.lastPlayed",
+				lastPlayed: {
+					$ifNull: [
+						{ $max: { $map: { input: { $ifNull: ["$_meta.history", []] }, as: "h", in: "$$h.date" } } },
+						"$_meta.lastPlayed"
+					]
+				},
 				missionGroup: { $ifNull: ["$_meta.missionGroup", null] },
 				playCount: { $add: [{ $ifNull: ["$_meta.manualPlayCount", 0] }, { $size: { $ifNull: ["$_meta.history", []] } }] },
                 rating: {

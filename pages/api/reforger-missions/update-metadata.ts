@@ -38,7 +38,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
             lastUpdated: new Date(),
             ...(item.era && { era: item.era }),
             ...(item.status && { status: item.status }),
-            ...(item.statusNotes && { statusNotes: item.statusNotes }),
+            ...(item.statusNotes != null && { statusNotes: item.statusNotes }),
         };
 
         // Handle missionGroup: explicit null clears it, string sets it

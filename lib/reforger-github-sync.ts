@@ -310,32 +310,9 @@ async function syncSingleMission(db, path, sha, pr: any = null, guidToEntPathMap
             date = new Date(pr.closed_at);
         } else {
             // Full Sync: Fetch the FIRST (oldest) commit date for this specific .conf file
-            // GitHub returns commits newest-first, so we use the Link header to find the last page
-            try {
-                const headers = process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {};
-                const commitsUrl = `${GITHUB_API_BASE}/commits?path=${encodeURIComponent(path)}&per_page=1`;
-                apiCallCount++;
-                const commitsResponse = await axios.get(commitsUrl, { headers });
-
-                // Parse Link header to find the last page (oldest commit)
-                const linkHeader = commitsResponse.headers?.link || "";
-                const lastPageMatch = linkHeader.match(/<([^>]+)>;\s*rel="last"/);
-
-                if (lastPageMatch) {
-                    // Multiple commits exist — fetch the last page to get the oldest
-                    apiCallCount++;
-                    const oldestResponse = await axios.get(lastPageMatch[1], { headers });
-                    if (oldestResponse.data && oldestResponse.data.length > 0) {
-                        date = new Date(oldestResponse.data[0].commit.committer.date);
-                    }
-                } else if (commitsResponse.data && commitsResponse.data.length > 0) {
-                    // Only one commit — it's both the newest and oldest
-                    date = new Date(commitsResponse.data[0].commit.committer.date);
-                }
-            } catch (e) {
-                date = new Date(0); // Unix epoch (1970-01-01) — sentinel for failed date lookups
-                console.warn(`Failed to fetch commit date for ${path}: ${e.message}. Using epoch sentinel date.`);
-            }
+            const headers = process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {};
+            const fetched = await getOldestCommitDate(path, headers);
+            date = fetched ?? new Date(0); // Unix epoch (1970-01-01) — sentinel for failed date lookups
         }
 
         const metadata = parseMissionName(confData.m_sName);
@@ -460,12 +437,8 @@ async function syncSingleMission(db, path, sha, pr: any = null, guidToEntPathMap
                     }
                 );
             } else {
-                // Just update metadata
+                // Just update metadata — never overwrite uploadDate for existing missions
                 updateFields.lastUpdateEntry = { date: update.date, githubSha: sha };
-                
-                if (!pr) {
-                     updateFields.uploadDate = update.date;
-                }
 
                 await db.collection("reforger_missions").updateOne(
                     { _id: existingMission._id },
@@ -505,6 +478,102 @@ async function syncSingleMission(db, path, sha, pr: any = null, guidToEntPathMap
         fs.appendFileSync("sync_errors.log", `Error syncing ${path}: ${error.message}\n`);
         return { path, error: error.message };
     }
+}
+
+// Returns the date of the oldest commit for the given repo-relative path, or null on failure.
+async function getOldestCommitDate(path: string, headers: object): Promise<Date | null> {
+    try {
+        const commitsUrl = `${GITHUB_API_BASE}/commits?path=${encodeURIComponent(path)}&per_page=1`;
+        apiCallCount++;
+        const commitsResponse = await axios.get(commitsUrl, { headers });
+
+        const linkHeader = commitsResponse.headers?.link || "";
+        const lastPageMatch = linkHeader.match(/<([^>]+)>;\s*rel="last"/);
+
+        if (lastPageMatch) {
+            // Multiple commits — fetch the last page to get the oldest
+            apiCallCount++;
+            const oldestResponse = await axios.get(lastPageMatch[1], { headers });
+            if (oldestResponse.data?.length > 0) {
+                return new Date(oldestResponse.data[0].commit.committer.date);
+            }
+        } else if (commitsResponse.data?.length > 0) {
+            // Single commit
+            return new Date(commitsResponse.data[0].commit.committer.date);
+        }
+        return null;
+    } catch (e) {
+        console.warn(`[getOldestCommitDate] Failed for ${path}: ${e.message}`);
+        return null;
+    }
+}
+
+// One-off utility: re-derives each mission's uploadDate from the oldest commit across its
+// .conf and .ent files, correcting any dates that were corrupted by a failed full sync.
+export async function fixMissionUploadDates(dryRun = false) {
+    const db = (await MyMongo).db("prod");
+    const missions = await db.collection("reforger_missions")
+        .find({ githubPath: { $exists: true, $ne: null } })
+        .project({ _id: 1, uniqueName: 1, githubPath: 1, uploadDate: 1 })
+        .toArray();
+
+    const headers = process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {};
+    const results = { updated: 0, skipped: 0, failed: 0, details: [] };
+
+    for (const mission of missions) {
+        const confPath: string = mission.githubPath; // e.g. Missions/arc/DustyDrive.conf
+        const parts = confPath.split('/');
+        if (parts.length < 3) {
+            results.failed++;
+            results.details.push({ name: mission.uniqueName, error: `Unexpected path format: ${confPath}` });
+            continue;
+        }
+
+        const author = parts[1];
+        const missionName = parts[2].replace('.conf', '');
+        const entPath = `worlds/${author}/${missionName}/${missionName}.ent`;
+
+        // Fetch both in parallel
+        const [confDate, entDate] = await Promise.all([
+            getOldestCommitDate(confPath, headers),
+            getOldestCommitDate(entPath, headers),
+        ]);
+
+        const candidates = [confDate, entDate].filter((d): d is Date => d !== null);
+        if (candidates.length === 0) {
+            results.failed++;
+            results.details.push({ name: mission.uniqueName, confPath, entPath, error: 'Could not fetch commit dates for either file' });
+            continue;
+        }
+
+        const oldestDate = new Date(Math.min(...candidates.map(d => d.getTime())));
+        const currentDate: Date | null = mission.uploadDate ? new Date(mission.uploadDate) : null;
+
+        // Skip if already correct (within 1 second tolerance for rounding)
+        if (currentDate && Math.abs(oldestDate.getTime() - currentDate.getTime()) < 1000) {
+            results.skipped++;
+            continue;
+        }
+
+        if (!dryRun) {
+            await db.collection("reforger_missions").updateOne(
+                { _id: mission._id },
+                { $set: { uploadDate: oldestDate } }
+            );
+        }
+
+        results.updated++;
+        results.details.push({
+            name: mission.uniqueName,
+            oldDate: currentDate,
+            newDate: oldestDate,
+            confDate,
+            entDate,
+            dryRun,
+        });
+    }
+
+    return results;
 }
 
 async function getLastSyncDate(db) {

@@ -95,6 +95,9 @@ function EditReforgerMission({ mission }) {
 			}),
 			githubUrl: mission.githubUrl || "",
             manualPlayCount: mission.manualPlayCount || 0,
+			status: { value: mission.status, label: mission.status },
+			statusNotes: mission.statusNotes || "",
+			missionGroup: mission.missionGroup || "",
 			media: null,
 		},
 		validate: (fields) => {
@@ -177,14 +180,12 @@ function EditReforgerMission({ mission }) {
 		},
 
 		isInitialValid: true,
-		onSubmit: (values) => {
+		onSubmit: async (values) => {
 			setIsLoading(true);
 			const config = {
 				headers: { "content-type": "multipart/form-data" },
 				onUploadProgress: (p) => {
 					const progress = p.loaded / p.total;
-
-					// check if we already displayed a toast
 					if (uploadProgressToast.current === null) {
 						uploadProgressToast.current = toast("Processing edit..", {
 							progress: progress,
@@ -206,30 +207,32 @@ function EditReforgerMission({ mission }) {
 			formData.append("media", values.media);
 
 			try {
-				axios
-					.put(`/api/reforger-missions/${mission.uniqueName}`, formData, config)
-					.then((response) => {
-						toast.done(uploadProgressToast.current);
-						toast.success(
-							"Mission details edited! Redirecting to the mission page..."
-						);
-						setTimeout(() => {
-							window.open(`/reforger-missions/${response.data.slug}`, "_self");
-						}, 2000);
-					})
-					.catch((error) => {
-						if (error.response.status == 500) {
-							toast.error("Error editing the mission details, Let the admins know.");
-						} else {
-							if (error.response.data && error.response.data.error) {
-								toast.error(error.response.data.error);
-							}
-						}
+				const response = await axios.put(
+					`/api/reforger-missions/${mission.uniqueName}`,
+					formData,
+					config
+				);
 
-						setIsLoading(false);
-					})
-					.finally(() => {});
-			} catch (error) {}
+				await axios.post("/api/reforger-missions/update-metadata", {
+					missionId: mission.missionId,
+					status: values.status?.value,
+					statusNotes: values.statusNotes,
+					missionGroup: values.missionGroup.trim() || null,
+				});
+
+				toast.done(uploadProgressToast.current);
+				toast.success("Mission details edited! Redirecting to the mission page...");
+				setTimeout(() => {
+					window.open(`/reforger-missions/${response.data.slug}`, "_self");
+				}, 2000);
+			} catch (error) {
+				if (error.response?.status === 500) {
+					toast.error("Error editing the mission details, Let the admins know.");
+				} else if (error.response?.data?.error) {
+					toast.error(error.response.data.error);
+				}
+				setIsLoading(false);
+			}
 		},
 	});
 
@@ -238,8 +241,7 @@ function EditReforgerMission({ mission }) {
 		<CredentialLockLayout
 			status={status}
 			session={session}
-			matchId={mission.authorID}
-			cred={CREDENTIAL.MISSION_MAKER}
+			cred={CREDENTIAL.MISSION_REVIEWER}
 		>
 			<div className="flex flex-col max-w-screen-lg px-2 mx-auto mb-10 xl:max-w-screen-xl">
 				<form onSubmit={missionFormik.handleSubmit}>
@@ -249,48 +251,66 @@ function EditReforgerMission({ mission }) {
 						</h1>
 					</div>
 
-					<div className="form-control mb-5">
-						<label className="label">
-							<span className="label-text">GitHub Repository URL (Optional)</span>
-						</label>
-						<input
-							type="text"
-							onChange={missionFormik.handleChange}
-							onBlur={missionFormik.handleBlur}
-							value={missionFormik.values.githubUrl}
-							name={"githubUrl"}
-							placeholder="https://github.com/username/repository"
-							className="input input-bordered"
-						/>
-						<label className="label">
-							<span className="label-text-alt text-gray-500">
-								Link to the GitHub repository containing this mission's files
-							</span>
-						</label>
-						<FormikErrortext formik={missionFormik} name={"githubUrl"} />
+	
+					<div className="flex flex-row flex-wrap gap-4 mb-5">
+						<div className="flex-1 min-w-0 form-control">
+							<label className="label">
+								<span className="label-text">Status</span>
+							</label>
+							<Select
+								className="flex-1"
+								classNamePrefix="select-input"
+								value={missionFormik.values.status}
+								name={"status"}
+								onBlur={missionFormik.handleBlur}
+								onChange={(e) => missionFormik.setFieldValue("status", e)}
+								options={[
+									{ value: "No issues", label: "No issues" },
+									{ value: "New", label: "New" },
+									{ value: "Minor issues", label: "Minor issues" },
+									{ value: "Major issues", label: "Major issues" },
+									{ value: "Unavailable", label: "Unavailable" },
+								]}
+							/>
+						</div>
+
+						<div className="flex-1 min-w-0 form-control">
+							<label className="label">
+								<span className="label-text">Status Notes (Optional)</span>
+							</label>
+							<input
+								type="text"
+								onChange={missionFormik.handleChange}
+								onBlur={missionFormik.handleBlur}
+								value={missionFormik.values.statusNotes}
+								name={"statusNotes"}
+								placeholder="e.g. Missing briefing, broken triggers..."
+								className="input input-bordered"
+							/>
+						</div>
+
+						<div className="flex-1 min-w-0 form-control">
+							<label className="label">
+								<span className="label-text">Mission Group (Optional)</span>
+							</label>
+							<input
+								type="text"
+								onChange={missionFormik.handleChange}
+								onBlur={missionFormik.handleBlur}
+								value={missionFormik.values.missionGroup}
+								name={"missionGroup"}
+								placeholder="e.g. Roulette"
+								className="input input-bordered"
+							/>
+							<label className="label">
+								<span className="label-text-alt text-gray-500">
+									Group related missions for smart score calculations.
+								</span>
+							</label>
+						</div>
 					</div>
 
-                    <div className="form-control mb-5">
-						<label className="label">
-							<span className="label-text">Legacy/Manual Play Count (Optional)</span>
-						</label>
-						<input
-							type="number"
-							onChange={missionFormik.handleChange}
-							onBlur={missionFormik.handleBlur}
-							value={missionFormik.values.manualPlayCount}
-							name={"manualPlayCount"}
-							placeholder="0"
-							className="input input-bordered"
-						/>
-						<label className="label">
-							<span className="label-text-alt text-gray-500">
-								Add extra plays to the total count (e.g. from before tracking started).
-							</span>
-						</label>
-					</div>
-
-					<div className="flex flex-row flex-wrap space-x-5 md:my-5">
+				<div className="flex flex-row flex-wrap space-x-5 md:my-5">
 						<div className="flex-1 h-96 max-h-96 no-resize-mde">
 							<label className="mb-4 label">
 								<span className="label-text">Description</span>
@@ -598,7 +618,27 @@ function EditReforgerMission({ mission }) {
 						</div>
 					</div>
 
-					<div className="mt-10">
+					<div className="form-control mb-5">
+						<label className="label">
+							<span className="label-text">Legacy/Manual Play Count (Optional)</span>
+						</label>
+						<input
+							type="number"
+							onChange={missionFormik.handleChange}
+							onBlur={missionFormik.handleBlur}
+							value={missionFormik.values.manualPlayCount}
+							name={"manualPlayCount"}
+							placeholder="0"
+							className="input input-bordered"
+						/>
+						<label className="label">
+							<span className="label-text-alt text-gray-500">
+								Add extra plays to the total count (e.g. from before tracking started).
+							</span>
+						</label>
+					</div>
+
+				<div className="mt-10">
 						<button
 							className={
 								isLoading
@@ -625,11 +665,10 @@ function EditReforgerMission({ mission }) {
 
 export async function getServerSideProps(context) {
 	const session = await getSession(context);
+	const db = (await MyMongo).db("prod");
 
-	const mission = await (await MyMongo).db("prod").collection("reforger_missions").findOne(
-		{
-			uniqueName: context.params.uniqueName,
-		},
+	const mission = await db.collection("reforger_missions").findOne(
+		{ uniqueName: context.params.uniqueName },
 		{
 			projection: {
 				_id: 0,
@@ -640,12 +679,24 @@ export async function getServerSideProps(context) {
 				updates: 0,
 				reports: 0,
 				reviews: 0,
-                // manualPlayCount: 1 // Explicitly include if needed, but exclusion is usually the default for projection unless specific fields are listed. 
-                // Wait, this is an exclusion projection (0). So manualPlayCount should be included by default unless I exclude it.
-                // It is NOT excluded, so it should be there.
 			},
 		}
 	);
+
+	if (!mission) {
+		return { notFound: true };
+	}
+
+	const metadata = await db.collection("reforger_mission_metadata").findOne(
+		{ missionId: mission.missionId },
+		{ projection: { _id: 0, status: 1, statusNotes: 1, missionGroup: 1, tags: 1, era: 1 } }
+	);
+
+	mission.status = metadata?.status ?? "No issues";
+	mission.statusNotes = metadata?.statusNotes ?? "";
+	mission.missionGroup = metadata?.missionGroup ?? "";
+	mission.tags = metadata?.tags ?? [];
+	mission.era = metadata?.era ?? mission.era ?? "";
 
 	return {
 		props: { mission },
