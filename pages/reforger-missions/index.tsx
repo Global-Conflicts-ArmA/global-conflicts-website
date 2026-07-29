@@ -448,6 +448,7 @@ function ReforgerMissionList({ missions }) {
 
 	const [denseMode, setDenseMode] = useState(false)
 	const [showUnlistedMissions, setShowUnlistedMissions] = useState(false)
+	const [showArchivedMissions, setShowArchivedMissions] = useState(false)
 
 	const [missionsFiltred, setMissionsFiltred] = useState([])
 
@@ -573,7 +574,19 @@ function ReforgerMissionList({ missions }) {
             {
                 name: "Name",
                 selector: (row) => row.name,
-                cell: (row) => <div data-tag="allowRowEvents" className="truncate" title={row.name}>{row.name.length > 30 ? row.name.substring(0, 30) + ".." : row.name}</div>,
+                cell: (row) => (
+                    <div data-tag="allowRowEvents" className="flex items-center gap-1 truncate" title={row.name}>
+                        {row.isArchived && (
+                            <div
+                                className="tooltip badge badge-warning badge-sm shrink-0"
+                                data-tip={`${row.archivedReason || "Removed from GitHub"}${row.archivedAt ? " on " + moment(row.archivedAt).format("ll") : ""}`}
+                            >
+                                ARCHIVED
+                            </div>
+                        )}
+                        <span className="truncate">{row.name.length > 30 ? row.name.substring(0, 30) + ".." : row.name}</span>
+                    </div>
+                ),
                 sortable: true,
                 width: "200px",
                 center: true,
@@ -950,7 +963,7 @@ function ReforgerMissionList({ missions }) {
 
     // --- Stats Dashboard data ---
 
-    const listedMissions = useMemo(() => missions.filter(m => !m.isUnlisted), [missions]);
+    const listedMissions = useMemo(() => missions.filter(m => !m.isUnlisted && !m.isArchived), [missions]);
 
     // Missions filtered by the dashboard's own type-filter (independent of page filters)
     const dashboardMissions = useMemo(() =>
@@ -1563,6 +1576,7 @@ function ReforgerMissionList({ missions }) {
 
 			setDenseMode(localStorage.getItem("reforger_denseMode") == "true")
 			setShowUnlistedMissions(localStorage.getItem("reforger_showUnlisted") == "true")
+			setShowArchivedMissions(localStorage.getItem("reforger_showArchived") == "true")
             setShowEventMissions(localStorage.getItem("reforger_showEventMissions") == "true");
             setStatusFilterValue(localStorage.getItem("reforger_statusFilter") || null);
 		}
@@ -1570,6 +1584,10 @@ function ReforgerMissionList({ missions }) {
 		function filterMissions() {
 			const missionsFound = missions
 				.filter((mission) => {
+					if (showArchivedMissions) {
+						return mission.isArchived;
+					}
+					if (mission.isArchived) return false;
 					if (showUnlistedMissions) {
 						return mission.isUnlisted;
 					} else {
@@ -1607,6 +1625,7 @@ function ReforgerMissionList({ missions }) {
         		maxSlotsMax,
         		missions,
         		showUnlistedMissions,
+        		showArchivedMissions,
         		typeFilterValue,
                 currentPlayers,
                 showEventMissions,
@@ -1976,6 +1995,33 @@ function ReforgerMissionList({ missions }) {
 														>
 															<span
 																className={`${showUnlistedMissions ? "translate-x-6" : "translate-x-1"
+																	} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
+															/>
+														</Switch>
+													</div>
+												</div>
+											</Switch.Group>
+										</div>
+										<div className="mt-3">
+											<Switch.Group>
+												<div className="flex items-center">
+													<Switch.Label className="w-full mr-4 text-sm">
+														Show archived missions (removed from GitHub)
+													</Switch.Label>
+													<div>
+														<Switch
+															checked={showArchivedMissions}
+															onChange={e => {
+																localStorage.setItem("reforger_showArchived", e == true ? "true" : "false")
+																setShowArchivedMissions(e)
+															}}
+															className={`${showArchivedMissions
+																	? "bg-blue-600"
+																	: "bg-gray-200 dark:bg-gray-500"
+																}  switch-standard`}
+														>
+															<span
+																className={`${showArchivedMissions ? "translate-x-6" : "translate-x-1"
 																	} inline-block w-4 h-4 transform bg-white rounded-full transition-transform`}
 															/>
 														</Switch>
