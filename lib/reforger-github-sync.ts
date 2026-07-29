@@ -470,14 +470,16 @@ export async function syncReforgerMissionsFromGitHub(isFullSync: boolean = false
 
     const db = (await MyMongo).db("prod");
     
-    let results = { 
-        added: 0, 
-        updated: 0, 
-        skipped: 0, 
-        errors: [], 
+    let results = {
+        added: 0,
+        updated: 0,
+        skipped: 0,
+        archived: 0,
+        errors: [],
         apiCalls: 0,
         addedMissions: [],
-        updatedMissions: []
+        updatedMissions: [],
+        archivedMissions: []
     };
     let errorMsg = null;
     
@@ -502,10 +504,12 @@ export async function syncReforgerMissionsFromGitHub(isFullSync: boolean = false
             stats: {
                 added: results.added,
                 updated: results.updated,
+                archived: results.archived,
                 errors: results.errors.length
             },
             addedMissions: results.addedMissions,
             updatedMissions: results.updatedMissions,
+            archivedMissions: results.archivedMissions,
             errorMsg: errorMsg
         },
         triggeredBy
@@ -650,12 +654,13 @@ async function runDifferentialSync(db) {
     const headers = process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {};
 
     // Get current DB state
-    const existingMissions = await db.collection("reforger_missions").find({}).project({ 
-        uniqueName: 1, 
-        githubPath: 1, 
-        missionId: 1, 
+    const existingMissions = await db.collection("reforger_missions").find({}).project({
+        uniqueName: 1,
+        githubPath: 1,
+        missionId: 1,
         lastUpdateEntry: 1,
-        worldFolder: 1
+        worldFolder: 1,
+        isArchived: 1
     }).toArray();
     
     const dbMap = new Map<string, any>();
@@ -671,14 +676,16 @@ async function runDifferentialSync(db) {
         console.log("=== EXECUTING V1 -> V2 COMPOSITE SHA MIGRATION ===");
     }
 
-    const results = { 
-        added: 0, 
-        updated: 0, 
-        skipped: 0, 
-        errors: [], 
+    const results = {
+        added: 0,
+        updated: 0,
+        skipped: 0,
+        archived: 0,
+        errors: [],
         apiCalls: 0,
         addedMissions: [],
-        updatedMissions: []
+        updatedMissions: [],
+        archivedMissions: []
     };
 
     for (const confItem of missionConfigs) {
@@ -729,8 +736,10 @@ async function runDifferentialSync(db) {
                 }
             } else {
                 // NORMAL DIFFERENTIAL SYNC
-                // Skip if we have a valid worldFolder AND the calculated SHA matches the DB
-                if (dbMission && worldFolder && dbMission.lastUpdateEntry?.githubSha === compositeSha) {
+                // Skip if we have a valid worldFolder AND the calculated SHA matches the DB.
+                // Never skip an archived mission — it needs to fall through to syncSingleMission
+                // so its isArchived flag gets cleared now that its file is back in the tree.
+                if (dbMission && worldFolder && dbMission.lastUpdateEntry?.githubSha === compositeSha && !dbMission.isArchived) {
                     // Hash matches perfectly, skip.
                     results.skipped++;
                     continue;
@@ -783,6 +792,24 @@ async function runDifferentialSync(db) {
         } catch (err) {
             results.errors.push({ path: confItem.path, error: err.toString() });
         }
+    }
+
+    // Archive DB missions whose .conf file no longer exists in the current GitHub tree.
+    // We never delete — old gameplay history/AARs must stay reachable — just hide them
+    // from the public listing. If the same githubPath ever reappears, the loop above
+    // clears isArchived again via missionDoc.
+    const currentConfPaths = new Set(missionConfigs.map(f => f.path));
+    const orphanedMissions = existingMissions.filter(
+        (m: any) => m.githubPath && !currentConfPaths.has(m.githubPath) && !m.isArchived
+    );
+    if (orphanedMissions.length > 0) {
+        await db.collection("reforger_missions").updateMany(
+            { _id: { $in: orphanedMissions.map((m: any) => m._id) } },
+            { $set: { isArchived: true, archivedAt: new Date(), archivedReason: "Removed from GitHub repository" } }
+        );
+        results.archived = orphanedMissions.length;
+        results.archivedMissions = orphanedMissions.map((m: any) => m.uniqueName);
+        console.log(`[Diff Sync] Archived ${orphanedMissions.length} mission(s) no longer present in GitHub: ${orphanedMissions.map((m: any) => m.githubPath).join(", ")}`);
     }
 
     if (isV1toV2Migration) {
@@ -899,7 +926,13 @@ async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, st
             missionId: missionGuid,    // GUID from World field in .conf — used for terrain/ent resolution
             scenarioGuid: scenarioGuid, // GUID from .conf.meta — combined with githubPath to form scenarioId
             worldFolder: worldFolder,  // Path to world source folder
-            entPath: entPath           // Path to .ent file
+            entPath: entPath,          // Path to .ent file
+            // This mission's .conf is present in the current GitHub tree (that's why we're
+            // here), so clear any prior archive state — covers both new inserts and the
+            // case where a previously-archived mission's file has reappeared.
+            isArchived: false,
+            archivedAt: null,
+            archivedReason: null
         };
 
         // Identification Logic
