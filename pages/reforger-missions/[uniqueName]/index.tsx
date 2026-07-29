@@ -57,6 +57,7 @@ import { generateMarkdown } from "../../../lib/markdownToHtml";
 import SimpleTextViewModal from "../../../components/modals/simple_text_view_modal";
 import MediaUploadModal from "../../../components/modals/media_upload_modal";
 import EditMetadataModal from "../../../components/modals/edit_metadata_modal";
+import MergeMissionModal from "../../../components/modals/merge_mission_modal";
 import LoadMissionModal from "../../../components/modals/load_mission_modal";
 import dynamic from 'next/dynamic'
 const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
@@ -477,6 +478,7 @@ export default function MissionDetails({
   let [newVersionModalOpen, setNewVersionModalOpen] = useState(false);
   let [simpleTextModalOPen, setSimpleTextModalOpen] = useState(false);
     let [editMetadataModalOpen, setEditMetadataModalOpen] = useState(false);
+    let [mergeMissionModalOpen, setMergeMissionModalOpen] = useState(false);
   let [actionsModalData, setActionsModalData] = useState(null);
   let [isLoadingVote, setIsLoadingVote] = useState(false);
   let [isLoadingListing, setIsLoadingListing] = useState(false);
@@ -1291,6 +1293,17 @@ export default function MissionDetails({
               </div>
             )}
 
+            {hasCredsAny(session, [CREDENTIAL.ADMIN]) && mission.isArchived && (
+              <div data-tip="Fold this archived mission's history into a live mission" className="z-10 ml-2 tooltip tooltip-bottom">
+                <button
+                  className="btn btn-sm btn-warning"
+                  onClick={() => setMergeMissionModalOpen(true)}
+                >
+                  Merge into...
+                </button>
+              </div>
+            )}
+
             {/* {canUnlist() && (
               <div
                 data-tip={
@@ -1864,6 +1877,15 @@ export default function MissionDetails({
                 }}
             />
 
+            <MergeMissionModal
+                isOpen={mergeMissionModalOpen}
+                onClose={() => setMergeMissionModalOpen(false)}
+                mission={mission}
+                onMerged={(keepUniqueName) => {
+                    window.location.href = `/reforger-missions/${keepUniqueName}`;
+                }}
+            />
+
             <LoadMissionModal
                 isOpen={loadMissionModalOpen}
                 onClose={() => setLoadMissionModalOpen(false)}
@@ -1930,6 +1952,15 @@ export async function getServerSideProps(context) {
     return {
       notFound: true,
     }
+  }
+
+  if (mission.mergedIntoUniqueName && mission.mergedIntoUniqueName !== context.params.uniqueName) {
+    return {
+      redirect: {
+        destination: `/reforger-missions/${mission.mergedIntoUniqueName}`,
+        permanent: false,
+      },
+    };
   }
 
   // Fetch metadata (user-generated data lives in separate collection)
