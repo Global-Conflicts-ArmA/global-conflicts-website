@@ -576,7 +576,16 @@ function ReforgerMissionList({ missions }) {
                 selector: (row) => row.name,
                 cell: (row) => (
                     <div data-tag="allowRowEvents" className="flex items-center gap-1 truncate" title={row.name}>
-                        {row.isArchived && (
+                        {row.mergedIntoUniqueName ? (
+                            <Link
+                                href={`/reforger-missions/${row.mergedIntoUniqueName}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="tooltip badge badge-info badge-sm shrink-0"
+                                data-tip={`History merged into "${row.mergedIntoUniqueName}"${row.archivedAt ? " on " + moment(row.archivedAt).format("ll") : ""} — click to view`}
+                            >
+                                MERGED
+                            </Link>
+                        ) : row.isArchived && (
                             <div
                                 className="tooltip badge badge-warning badge-sm shrink-0"
                                 data-tip={`${row.archivedReason || "Removed from GitHub"}${row.archivedAt ? " on " + moment(row.archivedAt).format("ll") : ""}`}
@@ -2554,6 +2563,7 @@ export async function getServerSideProps() {
 					image: 0,
 					reviewChecklist: 0,
 					ratios: 0,
+					mergedInto: 0,
 					"updates._id": 0,
 					"updates.version": 0,
 					"updates.authorID": 0,

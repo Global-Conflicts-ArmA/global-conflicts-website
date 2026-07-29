@@ -366,6 +366,7 @@ export async function getServerSideProps(context) {
 					updates: 0,
 					_metadata: 0,
 					_meta: 0,
+					mergedInto: 0,
 				},
 			},
 		])
