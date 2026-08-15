@@ -22,15 +22,30 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(401).json({ error: "Not Authorized" });
     }
 
-    const { windowDays = 90, statsWindowDays = 28, asOf } = req.query;
+    const { windowDays = 90, asOf } = req.query;
     const windowMs = Number(windowDays) * 24 * 60 * 60 * 1000;
-    const statsWindowMs = Number(statsWindowDays) * 24 * 60 * 60 * 1000;
     const parsedAsOf = typeof asOf === "string" ? new Date(asOf) : null;
     const now = parsedAsOf && !isNaN(parsedAsOf.getTime()) ? parsedAsOf : new Date();
-    const windowStart = new Date(now.getTime() - windowMs);
-    const statsWindowStart = new Date(now.getTime() - statsWindowMs);
 
     const db = (await MyMongo).db("prod");
+
+    // Global exclusion periods (server outages etc.) push the window start further back so
+    // every player still gets a full `windowDays` of time the server was actually playable —
+    // see pages/api/staff/activity-exclusions.ts for how these are managed.
+    const exclusionDocs = await db.collection("activity_exclusions")
+        .find({ scope: "global", startDate: { $lt: now } })
+        .toArray();
+    const exclusionRanges = mergeExclusionRanges(
+        exclusionDocs.map(d => ({ start: new Date(d.startDate), end: new Date(d.endDate) }))
+    );
+    const { windowStart, excludedMs } = computeAdjustedWindowStart(now, windowMs, exclusionRanges);
+
+    // Individual (unmerged) exclusions that actually fall inside the final window, for
+    // display — "counting from X to Y, excluding A–B (reason)" rather than a bare day count.
+    const appliedExclusions = exclusionDocs
+        .filter(d => new Date(d.endDate) > windowStart && new Date(d.startDate) < now)
+        .map(d => ({ startDate: new Date(d.startDate).toISOString(), endDate: new Date(d.endDate).toISOString(), reason: d.reason }))
+        .sort((a, b) => a.startDate.localeCompare(b.startDate));
 
     // 1. Get poll interval
     const config = await db.collection("configs").findOne({}, { projection: { botPollIntervalMs: 1, player_mappings: 1 } });
@@ -55,11 +70,10 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         }}
     ];
 
-    const [activity90d, activity28d, sessionStats] = await Promise.all([
+    const [activity, sessionStats] = await Promise.all([
         db.collection("server_sessions").aggregate(activityPipeline(windowStart)).toArray(),
-        db.collection("server_sessions").aggregate(activityPipeline(statsWindowStart)).toArray(),
         db.collection("server_sessions").aggregate([
-            { $match: { startedAt: { $gte: statsWindowStart, $lte: now } } },
+            { $match: { startedAt: { $gte: windowStart, $lte: now } } },
             { $project: {
                 duration: {
                     $divide: [
@@ -95,32 +109,27 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
     const discordUsers = await db.collection("discord_users").find({}).toArray();
     const discordUserMap = new Map(discordUsers.map(u => [u.userId, u]));
 
-    const activityMap90d = new Map(activity90d.map(a => [a._id, a]));
-    const activityMap28d = new Map(activity28d.map(a => [a._id, a]));
+    const activityMap = new Map(activity.map(a => [a._id, a]));
 
     const rows: any[] = [];
     const processedDiscordIds = new Set<string>();
 
     // Process all player mappings
     playerMappings.forEach((m: any) => {
-        const a90 = activityMap90d.get(m.platformId);
-        const a28 = activityMap28d.get(m.platformId);
+        const a = activityMap.get(m.platformId);
         const du = m.discordId ? discordUserMap.get(m.discordId) : null;
 
-        const minutes90d = (a90?.snapshotCount ?? 0) * pollIntervalMin;
-        const minutes28d = (a28?.snapshotCount ?? 0) * pollIntervalMin;
+        const minutes = (a?.snapshotCount ?? 0) * pollIntervalMin;
 
         rows.push({
             platformId: m.platformId,
-            playerName: a90?.latestPlayerName ?? m.playerName,
+            playerName: a?.latestPlayerName ?? m.playerName,
             discordId: m.discordId,
             discordName: du ? (du.nickname ?? du.globalName ?? du.displayName ?? du.username) : null,
             hasMemberRole: m.discordId ? memberIds.has(m.discordId) : false,
-            minutes90d,
-            minutes28d,
-            durationFormatted90d: formatDuration(minutes90d),
-            durationFormatted28d: formatDuration(minutes28d),
-            lastSeen: a90?.lastSeen ?? null
+            minutes,
+            durationFormatted: formatDuration(minutes),
+            lastSeen: a?.lastSeen ?? null
         });
 
         if (m.discordId) processedDiscordIds.add(m.discordId);
@@ -136,10 +145,8 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
                 discordId: mid,
                 discordName: du ? (du.nickname ?? du.globalName ?? du.displayName ?? du.username) : null,
                 hasMemberRole: true,
-                minutes90d: 0,
-                minutes28d: 0,
-                durationFormatted90d: "00:00:00",
-                durationFormatted28d: "00:00:00",
+                minutes: 0,
+                durationFormatted: "00:00:00",
                 lastSeen: null
             });
         }
@@ -147,7 +154,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 
     // Add unmapped players who were active but aren't in configs.player_mappings
     // (This shouldn't happen often as the bot auto-adds them, but good for safety)
-    activityMap90d.forEach((a, pid) => {
+    activityMap.forEach((a, pid) => {
         if (!rows.find(r => r.platformId === pid)) {
             rows.push({
                 platformId: pid,
@@ -155,23 +162,21 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
                 discordId: null,
                 discordName: null,
                 hasMemberRole: false,
-                minutes90d: a.snapshotCount * pollIntervalMin,
-                minutes28d: (activityMap28d.get(pid)?.snapshotCount ?? 0) * pollIntervalMin,
-                durationFormatted90d: formatDuration(a.snapshotCount * pollIntervalMin),
-                durationFormatted28d: formatDuration((activityMap28d.get(pid)?.snapshotCount ?? 0) * pollIntervalMin),
+                minutes: a.snapshotCount * pollIntervalMin,
+                durationFormatted: formatDuration(a.snapshotCount * pollIntervalMin),
                 lastSeen: a.lastSeen
             });
         }
     });
 
-    rows.sort((a, b) => b.minutes90d - a.minutes90d);
+    rows.sort((a, b) => b.minutes - a.minutes);
 
-    const totalPlayerMinutes28d = rows.reduce((acc, r) => acc + r.minutes28d, 0);
-    const playtimes28d = rows.map(r => r.minutes28d).filter(m => m > 0).sort((a, b) => a - b);
-    const medianMinutes28d = playtimes28d.length > 0 
-        ? (playtimes28d.length % 2 === 0 
-            ? (playtimes28d[playtimes28d.length/2 - 1] + playtimes28d[playtimes28d.length/2]) / 2 
-            : playtimes28d[Math.floor(playtimes28d.length/2)])
+    const totalPlayerMinutes = rows.reduce((acc, r) => acc + r.minutes, 0);
+    const playtimes = rows.map(r => r.minutes).filter(m => m > 0).sort((a, b) => a - b);
+    const medianMinutes = playtimes.length > 0
+        ? (playtimes.length % 2 === 0
+            ? (playtimes[playtimes.length/2 - 1] + playtimes[playtimes.length/2]) / 2
+            : playtimes[Math.floor(playtimes.length/2)])
         : 0;
 
     const stats = sessionStats[0] ?? { sessionCount: 0, totalSessionMinutes: 0, avgSessionMinutes: 0 };
@@ -179,20 +184,67 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(200).json({
         ok: true,
         windowDays,
-        statsWindowDays,
         asOf: now.toISOString(),
+        windowStart: windowStart.toISOString(),
+        excludedDays: Math.round((excludedMs / 86400000) * 10) / 10,
+        appliedExclusions,
         pollIntervalMinutes: pollIntervalMin,
         rows,
-        summary28d: {
-            distinctPlayers: playtimes28d.length,
+        summary: {
+            distinctPlayers: playtimes.length,
             sessionCount: stats.sessionCount,
-            totalPlayerMinutes: totalPlayerMinutes28d,
-            avgMinutesPerPlayer: playtimes28d.length > 0 ? totalPlayerMinutes28d / playtimes28d.length : 0,
-            medianMinutesPerPlayer: medianMinutes28d,
+            totalPlayerMinutes,
+            avgMinutesPerPlayer: playtimes.length > 0 ? totalPlayerMinutes / playtimes.length : 0,
+            medianMinutesPerPlayer: medianMinutes,
             avgSessionMinutes: stats.avgSessionMinutes
         }
     });
 });
+
+// Collapses overlapping/adjacent exclusion ranges so each moment in time is only ever
+// counted as excluded once.
+function mergeExclusionRanges(ranges: { start: Date; end: Date }[]): { start: Date; end: Date }[] {
+    if (ranges.length === 0) return [];
+    const sorted = [...ranges].sort((a, b) => a.start.getTime() - b.start.getTime());
+    const merged: { start: Date; end: Date }[] = [sorted[0]];
+    for (const r of sorted.slice(1)) {
+        const last = merged[merged.length - 1];
+        if (r.start.getTime() <= last.end.getTime()) {
+            if (r.end.getTime() > last.end.getTime()) last.end = r.end;
+        } else {
+            merged.push({ ...r });
+        }
+    }
+    return merged;
+}
+
+// Pushes windowStart back so the [windowStart, now] range contains `windowMs` of
+// non-excluded time — i.e. excluded periods don't count against a player's window, they
+// just extend how far back we look. This is a fixed point: pushing windowStart back can
+// pull earlier exclusion ranges into scope, so we re-sum and repeat until it stabilizes
+// (bounded by the number of exclusion ranges, which is small).
+function computeAdjustedWindowStart(
+    now: Date,
+    windowMs: number,
+    exclusionRanges: { start: Date; end: Date }[]
+): { windowStart: Date; excludedMs: number } {
+    let excludedMs = 0;
+    let windowStart = new Date(now.getTime() - windowMs);
+
+    for (let i = 0; i <= exclusionRanges.length; i++) {
+        let total = 0;
+        for (const r of exclusionRanges) {
+            const overlapStart = Math.max(r.start.getTime(), windowStart.getTime());
+            const overlapEnd = Math.min(r.end.getTime(), now.getTime());
+            if (overlapEnd > overlapStart) total += overlapEnd - overlapStart;
+        }
+        if (total === excludedMs) break;
+        excludedMs = total;
+        windowStart = new Date(now.getTime() - windowMs - excludedMs);
+    }
+
+    return { windowStart, excludedMs };
+}
 
 function formatDuration(totalMin: number): string {
     const days = Math.floor(totalMin / 1440);
