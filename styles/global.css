@@ -386,6 +386,52 @@ textarea:focus {
 	box-shadow: 0 0 0 0px hsl(var(--b1)), 0 0 0 2px hsla(var(--bc) / 0.2) !important;
 }
 
+/* react-datepicker ships its own light-only theme; its CSS loads after ours
+   on pages that import it, so these need !important to win. */
+.react-datepicker {
+	@apply dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100 !important;
+}
+.react-datepicker__header {
+	@apply dark:bg-gray-700 dark:border-gray-600 !important;
+}
+.react-datepicker__current-month,
+.react-datepicker__day-name {
+	@apply dark:text-gray-100 !important;
+}
+.react-datepicker__day {
+	@apply dark:text-gray-200 !important;
+}
+.react-datepicker__day:hover {
+	@apply dark:bg-gray-600 !important;
+}
+.react-datepicker__day--outside-month {
+	@apply dark:text-gray-500 !important;
+}
+.react-datepicker__day--disabled {
+	@apply dark:text-gray-600 !important;
+}
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+	@apply dark:bg-primary dark:text-white !important;
+}
+.react-datepicker__day--today {
+	@apply dark:border dark:border-primary !important;
+}
+.react-datepicker__navigation-icon::before {
+	@apply dark:border-gray-300 !important;
+}
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::before,
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle::after {
+	@apply dark:border-b-gray-700 !important;
+}
+.react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle::before,
+.react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle::after {
+	@apply dark:border-t-gray-700 !important;
+}
+.react-datepicker__close-icon::after {
+	@apply dark:bg-gray-600 !important;
+}
+
 :not(pre) > code[class*="language-"],
 pre[class*="language-"] {
 	border-radius: 6px !important;
