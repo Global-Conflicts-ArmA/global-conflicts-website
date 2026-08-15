@@ -46,6 +46,8 @@ export default function UserStatsPage() {
     const { data: session } = useSession();
     const [threshold, setThreshold] = useState(600); // always stored in minutes
     const [thresholdUnit, setThresholdUnit] = useState<"min" | "hr">("min");
+    const [statsFloor, setStatsFloor] = useState(120); // minimum playtime to count toward Avg/Median Time, always stored in minutes
+    const [statsFloorUnit, setStatsFloorUnit] = useState<"min" | "hr">("hr");
     const [filters, setFilters] = useState({
         onlyMembers: false,
         onlyWouldLose: false,
@@ -63,8 +65,9 @@ export default function UserStatsPage() {
         const params = new URLSearchParams();
         params.set("windowDays", String(lookbackMonths * 30));
         if (asOfDate) params.set("asOf", asOfDate.toISOString());
+        params.set("minStatsMinutes", String(statsFloor));
         return `/api/staff/active-users?${params.toString()}`;
-    }, [asOfDate, lookbackMonths]);
+    }, [asOfDate, lookbackMonths, statsFloor]);
 
     const { data, error, mutate, isValidating } = useSWR(
         isAdmin ? statsUrl : null,
@@ -230,6 +233,36 @@ export default function UserStatsPage() {
                             </div>
                         </div>
                     </div>
+
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 rounded-lg shadow border dark:border-gray-700">
+                        <div className="flex items-center gap-2 pl-2">
+                            <ChartPieIcon className="w-4 h-4 text-gray-400" />
+                            <span className="text-xs font-bold uppercase tracking-widest text-gray-400" title="Minimum playtime for a player to count toward Avg/Median Time — filters out one-off drive-bys">Stats Floor</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="number"
+                                step={statsFloorUnit === "hr" ? 0.5 : 1}
+                                className="input input-bordered input-sm w-20 text-center font-mono focus:ring-1 focus:ring-primary h-8 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                value={statsFloorUnit === "hr" ? roundForDisplay(statsFloor / 60) : statsFloor}
+                                onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setStatsFloor(statsFloorUnit === "hr" ? val * 60 : val);
+                                }}
+                            />
+                            <div className="flex items-center gap-1 pr-1">
+                                {(["min", "hr"] as const).map((u) => (
+                                    <button
+                                        key={u}
+                                        className={toggleBtnClass(statsFloorUnit === u)}
+                                        onClick={() => setStatsFloorUnit(u)}
+                                    >
+                                        {u}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -257,13 +290,13 @@ export default function UserStatsPage() {
                     title="Avg Time"
                     value={formatDurationShort(summary.avgMinutesPerPlayer)}
                     icon={<ChartPieIcon className="w-5 h-5" />}
-                    subtitle={`Per player · Last ${periodLabel}`}
+                    subtitle={`${formatFloorLabel(statsFloor)} players · Last ${periodLabel}`}
                 />
                 <StatCard
                     title="Median Time"
                     value={formatDurationShort(summary.medianMinutesPerPlayer)}
                     icon={<ChartPieIcon className="w-5 h-5" />}
-                    subtitle={`Per player · Last ${periodLabel}`}
+                    subtitle={`${formatFloorLabel(statsFloor)} players · Last ${periodLabel}`}
                 />
                 <StatCard
                     title="Avg Mission Length"
@@ -484,6 +517,12 @@ function StatCard({ title, value, icon, subtitle }: { title: string, value: any,
 
 function roundForDisplay(n: number): number {
     return Math.round(n * 100) / 100;
+}
+
+function formatFloorLabel(totalMin: number): string {
+    if (totalMin < 60) return `${totalMin}m+`;
+    if (totalMin % 60 === 0) return `${totalMin / 60}h+`;
+    return `${Math.floor(totalMin / 60)}h ${totalMin % 60}m+`;
 }
 
 // btn-primary now resolves correctly thanks to the page-level --p override (see
