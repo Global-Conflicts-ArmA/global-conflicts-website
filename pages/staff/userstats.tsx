@@ -9,11 +9,12 @@ import { MainLayout } from "../../layouts/main-layout";
 import Spinner from "../../components/spinner";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { 
-    AllPlayersPanel, 
-    DiscordUserOption, 
-    buildSelectStyles 
+import {
+    AllPlayersPanel,
+    DiscordUserOption,
+    buildSelectStyles
 } from "../../components/staff/playerMapping";
+import { ActivityExclusionsPanel } from "../../components/staff/activityExclusions";
 import Select from "react-select";
 import moment from "moment";
 import DatePicker from "react-datepicker";
@@ -90,7 +91,7 @@ export default function UserStatsPage() {
         if (!data?.rows) return [];
         return data.rows.filter((r: any) => {
             if (filters.onlyMembers && !r.hasMemberRole) return false;
-            if (filters.onlyWouldLose && !(r.hasMemberRole && r.minutes90d < threshold)) return false;
+            if (filters.onlyWouldLose && !(r.hasMemberRole && r.minutes < threshold)) return false;
             if (filters.hideUnmapped && !r.discordId) return false;
             if (search) {
                 const q = search.toLowerCase();
@@ -105,12 +106,12 @@ export default function UserStatsPage() {
 
     const activeCount = useMemo(() => {
         if (!data?.rows) return 0;
-        return data.rows.filter((r: any) => r.minutes90d >= threshold).length;
+        return data.rows.filter((r: any) => r.minutes >= threshold).length;
     }, [data, threshold]);
 
     const loseCount = useMemo(() => {
         if (!data?.rows) return 0;
-        return data.rows.filter((r: any) => r.hasMemberRole && r.minutes90d < threshold).length;
+        return data.rows.filter((r: any) => r.hasMemberRole && r.minutes < threshold).length;
     }, [data, threshold]);
 
     const handleSingleSave = async (platformId: string, discordId: string | null) => {
@@ -136,7 +137,8 @@ export default function UserStatsPage() {
     if (error) return <div className="p-4 text-red-500">Error loading stats: {error.message}</div>;
     if (!data && !error) return <div className="flex justify-center py-20"><Spinner /></div>;
 
-    const summary = data.summary28d;
+    const summary = data.summary;
+    const periodLabel = `${lookbackMonths}mo`;
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl" style={PAGE_PRIMARY_STYLE}>
@@ -147,11 +149,28 @@ export default function UserStatsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-3xl font-black dark:text-white tracking-tight">Player Activity</h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2 text-sm">
-                        Based on snapshots from last {lookbackMonths} month{lookbackMonths !== 1 ? "s" : ""}
-                        {asOfDate ? <> as of {moment(data.asOf).format("D MMM YYYY")}</> : null}
-                        {isValidating && <span className="animate-spin w-3 h-3 border-2 border-primary border-t-transparent rounded-full" />}
-                    </p>
+                    <div className="text-gray-500 dark:text-gray-400 mt-1 text-sm">
+                        <p className="flex items-center gap-2 flex-wrap">
+                            Counting activity from{" "}
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">{moment(data.windowStart).format("D MMM YYYY")}</span>
+                            {" "}to{" "}
+                            <span className="font-semibold text-gray-700 dark:text-gray-300">{moment(data.asOf).format("D MMM YYYY")}</span>
+                            {" "}({lookbackMonths} month{lookbackMonths !== 1 ? "s" : ""} of playable time)
+                            {isValidating && <span className="animate-spin w-3 h-3 border-2 border-primary border-t-transparent rounded-full shrink-0" />}
+                        </p>
+                        {data.appliedExclusions?.length > 0 && (
+                            <p className="text-amber-600 dark:text-amber-400 mt-0.5">
+                                Excluding{" "}
+                                {data.appliedExclusions.map((ex: any, i: number) => (
+                                    <span key={i}>
+                                        {i > 0 ? ", " : ""}
+                                        {moment(ex.startDate).format("D MMM")}–{moment(ex.endDate).format("D MMM YYYY")} ({ex.reason})
+                                    </span>
+                                ))}
+                                {" "}— that time doesn't count against players.
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -216,40 +235,40 @@ export default function UserStatsPage() {
 
             {/* Stats Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
-                <StatCard 
-                    title="Active Players" 
-                    value={summary.distinctPlayers} 
-                    icon={<UsersIcon className="w-5 h-5" />} 
-                    subtitle="Last 28 days"
+                <StatCard
+                    title="Active Players"
+                    value={summary.distinctPlayers}
+                    icon={<UsersIcon className="w-5 h-5" />}
+                    subtitle={`Last ${periodLabel}`}
                 />
-                <StatCard 
-                    title="Total Sessions" 
-                    value={summary.sessionCount} 
-                    icon={<CalendarIcon className="w-5 h-5" />} 
-                    subtitle="Last 28 days"
+                <StatCard
+                    title="Total Sessions"
+                    value={summary.sessionCount}
+                    icon={<CalendarIcon className="w-5 h-5" />}
+                    subtitle={`Last ${periodLabel}`}
                 />
-                <StatCard 
-                    title="Player Hours" 
-                    value={Math.round(summary.totalPlayerMinutes / 60)} 
-                    icon={<ClockIcon className="w-5 h-5" />} 
+                <StatCard
+                    title="Player Hours"
+                    value={Math.round(summary.totalPlayerMinutes / 60)}
+                    icon={<ClockIcon className="w-5 h-5" />}
                     subtitle="Collective"
                 />
-                <StatCard 
-                    title="Avg Time" 
-                    value={formatDurationShort(summary.avgMinutesPerPlayer)} 
-                    icon={<ChartPieIcon className="w-5 h-5" />} 
-                    subtitle="Per player (28d)"
+                <StatCard
+                    title="Avg Time"
+                    value={formatDurationShort(summary.avgMinutesPerPlayer)}
+                    icon={<ChartPieIcon className="w-5 h-5" />}
+                    subtitle={`Per player (${periodLabel})`}
                 />
-                <StatCard 
-                    title="Median Time" 
-                    value={formatDurationShort(summary.medianMinutesPerPlayer)} 
-                    icon={<ChartPieIcon className="w-5 h-5" />} 
-                    subtitle="Per player (28d)"
+                <StatCard
+                    title="Median Time"
+                    value={formatDurationShort(summary.medianMinutesPerPlayer)}
+                    icon={<ChartPieIcon className="w-5 h-5" />}
+                    subtitle={`Per player (${periodLabel})`}
                 />
-                <StatCard 
-                    title="Avg Session" 
-                    value={formatHHMM(summary.avgSessionMinutes)} 
-                    icon={<ClockIcon className="w-5 h-5" />} 
+                <StatCard
+                    title="Avg Session"
+                    value={formatHHMM(summary.avgSessionMinutes)}
+                    icon={<ClockIcon className="w-5 h-5" />}
                     subtitle="Minutes"
                 />
             </div>
@@ -334,15 +353,14 @@ export default function UserStatsPage() {
                                 <th className="text-left py-3 px-6 font-medium">Player</th>
                                 <th className="text-left py-3 px-6 font-medium">Discord</th>
                                 <th className="text-center py-3 px-6 font-medium">Status</th>
-                                <th className="text-right py-3 px-6 font-medium">90d Duration</th>
-                                <th className="text-right py-3 px-6 font-medium">28d Duration</th>
+                                <th className="text-right py-3 px-6 font-medium">{periodLabel} Duration</th>
                                 <th className="text-right py-3 px-6 font-medium">Last Seen</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredRows.map((r: any) => {
-                                const isAtRisk = r.hasMemberRole && r.minutes90d < threshold;
-                                const isActive = r.minutes90d >= threshold;
+                                const isAtRisk = r.hasMemberRole && r.minutes < threshold;
+                                const isActive = r.minutes >= threshold;
                                 return (
                                     <tr 
                                         key={r.platformId || r.discordId} 
@@ -390,13 +408,9 @@ export default function UserStatsPage() {
                                         </td>
                                         <td className="px-6 py-3 text-right font-mono">
                                             <div className={`font-medium ${isActive ? 'text-primary' : 'text-gray-900 dark:text-gray-100'}`}>
-                                                {r.durationFormatted90d}
+                                                {r.durationFormatted}
                                             </div>
-                                            <div className="text-[10px] text-gray-400 dark:text-gray-500">{Math.round(r.minutes90d)}m</div>
-                                        </td>
-                                        <td className="px-6 py-3 text-right font-mono text-gray-500 dark:text-gray-400">
-                                            <div className="text-sm">{r.durationFormatted28d}</div>
-                                            <div className="text-[10px] opacity-60">{Math.round(r.minutes28d)}m</div>
+                                            <div className="text-[10px] text-gray-400 dark:text-gray-500">{Math.round(r.minutes)}m</div>
                                         </td>
                                         <td className="px-6 py-3 text-right">
                                             {r.lastSeen ? (
@@ -413,7 +427,7 @@ export default function UserStatsPage() {
                             })}
                             {filteredRows.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="py-20 text-center text-gray-400">
+                                    <td colSpan={5} className="py-20 text-center text-gray-400">
                                         <InformationCircleIcon className="w-10 h-10 mx-auto mb-2 opacity-20" />
                                         <p className="text-sm font-medium">No players match the current filters.</p>
                                     </td>
@@ -421,6 +435,20 @@ export default function UserStatsPage() {
                             )}
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            {/* Activity Exclusions */}
+            <div className="mt-12">
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="bg-gray-800 dark:bg-gray-100 text-white dark:text-gray-800 p-1.5 rounded-lg">
+                        <CalendarIcon className="w-5 h-5" />
+                    </div>
+                    <h2 className="text-xl font-black dark:text-white tracking-tight">Excluded Periods</h2>
+                    <span className="badge badge-outline text-[10px] opacity-40 font-black uppercase">Fairness</span>
+                </div>
+                <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 border dark:border-gray-700">
+                    <ActivityExclusionsPanel canManage={isAdmin} onChange={() => mutate()} />
                 </div>
             </div>
 
