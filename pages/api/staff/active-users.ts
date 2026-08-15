@@ -22,7 +22,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(401).json({ error: "Not Authorized" });
     }
 
-    const { windowDays = 90, asOf } = req.query;
+    const { windowDays = 90, asOf, minStatsMinutes = 120 } = req.query;
     const windowMs = Number(windowDays) * 24 * 60 * 60 * 1000;
     const parsedAsOf = typeof asOf === "string" ? new Date(asOf) : null;
     const now = parsedAsOf && !isNaN(parsedAsOf.getTime()) ? parsedAsOf : new Date();
@@ -178,11 +178,15 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 
     const totalPlayerMinutes = rows.reduce((acc, r) => acc + r.minutes, 0);
     const playtimes = rows.map(r => r.minutes).filter(m => m > 0).sort((a, b) => a - b);
-    const medianMinutes = playtimes.length > 0
-        ? (playtimes.length % 2 === 0
-            ? (playtimes[playtimes.length/2 - 1] + playtimes[playtimes.length/2]) / 2
-            : playtimes[Math.floor(playtimes.length/2)])
-        : 0;
+
+    // Below this, a player is more likely a one-off drive-by than part of the "typical
+    // player" picture — as the window grows, more of these get caught (they only needed one
+    // session somewhere in a longer window), which drags Avg/Median Time down without
+    // reflecting anything about how the actual playerbase is engaging. Doesn't affect Unique
+    // Players Counted or Player Hours, which are meant to include everyone. Configurable
+    // (default 120min/2h) so staff can tune it against real data via the Stats Floor control.
+    const meaningfulPlaytimes = playtimes.filter(m => m >= Number(minStatsMinutes));
+    const totalMeaningfulMinutes = meaningfulPlaytimes.reduce((acc, m) => acc + m, 0);
 
     const stats = missionStats[0] ?? { missionCount: 0, totalMissionMinutes: 0, avgMissionMinutes: 0 };
 
@@ -199,8 +203,8 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
             distinctPlayers: playtimes.length,
             missionCount: stats.missionCount,
             totalPlayerMinutes,
-            avgMinutesPerPlayer: playtimes.length > 0 ? totalPlayerMinutes / playtimes.length : 0,
-            medianMinutesPerPlayer: medianMinutes,
+            avgMinutesPerPlayer: meaningfulPlaytimes.length > 0 ? totalMeaningfulMinutes / meaningfulPlaytimes.length : 0,
+            medianMinutesPerPlayer: median(meaningfulPlaytimes),
             avgMissionMinutes: stats.avgMissionMinutes
         }
     });
@@ -249,6 +253,12 @@ function computeAdjustedWindowStart(
     }
 
     return { windowStart, excludedMs };
+}
+
+function median(sorted: number[]): number {
+    if (sorted.length === 0) return 0;
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
 }
 
 function formatDuration(totalMin: number): string {
