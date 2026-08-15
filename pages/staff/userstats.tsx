@@ -16,20 +16,35 @@ import {
 } from "../../components/staff/playerMapping";
 import Select from "react-select";
 import moment from "moment";
-import { 
-    RefreshIcon, 
-    InformationCircleIcon, 
-    UsersIcon, 
-    ClockIcon, 
-    CalendarIcon, 
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import {
+    RefreshIcon,
+    InformationCircleIcon,
+    UsersIcon,
+    ClockIcon,
+    CalendarIcon,
     ChartPieIcon,
     AdjustmentsIcon,
     SearchIcon
 } from "@heroicons/react/outline";
 
+const LOOKBACK_PRESETS = [
+    { label: "1mo", months: 1 },
+    { label: "2mo", months: 2 },
+    { label: "3mo", months: 3 },
+];
+
+// DaisyUI's `primary` (--p) defaults to purple, not the GC brand blue (#2ea8ff) — see
+// UI_DESIGN.md §7 — and nothing overrides it globally. Scoped to this page only: override
+// the CSS variable locally so every `text-primary`/`bg-primary`/`btn-primary`/etc. usage
+// below resolves to the correct blue instead of patching each utility class individually.
+const PAGE_PRIMARY_STYLE = { ["--p" as any]: "205 100% 59%" } as React.CSSProperties;
+
 export default function UserStatsPage() {
     const { data: session } = useSession();
-    const [threshold, setThreshold] = useState(600); // 10 hours
+    const [threshold, setThreshold] = useState(600); // always stored in minutes
+    const [thresholdUnit, setThresholdUnit] = useState<"min" | "hr">("min");
     const [filters, setFilters] = useState({
         onlyMembers: false,
         onlyWouldLose: false,
@@ -37,10 +52,21 @@ export default function UserStatsPage() {
     });
     const [search, setSearch] = useState("");
 
+    // Snapshot controls: pick a reference date (defaults to now) and how many months to look back from it
+    const [asOfDate, setAsOfDate] = useState<Date | null>(null);
+    const [lookbackMonths, setLookbackMonths] = useState(3);
+
     const isAdmin = hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER]);
 
+    const statsUrl = useMemo(() => {
+        const params = new URLSearchParams();
+        params.set("windowDays", String(lookbackMonths * 30));
+        if (asOfDate) params.set("asOf", asOfDate.toISOString());
+        return `/api/staff/active-users?${params.toString()}`;
+    }, [asOfDate, lookbackMonths]);
+
     const { data, error, mutate, isValidating } = useSWR(
-        isAdmin ? "/api/staff/active-users" : null,
+        isAdmin ? statsUrl : null,
         fetcher,
         { refreshInterval: 60000 }
     );
@@ -113,7 +139,7 @@ export default function UserStatsPage() {
     const summary = data.summary28d;
 
     return (
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="container mx-auto px-4 py-8 max-w-7xl" style={PAGE_PRIMARY_STYLE}>
             <Head>
                 <title>Player Activity Report - Global Conflicts</title>
             </Head>
@@ -122,24 +148,68 @@ export default function UserStatsPage() {
                 <div>
                     <h1 className="text-3xl font-black dark:text-white tracking-tight">Player Activity</h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-2 text-sm">
-                        Based on snapshots from last {data.windowDays} days
+                        Based on snapshots from last {lookbackMonths} month{lookbackMonths !== 1 ? "s" : ""}
+                        {asOfDate ? <> as of {moment(data.asOf).format("D MMM YYYY")}</> : null}
                         {isValidating && <span className="animate-spin w-3 h-3 border-2 border-primary border-t-transparent rounded-full" />}
                     </p>
                 </div>
-                
-                <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 rounded-lg shadow border dark:border-gray-700">
-                    <div className="flex items-center gap-2 pl-2">
-                        <AdjustmentsIcon className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Threshold</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="number"
-                            className="input input-bordered input-sm w-20 text-center font-mono focus:ring-1 focus:ring-primary h-8"
-                            value={threshold}
-                            onChange={(e) => setThreshold(Number(e.target.value))}
+
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 rounded-lg shadow border dark:border-gray-700">
+                        <div className="flex items-center gap-2 pl-2">
+                            <CalendarIcon className="w-4 h-4 text-gray-400" />
+                            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Snapshot</span>
+                        </div>
+                        <DatePicker
+                            selected={asOfDate}
+                            onChange={(d) => setAsOfDate(d)}
+                            isClearable
+                            maxDate={new Date()}
+                            placeholderText="Now"
+                            dateFormat="yyyy-MM-dd"
+                            className="input input-bordered input-sm w-28 text-center font-mono h-8 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
                         />
-                        <span className="text-[10px] font-black text-gray-400 uppercase pr-2">min</span>
+                        <div className="flex items-center gap-1 pr-1">
+                            {LOOKBACK_PRESETS.map((p) => (
+                                <button
+                                    key={p.months}
+                                    className={toggleBtnClass(lookbackMonths === p.months)}
+                                    onClick={() => setLookbackMonths(p.months)}
+                                >
+                                    {p.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 rounded-lg shadow border dark:border-gray-700">
+                        <div className="flex items-center gap-2 pl-2">
+                            <AdjustmentsIcon className="w-4 h-4 text-gray-400" />
+                            <span className="text-xs font-bold uppercase tracking-widest text-gray-400">Threshold</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="number"
+                                step={thresholdUnit === "hr" ? 0.5 : 1}
+                                className="input input-bordered input-sm w-20 text-center font-mono focus:ring-1 focus:ring-primary h-8 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100"
+                                value={thresholdUnit === "hr" ? roundForDisplay(threshold / 60) : threshold}
+                                onChange={(e) => {
+                                    const val = Number(e.target.value);
+                                    setThreshold(thresholdUnit === "hr" ? val * 60 : val);
+                                }}
+                            />
+                            <div className="flex items-center gap-1 pr-1">
+                                {(["min", "hr"] as const).map((u) => (
+                                    <button
+                                        key={u}
+                                        className={toggleBtnClass(thresholdUnit === u)}
+                                        onClick={() => setThresholdUnit(u)}
+                                    >
+                                        {u}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -382,6 +452,17 @@ function StatCard({ title, value, icon, subtitle }: { title: string, value: any,
             <div className="text-[9px] text-gray-500 uppercase font-black tracking-tighter">{subtitle}</div>
         </div>
     );
+}
+
+function roundForDisplay(n: number): number {
+    return Math.round(n * 100) / 100;
+}
+
+// btn-primary now resolves correctly thanks to the page-level --p override (see
+// PAGE_PRIMARY_STYLE above). The inactive state still gets explicit contrast rather than
+// relying on btn-ghost's inherited color, which isn't guaranteed legible in both themes.
+function toggleBtnClass(active: boolean): string {
+    return `btn btn-xs ${active ? "btn-primary" : "btn-ghost text-gray-600 dark:text-gray-300"}`;
 }
 
 function formatDurationShort(totalMin: number): string {
