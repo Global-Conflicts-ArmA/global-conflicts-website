@@ -69,10 +69,22 @@ export default function UserStatsPage() {
         return `/api/staff/active-users?${params.toString()}`;
     }, [asOfDate, lookbackMonths, statsFloor]);
 
+    // This page is used to make fairness/membership calls on a frozen set of numbers —
+    // silently reshuffling the table under a staff member mid-review (which it would, since
+    // "now" keeps moving and active players keep accumulating minutes) is actively bad here.
+    // Every SWR auto-refetch trigger is disabled: no interval, no refetch on tab focus/
+    // reconnect, no background revalidation of cached data on mount. Refresh is manual only
+    // (the refresh button) or triggered by changing a filter (which naturally fetches once,
+    // since that's a genuine request for different data).
     const { data, error, mutate, isValidating } = useSWR(
         isAdmin ? statsUrl : null,
         fetcher,
-        { refreshInterval: 60000 }
+        {
+            refreshInterval: 0,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            revalidateIfStale: false,
+        }
     );
 
     const { data: discordUsersData } = useSWR(

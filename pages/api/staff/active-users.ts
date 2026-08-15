@@ -100,7 +100,8 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
     let memberIds = new Set<string>();
     try {
         const botRes = await axios.get(`${process.env.BOT_URL}/users/role-members`, {
-            params: { roleId: process.env.DISCORD_MEMBER_ROLE_ID }
+            params: { roleId: process.env.DISCORD_MEMBER_ROLE_ID },
+            timeout: 3000
         });
         if (botRes.data?.ok) {
             memberIds = new Set(botRes.data.memberIds);
