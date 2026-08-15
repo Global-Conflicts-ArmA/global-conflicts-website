@@ -22,10 +22,11 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(401).json({ error: "Not Authorized" });
     }
 
-    const { windowDays = 90, statsWindowDays = 28 } = req.query;
+    const { windowDays = 90, statsWindowDays = 28, asOf } = req.query;
     const windowMs = Number(windowDays) * 24 * 60 * 60 * 1000;
     const statsWindowMs = Number(statsWindowDays) * 24 * 60 * 60 * 1000;
-    const now = new Date();
+    const parsedAsOf = typeof asOf === "string" ? new Date(asOf) : null;
+    const now = parsedAsOf && !isNaN(parsedAsOf.getTime()) ? parsedAsOf : new Date();
     const windowStart = new Date(now.getTime() - windowMs);
     const statsWindowStart = new Date(now.getTime() - statsWindowMs);
 
@@ -38,8 +39,9 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
 
     // 2. Aggregate activity
     const activityPipeline = (startTime: Date) => [
-        { $match: { startedAt: { $gte: startTime } } },
+        { $match: { startedAt: { $gte: startTime, $lte: now } } },
         { $unwind: "$snapshots" },
+        { $match: { "snapshots.time": { $lte: now } } },
         { $project: {
             kv: { $objectToArray: "$snapshots.connectedPlayers" },
             time: "$snapshots.time"
@@ -57,7 +59,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         db.collection("server_sessions").aggregate(activityPipeline(windowStart)).toArray(),
         db.collection("server_sessions").aggregate(activityPipeline(statsWindowStart)).toArray(),
         db.collection("server_sessions").aggregate([
-            { $match: { startedAt: { $gte: statsWindowStart } } },
+            { $match: { startedAt: { $gte: statsWindowStart, $lte: now } } },
             { $project: {
                 duration: {
                     $divide: [
@@ -178,6 +180,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         ok: true,
         windowDays,
         statsWindowDays,
+        asOf: now.toISOString(),
         pollIntervalMinutes: pollIntervalMin,
         rows,
         summary28d: {
