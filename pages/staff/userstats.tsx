@@ -69,10 +69,22 @@ export default function UserStatsPage() {
         return `/api/staff/active-users?${params.toString()}`;
     }, [asOfDate, lookbackMonths, statsFloor]);
 
+    // This page is used to make fairness/membership calls on a frozen set of numbers —
+    // silently reshuffling the table under a staff member mid-review (which it would, since
+    // "now" keeps moving and active players keep accumulating minutes) is actively bad here.
+    // Every SWR auto-refetch trigger is disabled: no interval, no refetch on tab focus/
+    // reconnect, no background revalidation of cached data on mount. Refresh is manual only
+    // (the refresh button) or triggered by changing a filter (which naturally fetches once,
+    // since that's a genuine request for different data).
     const { data, error, mutate, isValidating } = useSWR(
         isAdmin ? statsUrl : null,
         fetcher,
-        { refreshInterval: 60000 }
+        {
+            refreshInterval: 0,
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            revalidateIfStale: false,
+        }
     );
 
     const { data: discordUsersData } = useSWR(
@@ -317,7 +329,12 @@ export default function UserStatsPage() {
                         <div className="text-sm font-semibold text-gray-500 dark:text-gray-400">Players meet active threshold</div>
                     </div>
                 </div>
-                <div className={`bg-white dark:bg-gray-800 p-5 rounded-lg border flex items-center gap-5 shadow transition-all ${loseCount > 0 ? 'border-amber-500/50' : 'dark:border-gray-700 opacity-60'}`}>
+                <button
+                    type="button"
+                    onClick={() => setFilters({ ...filters, onlyWouldLose: true })}
+                    title="Click to filter the list below to exactly these members"
+                    className={`text-left bg-white dark:bg-gray-800 p-5 rounded-lg border flex items-center gap-5 shadow transition-all hover:shadow-md ${loseCount > 0 ? 'border-amber-500/50' : 'dark:border-gray-700 opacity-60'}`}
+                >
                     <div className={`p-3 rounded-lg shadow-lg transition-colors ${loseCount > 0 ? 'bg-amber-500 text-white shadow-amber-500/20' : 'bg-gray-500 text-white shadow-gray-500/20'}`}>
                         <InformationCircleIcon className="w-6 h-6" />
                     </div>
@@ -325,11 +342,19 @@ export default function UserStatsPage() {
                         <div className={`text-2xl font-black leading-tight ${loseCount > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-gray-400'}`}>{loseCount}</div>
                         <div className={`text-sm font-semibold ${loseCount > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-gray-500'}`}>Members currently below threshold</div>
                     </div>
-                </div>
+                </button>
             </div>
 
             {/* Main Table Container */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden relative">
+                {isValidating && (
+                    <div className="absolute inset-0 z-10 flex items-start justify-center pt-16 bg-white/70 dark:bg-gray-800/70">
+                        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow border dark:border-gray-700">
+                            <span className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full shrink-0" />
+                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Updating player list…</span>
+                        </div>
+                    </div>
+                )}
                 <div className="px-4 py-3 border-b dark:border-gray-700 flex flex-wrap items-center gap-4">
                     <div className="relative flex-1 min-w-[300px]">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -386,7 +411,7 @@ export default function UserStatsPage() {
                                 <th className="text-left py-3 px-6 font-medium">Player</th>
                                 <th className="text-left py-3 px-6 font-medium">Discord</th>
                                 <th className="text-center py-3 px-6 font-medium">Status</th>
-                                <th className="text-right py-3 px-6 font-medium">{periodLabel} Duration</th>
+                                <th className="text-right py-3 px-6 font-medium">{periodLabel} Hours</th>
                                 <th className="text-right py-3 px-6 font-medium">Last Seen</th>
                             </tr>
                         </thead>
@@ -431,17 +456,20 @@ export default function UserStatsPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-3 text-center">
-                                            {r.hasMemberRole ? (
-                                                <span className={`badge badge-sm border-none font-bold tracking-tight px-3 py-2 ${isAtRisk ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'}`}>
-                                                    MEMBER
+                                            <div className="flex flex-col items-center gap-1">
+                                                <span className={`badge badge-sm border-none font-bold tracking-tight px-2 py-2 ${isActive ? 'bg-primary text-white' : 'bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200'}`}>
+                                                    {isActive ? "ACTIVE" : "INACTIVE"}
                                                 </span>
-                                            ) : (
-                                                <span className="text-gray-300 dark:text-gray-600">—</span>
-                                            )}
+                                                {r.hasMemberRole && (
+                                                    <span className={`badge badge-sm border-none font-bold tracking-tight px-2 py-2 ${isAtRisk ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'}`}>
+                                                        MEMBER
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-3 text-right font-mono">
                                             <div className={`font-medium ${isActive ? 'text-primary' : 'text-gray-900 dark:text-gray-100'}`}>
-                                                {r.durationFormatted}
+                                                {formatDurationShort(r.minutes)}
                                             </div>
                                             <div className="text-[10px] text-gray-400 dark:text-gray-500">{Math.round(r.minutes)}m</div>
                                         </td>

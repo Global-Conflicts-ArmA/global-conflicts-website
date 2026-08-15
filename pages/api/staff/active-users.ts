@@ -100,7 +100,8 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
     let memberIds = new Set<string>();
     try {
         const botRes = await axios.get(`${process.env.BOT_URL}/users/role-members`, {
-            params: { roleId: process.env.DISCORD_MEMBER_ROLE_ID }
+            params: { roleId: process.env.DISCORD_MEMBER_ROLE_ID },
+            timeout: 3000
         });
         if (botRes.data?.ok) {
             memberIds = new Set(botRes.data.memberIds);
@@ -133,7 +134,6 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
             discordName: du ? (du.nickname ?? du.globalName ?? du.displayName ?? du.username) : null,
             hasMemberRole: m.discordId ? memberIds.has(m.discordId) : false,
             minutes,
-            durationFormatted: formatDuration(minutes),
             lastSeen: a?.lastSeen ?? null
         });
 
@@ -151,7 +151,6 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
                 discordName: du ? (du.nickname ?? du.globalName ?? du.displayName ?? du.username) : null,
                 hasMemberRole: true,
                 minutes: 0,
-                durationFormatted: "00:00:00",
                 lastSeen: null
             });
         }
@@ -168,7 +167,6 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
                 discordName: null,
                 hasMemberRole: false,
                 minutes: a.snapshotCount * pollIntervalMin,
-                durationFormatted: formatDuration(a.snapshotCount * pollIntervalMin),
                 lastSeen: a.lastSeen
             });
         }
@@ -259,14 +257,6 @@ function median(sorted: number[]): number {
     if (sorted.length === 0) return 0;
     const mid = Math.floor(sorted.length / 2);
     return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
-}
-
-function formatDuration(totalMin: number): string {
-    const days = Math.floor(totalMin / 1440);
-    const hours = Math.floor((totalMin % 1440) / 60);
-    const mins = Math.floor(totalMin % 60);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${pad(days)}:${pad(hours)}:${pad(mins)}`;
 }
 
 export default apiRoute;
