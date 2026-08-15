@@ -70,10 +70,15 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         }}
     ];
 
-    const [activity, sessionStats] = await Promise.all([
+    const [activity, missionStats] = await Promise.all([
         db.collection("server_sessions").aggregate(activityPipeline(windowStart)).toArray(),
         db.collection("server_sessions").aggregate([
-            { $match: { startedAt: { $gte: windowStart, $lte: now } } },
+            // load-mission.ts creates an isPlaceholder session (0 players, ~0 duration) every
+            // time a mission is loaded from the site — those are bookkeeping markers, not
+            // missions anyone played. peakPlayerCount > 0 requires an actual mission to count,
+            // rather than filtering by duration (a real mission that ended early should still
+            // count as a real mission).
+            { $match: { startedAt: { $gte: windowStart, $lte: now }, isPlaceholder: { $ne: true }, peakPlayerCount: { $gt: 0 } } },
             { $project: {
                 duration: {
                     $divide: [
@@ -84,9 +89,9 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
             }},
             { $group: {
                 _id: null,
-                sessionCount: { $sum: 1 },
-                totalSessionMinutes: { $sum: "$duration" },
-                avgSessionMinutes: { $avg: "$duration" }
+                missionCount: { $sum: 1 },
+                totalMissionMinutes: { $sum: "$duration" },
+                avgMissionMinutes: { $avg: "$duration" }
             }}
         ]).toArray()
     ]);
@@ -179,7 +184,7 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
             : playtimes[Math.floor(playtimes.length/2)])
         : 0;
 
-    const stats = sessionStats[0] ?? { sessionCount: 0, totalSessionMinutes: 0, avgSessionMinutes: 0 };
+    const stats = missionStats[0] ?? { missionCount: 0, totalMissionMinutes: 0, avgMissionMinutes: 0 };
 
     res.status(200).json({
         ok: true,
@@ -192,11 +197,11 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         rows,
         summary: {
             distinctPlayers: playtimes.length,
-            sessionCount: stats.sessionCount,
+            missionCount: stats.missionCount,
             totalPlayerMinutes,
             avgMinutesPerPlayer: playtimes.length > 0 ? totalPlayerMinutes / playtimes.length : 0,
             medianMinutesPerPlayer: medianMinutes,
-            avgSessionMinutes: stats.avgSessionMinutes
+            avgMissionMinutes: stats.avgMissionMinutes
         }
     });
 });
