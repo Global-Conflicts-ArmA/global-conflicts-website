@@ -236,14 +236,14 @@ export default function UserStatsPage() {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
                 <StatCard
-                    title="Active Players"
+                    title="Unique Players Counted"
                     value={summary.distinctPlayers}
                     icon={<UsersIcon className="w-5 h-5" />}
-                    subtitle={`Last ${periodLabel}`}
+                    subtitle={`Any playtime · Last ${periodLabel}`}
                 />
                 <StatCard
-                    title="Total Sessions"
-                    value={summary.sessionCount}
+                    title="Missions Played"
+                    value={summary.missionCount}
                     icon={<CalendarIcon className="w-5 h-5" />}
                     subtitle={`Last ${periodLabel}`}
                 />
@@ -251,25 +251,25 @@ export default function UserStatsPage() {
                     title="Player Hours"
                     value={Math.round(summary.totalPlayerMinutes / 60)}
                     icon={<ClockIcon className="w-5 h-5" />}
-                    subtitle="Collective"
+                    subtitle={`Collective · Last ${periodLabel}`}
                 />
                 <StatCard
                     title="Avg Time"
                     value={formatDurationShort(summary.avgMinutesPerPlayer)}
                     icon={<ChartPieIcon className="w-5 h-5" />}
-                    subtitle={`Per player (${periodLabel})`}
+                    subtitle={`Per player · Last ${periodLabel}`}
                 />
                 <StatCard
                     title="Median Time"
                     value={formatDurationShort(summary.medianMinutesPerPlayer)}
                     icon={<ChartPieIcon className="w-5 h-5" />}
-                    subtitle={`Per player (${periodLabel})`}
+                    subtitle={`Per player · Last ${periodLabel}`}
                 />
                 <StatCard
-                    title="Avg Session"
-                    value={formatHHMM(summary.avgSessionMinutes)}
+                    title="Avg Mission Length"
+                    value={formatDurationShort(summary.avgMissionMinutes)}
                     icon={<ClockIcon className="w-5 h-5" />}
-                    subtitle="Minutes"
+                    subtitle={`Last ${periodLabel}`}
                 />
             </div>
 
@@ -502,11 +502,5 @@ function formatDurationShort(totalMin: number): string {
     return `${mins}m`;
 }
 
-function formatHHMM(totalMin: number): string {
-    const hours = Math.floor(totalMin / 60);
-    const mins = Math.floor(totalMin % 60);
-    const pad = (n: number) => String(n).padStart(2, "0");
-    return `${pad(hours)}:${pad(mins)}`;
-}
 
 UserStatsPage.PageLayout = MainLayout;
