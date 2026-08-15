@@ -382,6 +382,9 @@ footer {
 textarea {
 	@apply dark:bg-gray-700 dark:text-white !important;
 }
+select {
+	@apply dark:bg-gray-700 dark:text-white !important;
+}
 textarea:focus {
 	box-shadow: 0 0 0 0px hsl(var(--b1)), 0 0 0 2px hsla(var(--bc) / 0.2) !important;
 }
