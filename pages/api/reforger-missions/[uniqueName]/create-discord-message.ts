@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]";
 import { callBotPostMessage } from "../../../../lib/discordPoster";
 import { findReforgerMissionBySlug } from "../../../../lib/missionsHelpers";
-import { getCurrentThreadName } from "../../../../lib/sessionThread";
+import { resolveSessionThread } from "../../../../lib/sessionThread";
 
 const apiRoute = nextConnect({
     onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -41,30 +41,29 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
         .collection("configs")
         .findOne({}, { projection: { activeSession: 1, sessionHistory: 1, author_mappings: 1 } });
 
-    const threadName = getCurrentThreadName();
     const sessionHistory: any[] = configs?.sessionHistory ?? [];
-
-    // Check if a Discord post already exists for this mission in today's session
-    // We compare against threadName which is date-based (resets at 06:00)
     const activeSession = configs?.activeSession;
-    const existingInHistory = sessionHistory.find(
-        (s) => s.uniqueName === String(uniqueName) && s.threadId === activeSession?.threadId
-    );
-    if (existingInHistory && activeSession?.threadName === threadName) {
-        return res.status(200).json({ ...existingInHistory, alreadyExists: true });
-    }
 
     // Build the Discord post (same logic as load-mission.ts)
     const now = new Date();
+    const resolvedThread = resolveSessionThread(activeSession, now);
+    const threadName = resolvedThread.threadName;
+
+    // Check if a Discord post already exists for this mission in the session we're about to post into
+    const existingInHistory = sessionHistory.find(
+        (s) => s.uniqueName === String(uniqueName) && resolvedThread.threadId !== null && s.threadId === resolvedThread.threadId
+    );
+    if (existingInHistory) {
+        return res.status(200).json({ ...existingInHistory, alreadyExists: true });
+    }
+
     const unixTimestamp = Math.floor(now.getTime() / 1000);
     const missionLabel = `${mission.type} (${mission.size.min}-${mission.size.max}) ${mission.name}`;
     const websiteUrl = process.env.WEBSITE_URL ?? "https://globalconflicts.net";
     const loadedBy = session.user["nickname"] ?? session.user["username"] ?? "Unknown";
     const loadedByDiscordId = session.user["discord_id"];
 
-    // Reuse existing thread for today if there is one
-    const threadId =
-        activeSession?.threadName === threadName ? activeSession.threadId : null;
+    const threadId = resolvedThread.threadId;
 
     // Fetch author name and ratings in parallel
     const [authorUser, metadata] = await Promise.all([

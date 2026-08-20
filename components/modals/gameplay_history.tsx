@@ -18,7 +18,6 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { ObjectId } from "bson";
 import { generateMarkdown } from "../../lib/markdownToHtml";
-import { getSessionDate } from "../../lib/sessionThread";
 
 export default function GameplayHistoryModal({
 	isOpen,

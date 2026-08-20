@@ -11,7 +11,7 @@ import {
     callBotSetScenario,
     callBotPostMessage,
 } from "../../../../lib/discordPoster";
-import { getCurrentThreadName } from "../../../../lib/sessionThread";
+import { resolveSessionThread } from "../../../../lib/sessionThread";
 import { ObjectId } from "bson";
 
 const apiRoute = nextConnect({
@@ -82,20 +82,17 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     let discordMessageUrl: string | null = null;
     const unixTimestamp = Math.floor(now.getTime() / 1000);
     const websiteUrl = process.env.WEBSITE_URL ?? "https://globalconflicts.net";
-    const threadName = getCurrentThreadName();
 
     const configs = await db
         .collection("configs")
         .findOne({}, { projection: { activeSession: 1, author_mappings: 1 } });
     const existingSession = configs?.activeSession;
+    const resolvedThread = resolveSessionThread(existingSession, now);
+    const threadName = resolvedThread.threadName;
 
     if (postToDiscord && process.env.DISCORD_BOT_AAR_CHANNEL) {
         try {
-            // Resolve existing thread for today's session (if any)
-            const threadId =
-                existingSession?.threadName === threadName
-                    ? existingSession.threadId
-                    : null;
+            const threadId = resolvedThread.threadId;
 
             // Fetch author name and metadata in parallel
             const [authorUser, metadata] = await Promise.all([
@@ -191,9 +188,9 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
         {
             $set: {
                 activeSession: {
-                    // If no discord post, we still preserve the threadId if it exists from previous sessions
-                    // so future posts today can reuse the thread.
-                    threadId: discordResult?.threadId ?? existingSession?.threadId ?? null,
+                    // If no discord post happened, still record the resolved thread decision
+                    // so the *next* load's gap check starts from this mission, not a stale one.
+                    threadId: discordResult?.threadId ?? resolvedThread.threadId,
                     threadName,
                     messageId: discordResult?.messageId ?? null,
                     uniqueName: mission.uniqueName,
