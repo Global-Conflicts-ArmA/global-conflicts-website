@@ -10,8 +10,45 @@ import dns from "dns";
 // Fix for Node 17+ resolving IPv6 first and throwing ENOTFOUND on environments without IPv6 routing
 dns.setDefaultResultOrder("ipv4first");
 
-const GITHUB_API_BASE = "https://api.github.com/repos/Global-Conflicts-ArmA/gc-reforger-missions";
-const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/Global-Conflicts-ArmA/gc-reforger-missions/master";
+interface RepoConfig {
+    owner: string;
+    repo: string;
+    branch: string;
+    apiBase: string;
+    rawBase: string;
+    // Type forced onto every mission synced from this repo (e.g. training missions
+    // are always tagged "TRNG" regardless of their in-game name prefix/game mode).
+    forcedType: string | null;
+}
+
+// All GitHub repos that are mirrored into reforger_missions. Add new repos here.
+const REPO_CONFIGS: RepoConfig[] = [
+    {
+        owner: "Global-Conflicts-ArmA",
+        repo: "gc-reforger-missions",
+        branch: "master",
+        apiBase: "https://api.github.com/repos/Global-Conflicts-ArmA/gc-reforger-missions",
+        rawBase: "https://raw.githubusercontent.com/Global-Conflicts-ArmA/gc-reforger-missions/master",
+        forcedType: null,
+    },
+    {
+        owner: "Global-Conflicts-ArmA",
+        repo: "gc-reforger-training",
+        branch: "master",
+        apiBase: "https://api.github.com/repos/Global-Conflicts-ArmA/gc-reforger-training",
+        rawBase: "https://raw.githubusercontent.com/Global-Conflicts-ArmA/gc-reforger-training/master",
+        forcedType: "TRNG",
+    },
+];
+
+function repoFullName(repoConfig: RepoConfig): string {
+    return `${repoConfig.owner}/${repoConfig.repo}`;
+}
+
+function getRepoConfigByFullName(fullName: string | undefined | null): RepoConfig {
+    if (!fullName) return REPO_CONFIGS[0];
+    return REPO_CONFIGS.find(rc => repoFullName(rc) === fullName) || REPO_CONFIGS[0];
+}
 
 const entCache = new Map<string, string | null>();
 let apiCallCount = 0;
@@ -30,7 +67,7 @@ interface GitHubTreeItem {
 const UNITS_REPO_RAW_BASE = "https://raw.githubusercontent.com/Global-Conflicts-ArmA/gc-reforger-units/master";
 const factionConfigCache = new Map<string, any>();
 
-export async function extractMissionFactions(worldFolder: string, tree: GitHubTreeItem[], db: any): Promise<{ id: string; code: string; name: string; color?: string }[]> {
+export async function extractMissionFactions(worldFolder: string, tree: GitHubTreeItem[], db: any, repoConfig: RepoConfig = REPO_CONFIGS[0]): Promise<{ id: string; code: string; name: string; color?: string }[]> {
     const prefix = worldFolder + '/';
     const layerFiles = tree.filter(item =>
         item.type === 'blob' &&
@@ -50,7 +87,7 @@ export async function extractMissionFactions(worldFolder: string, tree: GitHubTr
         layerFiles.map(async f => {
             try {
                 apiCallCount++;
-                const url = `${GITHUB_RAW_BASE}/${f.path}`;
+                const url = `${repoConfig.rawBase}/${f.path}`;
                 const response = await axios.get(url, { headers, responseType: 'text' });
                 return { path: f.path, content: typeof response.data === 'string' ? response.data : JSON.stringify(response.data) };
             } catch (e) {
@@ -296,7 +333,7 @@ function extractTextData(lines: string[], startLine: number): string {
 }
 
 /** Fetch and parse briefing data from layer files in the given world folder. */
-async function extractMissionBriefing(worldFolder: string, tree: GitHubTreeItem[]): Promise<{ missionOverview?: string; missionNotes?: string }> {
+async function extractMissionBriefing(worldFolder: string, tree: GitHubTreeItem[], repoConfig: RepoConfig = REPO_CONFIGS[0]): Promise<{ missionOverview?: string; missionNotes?: string }> {
     const prefix = worldFolder + '/';
     const layerFiles = tree.filter(item =>
         item.type === 'blob' &&
@@ -323,7 +360,7 @@ async function extractMissionBriefing(worldFolder: string, tree: GitHubTreeItem[
         targetFiles.map(async f => {
             try {
                 apiCallCount++;
-                const url = `${GITHUB_RAW_BASE}/${f.path}`;
+                const url = `${repoConfig.rawBase}/${f.path}`;
                 const response = await axios.get(url, { headers, responseType: 'text' });
                 return typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
             } catch (e) {
@@ -364,6 +401,10 @@ export async function syncMissionFromGitHubUrl(
         return { ok: false, error: 'Invalid URL: must contain a worlds/{Author}/{MissionName} path segment' };
     }
 
+    // Determine which mirrored repo this URL belongs to (defaults to gc-reforger-missions
+    // for backward compatibility with URLs that don't include a recognizable repo name).
+    const repoConfig = REPO_CONFIGS.find(rc => folderUrl.includes(`/${rc.repo}/`)) || REPO_CONFIGS[0];
+
     const author = urlMatch[1];
     const missionName = urlMatch[2];
     const confPath = `Missions/${author}/${missionName}.conf`;
@@ -373,13 +414,13 @@ export async function syncMissionFromGitHubUrl(
 
     const db = (await MyMongo).db("prod");
 
-    const tree = await getFullRepoTree();
+    const tree = await getFullRepoTree(repoConfig);
     const [guidToEntPathMap, confPathToScenarioGuidMap] = await Promise.all([
-        buildGuidToEntPathMap(db, tree),
-        buildConfPathToScenarioGuidMap(db, tree),
+        buildGuidToEntPathMap(db, tree, repoConfig),
+        buildConfPathToScenarioGuidMap(db, tree, repoConfig),
     ]);
 
-    const res = await syncSingleMission(db, confPath, null, guidToEntPathMap, confPathToScenarioGuidMap, tree);
+    const res = await syncSingleMission(db, confPath, null, guidToEntPathMap, confPathToScenarioGuidMap, tree, "GitHub Sync", new Date(), repoConfig);
 
     if (res.error) {
         return { ok: false, error: res.error };
@@ -412,17 +453,27 @@ export async function backfillMissionBriefings(
     const db = (await MyMongo).db("prod");
     const missions = await db.collection("reforger_missions")
         .find({ githubPath: { $exists: true, $ne: null } })
-        .project({ _id: 1, githubPath: 1, missionId: 1, uniqueName: 1, worldFolder: 1 })
+        .project({ _id: 1, githubPath: 1, missionId: 1, uniqueName: 1, worldFolder: 1, githubRepo: 1 })
         .toArray();
 
     console.log(`[Backfill] Found ${missions.length} missions to process`);
-    const tree = await getFullRepoTree();
+
+    // Fetch each repo's tree once, lazily, keyed by full repo name.
+    const treeCache = new Map<string, GitHubTreeItem[]>();
+    async function getTreeFor(repoConfig: RepoConfig): Promise<GitHubTreeItem[]> {
+        const key = repoFullName(repoConfig);
+        if (!treeCache.has(key)) {
+            treeCache.set(key, await getFullRepoTree(repoConfig));
+        }
+        return treeCache.get(key)!;
+    }
 
     const results = { updated: 0, skipped: 0, errors: 0 };
 
     for (const mission of missions) {
         let worldFolder = mission.worldFolder;
-        
+        const repoConfig = getRepoConfigByFullName(mission.githubRepo);
+
         // Fallback guess ONLY if worldFolder is genuinely missing from DB (should be rare now)
         if (!worldFolder) {
             const parts = (mission.githubPath as string).split('/');
@@ -435,7 +486,8 @@ export async function backfillMissionBriefings(
         }
 
         try {
-            const briefing = await extractMissionBriefing(worldFolder, tree);
+            const tree = await getTreeFor(repoConfig);
+            const briefing = await extractMissionBriefing(worldFolder, tree, repoConfig);
             if (briefing.missionOverview !== undefined || briefing.missionNotes !== undefined) {
                 const update: any = {};
                 if (briefing.missionOverview !== undefined) update.missionOverview = briefing.missionOverview;
@@ -518,10 +570,10 @@ export async function syncReforgerMissionsFromGitHub(isFullSync: boolean = false
     return results;
 }
 
-export async function getFullRepoTree(): Promise<GitHubTreeItem[]> {
-    const treeUrl = `${GITHUB_API_BASE}/git/trees/master?recursive=1`;
+export async function getFullRepoTree(repoConfig: RepoConfig = REPO_CONFIGS[0]): Promise<GitHubTreeItem[]> {
+    const treeUrl = `${repoConfig.apiBase}/git/trees/${repoConfig.branch}?recursive=1`;
     apiCallCount++;
-    console.log("[Tree API] Fetching full repo tree in a single call...");
+    console.log(`[Tree API] Fetching full repo tree for ${repoFullName(repoConfig)} in a single call...`);
     const { data } = await axios.get(treeUrl, {
         headers: process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {},
     });
@@ -545,21 +597,25 @@ function getAllMissionFiles(tree: GitHubTreeItem[]) {
     return files;
 }
 
-async function buildConfPathToScenarioGuidMap(db: any, tree: GitHubTreeItem[]) {
+async function buildConfPathToScenarioGuidMap(db: any, tree: GitHubTreeItem[], repoConfig: RepoConfig) {
     console.log("[ScenarioGuid Map] Building .conf path to scenario GUID map from cache/GitHub...");
     const metaFiles = tree.filter(item => item.type === 'blob' && item.path.startsWith('Missions/') && item.path.endsWith('.conf.meta'));
-    return getMetadataMapCached(db, metaFiles, false);
+    return getMetadataMapCached(db, metaFiles, false, repoConfig);
 }
 
-async function buildGuidToEntPathMap(db: any, tree: GitHubTreeItem[]) {
+async function buildGuidToEntPathMap(db: any, tree: GitHubTreeItem[], repoConfig: RepoConfig) {
     console.log("[Terrain Map] Building GUID to .ent path map from cache/GitHub...");
     const metaFiles = tree.filter(item => item.type === 'blob' && item.path.endsWith('.ent.meta'));
-    return getMetadataMapCached(db, metaFiles, true);
+    return getMetadataMapCached(db, metaFiles, true, repoConfig);
 }
 
-async function getMetadataMapCached(db: any, metaFiles: GitHubTreeItem[], reverse: boolean): Promise<Map<string, string>> {
+async function getMetadataMapCached(db: any, metaFiles: GitHubTreeItem[], reverse: boolean, repoConfig: RepoConfig): Promise<Map<string, string>> {
     const cacheCollection = db.collection("github_meta_cache");
-    const cachedEntries = await cacheCollection.find({ _id: { $in: metaFiles.map(f => f.path) } }).toArray();
+    // Cache _id stays a bare path for the original repo to preserve the existing production
+    // cache untouched (no mass re-fetch on deploy); only additional repos get namespaced,
+    // since two repos could in theory share the same relative path.
+    const cacheKey = (path: string) => repoConfig.repo === REPO_CONFIGS[0].repo ? path : `${repoConfig.repo}:${path}`;
+    const cachedEntries = await cacheCollection.find({ _id: { $in: metaFiles.map(f => cacheKey(f.path)) } }).toArray();
     const cacheMap = new Map(cachedEntries.map((e: any) => [e._id, e]));
 
     const result = new Map<string, string>();
@@ -567,7 +623,7 @@ async function getMetadataMapCached(db: any, metaFiles: GitHubTreeItem[], revers
     const updates = [];
 
     for (const file of metaFiles) {
-        const cached: any = cacheMap.get(file.path);
+        const cached: any = cacheMap.get(cacheKey(file.path));
         let guid = null;
 
         if (cached && cached.sha === file.sha) {
@@ -575,15 +631,15 @@ async function getMetadataMapCached(db: any, metaFiles: GitHubTreeItem[], revers
         } else {
             try {
                 apiCallCount++;
-                const url = `${GITHUB_RAW_BASE}/${file.path}`;
+                const url = `${repoConfig.rawBase}/${file.path}`;
                 const response = await axios.get(url, { headers });
                 const rawContent = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
                 guid = rawContent.match(/{([a-fA-F0-9]+)}/)?.[1]?.toUpperCase();
-                
+
                 if (guid) {
                     updates.push({
                         updateOne: {
-                            filter: { _id: file.path },
+                            filter: { _id: cacheKey(file.path) },
                             update: { $set: { sha: file.sha, guid: guid } },
                             upsert: true
                         }
@@ -618,8 +674,8 @@ function computeCompositeSha(confSha: string, folderSha: string | null): string 
     return crypto.createHash('sha1').update(confSha + (folderSha || '')).digest('hex');
 }
 
-async function fetchCommitsSince(path: string, sinceDate: Date | null, headers: object): Promise<{ changelog: string, latestDate: Date | null }> {
-    let url = `${GITHUB_API_BASE}/commits?path=${encodeURIComponent(path)}`;
+async function fetchCommitsSince(path: string, sinceDate: Date | null, headers: object, repoConfig: RepoConfig): Promise<{ changelog: string, latestDate: Date | null }> {
+    let url = `${repoConfig.apiBase}/commits?path=${encodeURIComponent(path)}`;
     if (sinceDate) {
         url += `&since=${sinceDate.toISOString()}`;
     }
@@ -644,36 +700,75 @@ async function fetchCommitsSince(path: string, sinceDate: Date | null, headers: 
 // ─────────────────────────────────────────────────────────────────────────────
 
 async function runDifferentialSync(db) {
-    const tree = await getFullRepoTree();
-    const missionConfigs = getAllMissionFiles(tree);
-    
-    // Maps built lazily ONLY if we detect a change
-    let guidToEntPathMap = null;
-    let confPathToScenarioGuidMap = null;
-    
-    const headers = process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {};
-
-    // Get current DB state
-    const existingMissions = await db.collection("reforger_missions").find({}).project({
-        uniqueName: 1,
-        githubPath: 1,
-        missionId: 1,
-        lastUpdateEntry: 1,
-        worldFolder: 1,
-        isArchived: 1
-    }).toArray();
-    
-    const dbMap = new Map<string, any>();
-    for (const m of existingMissions) {
-        if (m.githubPath) dbMap.set(m.githubPath, m);
-    }
-
-    // Check migration state
+    // Check migration state once, globally — it's not per-repo.
     const configDoc = await db.collection("configs").findOne({ _id: "github_sync_info" });
     const isV1toV2Migration = configDoc?.githubSyncVersion !== 2;
 
     if (isV1toV2Migration) {
         console.log("=== EXECUTING V1 -> V2 COMPOSITE SHA MIGRATION ===");
+    }
+
+    const results = {
+        added: 0,
+        updated: 0,
+        skipped: 0,
+        archived: 0,
+        errors: [],
+        apiCalls: 0,
+        addedMissions: [],
+        updatedMissions: [],
+        archivedMissions: []
+    };
+
+    for (const repoConfig of REPO_CONFIGS) {
+        const repoResults = await runDifferentialSyncForRepo(db, repoConfig, isV1toV2Migration);
+        results.added += repoResults.added;
+        results.updated += repoResults.updated;
+        results.skipped += repoResults.skipped;
+        results.archived += repoResults.archived;
+        results.errors.push(...repoResults.errors);
+        results.addedMissions.push(...repoResults.addedMissions);
+        results.updatedMissions.push(...repoResults.updatedMissions);
+        results.archivedMissions.push(...repoResults.archivedMissions);
+    }
+
+    if (isV1toV2Migration) {
+        await db.collection("configs").updateOne(
+            { _id: "github_sync_info" },
+            { $set: { githubSyncVersion: 2 } },
+            { upsert: true }
+        );
+        console.log("=== V1 -> V2 MIGRATION COMPLETE ===");
+    }
+
+    return results;
+}
+
+async function runDifferentialSyncForRepo(db, repoConfig: RepoConfig, isV1toV2Migration: boolean) {
+    console.log(`[Diff Sync] Starting sync for ${repoFullName(repoConfig)}...`);
+    const tree = await getFullRepoTree(repoConfig);
+    const missionConfigs = getAllMissionFiles(tree);
+
+    // Maps built lazily ONLY if we detect a change
+    let guidToEntPathMap = null;
+    let confPathToScenarioGuidMap = null;
+
+    const headers = process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {};
+
+    // Get current DB state, scoped to this repo (githubPath alone isn't guaranteed unique across repos).
+    const existingMissions = await db.collection("reforger_missions").find({ githubRepo: repoFullName(repoConfig) }).project({
+        uniqueName: 1,
+        githubPath: 1,
+        missionId: 1,
+        lastUpdateEntry: 1,
+        worldFolder: 1,
+        isArchived: 1,
+        githubRepo: 1
+    }).toArray();
+
+    const dbMap = new Map<string, any>();
+    for (const m of existingMissions) {
+        if (m.githubPath) dbMap.set(m.githubPath, m);
     }
 
     const results = {
@@ -718,16 +813,16 @@ async function runDifferentialSync(db) {
                     // Lazy-load maps for migration additions
                     if (!guidToEntPathMap || !confPathToScenarioGuidMap) {
                         const [entMap, scenarioMap] = await Promise.all([
-                            buildGuidToEntPathMap(db, tree),
-                            buildConfPathToScenarioGuidMap(db, tree)
+                            buildGuidToEntPathMap(db, tree, repoConfig),
+                            buildConfPathToScenarioGuidMap(db, tree, repoConfig)
                         ]);
                         guidToEntPathMap = entMap;
                         confPathToScenarioGuidMap = scenarioMap;
                     }
 
                     console.log(`[Migration] Found missing mission: ${confItem.path}`);
-                    const oldestDate = await getOldestCommitDate(confItem.path, headers) || new Date();
-                    const res = await syncSingleMission(db, confItem.path, null, guidToEntPathMap, confPathToScenarioGuidMap, tree, "Initial GitHub Sync", oldestDate);
+                    const oldestDate = await getOldestCommitDate(confItem.path, headers, repoConfig) || new Date();
+                    const res = await syncSingleMission(db, confItem.path, null, guidToEntPathMap, confPathToScenarioGuidMap, tree, "Initial GitHub Sync", oldestDate, repoConfig);
                     if (res.error) results.errors.push(res);
                     else if (res.type === 'added') {
                         results.added++;
@@ -751,13 +846,13 @@ async function runDifferentialSync(db) {
                 // Lazy-load maps for updates
                 if (!guidToEntPathMap || !confPathToScenarioGuidMap) {
                     const [entMap, scenarioMap] = await Promise.all([
-                        buildGuidToEntPathMap(db, tree),
-                        buildConfPathToScenarioGuidMap(db, tree)
+                        buildGuidToEntPathMap(db, tree, repoConfig),
+                        buildConfPathToScenarioGuidMap(db, tree, repoConfig)
                     ]);
                     guidToEntPathMap = entMap;
                     confPathToScenarioGuidMap = scenarioMap;
                 }
-                
+
                 let changelog = "Synced from GitHub";
                 let updateDate = new Date();
 
@@ -767,18 +862,18 @@ async function runDifferentialSync(db) {
                 if (dbMission && worldFolder) {
                     // Update: fetch commits since last update
                     const lastUpdateDate = dbMission.lastUpdateEntry?.date ? new Date(dbMission.lastUpdateEntry.date) : null;
-                    const commitData = await fetchCommitsSince(worldFolder || confItem.path, lastUpdateDate, headers);
+                    const commitData = await fetchCommitsSince(worldFolder || confItem.path, lastUpdateDate, headers, repoConfig);
                     changelog = commitData.changelog;
                     if (commitData.latestDate) updateDate = commitData.latestDate;
                 } else if (!dbMission) {
                     // New mission: fetch oldest commit date
-                    const oldestDate = await getOldestCommitDate(confItem.path, headers);
+                    const oldestDate = await getOldestCommitDate(confItem.path, headers, repoConfig);
                     if (oldestDate) updateDate = oldestDate;
                     changelog = "Initial GitHub Sync";
                 }
 
                 // Note: we pass the confItem.sha down. `syncSingleMission` will calculate the true compositeSha.
-                const res = await syncSingleMission(db, confItem.path, confItem.sha, guidToEntPathMap, confPathToScenarioGuidMap, tree, changelog, updateDate);
+                const res = await syncSingleMission(db, confItem.path, confItem.sha, guidToEntPathMap, confPathToScenarioGuidMap, tree, changelog, updateDate, repoConfig);
                 if (res.error) results.errors.push(res);
                 else if (res.type === 'added') {
                     results.added++;
@@ -812,23 +907,14 @@ async function runDifferentialSync(db) {
         console.log(`[Diff Sync] Archived ${orphanedMissions.length} mission(s) no longer present in GitHub: ${orphanedMissions.map((m: any) => m.githubPath).join(", ")}`);
     }
 
-    if (isV1toV2Migration) {
-        await db.collection("configs").updateOne(
-            { _id: "github_sync_info" },
-            { $set: { githubSyncVersion: 2 } },
-            { upsert: true }
-        );
-        console.log("=== V1 -> V2 MIGRATION COMPLETE ===");
-    }
-
     return results;
 }
 
 
-async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, string> = null, confPathToScenarioGuidMap: Map<string, string> = null, tree?: GitHubTreeItem[], changelog: string = "GitHub Sync", updateDate: Date = new Date()) {
+async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, string> = null, confPathToScenarioGuidMap: Map<string, string> = null, tree?: GitHubTreeItem[], changelog: string = "GitHub Sync", updateDate: Date = new Date(), repoConfig: RepoConfig = REPO_CONFIGS[0]) {
     console.log(`[Sync] Processing mission: ${path}`);
     try {
-        const rawUrl = `${GITHUB_RAW_BASE}/${path}`;
+        const rawUrl = `${repoConfig.rawBase}/${path}`;
         apiCallCount++;
         const confResponse = await axios.get(rawUrl);
         const confData = parseConfFile(confResponse.data);
@@ -839,6 +925,12 @@ async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, st
 
         if (confData.m_sGameMode === "Advance and Cooperate" && metadata.type !== "SEED") {
             metadata.type = "OTHER";
+        }
+
+        // Repos like gc-reforger-training carry a fixed type regardless of the in-game
+        // name prefix or game mode (e.g. all training missions are tagged "TRNG").
+        if (repoConfig.forcedType) {
+            metadata.type = repoConfig.forcedType;
         }
 
         if (metadata.min === 0 && metadata.max === 0) {
@@ -876,7 +968,7 @@ async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, st
                 }
 
                 try {
-                    const resolvedTerrainId = await resolveTerrainGuidFromEnt(entPath);
+                    const resolvedTerrainId = await resolveTerrainGuidFromEnt(entPath, repoConfig);
                     if (resolvedTerrainId) {
                         terrainId = resolvedTerrainId;
                     } else {
@@ -891,7 +983,7 @@ async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, st
         }
 
         // URL for the update (PR Link if available, else Blob Link)
-        const updateUrl = `https://github.com/Global-Conflicts-ArmA/gc-reforger-missions/blob/master/${path}`;
+        const updateUrl = `https://github.com/${repoConfig.owner}/${repoConfig.repo}/blob/${repoConfig.branch}/${path}`;
 
         // Calculate the true composite SHA now that we have the resolved folder
         let folderSha = null;
@@ -921,7 +1013,7 @@ async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, st
             terrain: terrainId,
             size: { min: metadata.min, max: metadata.max },
             type: metadata.type,
-            githubRepo: "Global-Conflicts-ArmA/gc-reforger-missions",
+            githubRepo: repoFullName(repoConfig),
             githubPath: path,          // Path to .conf — used as the path component of scenarioId
             missionId: missionGuid,    // GUID from World field in .conf — used for terrain/ent resolution
             scenarioGuid: scenarioGuid, // GUID from .conf.meta — combined with githubPath to form scenarioId
@@ -1039,8 +1131,8 @@ async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, st
 
             if (targetFolder) {
                 try {
-                    briefing = await extractMissionBriefing(targetFolder, tree);
-                    factions = await extractMissionFactions(targetFolder, tree, db);
+                    briefing = await extractMissionBriefing(targetFolder, tree, repoConfig);
+                    factions = await extractMissionFactions(targetFolder, tree, db, repoConfig);
                     
                     const metaUpdate: any = {};
                     if (briefing?.missionOverview !== undefined) metaUpdate.missionOverview = briefing.missionOverview;
@@ -1065,9 +1157,9 @@ async function syncSingleMission(db, path, sha, guidToEntPathMap: Map<string, st
 }
 
 // Returns the date of the oldest commit for the given repo-relative path, or null on failure.
-async function getOldestCommitDate(path: string, headers: object): Promise<Date | null> {
+async function getOldestCommitDate(path: string, headers: object, repoConfig: RepoConfig = REPO_CONFIGS[0]): Promise<Date | null> {
     try {
-        const commitsUrl = `${GITHUB_API_BASE}/commits?path=${encodeURIComponent(path)}&per_page=1`;
+        const commitsUrl = `${repoConfig.apiBase}/commits?path=${encodeURIComponent(path)}&per_page=1`;
         apiCallCount++;
         const commitsResponse = await axios.get(commitsUrl, { headers: headers as any });
 
@@ -1098,7 +1190,7 @@ export async function fixMissionUploadDates(dryRun = false) {
     const db = (await MyMongo).db("prod");
     const missions = await db.collection("reforger_missions")
         .find({ githubPath: { $exists: true, $ne: null } })
-        .project({ _id: 1, uniqueName: 1, githubPath: 1, uploadDate: 1, entPath: 1 })
+        .project({ _id: 1, uniqueName: 1, githubPath: 1, uploadDate: 1, entPath: 1, githubRepo: 1 })
         .toArray();
 
     const headers = process.env.GITHUB_TOKEN ? { Authorization: `token ${process.env.GITHUB_TOKEN}` } : {};
@@ -1106,7 +1198,8 @@ export async function fixMissionUploadDates(dryRun = false) {
 
     for (const mission of missions) {
         const confPath: string = mission.githubPath; // e.g. Missions/arc/DustyDrive.conf
-        
+        const repoConfig = getRepoConfigByFullName(mission.githubRepo);
+
         let entPath = mission.entPath;
         // Fallback guess ONLY if entPath is genuinely missing from DB (should be rare now)
         if (!entPath) {
@@ -1124,8 +1217,8 @@ export async function fixMissionUploadDates(dryRun = false) {
 
         // Fetch both in parallel
         const [confDate, entDate] = await Promise.all([
-            getOldestCommitDate(confPath, headers),
-            getOldestCommitDate(entPath, headers),
+            getOldestCommitDate(confPath, headers, repoConfig),
+            getOldestCommitDate(entPath, headers, repoConfig),
         ]);
 
         const candidates = [confDate, entDate].filter((d): d is Date => d !== null);
@@ -1262,13 +1355,16 @@ async function makeUniqueSlug(db, baseSafeName: string, excludeId?: any): Promis
     throw new Error(`Could not find unique slug for "${baseSafeName}" after 999 attempts`);
 }
 
-async function resolveTerrainGuidFromEnt(entPath: string): Promise<string | null> {
-    if (entCache.has(entPath)) {
-        return entCache.get(entPath);
+async function resolveTerrainGuidFromEnt(entPath: string, repoConfig: RepoConfig = REPO_CONFIGS[0]): Promise<string | null> {
+    // entCache is shared across repos, so namespace the key to avoid collisions
+    // between repos that happen to share the same relative .ent path.
+    const cacheKey = `${repoConfig.repo}:${entPath}`;
+    if (entCache.has(cacheKey)) {
+        return entCache.get(cacheKey);
     }
 
     try {
-        const rawUrl = `${GITHUB_RAW_BASE}/${entPath.replace(/\\/g, '/')}`;
+        const rawUrl = `${repoConfig.rawBase}/${entPath.replace(/\\/g, '/')}`;
         apiCallCount++;
         const response = await axios.get(rawUrl);
         const content = response.data;
@@ -1277,19 +1373,19 @@ async function resolveTerrainGuidFromEnt(entPath: string): Promise<string | null
 
         if (match && match[1]) {
             const terrainGuid = match[1].toUpperCase();
-            entCache.set(entPath, terrainGuid);
+            entCache.set(cacheKey, terrainGuid);
             return terrainGuid;
         }
-        
+
         // If no match, cache null and return
-        entCache.set(entPath, null);
+        entCache.set(cacheKey, null);
         return null;
 
     } catch (error) {
         // Log error but don't throw, as it's a non-critical failure
         console.warn(`Could not fetch or parse .ent file at ${entPath}: ${error.message}`);
         fs.appendFileSync("sync_errors.log", `WARN: Could not resolve .ent at ${entPath}: ${error.message}\n`);
-        entCache.set(entPath, null); // Cache the failure to avoid re-fetching
+        entCache.set(cacheKey, null); // Cache the failure to avoid re-fetching
         return null;
     }
 }
