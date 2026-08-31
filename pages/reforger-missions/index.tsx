@@ -331,6 +331,7 @@ const TYPE_COLOR_CLASSES: Record<string, string> = {
     LOL: "bg-purple-500",
     OTHER: "bg-gray-500",
     SEED: "bg-blue-500",
+    TRNG: "bg-cyan-500",
 };
 
 const TYPE_HEX_COLORS: Record<string, string> = {
@@ -340,6 +341,7 @@ const TYPE_HEX_COLORS: Record<string, string> = {
     LOL: "#a855f7",
     OTHER: "#6b7280",
     SEED: "#3b82f6",
+    TRNG: "#06b6d4",
 };
 
 function StatBar({ label, value, max, colorClass, onClick, isActive, isDimmed }: {
@@ -929,7 +931,7 @@ function ReforgerMissionList({ missions }) {
 
     }, [isSmartSortEnabled, showAllData]); // Added showAllData dependency
 
-    const bottomTypes = ["OTHER", "LOL", "SEED"];
+    const bottomTypes = ["OTHER", "LOL", "SEED", "TRNG"];
 
     const finalMissions = useMemo(() => {
         if (!isSmartSortEnabled) {
@@ -1246,7 +1248,7 @@ function ReforgerMissionList({ missions }) {
 
     // Missions added over time (stacked bar by type, using uploadDate)
     const uploadTimelineData = useMemo(() => {
-        const typeOrder: string[] = ["TVT", "COTVT", "COOP", "LOL", "SEED", "OTHER"];
+        const typeOrder: string[] = ["TVT", "COTVT", "COOP", "LOL", "SEED", "TRNG", "OTHER"];
         const monthMap: Record<string, Record<string, number>> = {};
         missions.forEach(m => {
             if (!m.uploadDate) return;

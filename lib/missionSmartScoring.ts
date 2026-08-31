@@ -192,6 +192,17 @@ export function calculateMissionScore(
             description: "Seeder mission — not eligible for normal session selection.",
         });
     }
+
+    // 7. Training Penalty — training missions aren't normal session picks either
+    if (mission.type === 'TRNG') {
+        const penalty = -9999;
+        totalScore += penalty;
+        breakdown.push({
+            label: "Training Penalty",
+            score: penalty,
+            description: "Training mission — not eligible for normal session selection.",
+        });
+    }
     
     // Final score cannot be negative
     totalScore = Math.max(0, totalScore);
