@@ -5,7 +5,7 @@ import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import { hasCredsAny } from "../../lib/credsChecker";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
-import { getCurrentThreadName } from "../../lib/sessionThread";
+import { resolveSessionThread } from "../../lib/sessionThread";
 
 const apiRoute = nextConnect({
     onError(error, req: NextApiRequest, res: NextApiResponse) {
@@ -29,16 +29,12 @@ apiRoute.get(async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(401).json({ error: "Not Authorized" });
     }
 
-    const threadName = getCurrentThreadName();
-
     const db = (await MyMongo).db("prod");
     const configs = await db
         .collection("configs")
         .findOne({}, { projection: { activeSession: 1 } });
 
-    const activeSession = configs?.activeSession;
-    const threadId =
-        activeSession?.threadName === threadName ? activeSession.threadId : null;
+    const { threadName, threadId } = resolveSessionThread(configs?.activeSession);
 
     return res.status(200).json({ threadName, threadId });
 });
