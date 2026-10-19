@@ -13,6 +13,9 @@ export const authOptions: NextAuthOptions = {
 		DiscordProvider({
 			clientId: process.env.DISCORD_APP_ID,
 			clientSecret: process.env.DISCORD_APP_SECRET,
+			// Discord now returns an `iss` param on the OAuth callback (RFC 9207);
+			// openid-client rejects it unless the provider declares its issuer.
+			issuer: "https://discord.com",
 			profile: async (profile) => {
 				if (profile["avatar"] === null) {
 					const defaultAvatarNumber = parseInt(profile["discriminator"]) % 5;
