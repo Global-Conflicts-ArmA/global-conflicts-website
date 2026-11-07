@@ -39,18 +39,22 @@ function Donate({ currentAmountNumUSD, donators, serverDonationGoalUsd, fundingS
                         />
                         <div className="flex-1 flex-grow mt-5 space-y-5 lg:ml-10 lg:mt-0">
                             <div>
-                                <h2 className="dark:text-white">Monthly Donations and Server Costs</h2>
+                                <h2 className="dark:text-white">Patreon Support and Monthly Server Costs</h2>
                                 <div className="dark:text-gray-200">
+                                    {"Active Patreon support: "}
                                     {currentAmountNumUSD === null ? "Funding unavailable" : formatUsd(currentAmountNumUSD)}
-                                    {" of "}
+                                </div>
+                                <div className="dark:text-gray-200">
+                                    {"Monthly server costs: "}
                                     {serverDonationGoalUsd === null ? "Server cost goal unavailable" : formatUsd(serverDonationGoalUsd)}
                                     {" per month"}
                                 </div>
                                 <p className="text-sm dark:text-gray-200">
-                                    Patreon monthly estimate in USD, matching the monthly figure on Patreon. 
+                                    Current entitlements for active Patreon members, converted to USD using the official Patreon API.
+                                    This is not collected revenue or the monthly estimate shown on Patreon.
                                 </p>
                                 {fundingStatus === "cached" && <p role="status" className="text-sm dark:text-gray-200">
-                                    Patreon data is temporarily unavailable. Showing the last saved estimate{fundingUpdatedAt ? ` from ${fundingUpdatedAt} (UTC)` : ""}.
+                                    Patreon data is temporarily unavailable. Showing the last saved active support total from {fundingUpdatedAt} (UTC).
                                 </p>}
                                 {fundingStatus === "unavailable" && <p role="status" className="text-sm dark:text-gray-200">
                                     Patreon funding could not be loaded. You can still donate using the links below.

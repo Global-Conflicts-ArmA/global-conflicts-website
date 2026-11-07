@@ -10,7 +10,7 @@ export interface Donator {
 
 interface Funding {
     amountUsd: number;
-    updatedAt: string | null;
+    updatedAt: string;
     campaignId: string;
 }
 
@@ -21,8 +21,7 @@ interface DonorCache {
 
 export interface DonationConfig {
     server_donation_goal_usd?: number;
-    patreonMonthlyEstimate?: Funding;
-    currentAmountNumUSD?: number;
+    patreonActiveSupport?: Funding;
     donationMembers?: DonorCache;
 }
 
@@ -65,16 +64,23 @@ async function fetchFunding(campaignId: string): Promise<number> {
         throw new Error("Invalid PATREON_CAMPAIGN_ID");
     }
     const accessToken = process.env.PATREON_ACCESS_TOKEN;
-    // OAuth API v2 rejects campaign_pledge_sum; the public API exposes the estimate.
-    const url = `https://www.patreon.com/api/campaigns/${campaignId}`;
+    if (!accessToken) {
+        throw new Error("Missing PATREON_ACCESS_TOKEN");
+    }
+    const url = `https://www.patreon.com/api/oauth2/v2/campaigns/${campaignId}`;
+    const options = {
+        timeout: TIMEOUT_MS,
+        maxRedirects: 0,
+        headers: { Authorization: `Bearer ${accessToken}` },
+    };
     const response = await axios.get<{
         data: {
             id: string;
-            attributes: { currency: string; is_monthly: boolean; campaign_pledge_sum: number };
+            attributes: { currency: string; is_monthly: boolean };
         };
     }>(url, {
-        timeout: TIMEOUT_MS,
-        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+        ...options,
+        params: { "fields[campaign]": "currency,is_monthly" },
     });
     const campaign = response.data?.data;
     if (campaign?.id !== campaignId) {
@@ -88,11 +94,56 @@ async function fetchFunding(campaignId: string): Promise<number> {
     if (attributes.is_monthly !== true) {
         throw new Error("Cannot use monthly funding for a per-creation Patreon campaign");
     }
-    // This undocumented field matches the public monthly estimate. pledge_sum
-    // is a different metric and can have a different pledge_sum_currency.
-    const cents = attributes.campaign_pledge_sum;
-    if (!nonNegativeNumber(cents) || !Number.isSafeInteger(cents)) {
-        throw new Error("Patreon returned an invalid campaign_pledge_sum");
+    const membersUrl = new URL(`${url}/members`);
+    membersUrl.searchParams.set("fields[member]", "patron_status,currently_entitled_amount_cents");
+    membersUrl.searchParams.set("page[count]", "100");
+    let next: string | null = membersUrl.toString();
+    const visited = new Set<string>();
+    const memberIds = new Set<string>();
+    let cents = 0;
+    while (next) {
+        const pageUrl = new URL(next);
+        if (pageUrl.origin !== membersUrl.origin || pageUrl.pathname !== membersUrl.pathname ||
+            pageUrl.username || pageUrl.password || pageUrl.hash ||
+            visited.has(pageUrl.toString()) || visited.size >= 100) {
+            throw new Error("Patreon returned invalid member pagination");
+        }
+        visited.add(pageUrl.toString());
+        const page = await axios.get<{
+            data: { id: string; attributes: { patron_status: string | null; currently_entitled_amount_cents: number } }[];
+            links?: { next?: string | null };
+            meta?: { pagination?: { total?: number } };
+        }>(pageUrl.toString(), options);
+        if (!Array.isArray(page.data?.data)) {
+            throw new Error("Patreon returned an invalid member list");
+        }
+        for (const member of page.data.data) {
+            if (!member || typeof member.id !== "string" || memberIds.has(member.id) ||
+                !member.attributes ||
+                ![null, "active_patron", "former_patron", "declined_patron"].includes(member.attributes.patron_status)) {
+                throw new Error("Patreon returned an invalid member");
+            }
+            memberIds.add(member.id);
+            if (member.attributes.patron_status === "active_patron") {
+                const amount = member.attributes.currently_entitled_amount_cents;
+                if (!nonNegativeNumber(amount) || !Number.isSafeInteger(amount)) {
+                    throw new Error("Patreon returned an invalid active member amount");
+                }
+                cents += amount;
+                if (!Number.isSafeInteger(cents)) {
+                    throw new Error("Patreon active support total was invalid");
+                }
+            }
+        }
+        const nextPage = page.data.links?.next;
+        if (nextPage != null && typeof nextPage !== "string") {
+            throw new Error("Patreon returned an invalid next member page");
+        }
+        next = nextPage ?? null;
+        const total = page.data.meta?.pagination?.total;
+        if (!next && total !== undefined && total !== memberIds.size) {
+            throw new Error("Patreon returned an incomplete member list");
+        }
     }
     let amountUsd = cents / 100;
     if (currency !== "USD" && amountUsd > 0) {
@@ -142,26 +193,23 @@ async function loadDonationData(configs: Collection<DonationConfig>): Promise<Do
     const [funding, donors] = await Promise.all([
         (async () => {
             let cached: Funding | null = null;
-            const saved = config?.patreonMonthlyEstimate;
+            const saved = config?.patreonActiveSupport;
             if (saved && saved.campaignId === campaignId && nonNegativeNumber(saved.amountUsd) &&
                 typeof saved.updatedAt === "string" && Number.isFinite(Date.parse(saved.updatedAt))) {
                 cached = saved;
-            }
-            if (!cached && campaignId === "5074062" && nonNegativeNumber(config?.currentAmountNumUSD)) {
-                cached = { amountUsd: config.currentAmountNumUSD, updatedAt: null, campaignId };
             }
             if (cached?.updatedAt && recent(cached.updatedAt)) return { value: cached, status: "fresh" as const };
             try {
                 const amountUsd = await fetchFunding(campaignId);
                 const value = { amountUsd, updatedAt: new Date().toISOString(), campaignId };
                 try {
-                    await configs.updateOne({}, { $set: { patreonMonthlyEstimate: value } }, { upsert: true });
+                    await configs.updateOne({}, { $set: { patreonActiveSupport: value } }, { upsert: true });
                 } catch (error) {
-                    logFailure("Patreon monthly estimate cache update failed", error);
+                    logFailure("Patreon active support cache update failed", error);
                 }
                 return { value, status: "fresh" as const };
             } catch (error) {
-                logFailure("Patreon monthly estimate refresh failed; using saved data if available", error);
+                logFailure("Patreon active support refresh failed; using saved data if available", error);
                 return { value: cached, status: cached ? "cached" as const : "unavailable" as const };
             }
         })(),
