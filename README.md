@@ -60,6 +60,29 @@ Or create a `.env.local` file in the project root:
 MONGO_HOST=mongodb://localhost:27017
 ```
 
+### Donation fee estimate
+
+The donate page uses the official Patreon OAuth API v2 with the server-side
+`PATREON_ACCESS_TOKEN` and `PATREON_CAMPAIGN_ID` (default `5074062`).
+Active member entitlements are totaled across all pages and converted to USD.
+They are not verified collected revenue.
+
+The displayed net support range applies an illustrative 8% Pro platform fee
+and processing fees per active paid member: 5% + $0.10 for USD amounts of $3
+or less, otherwise 2.9% + $0.30. It assumes one monthly payment per member;
+annual billing and actual transaction fees may differ. The lower estimate
+also deducts 2.5% of all support for possible currency conversion; the upper
+estimate deducts no conversion fee because the API does not identify which
+payments incur it. Tax and payout fees are excluded.
+
+The progress bar uses the lower net estimate before tax. Gross support and
+the fee breakdown remain visible. Saved totals without a fee breakdown are
+refreshed when possible and never assigned fabricated per-payment fees.
+Keep tokens out of source control. Rebuild and recycle the IIS app pool
+after deployment.
+
+Run fee-estimate regression tests with `node --test scripts/donations.test.cjs`.
+
 ## 📦 Available Scripts
 
 The following npm scripts are available in this project:

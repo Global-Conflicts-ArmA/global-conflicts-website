@@ -8,14 +8,14 @@ import React from "react";
 import gcSmallLogo from "../../public/logo-patch.webp";
 import { Progress } from "flowbite-react";
 
-function Donate({ currentAmountNumUSD, donators, serverDonationGoalUsd, fundingStatus, fundingUpdatedAt, donorsStatus, donorsUpdatedAt }: DonationData) {
+function Donate({ currentAmountNumUSD, feeEstimate, donators, serverDonationGoalUsd, fundingStatus, fundingUpdatedAt, donorsStatus, donorsUpdatedAt }: DonationData) {
     const formatUsd = (value: number) => value.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
         maximumFractionDigits: 2
     });
-    const progress = currentAmountNumUSD !== null && serverDonationGoalUsd !== null
-        ? Math.min(100, Math.round(currentAmountNumUSD / serverDonationGoalUsd * 100)) : null;
+    const progress = feeEstimate !== null && serverDonationGoalUsd !== null
+        ? Math.min(100, Math.round(feeEstimate.netMinUsd / serverDonationGoalUsd * 100)) : null;
 
     return <>
         <Head>
@@ -44,6 +44,9 @@ function Donate({ currentAmountNumUSD, donators, serverDonationGoalUsd, fundingS
                                     {"Active Patreon support: "}
                                     {currentAmountNumUSD === null ? "Funding unavailable" : formatUsd(currentAmountNumUSD)}
                                 </div>
+                                {feeEstimate && <div className="dark:text-gray-200">
+                                    Estimated net support after fees, before tax: {formatUsd(feeEstimate.netMinUsd)} - {formatUsd(feeEstimate.netMaxUsd)}
+                                </div>}
                                 <div className="dark:text-gray-200">
                                     {"Monthly server costs: "}
                                     {serverDonationGoalUsd === null ? "Server cost goal unavailable" : formatUsd(serverDonationGoalUsd)}
@@ -53,6 +56,22 @@ function Donate({ currentAmountNumUSD, donators, serverDonationGoalUsd, fundingS
                                     Current entitlements for active Patreon members, converted to USD using the official Patreon API.
                                     This is not collected revenue or the monthly estimate shown on Patreon.
                                 </p>
+                                {feeEstimate ? <div className="text-sm dark:text-gray-200">
+                                    <p>
+                                        Illustrative fees: 8% Pro platform fee ({formatUsd(feeEstimate.platformFeeUsd)});
+                                        processing at 2.9% + $0.30 per payment over $3, or 5% + $0.10 for payments of $3 or less
+                                        ({formatUsd(feeEstimate.processingFeeUsd)} total).
+                                    </p>
+                                    <p>
+                                        The range allows for 0% to 2.5% currency conversion fees
+                                        (up to {formatUsd(feeEstimate.conversionFeeMaxUsd)}). The API does not identify which payments incur this fee.
+                                        We assume one monthly payment per active paid member, using their current entitlement in USD.
+                                        Actual billing, annual memberships, and fees may differ. Tax and payout fees are not included.
+                                        This is an estimate, not a verified Patreon payout.
+                                    </p>
+                                </div> : currentAmountNumUSD !== null && <p className="text-sm dark:text-gray-200">
+                                    A fee estimate is unavailable for this saved support total.
+                                </p>}
                                 {fundingStatus === "cached" && <p role="status" className="text-sm dark:text-gray-200">
                                     Patreon data is temporarily unavailable. Showing the last saved active support total from {fundingUpdatedAt} (UTC).
                                 </p>}
@@ -60,6 +79,7 @@ function Donate({ currentAmountNumUSD, donators, serverDonationGoalUsd, fundingS
                                     Patreon funding could not be loaded. You can still donate using the links below.
                                 </p>}
                                 {progress !== null && <div className="mt-5 dark:text-white">
+                                    <p className="text-sm">Estimated server-cost coverage using the lower net estimate (before tax).</p>
                                     <Progress progress={progress} color="green" size="xl" labelProgress />
                                 </div>}
                             </div>

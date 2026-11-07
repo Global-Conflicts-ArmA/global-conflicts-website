@@ -8,8 +8,17 @@ export interface Donator {
     displayAvatarURL: string | null;
 }
 
+interface FeeEstimate {
+    platformFeeUsd: number;
+    processingFeeUsd: number;
+    conversionFeeMaxUsd: number;
+    netMinUsd: number;
+    netMaxUsd: number;
+}
+
 interface Funding {
     amountUsd: number;
+    feeEstimate?: FeeEstimate;
     updatedAt: string;
     campaignId: string;
 }
@@ -29,6 +38,7 @@ type DataStatus = "fresh" | "cached" | "unavailable";
 
 export interface DonationData {
     currentAmountNumUSD: number | null;
+    feeEstimate: FeeEstimate | null;
     serverDonationGoalUsd: number | null;
     donators: Donator[];
     fundingStatus: DataStatus;
@@ -59,7 +69,7 @@ function logFailure(source: string, error: unknown) {
     console.error(`[donations] ${source}: ${detail}`);
 }
 
-async function fetchFunding(campaignId: string): Promise<number> {
+async function fetchFunding(campaignId: string): Promise<Pick<Funding, "amountUsd" | "feeEstimate">> {
     if (!/^\d+$/.test(campaignId)) {
         throw new Error("Invalid PATREON_CAMPAIGN_ID");
     }
@@ -100,6 +110,7 @@ async function fetchFunding(campaignId: string): Promise<number> {
     let next: string | null = membersUrl.toString();
     const visited = new Set<string>();
     const memberIds = new Set<string>();
+    const activeAmounts: number[] = [];
     let cents = 0;
     while (next) {
         const pageUrl = new URL(next);
@@ -130,6 +141,7 @@ async function fetchFunding(campaignId: string): Promise<number> {
                     throw new Error("Patreon returned an invalid active member amount");
                 }
                 cents += amount;
+                if (amount > 0) activeAmounts.push(amount);
                 if (!Number.isSafeInteger(cents)) {
                     throw new Error("Patreon active support total was invalid");
                 }
@@ -146,6 +158,7 @@ async function fetchFunding(campaignId: string): Promise<number> {
         }
     }
     let amountUsd = cents / 100;
+    let usdRate = 1;
     if (currency !== "USD" && amountUsd > 0) {
         const code = currency.toLowerCase();
         const rates = await axios.get<Record<string, Record<string, number>>>(
@@ -157,11 +170,31 @@ async function fetchFunding(campaignId: string): Promise<number> {
             throw new Error(`Exchange-rate service returned an invalid ${currency}/USD rate`);
         }
         amountUsd *= rate;
+        usdRate = rate;
     }
     if (!nonNegativeNumber(amountUsd)) {
         throw new Error("Patreon funding calculation was invalid");
     }
-    return Math.round(amountUsd * 100) / 100;
+    const roundUsd = (value: number) => Math.round(value * 100) / 100;
+    const platformFeeUsd = roundUsd(amountUsd * 0.08);
+    const processingFeeUsd = roundUsd(activeAmounts.reduce((total, amount) => {
+        const usd = amount / 100 * usdRate;
+        return total + roundUsd(usd <= 3 ? usd * 0.05 + 0.10 : usd * 0.029 + 0.30);
+    }, 0));
+    const conversionFeeMaxUsd = roundUsd(amountUsd * 0.025);
+    const netMaxUsd = roundUsd(Math.max(0, amountUsd - platformFeeUsd - processingFeeUsd));
+    const netMinUsd = roundUsd(Math.max(0, netMaxUsd - conversionFeeMaxUsd));
+    return {
+        amountUsd: roundUsd(amountUsd),
+        feeEstimate: { platformFeeUsd, processingFeeUsd, conversionFeeMaxUsd, netMinUsd, netMaxUsd },
+    };
+}
+
+function validFeeEstimate(value: FeeEstimate | undefined): value is FeeEstimate {
+    return !!value && nonNegativeNumber(value.platformFeeUsd) &&
+        nonNegativeNumber(value.processingFeeUsd) && nonNegativeNumber(value.conversionFeeMaxUsd) &&
+        nonNegativeNumber(value.netMinUsd) && nonNegativeNumber(value.netMaxUsd) &&
+        value.netMinUsd <= value.netMaxUsd;
 }
 
 function parseDonators(data: unknown): Donator[] {
@@ -198,10 +231,10 @@ async function loadDonationData(configs: Collection<DonationConfig>): Promise<Do
                 typeof saved.updatedAt === "string" && Number.isFinite(Date.parse(saved.updatedAt))) {
                 cached = saved;
             }
-            if (cached?.updatedAt && recent(cached.updatedAt)) return { value: cached, status: "fresh" as const };
+            if (cached?.updatedAt && validFeeEstimate(cached.feeEstimate) && recent(cached.updatedAt)) return { value: cached, status: "fresh" as const };
             try {
-                const amountUsd = await fetchFunding(campaignId);
-                const value = { amountUsd, updatedAt: new Date().toISOString(), campaignId };
+                const estimate = await fetchFunding(campaignId);
+                const value = { ...estimate, updatedAt: new Date().toISOString(), campaignId };
                 try {
                     await configs.updateOne({}, { $set: { patreonActiveSupport: value } }, { upsert: true });
                 } catch (error) {
@@ -238,6 +271,7 @@ async function loadDonationData(configs: Collection<DonationConfig>): Promise<Do
     ]);
     return {
         currentAmountNumUSD: funding.value?.amountUsd ?? null,
+        feeEstimate: validFeeEstimate(funding.value?.feeEstimate) ? funding.value.feeEstimate : null,
         serverDonationGoalUsd,
         donators: donors.value?.members ?? [],
         fundingStatus: funding.status,
