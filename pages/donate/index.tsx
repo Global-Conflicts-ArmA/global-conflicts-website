@@ -1,46 +1,21 @@
 import MyMongo from "../../lib/mongodb";
-import axios from "axios";
+import { GetServerSideProps } from "next";
+import { DonationConfig, DonationData, getDonationData } from "../../lib/donations";
 import Head from "next/head";
 import Image from "next/legacy/image";
 import Link from "next/link";
 import React from "react";
 import gcSmallLogo from "../../public/logo-patch.webp";
-import { Progress } from 'flowbite-react'
+import { Progress } from "flowbite-react";
 
-function checkIfArray(variable: any): boolean {
-    return Array.isArray(variable);
-}
-
-function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDonationGoalUsd, serverDonationGoalUsdString }) {
-
-    function displayDonators(): React.ReactNode {
-        if (!checkIfArray(donators)) {
-            return ""
-        } else {
-            const savedDonators = donators.map((donator) => (
-                <div
-                    key={donator.userId}
-                    className="flex flex-col items-center content-center justify-center"
-                >
-                    <div className="avatar">
-                        <div className="w-24 h-24">
-                            <Image
-                                alt={"donator avatar"}
-                                className="rounded-full "
-                                src={donator.displayAvatarURL}
-                                layout={"fill"}
-                            ></Image>
-                        </div>
-                    </div>
-
-                    <div className="text-lg font-bold dark:text-gray-200 ">
-                        {donator.nickname ?? donator.displayName}
-                    </div>
-                </div>
-            ))
-            return savedDonators
-        }
-    }
+function Donate({ currentAmountNumUSD, donators, serverDonationGoalUsd, fundingStatus, fundingUpdatedAt, donorsStatus, donorsUpdatedAt }: DonationData) {
+    const formatUsd = (value: number) => value.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 2
+    });
+    const progress = currentAmountNumUSD !== null && serverDonationGoalUsd !== null
+        ? Math.min(100, Math.round(currentAmountNumUSD / serverDonationGoalUsd * 100)) : null;
 
     return <>
         <Head>
@@ -52,39 +27,37 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
                 <div className="mx-5">
                     <div className="max-w-2xl mb-10 prose">
                         <h1>Help maintain and grow our servers:</h1>
-
                     </div>
-                    <div className="flex flex-col lg:flex-row justify-evenly ">
+                    <div className="flex flex-col lg:flex-row justify-evenly">
                         <Image
-                            quality="100"
-                            height={"200"}
-                            width={"200"}
+                            quality={100}
+                            height={200}
+                            width={200}
                             objectFit="contain"
-                            alt={"Mission cover image"}
+                            alt="Global Conflicts logo"
                             src={gcSmallLogo}
                         />
-
                         <div className="flex-1 flex-grow mt-5 space-y-5 lg:ml-10 lg:mt-0">
-                            <div >
+                            <div>
                                 <h2 className="dark:text-white">Monthly Donations and Server Costs</h2>
                                 <div className="dark:text-gray-200">
-                                    <span data-tip="🇨🇦" className="tooltip ">
-                                        {currentAmountString}&nbsp;
-                                    </span>
-                                    of
-                                    <span data-tip="🇨🇦" className="tooltip ">
-                                        &nbsp;{serverDonationGoalUsdString}&nbsp;
-                                    </span>
-                                    per month
+                                    {currentAmountNumUSD === null ? "Funding unavailable" : formatUsd(currentAmountNumUSD)}
+                                    {" of "}
+                                    {serverDonationGoalUsd === null ? "Server cost goal unavailable" : formatUsd(serverDonationGoalUsd)}
+                                    {" per month"}
                                 </div>
-                                <div className='mt-5 dark:text-white'>
-                                    <Progress 
-                                        progress={Math.round(currentAmountNumUSD/serverDonationGoalUsd * 100)}
-                                        color="green"
-                                        size="xl"
-                                        labelProgress
-                                    />
-                                </div>
+                                <p className="text-sm dark:text-gray-200">
+                                    Patreon monthly estimate in USD, matching the monthly figure on Patreon. 
+                                </p>
+                                {fundingStatus === "cached" && <p role="status" className="text-sm dark:text-gray-200">
+                                    Patreon data is temporarily unavailable. Showing the last saved estimate from {fundingUpdatedAt} (UTC).
+                                </p>}
+                                {fundingStatus === "unavailable" && <p role="status" className="text-sm dark:text-gray-200">
+                                    Patreon funding could not be loaded. You can still donate using the links below.
+                                </p>}
+                                {progress !== null && <div className="mt-5 dark:text-white">
+                                    <Progress progress={progress} color="green" size="xl" labelProgress />
+                                </div>}
                             </div>
                         </div>
                     </div>
@@ -101,8 +74,32 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
                         <div className="prose">
                             <h2>Members who are contributing:</h2>
                         </div>
+                        {donorsStatus === "cached" && <p role="status" className="dark:text-gray-200">
+                            Discord is temporarily unavailable. Showing the last saved donor list from {donorsUpdatedAt} (UTC).
+                        </p>}
+                        {donorsStatus === "unavailable" && <p role="status" className="dark:text-gray-200">
+                            The contributing Discord members could not be loaded.
+                        </p>}
                         <div className="grid grid-cols-2 mt-10 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-x-5 gap-y-5">
-                            { displayDonators() }
+                            {donators.map((donator) => (
+                                <div key={donator.userId} className="flex flex-col items-center content-center justify-center">
+                                    <div className="avatar">
+                                        <div className="relative w-24 h-24">
+                                            {donator.displayAvatarURL ? <Image
+                                                alt="donator avatar"
+                                                className="rounded-full"
+                                                src={donator.displayAvatarURL}
+                                                layout="fill"
+                                            /> : <div className="flex items-center justify-center w-24 h-24 rounded-full bg-gray-200 dark:bg-gray-700 dark:text-white" aria-label="No donor avatar">
+                                                {(donator.nickname ?? donator.displayName).slice(0, 1)}
+                                            </div>}
+                                        </div>
+                                    </div>
+                                    <div className="text-lg font-bold dark:text-gray-200">
+                                        {donator.nickname ?? donator.displayName}
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -111,72 +108,13 @@ function Donate({ currentAmountNumUSD, currentAmountString, donators, serverDona
     </>;
 }
 
-// This function gets called at build time
-export async function getServerSideProps() {
-
-    let currentAmount = 0
-    let currentAmountNum = 0
-    let currentAmountNumUSD = 0
-    let currentAmountString = "0"
-    const configs = await (await MyMongo).db("prod").collection("configs").findOne({});
-    const serverDonationGoalUsd = configs.server_donation_goal_usd;
-    const serverDonationGoalUsdString = serverDonationGoalUsd.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 2
-    });
-    const botResponse = await axios.get("http://globalconflicts.net:3001/users/donators");
-    const donators = botResponse.data;
-
-    try {
-        const patreonResponse = await axios.get(
-            "https://www.patreon.com/api/campaigns/5074062",
-            {
-                headers: {
-                    'Authorization': `Bearer ${process.env.PATREON_ACCESS_TOKEN}`,
-                    'User-Agent': 'PostmanRuntime/7.39.0',
-                },
-            }
-        )
-        const body = patreonResponse.data;
-        currentAmount = body.data.attributes.pledge_sum;
-        currentAmountNum = currentAmount / 100;
-        const USDtoCADRate = await axios.get(
-            "https://cdn.jsdelivr.net/gh/ismartcoding/currency-api@main/latest/data.json"
-        );
-        currentAmountNumUSD = currentAmountNum / USDtoCADRate.data.quotes.CAD;
-        console.log("Successful Patreon API call, storing in DB");
-        (await MyMongo).db("prod").collection("configs").findOneAndUpdate(
-            {},
-            {
-                $set: {
-                    currentAmountNumUSD: currentAmountNumUSD,
-                }
-            }
-        )
-    } catch (error) {
-        console.log("Unable to fetch Patreon Data, gathering from DB")
-        currentAmountNumUSD = configs.currentAmountNumUSD
-    }
-
-    currentAmountString = currentAmountNumUSD.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 2
-    });
-    console.log(currentAmountString);
-    if (currentAmountNumUSD > serverDonationGoalUsd) {currentAmountNumUSD = serverDonationGoalUsd}
-    
-
+export const getServerSideProps: GetServerSideProps<DonationData> = async () => {
+    const db = (await MyMongo).db("prod");
     return {
-        props: { 
-            currentAmountNumUSD, 
-            currentAmountString, 
-            donators, 
-            serverDonationGoalUsd,
-            serverDonationGoalUsdString
-        },
+        props: await getDonationData(
+            db.collection<DonationConfig>("configs")
+        ),
     };
-}
+};
 
 export default Donate;

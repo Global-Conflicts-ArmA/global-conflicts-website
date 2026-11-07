@@ -130,7 +130,7 @@ function HowToUsePanel() {
                         <Disclosure.Panel className="px-4 pb-4 border-t dark:border-gray-700 pt-3 text-xs space-y-2 text-gray-600 dark:text-gray-400">
                             <p>
                                 <span className="font-bold text-gray-900 dark:text-white">1. Select Mission:</span> Go to the mission list and select a mission by comparing the <span className="text-primary font-semibold">Smart Score</span>. 
-                                Currently, the system does not account for mission tags automatically, so please ensure you don't pick similar mission types (e.g., two Air Assaults) back-to-back.
+                                Currently, the system does not account for mission tags automatically, so please ensure you don&apos;t pick similar mission types (e.g., two Air Assaults) back-to-back.
                             </p>
                             <p>
                                 <span className="font-bold text-gray-900 dark:text-white">2. Assign Leaders:</span> Once the mission is loading/active, return here and click <span className="text-error font-semibold">Add Leaders</span>. 
@@ -141,7 +141,7 @@ function HowToUsePanel() {
                             </p>
                             <div className="alert alert-info py-2 px-3 shadow-sm rounded-md mt-2">
                                 <InformationCircleIcon className="w-4 h-4 shrink-0" />
-                                <span>At the end of the night, <span className="font-bold">all sessions MUST be green (Completed)</span>, or they will not be officially marked as "played" in the database.</span>
+                                <span>At the end of the night, <span className="font-bold">all sessions MUST be green (Completed)</span>, or they will not be officially marked as &quot;played&quot; in the database.</span>
                             </div>
                         </Disclosure.Panel>
                     </Transition>

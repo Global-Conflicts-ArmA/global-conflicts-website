@@ -182,7 +182,7 @@ export default function UserStatsPage() {
                                         {moment(ex.startDate).format("D MMM")}–{moment(ex.endDate).format("D MMM YYYY")} ({ex.reason})
                                     </span>
                                 ))}
-                                {" "}— that time doesn't count against players.
+                                {" "}— that time doesn&apos;t count against players.
                             </p>
                         )}
                     </div>

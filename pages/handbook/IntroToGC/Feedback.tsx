@@ -39,14 +39,14 @@ const Chapter2Subchapter5Page = () => {
           {
             blockTitle: "HB/GB-45 - Leadership Feedback",
             blockContent: (
-                <p>If a member wishes to, they can create a leadership feedback thread.  Within it members are encouraged to give any positive or negative feedback they have regarding the member's specific leadership.</p>
+                <p>If a member wishes to, they can create a leadership feedback thread.  Within it members are encouraged to give any positive or negative feedback they have regarding the member&apos;s specific leadership.</p>
             ),
             buttonLabel: "Guide",
           },
           {
             blockTitle: "HB/GB-46 - Staff Feedback",
             blockContent: (
-                <p>If a staff member wishes to, they can create a staff feedback thread. Within it members are encouraged to give any positive or negative feedback they have regarding the staff member's conduct.</p>
+                <p>If a staff member wishes to, they can create a staff feedback thread. Within it members are encouraged to give any positive or negative feedback they have regarding the staff member&apos;s conduct.</p>
             ),
             buttonLabel: "Guide",
           },

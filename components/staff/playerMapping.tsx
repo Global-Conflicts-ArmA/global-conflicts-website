@@ -325,7 +325,7 @@ export function AllPlayersPanel({ discordUsers }: { discordUsers: DiscordUserOpt
                         {visibleRows.length === 0 && (
                             <tr>
                                 <td colSpan={3} className="py-6 text-center text-gray-400 dark:text-gray-500">
-                                    No players match "{search}"
+                                    No players match &quot;{search}&quot;
                                 </td>
                             </tr>
                         )}

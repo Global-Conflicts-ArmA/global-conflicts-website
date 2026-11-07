@@ -248,7 +248,7 @@ function Home() {
                             <div className="flex-1 pr-5 prose prose-xl md:prose-lg lg:prose-xl min-w-300 ">
                                 <h2>Requirements </h2>
                                 <p>
-                                    We don't have any pre-requisites besides a working microphone and
+                                    We don&apos;t have any pre-requisites besides a working microphone and
                                     a mature attitude. All we ask is that you follow our SOPs and make
                                     friends, not enemies!
                                 </p>
@@ -316,7 +316,7 @@ function Home() {
                                     <p>
                                         Search Global Conflicts in your server browser, and click join.
                                         <br />
-                                        That's all you need to play with us.
+                                        That&apos;s all you need to play with us.
                                         <br />
                                         We encourage you to join our Discord to stay up to date on any news!
                                     </p>

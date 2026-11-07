@@ -132,7 +132,7 @@ const HandbookPage = () => {
                 <div>
                   <p>A guide block:</p>
                   <ul className="list-disc pl-5">
-                    <li>should have as it's primary content the text, not the attached image.</li>
+                    <li>should have as it&apos;s primary content the text, not the attached image.</li>
                     <li>should not be something that is required knowledge.</li>
                     <li>could provide extra context, a more in-depth explanation, or a technical manual to use a specific piece of equipment.</li>
                     <li>should be no more than 4 short paragraphs, otherwise consider breaking it down.</li>
@@ -163,7 +163,7 @@ const HandbookPage = () => {
                   <ul className="list-disc pl-5">
                     <li>should be something that everyone ought to know but is not required.</li>
                     <li>should not cover some abstract concept, but be focused on a well defined skill that can be trained and easily proliferate among players.</li>
-                    <li>should have title written as an imperative, in the form of: "Do action (to achieve this result)"</li>
+                    <li>should have title written as an imperative, in the form of: &quot;Do action (to achieve this result)&quot;</li>
                     <li>should be written as an imperative, without directly addressing the reader or addressing the reader in the third person.</li>
                     <li>should be written as bullet points instead of full sentences wherever possible.</li>
                     <li>should state the desired outcome of performing the skill.</li>

@@ -92,7 +92,7 @@ export function ActivityExclusionsPanel({ canManage, onChange }: { canManage: bo
     return (
         <div className="text-gray-900 dark:text-gray-100">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                Time inside an excluded period doesn't count against a player's activity window — everyone's window
+                Time inside an excluded period doesn&apos;t count against a player&apos;s activity window — everyone&apos;s window
                 stretches back further to make up for it. Use this for server-wide outages, not individual players.
             </p>
 

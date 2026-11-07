@@ -5,6 +5,7 @@ import DateSelectionModal from "./date_selection_modal";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { CREDENTIAL } from "../../middleware/check_auth_perms";
 import hasCreds, { hasCredsAny } from "../../lib/credsChecker";
 import Spinner from "../spinner";
@@ -614,11 +615,11 @@ export default function AdminControlsModal({
                                             Sync GitHub Repository
                                         </button>
                                     )}
-                                    <a href="/logs" className="btn btn-info btn-sm w-full">
+                                    <Link href="/logs" className="btn btn-info btn-sm w-full">
                                         View Logs
-                                    </a>                                    <a href="/staff/server-sessions" className="btn btn-info btn-sm w-full">
+                                    </Link>                                    <Link href="/staff/server-sessions" className="btn btn-info btn-sm w-full">
                                         Server Sessions
-                                    </a>
+                                    </Link>
                                 </div>
                                 
                                 {/* Section 2: Sync Single Mission */}
@@ -729,13 +730,13 @@ export default function AdminControlsModal({
                                             >
                                                 Fix Duplicate URL Slugs
                                             </button>
-                                            <a
+                                            <Link
                                                 href="/reforger-missions/migrate"
                                                 className="btn btn-accent w-full"
                                             >
                                                 <UploadIcon className="w-4 h-4 mr-1"/>
                                                 Spreadsheet Migration Tool
-                                            </a>
+                                            </Link>
                                             <button 
                                                 className={`btn btn-error btn-outline w-full ${isDeleting ? 'loading' : ''}`}
                                                 onClick={handleDeleteAll}

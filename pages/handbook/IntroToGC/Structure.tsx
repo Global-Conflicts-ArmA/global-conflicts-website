@@ -144,7 +144,7 @@ const Chapter1Subchapter4Page = () => {
                   <p className="pl-4"> Duties:</p>
                 <ul className="list-disc pl-12">
                   <li>Screen all missions for bugs and quality control.</li>
-                  <li>Give advice on issues within a user's mission.</li>
+                  <li>Give advice on issues within a user&apos;s mission.</li>
                 </ul>
                 </div>
             ),

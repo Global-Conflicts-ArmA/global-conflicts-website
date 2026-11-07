@@ -729,14 +729,14 @@ export default function MissionDetails({
 
 		if (!mission.history) {
 			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
-				<span className="flex-1 p-2 text-sm">You can't rate a mission that hasn't been played yet.</span>
+				<span className="flex-1 p-2 text-sm">You can&apos;t rate a mission that hasn&apos;t been played yet.</span>
 				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150    rotate-0 `} />
 			</div>
 		}
 
 		if (session?.user["discord_id"] == mission.authorID) {
 			return <div className=" dark:bg-slate-400 bg-slate-300 dark:text-gray-700 text-white  rounded-md  flex flex-row justify-center items-center cursor-not-allowed">
-				<span className="flex-1 p-2 text-sm">You can't rate your own mission</span>
+				<span className="flex-1 p-2 text-sm">You can&apos;t rate your own mission</span>
 				<ChevronDoubleDownIcon spacing={0} height={15} className={` transition-all mr-2 duration-150 rotate-0 `} />
 			</div>
 		}

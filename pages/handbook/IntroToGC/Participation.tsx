@@ -50,7 +50,7 @@ const Chapter1Subchapter3Page = () => {
                 <div className="ml-10">
                 <ul className="list-disc pl-5">
                   <li>When a new user joins Global Conflicts, they are assigned the “New Guy” role. To earn membership, the user must participate in 4 weeks of play sessions.</li>
-                  <li>During a user's probation, they will be subject to review by the staff team.</li>
+                  <li>During a user&apos;s probation, they will be subject to review by the staff team.</li>
                   <li>If a user’s general character isn’t seen as an ideal fit for the community, whether that be due to poor attitude, poor general conduct, inability to follow the chain of command, etc, then the staff also reserve the right to fail a user’s probation. The user will receive a 3 month ban, after which they can rejoin if they wish.</li>
                   <li>Once a failed probation ban has expired, the user will be given the new-guy role and will be expected to adhere to the same standards, and probation period as before. For each ban relating to a failed probation, the next ban will double in length over the previous. 3🢚6🢚12</li>
                 </ul>
@@ -89,7 +89,7 @@ const Chapter1Subchapter3Page = () => {
                         
                         <li><strong>Game Moderators:</strong> the collective majority of Game moderators count as 1 vote.</li>
 
-                        <li><strong>Admins:</strong> each Admin's vote counts as 1 vote.</li>
+                        <li><strong>Admins:</strong> each Admin&apos;s vote counts as 1 vote.</li>
 
                     </ul>
                 </div>

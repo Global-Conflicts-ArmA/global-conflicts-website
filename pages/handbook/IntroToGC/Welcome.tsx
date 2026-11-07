@@ -41,7 +41,7 @@ const Chapter2Subchapter1Page = () => {
             blockTitle: "HB/GB-18 - Realism where it matters",
             blockContent: (
               <p>We use numerous mods and custom systems to enhance the realism and enjoyment of our missions. 
-                Our approach to realism is guided by the principle of "Gameplay First Realism," 
+                Our approach to realism is guided by the principle of &quot;Gameplay First Realism,&quot;
                 which means we focus on aspects of military simulation that enhance immersion and effectiveness, without sacrificing our sanity and fun.
                 </p>
             ),

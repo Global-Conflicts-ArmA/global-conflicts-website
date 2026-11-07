@@ -52,8 +52,8 @@ const Chapter1Subchapter2Page = () => {
                 <p>All members of GC must follow these basic standards;</p>
                 <div className="mt-4 ml-10">
                     <ul className="list-disc pl-5">
-                    <li>Don't be a dick.</li>
-                    <li>Respect everybody with the same level of dignity you'd expect.</li>
+                    <li>Don&apos;t be a dick.</li>
+                    <li>Respect everybody with the same level of dignity you&apos;d expect.</li>
                     <li>Uphold quality of gameplay at all times.</li>
                     <li>Strive for semi-serious tactical milsim fun.</li>
                     <li>Provide constructive feedback.</li>

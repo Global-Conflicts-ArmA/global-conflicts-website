@@ -48,7 +48,7 @@ function Downloads({ }) {
                                             />
                                         </Disclosure.Button>
                                         <Disclosure.Panel className="px-4 pt-4 pb-2 text-sm dark:text-gray-200">
-                                            If you're having problems with Swifty for whatever reason, you can either use our custom built launcher <Link href="https://launcher.globalconflicts.net/download/" className="p-1 btn btn-ghost btn-xs">
+                                            If you&apos;re having problems with Swifty for whatever reason, you can either use our custom built launcher <Link href="https://launcher.globalconflicts.net/download/" className="p-1 btn btn-ghost btn-xs">
                                                 HERE,
                                             </Link>{" "} or you can instead manually download the mods by clicking 
                                             <Link href="https://launcher.globalconflicts.net/mods/" className="p-1 btn btn-ghost btn-xs">
