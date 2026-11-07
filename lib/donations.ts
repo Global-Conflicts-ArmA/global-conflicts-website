@@ -10,7 +10,7 @@ export interface Donator {
 
 interface Funding {
     amountUsd: number;
-    updatedAt: string;
+    updatedAt: string | null;
     campaignId: string;
 }
 
@@ -22,6 +22,7 @@ interface DonorCache {
 export interface DonationConfig {
     server_donation_goal_usd?: number;
     patreonMonthlyEstimate?: Funding;
+    currentAmountNumUSD?: number;
     donationMembers?: DonorCache;
 }
 
@@ -63,12 +64,18 @@ async function fetchFunding(campaignId: string): Promise<number> {
     if (!/^\d+$/.test(campaignId)) {
         throw new Error("Invalid PATREON_CAMPAIGN_ID");
     }
+    const accessToken = process.env.PATREON_ACCESS_TOKEN;
+    // OAuth API v2 rejects campaign_pledge_sum; the public API exposes the estimate.
+    const url = `https://www.patreon.com/api/campaigns/${campaignId}`;
     const response = await axios.get<{
         data: {
             id: string;
             attributes: { currency: string; is_monthly: boolean; campaign_pledge_sum: number };
         };
-    }>(`https://www.patreon.com/api/campaigns/${campaignId}`, { timeout: TIMEOUT_MS });
+    }>(url, {
+        timeout: TIMEOUT_MS,
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    });
     const campaign = response.data?.data;
     if (campaign?.id !== campaignId) {
         throw new Error("Patreon returned an invalid campaign");
@@ -137,10 +144,13 @@ async function loadDonationData(configs: Collection<DonationConfig>): Promise<Do
             let cached: Funding | null = null;
             const saved = config?.patreonMonthlyEstimate;
             if (saved && saved.campaignId === campaignId && nonNegativeNumber(saved.amountUsd) &&
-                Number.isFinite(Date.parse(saved.updatedAt))) {
+                typeof saved.updatedAt === "string" && Number.isFinite(Date.parse(saved.updatedAt))) {
                 cached = saved;
             }
-            if (cached && recent(cached.updatedAt)) return { value: cached, status: "fresh" as const };
+            if (!cached && campaignId === "5074062" && nonNegativeNumber(config?.currentAmountNumUSD)) {
+                cached = { amountUsd: config.currentAmountNumUSD, updatedAt: null, campaignId };
+            }
+            if (cached?.updatedAt && recent(cached.updatedAt)) return { value: cached, status: "fresh" as const };
             try {
                 const amountUsd = await fetchFunding(campaignId);
                 const value = { amountUsd, updatedAt: new Date().toISOString(), campaignId };

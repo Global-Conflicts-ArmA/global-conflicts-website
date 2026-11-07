@@ -50,7 +50,7 @@ function Donate({ currentAmountNumUSD, donators, serverDonationGoalUsd, fundingS
                                     Patreon monthly estimate in USD, matching the monthly figure on Patreon. 
                                 </p>
                                 {fundingStatus === "cached" && <p role="status" className="text-sm dark:text-gray-200">
-                                    Patreon data is temporarily unavailable. Showing the last saved estimate from {fundingUpdatedAt} (UTC).
+                                    Patreon data is temporarily unavailable. Showing the last saved estimate{fundingUpdatedAt ? ` from ${fundingUpdatedAt} (UTC)` : ""}.
                                 </p>}
                                 {fundingStatus === "unavailable" && <p role="status" className="text-sm dark:text-gray-200">
                                     Patreon funding could not be loaded. You can still donate using the links below.
