@@ -144,7 +144,11 @@ async function loadDonationData(configs: Collection<DonationConfig>): Promise<Do
             try {
                 const amountUsd = await fetchFunding(campaignId);
                 const value = { amountUsd, updatedAt: new Date().toISOString(), campaignId };
-                await configs.updateOne({}, { $set: { patreonMonthlyEstimate: value } }, { upsert: true });
+                try {
+                    await configs.updateOne({}, { $set: { patreonMonthlyEstimate: value } }, { upsert: true });
+                } catch (error) {
+                    logFailure("Patreon monthly estimate cache update failed", error);
+                }
                 return { value, status: "fresh" as const };
             } catch (error) {
                 logFailure("Patreon monthly estimate refresh failed; using saved data if available", error);
