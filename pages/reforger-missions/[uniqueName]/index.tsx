@@ -468,6 +468,7 @@ function HistoryCardContent({
 
 export default function MissionDetails({
   _mission,
+  newModpackEnabled,
   discordUsers,
   hasVoted,
   missionTestingQuestions,
@@ -500,7 +501,7 @@ export default function MissionDetails({
   let [mediaUploadModalOpen, setMediaUploadModalOpen] = useState(false);
   let [gameplayHistoryModalHistoryToLoad, setGameplayHistoryModalHistoryToLoad] =
     useState(null);
-  let [loadMissionModalOpen, setLoadMissionModalOpen] = useState(false);
+  const [loadMode, setLoadMode] = useState<"standard" | "newModpack" | null>(null);
 
   const [windowSize, setWindowSize] = useState({
     width: undefined,
@@ -1257,14 +1258,23 @@ export default function MissionDetails({
             )}
 
             {hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER]) && mission.scenarioGuid && (
-              <div data-tip="Load this mission on the server" className="z-10 ml-2 tooltip tooltip-bottom">
-                <button
-                  className="btn btn-sm btn-primary"
-                  onClick={() => setLoadMissionModalOpen(true)}
-                >
-                  Load Mission
-                </button>
-              </div>
+              <>
+                <div data-tip="Load this mission on the server" className="z-10 ml-2 tooltip tooltip-bottom">
+                  <button
+                    className="btn btn-sm btn-primary"
+                    onClick={() => setLoadMode("standard")}
+                  >
+                    Load Mission
+                  </button>
+                </div>
+                {newModpackEnabled && (
+                  <div data-tip="Load this mission with the new modpack" className="z-10 ml-2 tooltip tooltip-bottom">
+                    <button className="btn btn-sm btn-success" onClick={() => setLoadMode("newModpack")}>
+                      Load Mission New Modpack
+                    </button>
+                  </div>
+                )}
+              </>
             )}
 
             {hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.MISSION_REVIEWER]) && (
@@ -1887,8 +1897,9 @@ export default function MissionDetails({
             />
 
             <LoadMissionModal
-                isOpen={loadMissionModalOpen}
-                onClose={() => setLoadMissionModalOpen(false)}
+                isOpen={loadMode !== null}
+                newModpack={loadMode === "newModpack"}
+                onClose={() => setLoadMode(null)}
                 mission={mission}
                 lockState={lockState}
             />
@@ -2216,6 +2227,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       _mission: mission,
+      newModpackEnabled: Boolean(process.env.NEW_MODPACK_LAUNCH_URL && process.env.NEW_MODPACK_LAUNCH_TOKEN),
       discordUsers,
       hasVoted: session
         ? mission.votes?.includes(session?.user["discord_id"])

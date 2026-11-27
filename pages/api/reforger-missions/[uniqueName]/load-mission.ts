@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import nextConnect from "next-connect";
+import axios from "axios";
 import MyMongo from "../../../../lib/mongodb";
 import { CREDENTIAL } from "../../../../middleware/check_auth_perms";
 import { hasCredsAny } from "../../../../lib/credsChecker";
@@ -25,7 +26,7 @@ const apiRoute = nextConnect({
 
 apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     const { uniqueName } = req.query;
-    const { postToDiscord } = req.body;
+    const { postToDiscord, newModpack = false } = req.body;
 
     const session = await getServerSession(req, res, authOptions);
     if (!hasCredsAny(session, [CREDENTIAL.ADMIN, CREDENTIAL.GM, CREDENTIAL.MISSION_REVIEWER])) {
@@ -49,6 +50,34 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     const loadedBy = session.user["nickname"] ?? session.user["username"] ?? "Unknown";
     const loadedByDiscordId = session.user["discord_id"];
 
+    const missionLabel = `${mission.type} (${mission.size.min}-${mission.size.max}) ${mission.name}`;
+    if (typeof newModpack !== "boolean") {
+        return res.status(400).json({ error: "Invalid modpack selection." });
+    }
+    if (newModpack) {
+        const url = process.env.NEW_MODPACK_LAUNCH_URL;
+        const token = process.env.NEW_MODPACK_LAUNCH_TOKEN;
+        if (!url || !token) {
+            return res.status(503).json({ error: "The new modpack launcher is not configured." });
+        }
+        try {
+            const response = await axios.post(url, { scenarioId, missionString: missionLabel }, {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: 95000,
+                maxRedirects: 0,
+            });
+            if (response.data?.accepted !== true) {
+                throw new Error("Missing launch acknowledgement");
+            }
+        } catch (error) {
+            if (axios.isAxiosError(error) && [404, 409].includes(error.response?.status) &&
+                typeof error.response?.data?.error === "string") {
+                return res.status(error.response.status).json({ error: error.response.data.error });
+            }
+            return res.status(502).json({ error: "New modpack launch was not confirmed. Check the game host before retrying." });
+        }
+    }
+
     // ── Set server load lock (2-minute window) ──
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 2 * 60 * 1000);
@@ -69,12 +98,13 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     );
 
     // ── Tell the bot to update config.json and restart the server ──
-    const missionLabel = `${mission.type} (${mission.size.min}-${mission.size.max}) ${mission.name}`;
-    try {
-        await callBotSetScenario(scenarioId, missionLabel);
-    } catch (err) {
-        console.error("Bot set-scenario error:", err);
-        // Not fatal — server may still restart; continue with Discord post
+    if (!newModpack) {
+        try {
+            await callBotSetScenario(scenarioId, missionLabel);
+        } catch (err) {
+            console.error("Bot set-scenario error:", err);
+            // Not fatal — server may still restart; continue with Discord post
+        }
     }
 
     // ── Optionally post to Discord ──
@@ -254,7 +284,7 @@ apiRoute.post(async (req: NextApiRequest, res: NextApiResponse) => {
     // ── Audit log ──
     await logReforgerAction(
         "load_mission",
-        { scenarioId, postToDiscord, discordMessageId: discordResult?.messageId ?? null },
+        { scenarioId, postToDiscord, ...(newModpack && { newModpack }), discordMessageId: discordResult?.messageId ?? null },
         { discord_id: loadedByDiscordId, username: loadedBy },
         mission.missionId,
         mission.name

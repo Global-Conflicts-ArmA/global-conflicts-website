@@ -14,11 +14,13 @@ interface LockState {
 
 export default function LoadMissionModal({
     isOpen,
+    newModpack,
     onClose,
     mission,
     lockState: initialLockState,
 }: {
     isOpen: boolean;
+    newModpack: boolean;
     onClose: () => void;
     mission: { name: string; type: string; size: { min: number; max: number }; uniqueName: string; scenarioGuid?: string };
     lockState: LockState;
@@ -73,7 +75,7 @@ export default function LoadMissionModal({
         try {
             await axios.post(
                 `/api/reforger-missions/${mission.uniqueName}/load-mission`,
-                { postToDiscord }
+                newModpack ? { postToDiscord, newModpack: true } : { postToDiscord }
             );
             toast.success(`Mission "${mission.name}" is loading…`);
             handleClose();
@@ -138,7 +140,7 @@ export default function LoadMissionModal({
                             {step === 1 && (
                                 <>
                                     <Dialog.Title as="h3" className="text-lg font-bold leading-6">
-                                        Load Mission
+                                        {newModpack ? "Load Mission New Modpack" : "Load Mission"}
                                     </Dialog.Title>
                                     <div className="flex gap-1 mt-1 mb-3">
                                         <span className="badge badge-sm badge-neutral">GM</span>
@@ -173,7 +175,7 @@ export default function LoadMissionModal({
                             {step === 2 && (
                                 <>
                                     <Dialog.Title as="h3" className="text-lg font-bold leading-6">
-                                        Confirm Server Restart
+                                        {newModpack ? "Confirm New Modpack Restart" : "Confirm Server Restart"}
                                     </Dialog.Title>
 
                                     <LockWarning />
